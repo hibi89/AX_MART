@@ -288,3 +288,8 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - `hibi89/AX_MART@feature/pc-care-usb`: 개발 ZIP의 `tools/release.py`가 해시 sidecar 링크로 타 파일을 덮어쓸 가능성을 제거. ZIP·해시 동시 임시 생성/게시, 임시파일 충돌 시 타 파일 보존. 실제 정상 재빌드 유지. `tests/test_release.py` + `tests/test_package.py` 회귀 보강.
 - GitHub 원격 소스와 코드 지문 일치(2561문자/FNV1a `21f4b696`)한 `build_internal` 격리 Python 3.13 합성 테스트 **9/9 PASS**. 네이티브 전체 repo unittest·실 ZIP/Windows PS5.1/Node·USB·QR/PDF·WinRE·CI **미검증**. 증거 `products/pc-care/tests/evidence/zip_sidecar_atomic_native_qa_20261031.json`.
 - 개발 전 복원 SHA `51ffdc2695e88a7491ff903653b8fab5b303aba5`, 운영 main/Cloudflare·원본 고객 파일/OS·인증·수리·결제/배포 변경 없음. 상세 10항 `products/pc-care/HANDOFF.md`. 다음 Windows 전체 소스 `RUN_RELEASE_QA.cmd` native QA→읽기 전용 실제 진단·H08·USB/QR/A4→WinRE 별도 위험 검증.
+
+## 2026-10-31 KST — CUBE PC CARE ZIP 실소스 Python 테스트 인수인계
+- 비공개 `hibi89/AX_MART@feature/pc-care-usb`의 `tools/release.py` 및 `tests/test_release.py`를 GitHub blob SHA와 **바이트 동일하게** 복원, Python 3.13.5/Linux에서 공식 원본 테스트 **15/15 PASS**, 별도 실소스 합성 테스트 14/14 PASS(중복). 이전 SHA `973faa92980e6c22e4748d2012ec346875f06872`; 실제 제품 코드 수정 없음. 근거 `products/pc-care/tests/evidence/release_actual_python_native_20261031.json`.
+- 실제 제품 원본 콘텐츠 ZIP·native Windows 11/PS5.1·Node·전체 Python/E2E·USB·QR/A4·WinRE·현재 CI **NOT_RUN**. 운영 main/Cloudflare·고객 REPORTS·OS/수리·권한/키·배포 불변. 제품별 `products/pc-care/HANDOFF.md`에 필수 인수인계 10항 최신화.
+- 다음: Windows 전체 개발 체크아웃 `RUN_RELEASE_QA.cmd`/로컬 QA 영수증 → 실제 명시 승인한 읽기전용 보고서/H08/USB·인쇄 → 격리 WinRE 검증. 최종 SHA remote readback.
