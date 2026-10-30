@@ -247,8 +247,40 @@ class PackageTests(unittest.TestCase):
         for sensitive in ['DeviceID','.SerialNumber','.Message','.model','.FriendlyName']:
             self.assertNotIn(sensitive, source)
 
+    def test_share_text_is_optional_local_bounded_and_private(self):
+        payload = (ROOT/'tools/share_payload.ps1').read_text(encoding='utf-8-sig')
+        preview = (ROOT/'tools/share_preview.ps1').read_text(encoding='utf-8-sig')
+        diagnostic = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        fixture = (ROOT/'tests/share_payload.tests.ps1').read_text(encoding='utf-8-sig')
+        smoke = (ROOT/'tests/windows_smoke.ps1').read_text(encoding='utf-8-sig')
+        package = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        self.assertIn('Get-PcCareSharePayload', payload)
+        self.assertIn('GetByteCount', payload)
+        self.assertIn('MaxUtf8Bytes = 250', payload)
+        self.assertIn("status = $payloadStatus", payload)
+        self.assertIn('payloadText = $payloadSafe', payload)
+        self.assertIn('qrImageGenerated = $false', payload)
+        self.assertIn('ConvertTo-PcCareSharePreviewHtml', preview)
+        self.assertIn('HtmlEncode', preview)
+        self.assertIn('<details', preview)
+        self.assertIn('<textarea', preview)
+        self.assertIn('Ctrl+C', preview)
+        self.assertIn("['sharePreview']", diagnostic)
+        self.assertIn("payloadStoredInJson = $false", diagnostic)
+        self.assertIn('$sharePreviewHtml', diagnostic)
+        self.assertIn("'tools/share_payload.ps1'", package)
+        self.assertIn("'tools/share_preview.ps1'", package)
+        self.assertIn("'tests/share_payload.tests.ps1'", package)
+        self.assertIn('share_payload.tests.ps1', smoke)
+        self.assertIn('SHARE FIXTURE PASS', fixture)
+        for source in [payload, preview]:
+            for forbidden in ['Invoke-RestMethod','Invoke-WebRequest','Start-Process','Remove-Item','Set-ItemProperty']:
+                self.assertNotIn(forbidden, source)
+        for identifier in ['.SerialNumber','.DeviceID','.Message','.FriendlyName','.UserName']:
+            self.assertNotIn(identifier, payload)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
-        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/pnp_analysis.ps1','tools/recorded_timeline.ps1','tools/consultation_report.ps1','tools/consultation_render.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/driver_timeline.tests.ps1','tests/consultation_report.tests.ps1','tests/report_io.tests.ps1']:
+        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/pnp_analysis.ps1','tools/recorded_timeline.ps1','tools/consultation_report.ps1','tools/consultation_render.ps1','tools/share_payload.ps1','tools/share_preview.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/driver_timeline.tests.ps1','tests/consultation_report.tests.ps1','tests/share_payload.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
 
 if __name__ == '__main__':
