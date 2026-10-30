@@ -43,11 +43,42 @@ function compareReports(oldReport,newReport){
  // Unknown issue lists must not be presented as "no warnings".
  const added=prev&&next?[...next].filter(x=>!prev.has(x)).sort():null;
  const missing=prev&&next?[...prev].filter(x=>!next.has(x)).sort():null;
- const complete=x=>["collected","no matching events"].includes(x.o.eventCollection);
+ // Arrays of displayed rows are NOT proof of actual Windows events. Verify the
+ // complete System normalizer evidence before comparing any event counts.
+ const systemIds={
+   bugcheck_record:[1001],shutdown_signal:[41,6008],
+   storage_signal:[7,51,55,129,153,157]
+ };
+ const validUtc=s=>{
+   const m=typeof s==="string" && /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,7})?(?:Z|\+00:00)$/.exec(s);
+   if(!m)return false;
+   const [y,mo,day,h,mi,se]=m.slice(1,7).map(Number);
+   if(y<2000||y>2099)return false;
+   const v=new Date(Date.UTC(y,mo-1,day,h,mi,se));
+   return v.getUTCFullYear()===y&&v.getUTCMonth()===mo-1&&v.getUTCDate()===day&&
+     v.getUTCHours()===h&&v.getUTCMinutes()===mi&&v.getUTCSeconds()===se;
+ };
+ const complete=x=>["collected","no matching events"].includes(x.o.eventCollection)&&
+   x.o.collectionStatus&&x.o.collectionStatus.events===x.o.eventCollection;
  const names=["bugchecks","unexpectedShutdowns","storageEvents"];
- const counts=x=>names.map(n=>Array.isArray(x.o[n])?x.o[n].length:null);
+ const counts=x=>{
+   const o=x.o;
+   if(!Array.isArray(o.eventEvidence)||o.eventEvidence.length>=1500||
+      names.some(n=>!Array.isArray(o[n])||o[n].length>=30))return null;
+   const observed=[0,0,0];
+   for(const ev of o.eventEvidence){
+     if(!ev||typeof ev!=="object"||Array.isArray(ev)||ev.timeBasis!=="event_recorded_time"||
+       !Object.prototype.hasOwnProperty.call(systemIds,ev.kind)||
+       !systemIds[ev.kind].includes(ev.eventId)||!validUtc(ev.recordedUtc))return null;
+     observed[ev.kind==="bugcheck_record"?0:ev.kind==="shutdown_signal"?1:2]++;
+   }
+   const displayed=names.map(n=>o[n].length);
+   if(displayed.some((n,i)=>n!==observed[i])||
+     (o.eventCollection==="no matching events" && o.eventEvidence.length!==0))return null;
+   return observed;
+ };
  const oldCounts=counts(a),newCounts=counts(b);
- const comparableEvents=complete(a)&&complete(b)&&Number.isInteger(a.o.eventWindowDays)&&a.o.eventWindowDays>0&&a.o.eventWindowDays===b.o.eventWindowDays&&oldCounts.concat(newCounts).every(n=>n!==null&&n<30);
+ const comparableEvents=complete(a)&&complete(b)&&Number.isSafeInteger(a.o.eventWindowDays)&&a.o.eventWindowDays>=1&&a.o.eventWindowDays<=90&&a.o.eventWindowDays===b.o.eventWindowDays&&oldCounts!==null&&newCounts!==null;
  const eventCounts=comparableEvents?{days:a.o.eventWindowDays,before:oldCounts,after:newCounts}:null;
  caution.push(eventCounts?"이벤트 수는 이동하는 조회 기간의 로그 수로, 실제 사건 횟수나 호전을 의미하지 않습니다.":"이벤트 수는 기간·수집상태·표시 상한이 달라 비교하지 않습니다.");
  const volumeMap=x=>{const m=new Map();if(Array.isArray(x.o.volumes))for(const v of x.o.volumes){if(!v||!(/^[A-Z]:$/i.test(v.drive))||!Number.isFinite(v.sizeGB)||!Number.isFinite(v.remainingGB)||v.sizeGB<=0||v.remainingGB<0||v.remainingGB>v.sizeGB)continue;m.set(v.drive.toUpperCase(),v);}return m;};
