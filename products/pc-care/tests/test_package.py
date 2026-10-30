@@ -217,8 +217,38 @@ class PackageTests(unittest.TestCase):
             for forbidden in ['Invoke-WebRequest','Invoke-RestMethod','Set-ItemProperty','Start-Process','Remove-Item']:
                 self.assertNotIn(forbidden, source)
 
+    def test_a4_consultation_is_private_print_only_and_bundled(self):
+        source = (ROOT/'tools/consultation_report.ps1').read_text(encoding='utf-8-sig')
+        html = (ROOT/'tools/consultation_render.ps1').read_text(encoding='utf-8-sig')
+        diagnostic = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        smoke = (ROOT/'tests/windows_smoke.ps1').read_text(encoding='utf-8-sig')
+        fixture = (ROOT/'tests/consultation_report.tests.ps1').read_text(encoding='utf-8-sig')
+        package = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        self.assertIn('Get-PcCareConsultationSummary', source)
+        self.assertIn('ConvertTo-PcCareConsultationHtml', html)
+        self.assertIn('HtmlEncode', html)
+        self.assertIn('consultation-print', html)
+        self.assertIn('containsIdentifiers=$false', source)
+        self.assertIn('Get-PcCareConsultationSummary -Report $report', diagnostic)
+        self.assertIn("['consultation']", diagnostic)
+        self.assertIn('$consultationHtml', diagnostic)
+        self.assertIn('@page{size:A4 portrait', diagnostic)
+        self.assertIn('@media print{', diagnostic)
+        self.assertIn('main>:not(#consultation-print)', diagnostic)
+        self.assertIn('Ctrl+P', diagnostic)
+        self.assertIn("'tools/consultation_report.ps1'", package)
+        self.assertIn("'tools/consultation_render.ps1'", package)
+        self.assertIn("'tests/consultation_report.tests.ps1'", package)
+        self.assertIn("consultation_report.tests.ps1", smoke)
+        self.assertIn("CONSULTATION FIXTURE PASS", fixture)
+        for module in [source, html]:
+            for forbidden in ['Invoke-WebRequest','Invoke-RestMethod','Start-Process','Set-ItemProperty','Remove-Item']:
+                self.assertNotIn(forbidden, module)
+        for sensitive in ['DeviceID','.SerialNumber','.Message','.model','.FriendlyName']:
+            self.assertNotIn(sensitive, source)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
-        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/pnp_analysis.ps1','tools/recorded_timeline.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/driver_timeline.tests.ps1','tests/report_io.tests.ps1']:
+        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/pnp_analysis.ps1','tools/recorded_timeline.ps1','tools/consultation_report.ps1','tools/consultation_render.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/driver_timeline.tests.ps1','tests/consultation_report.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
 
 if __name__ == '__main__':
