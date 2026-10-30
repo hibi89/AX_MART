@@ -56,3 +56,11 @@
 
 ## 새 채팅방에서 사용하는 첫 메시지 예시
 **“AX_MART 총괄, `feature/pc-care-usb`의 `NEXT_CHAT_PC_CARE.md`와 `products/pc-care/docs/FINAL_SPEC_V2.md` 읽고 P0부터 개발 이어가자. ㄱ”**
+
+## 2026-10-30 KST — P0 후속 실행 기준 최신화
+
+- 이전 P0 첫 작업 항목 중 이벤트 공통 스키마, 보수적 41/6008 그룹, 조회 실패/빈 조회/상한 분리, JSON/HTML 쌍 저장, 비관리자 권한 인식 코드는 개발 브랜치에 구현되었다. 코드 존재와 Windows 실행 검증 완료는 별개.
+- 수정한 회귀 결함: 내부 시험 ZIP이 synthetic fixture를 누락한 문제, 옛 Python 테스트의 NoMatchingEventsFound 경로 오류. 신규 event_analysis.tests.ps1은 내부 ZIP에 포함. MaxEvents 상한·UTC 테스트·ReliabilityCounter 상태 구분도 추가했다.
+- 실제 확인: GitHub 소스 교차 정적 계약 점검 35/35. Python unittest/PowerShell parser/Windows 10·11·WinRE/USB 저장 실패·복구 실제 실행은 여전히 미검증.
+- 다음 ㄱ은 먼저 해당 제품 브랜치의 HEAD를 확인한 뒤, Windows 검증 실행이 가능한 도구/기기를 확보하면 test_package.py, test_release.py, RUN_SELF_TEST.cmd의 명령과 결과를 기록. 다른 독립 소스 개선은 위 게이트가 필요 없는 범위로만 진행.
+- 상세 현재 상태와 10항 인수인계는 products/pc-care/STATUS.md 및 HANDOFF.md 최신 섹션, 테스트 표는 docs/WINDOWS_TEST_PLAN.md 참조. main/Cloudflare는 미변경이고 공개 다운로드·결제 금지 유지.
