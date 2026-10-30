@@ -158,3 +158,9 @@
 ## 2026-10-31 KST — PC CARE native one-click release QA preparation
 - Developer-only `products/pc-care/RUN_RELEASE_QA.cmd` added (excluded from internal customer ZIP). Python >=3.11 + existing preflight runs Python/Node/temporary real internal ZIP integrity/Windows PS5.1 synthetic, no live diagnostics/repair. Added `tests/test_qa_launcher.py` 8 native Python tests. Linux 8 PASS/0 FAIL; incomplete-source QA exits 1 as required.
 - Verified Git source match; **full 37-file product ZIP, Windows CMD/PS5.1, CI, USB/QR/A4/WinRE remain unverified**. Prior HEAD `489f15a72e1581c68a708c2734cfe4fd0a840537`. New evidence `products/pc-care/tests/evidence/oneclick_qa_20261031.json`. Operating main unchanged.
+
+## 2026-10-31 KST — CUBE 총괄 핵심 코어 시간축 근거 계약 보강
+- 해총 48h 백엔드 우선 프로토콜 수신, 기존 PS5.1/CMD/HTML/JSON 모듈 유지(A안). 구성요소/스택/데이터 흐름 기준선: `products/pc-care/docs/PRODUCT_AND_INTEGRATION_BASELINE.md`.
+- `recorded_timeline.ps1`: 수집 상태 실패·무결과 시 과거 잔류 배열 차단; System/Update 소스 분리, 이벤트 종류·ID 검증, 명시적 UTC 시차 요구, 수집 절단 여부 전달. `diagnose.ps1` 연결과 회귀 fixture 확장. 변경 전 Git SHA `dc53774703d1ea856599c599f3cf4b97418d885c` 복구점.
+- 원격 재조회 후 정적 계약 **17/17 PASS**, 원본 치환 과정의 손상은 원본 SHA로 재구성 후 원격 재검증하여 복구. **Windows PowerShell5.1·전체 Python/Node·실제 ZIP·CI·USB·QR·A4·WinRE NOT_RUN**. `main`·Cloudflare·고객 데이터 무변경, 무료/유료 배포 금지.
+- 다음: Windows 11 전체 소스 `RUN_RELEASE_QA.cmd` → PS5.1 합성/읽기 전용 보고서 확인 → USB·QR·PDF → 별도 WinRE VM 안전 게이트. CI 이전 runner 미배정 재시도 없음.
