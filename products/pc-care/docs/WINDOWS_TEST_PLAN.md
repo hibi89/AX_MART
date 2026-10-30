@@ -258,3 +258,8 @@ Pending manual tests:
 - New tools/diagnose.ps1 optional -PassThru emits exactly one local JSON/HTML path receipt after successful Save-PcCareReportPair, -NoOpenReport disables the browser launch in smoke mode. Default RUN_HEALTH_CHECK.cmd still opens the saved local HTML as before.
 - windows_smoke.ps1 -RunReadOnly now verifies the exact returned pair, rooted paths, same parent, versioned basename, and destination folder allowlist before parsing JSON/HTML. It does not enumerate recent reports. It never starts repair or automatically uploads report contents.
 - Static regression added test_read_only_smoke_uses_own_receipt_not_other_run_report. Real Windows PowerShell5.1 invocation, concurrent diagnostic processes and USB path edge-cases remain UNVERIFIED until performed.
+
+## 2026-10-30 P0 provider identity and JSON schema gate
+- Event ID 1001/41/6008/storage providers now require anchored name matches, reducing false signals from similarly named non-Windows providers. Test with real Windows and OEM providers for false negatives.
+- Synthetic five-name spoofing fixture added; JSON root `schemaVersion: 1` and Windows smoke schema check added.
+- GitHub/static provider regex cases only. PowerShell 5.1 runtime, real USB, A4/QR/WinRE, complete Python test suite UNVERIFIED.

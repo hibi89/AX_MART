@@ -14,11 +14,414 @@ function ConvertTo-PcCareEvidence {
             $provider = [string]$item.ProviderName
         } catch { continue }
         $kind = ''
-        if ($id -eq 1001 -and $provider -match 'BugCheck|SystemErrorReporting') {
+        # Anchored, case-insensitive provider matches reject lookalike names.
+        if ($id -eq 1001 -and $provider -match '^(?:BugCheck|WER-SystemErrorReporting|Microsoft-Windows-(?:BugCheck|WER-SystemErrorReporting))
+        # RecordId, when available, distinguishes separate entries with identical timestamps.
+        $recordId = 0L
+        try { if ($null -ne $item.RecordId) { $recordId = [long]$item.RecordId } } catch {}
+        $recordedAt = $when.ToString('yyyy-MM-ddTHH:mm:ss.fffK', [Globalization.CultureInfo]::InvariantCulture)
+        # Without RecordId, two distinct entries can share a provider, ID and timestamp.
+        if ($recordId -gt 0) {
+            $dedup = "$provider/$recordId"
+            if ($seen.ContainsKey($dedup)) { continue }
+            $seen[$dedup] = $true
+        }
+        $stopCode = $null
+        if ($kind -eq 'bugcheck_record') {
+            try {
+                $message = [string]$item.Message
+                if ($message -match '(?i)0x[0-9a-f]{8}') { $stopCode = $Matches[0].ToUpperInvariant() }
+            } catch {}
+        }
+        [pscustomobject]@{
+            kind = $kind
+            eventId = $id
+            provider = $provider
+            recordedAt = $recordedAt
+            recordedUtc = $when.ToUniversalTime().ToString('o', [Globalization.CultureInfo]::InvariantCulture)
+            timeBasis = 'event_recorded_time'
+            stopCode = $stopCode
+        }
+    }
+}
+
+function Group-PcCareShutdownSignals {
+    [CmdletBinding()]
+    param([object[]]$Evidence)
+    # A 41/6008 pair can describe one outage. Grouping is heuristic, never a proven count.
+    $orderedSignals = @($Evidence | Where-Object { $null -ne $_ -and $_.kind -eq 'shutdown_signal' } | Sort-Object recordedUtc)
+    $groups = New-Object 'System.Collections.Generic.List[object]'
+    $current = $null
+    foreach ($signal in $orderedSignals) {
+        try { $whenUtc = [datetimeoffset]::Parse([string]$signal.recordedUtc).ToUniversalTime() }
+        catch { continue }
+        if ($null -eq $current -or ($whenUtc - $current.lastUtc).TotalMinutes -gt 10) {
+            $current = [pscustomobject]@{
+                firstRecordedAt = [string]$signal.recordedAt
+                lastRecordedAt = [string]$signal.recordedAt
+                lastUtc = $whenUtc
+                eventIds = (New-Object 'System.Collections.Generic.List[int]')
+                evidenceCount = 0
+                interpretation = 'possibly_related_shutdown_signals'
+            }
+            [void]$groups.Add($current)
+        }
+        $current.lastRecordedAt = [string]$signal.recordedAt
+        $current.lastUtc = $whenUtc
+        $current.evidenceCount++
+        if (-not $current.eventIds.Contains([int]$signal.eventId)) {
+            [void]$current.eventIds.Add([int]$signal.eventId)
+        }
+    }
+    foreach ($group in $groups) {
+        [pscustomobject]@{
+            firstRecordedAt = $group.firstRecordedAt
+            lastRecordedAt = $group.lastRecordedAt
+            eventIds = @($group.eventIds.ToArray())
+            evidenceCount = [int]$group.evidenceCount
+            interpretation = $group.interpretation
+        }
+    }
+}
+
+# Query wrapper is injectable so access-denied/empty/cap paths can be fixture-tested.
+function Invoke-PcCareEventQuery {
+    [CmdletBinding()]
+    param([scriptblock]$Query, [int]$MaxEvents = 1500)
+    if ($MaxEvents -lt 1) { throw 'MaxEvents must be positive.' }
+    $items = @()
+    $status = 'unavailable'
+    try {
+        $items = @(& $Query | Where-Object { $null -ne $_ } | Select-Object -First $MaxEvents)
+        if ($items.Count -ge $MaxEvents) {
+            $status = 'truncated'
+        } elseif ($items.Count -eq 0) {
+            $status = 'no matching events'
+        } else {
+            $status = 'collected'
+        }
+    } catch {
+        if ($_.FullyQualifiedErrorId -match 'NoMatchingEventsFound' -or $_.Exception.Message -match 'No events were found|조건에 맞는 이벤트') {
+            $status = 'no matching events'
+        } else {
+            $status = 'unavailable'
+        }
+        $items = @()
+    }
+    [pscustomobject]@{
+        events = @($items)
+        status = $status
+        returnedCount = [int]$items.Count
+        maxEvents = $MaxEvents
+    }
+}
+) {
             $kind = 'bugcheck_record'
-        } elseif (($id -eq 41 -and $provider -match 'Kernel-Power') -or ($id -eq 6008 -and $provider -match 'EventLog')) {
+        } elseif (($id -eq 41 -and $provider -match '^(?:Microsoft-Windows-)?Kernel-Power
+        # RecordId, when available, distinguishes separate entries with identical timestamps.
+        $recordId = 0L
+        try { if ($null -ne $item.RecordId) { $recordId = [long]$item.RecordId } } catch {}
+        $recordedAt = $when.ToString('yyyy-MM-ddTHH:mm:ss.fffK', [Globalization.CultureInfo]::InvariantCulture)
+        # Without RecordId, two distinct entries can share a provider, ID and timestamp.
+        if ($recordId -gt 0) {
+            $dedup = "$provider/$recordId"
+            if ($seen.ContainsKey($dedup)) { continue }
+            $seen[$dedup] = $true
+        }
+        $stopCode = $null
+        if ($kind -eq 'bugcheck_record') {
+            try {
+                $message = [string]$item.Message
+                if ($message -match '(?i)0x[0-9a-f]{8}') { $stopCode = $Matches[0].ToUpperInvariant() }
+            } catch {}
+        }
+        [pscustomobject]@{
+            kind = $kind
+            eventId = $id
+            provider = $provider
+            recordedAt = $recordedAt
+            recordedUtc = $when.ToUniversalTime().ToString('o', [Globalization.CultureInfo]::InvariantCulture)
+            timeBasis = 'event_recorded_time'
+            stopCode = $stopCode
+        }
+    }
+}
+
+function Group-PcCareShutdownSignals {
+    [CmdletBinding()]
+    param([object[]]$Evidence)
+    # A 41/6008 pair can describe one outage. Grouping is heuristic, never a proven count.
+    $orderedSignals = @($Evidence | Where-Object { $null -ne $_ -and $_.kind -eq 'shutdown_signal' } | Sort-Object recordedUtc)
+    $groups = New-Object 'System.Collections.Generic.List[object]'
+    $current = $null
+    foreach ($signal in $orderedSignals) {
+        try { $whenUtc = [datetimeoffset]::Parse([string]$signal.recordedUtc).ToUniversalTime() }
+        catch { continue }
+        if ($null -eq $current -or ($whenUtc - $current.lastUtc).TotalMinutes -gt 10) {
+            $current = [pscustomobject]@{
+                firstRecordedAt = [string]$signal.recordedAt
+                lastRecordedAt = [string]$signal.recordedAt
+                lastUtc = $whenUtc
+                eventIds = (New-Object 'System.Collections.Generic.List[int]')
+                evidenceCount = 0
+                interpretation = 'possibly_related_shutdown_signals'
+            }
+            [void]$groups.Add($current)
+        }
+        $current.lastRecordedAt = [string]$signal.recordedAt
+        $current.lastUtc = $whenUtc
+        $current.evidenceCount++
+        if (-not $current.eventIds.Contains([int]$signal.eventId)) {
+            [void]$current.eventIds.Add([int]$signal.eventId)
+        }
+    }
+    foreach ($group in $groups) {
+        [pscustomobject]@{
+            firstRecordedAt = $group.firstRecordedAt
+            lastRecordedAt = $group.lastRecordedAt
+            eventIds = @($group.eventIds.ToArray())
+            evidenceCount = [int]$group.evidenceCount
+            interpretation = $group.interpretation
+        }
+    }
+}
+
+# Query wrapper is injectable so access-denied/empty/cap paths can be fixture-tested.
+function Invoke-PcCareEventQuery {
+    [CmdletBinding()]
+    param([scriptblock]$Query, [int]$MaxEvents = 1500)
+    if ($MaxEvents -lt 1) { throw 'MaxEvents must be positive.' }
+    $items = @()
+    $status = 'unavailable'
+    try {
+        $items = @(& $Query | Where-Object { $null -ne $_ } | Select-Object -First $MaxEvents)
+        if ($items.Count -ge $MaxEvents) {
+            $status = 'truncated'
+        } elseif ($items.Count -eq 0) {
+            $status = 'no matching events'
+        } else {
+            $status = 'collected'
+        }
+    } catch {
+        if ($_.FullyQualifiedErrorId -match 'NoMatchingEventsFound' -or $_.Exception.Message -match 'No events were found|조건에 맞는 이벤트') {
+            $status = 'no matching events'
+        } else {
+            $status = 'unavailable'
+        }
+        $items = @()
+    }
+    [pscustomobject]@{
+        events = @($items)
+        status = $status
+        returnedCount = [int]$items.Count
+        maxEvents = $MaxEvents
+    }
+}
+) -or
+                  ($id -eq 6008 -and $provider -match '^EventLog
+        # RecordId, when available, distinguishes separate entries with identical timestamps.
+        $recordId = 0L
+        try { if ($null -ne $item.RecordId) { $recordId = [long]$item.RecordId } } catch {}
+        $recordedAt = $when.ToString('yyyy-MM-ddTHH:mm:ss.fffK', [Globalization.CultureInfo]::InvariantCulture)
+        # Without RecordId, two distinct entries can share a provider, ID and timestamp.
+        if ($recordId -gt 0) {
+            $dedup = "$provider/$recordId"
+            if ($seen.ContainsKey($dedup)) { continue }
+            $seen[$dedup] = $true
+        }
+        $stopCode = $null
+        if ($kind -eq 'bugcheck_record') {
+            try {
+                $message = [string]$item.Message
+                if ($message -match '(?i)0x[0-9a-f]{8}') { $stopCode = $Matches[0].ToUpperInvariant() }
+            } catch {}
+        }
+        [pscustomobject]@{
+            kind = $kind
+            eventId = $id
+            provider = $provider
+            recordedAt = $recordedAt
+            recordedUtc = $when.ToUniversalTime().ToString('o', [Globalization.CultureInfo]::InvariantCulture)
+            timeBasis = 'event_recorded_time'
+            stopCode = $stopCode
+        }
+    }
+}
+
+function Group-PcCareShutdownSignals {
+    [CmdletBinding()]
+    param([object[]]$Evidence)
+    # A 41/6008 pair can describe one outage. Grouping is heuristic, never a proven count.
+    $orderedSignals = @($Evidence | Where-Object { $null -ne $_ -and $_.kind -eq 'shutdown_signal' } | Sort-Object recordedUtc)
+    $groups = New-Object 'System.Collections.Generic.List[object]'
+    $current = $null
+    foreach ($signal in $orderedSignals) {
+        try { $whenUtc = [datetimeoffset]::Parse([string]$signal.recordedUtc).ToUniversalTime() }
+        catch { continue }
+        if ($null -eq $current -or ($whenUtc - $current.lastUtc).TotalMinutes -gt 10) {
+            $current = [pscustomobject]@{
+                firstRecordedAt = [string]$signal.recordedAt
+                lastRecordedAt = [string]$signal.recordedAt
+                lastUtc = $whenUtc
+                eventIds = (New-Object 'System.Collections.Generic.List[int]')
+                evidenceCount = 0
+                interpretation = 'possibly_related_shutdown_signals'
+            }
+            [void]$groups.Add($current)
+        }
+        $current.lastRecordedAt = [string]$signal.recordedAt
+        $current.lastUtc = $whenUtc
+        $current.evidenceCount++
+        if (-not $current.eventIds.Contains([int]$signal.eventId)) {
+            [void]$current.eventIds.Add([int]$signal.eventId)
+        }
+    }
+    foreach ($group in $groups) {
+        [pscustomobject]@{
+            firstRecordedAt = $group.firstRecordedAt
+            lastRecordedAt = $group.lastRecordedAt
+            eventIds = @($group.eventIds.ToArray())
+            evidenceCount = [int]$group.evidenceCount
+            interpretation = $group.interpretation
+        }
+    }
+}
+
+# Query wrapper is injectable so access-denied/empty/cap paths can be fixture-tested.
+function Invoke-PcCareEventQuery {
+    [CmdletBinding()]
+    param([scriptblock]$Query, [int]$MaxEvents = 1500)
+    if ($MaxEvents -lt 1) { throw 'MaxEvents must be positive.' }
+    $items = @()
+    $status = 'unavailable'
+    try {
+        $items = @(& $Query | Where-Object { $null -ne $_ } | Select-Object -First $MaxEvents)
+        if ($items.Count -ge $MaxEvents) {
+            $status = 'truncated'
+        } elseif ($items.Count -eq 0) {
+            $status = 'no matching events'
+        } else {
+            $status = 'collected'
+        }
+    } catch {
+        if ($_.FullyQualifiedErrorId -match 'NoMatchingEventsFound' -or $_.Exception.Message -match 'No events were found|조건에 맞는 이벤트') {
+            $status = 'no matching events'
+        } else {
+            $status = 'unavailable'
+        }
+        $items = @()
+    }
+    [pscustomobject]@{
+        events = @($items)
+        status = $status
+        returnedCount = [int]$items.Count
+        maxEvents = $MaxEvents
+    }
+}
+)) {
             $kind = 'shutdown_signal'
-        } elseif ($id -in @(7,51,55,129,153,157) -and $provider -match 'disk|stor|nvme|ntfs|volmgr|iaStor') {
+        } elseif ($id -in @(7,51,55,129,153,157) -and
+                  $provider -match '^(?:(?:Microsoft-Windows-)?(?:disk|ntfs|volmgr|storahci|stornvme|storport|storvsc|nvme)|Microsoft-Windows-Storage-Storport|iaStor(?:A|AC|V|VD))
+        # RecordId, when available, distinguishes separate entries with identical timestamps.
+        $recordId = 0L
+        try { if ($null -ne $item.RecordId) { $recordId = [long]$item.RecordId } } catch {}
+        $recordedAt = $when.ToString('yyyy-MM-ddTHH:mm:ss.fffK', [Globalization.CultureInfo]::InvariantCulture)
+        # Without RecordId, two distinct entries can share a provider, ID and timestamp.
+        if ($recordId -gt 0) {
+            $dedup = "$provider/$recordId"
+            if ($seen.ContainsKey($dedup)) { continue }
+            $seen[$dedup] = $true
+        }
+        $stopCode = $null
+        if ($kind -eq 'bugcheck_record') {
+            try {
+                $message = [string]$item.Message
+                if ($message -match '(?i)0x[0-9a-f]{8}') { $stopCode = $Matches[0].ToUpperInvariant() }
+            } catch {}
+        }
+        [pscustomobject]@{
+            kind = $kind
+            eventId = $id
+            provider = $provider
+            recordedAt = $recordedAt
+            recordedUtc = $when.ToUniversalTime().ToString('o', [Globalization.CultureInfo]::InvariantCulture)
+            timeBasis = 'event_recorded_time'
+            stopCode = $stopCode
+        }
+    }
+}
+
+function Group-PcCareShutdownSignals {
+    [CmdletBinding()]
+    param([object[]]$Evidence)
+    # A 41/6008 pair can describe one outage. Grouping is heuristic, never a proven count.
+    $orderedSignals = @($Evidence | Where-Object { $null -ne $_ -and $_.kind -eq 'shutdown_signal' } | Sort-Object recordedUtc)
+    $groups = New-Object 'System.Collections.Generic.List[object]'
+    $current = $null
+    foreach ($signal in $orderedSignals) {
+        try { $whenUtc = [datetimeoffset]::Parse([string]$signal.recordedUtc).ToUniversalTime() }
+        catch { continue }
+        if ($null -eq $current -or ($whenUtc - $current.lastUtc).TotalMinutes -gt 10) {
+            $current = [pscustomobject]@{
+                firstRecordedAt = [string]$signal.recordedAt
+                lastRecordedAt = [string]$signal.recordedAt
+                lastUtc = $whenUtc
+                eventIds = (New-Object 'System.Collections.Generic.List[int]')
+                evidenceCount = 0
+                interpretation = 'possibly_related_shutdown_signals'
+            }
+            [void]$groups.Add($current)
+        }
+        $current.lastRecordedAt = [string]$signal.recordedAt
+        $current.lastUtc = $whenUtc
+        $current.evidenceCount++
+        if (-not $current.eventIds.Contains([int]$signal.eventId)) {
+            [void]$current.eventIds.Add([int]$signal.eventId)
+        }
+    }
+    foreach ($group in $groups) {
+        [pscustomobject]@{
+            firstRecordedAt = $group.firstRecordedAt
+            lastRecordedAt = $group.lastRecordedAt
+            eventIds = @($group.eventIds.ToArray())
+            evidenceCount = [int]$group.evidenceCount
+            interpretation = $group.interpretation
+        }
+    }
+}
+
+# Query wrapper is injectable so access-denied/empty/cap paths can be fixture-tested.
+function Invoke-PcCareEventQuery {
+    [CmdletBinding()]
+    param([scriptblock]$Query, [int]$MaxEvents = 1500)
+    if ($MaxEvents -lt 1) { throw 'MaxEvents must be positive.' }
+    $items = @()
+    $status = 'unavailable'
+    try {
+        $items = @(& $Query | Where-Object { $null -ne $_ } | Select-Object -First $MaxEvents)
+        if ($items.Count -ge $MaxEvents) {
+            $status = 'truncated'
+        } elseif ($items.Count -eq 0) {
+            $status = 'no matching events'
+        } else {
+            $status = 'collected'
+        }
+    } catch {
+        if ($_.FullyQualifiedErrorId -match 'NoMatchingEventsFound' -or $_.Exception.Message -match 'No events were found|조건에 맞는 이벤트') {
+            $status = 'no matching events'
+        } else {
+            $status = 'unavailable'
+        }
+        $items = @()
+    }
+    [pscustomobject]@{
+        events = @($items)
+        status = $status
+        returnedCount = [int]$items.Count
+        maxEvents = $MaxEvents
+    }
+}
+) {
             $kind = 'storage_signal'
         } else { continue }
         # RecordId, when available, distinguishes separate entries with identical timestamps.
