@@ -1,0 +1,34 @@
+﻿# Pure synthetic event regression; runs under Windows PowerShell 5.1.
+# Does not inspect the host's event log or modify the system.
+$ErrorActionPreference = 'Stop'
+. (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/event_analysis.ps1')
+
+function Assert-PcCare([bool]$Condition, [string]$Message) {
+    if (-not $Condition) { throw ('EVENT FIXTURE FAIL: ' + $Message) }
+}
+$t = [datetime]::Parse('2026-10-30T12:00:00')
+$fixtures = @(
+    [pscustomobject]@{ Id=41; ProviderName='Microsoft-Windows-Kernel-Power'; RecordId=100; TimeCreated=$t; Message='power lost' },
+    [pscustomobject]@{ Id=6008; ProviderName='EventLog'; RecordId=101; TimeCreated=$t.AddMinutes(1); Message='unexpected' },
+    [pscustomobject]@{ Id=41; ProviderName='Microsoft-Windows-Kernel-Power'; RecordId=100; TimeCreated=$t; Message='duplicate read' },
+    [pscustomobject]@{ Id=1001; ProviderName='Application Error'; RecordId=102; TimeCreated=$t.AddMinutes(4); Message='not a bugcheck' },
+    [pscustomobject]@{ Id=1001; ProviderName='Microsoft-Windows-WER-SystemErrorReporting'; RecordId=103; TimeCreated=$t.AddMinutes(5); Message='STOP: 0x0000007e' },
+    [pscustomobject]@{ Id=7; ProviderName='disk'; RecordId=104; TimeCreated=$t.AddMinutes(6); Message='disk message must not be stored' },
+    [pscustomobject]@{ Id=41; ProviderName='Microsoft-Windows-Kernel-Power'; RecordId=105; TimeCreated=$t.AddMinutes(80); Message='new outage signal' }
+)
+$evidence = @(ConvertTo-PcCareEvidence -Events $fixtures)
+Assert-PcCare ($evidence.Count -eq 5) 'Unexpected normalization count / deduplication'
+$bugchecks = @($evidence | Where-Object { $_.kind -eq 'bugcheck_record' })
+Assert-PcCare ($bugchecks.Count -eq 1) '1001 requires matching provider'
+Assert-PcCare ($bugchecks[0].stopCode -eq '0X0000007E') 'STOP code extraction'
+Assert-PcCare ($bugchecks[0].timeBasis -eq 'event_recorded_time') '1001 time cannot be called crash time'
+$storage = @($evidence | Where-Object { $_.kind -eq 'storage_signal' })
+Assert-PcCare ($storage.Count -eq 1) 'Storage event classification'
+Assert-PcCare (($evidence | ConvertTo-Json -Depth 5) -notmatch 'disk message must not be stored') 'Raw event content leak'
+$groups = @(Group-PcCareShutdownSignals -Evidence $evidence)
+Assert-PcCare ($groups.Count -eq 2) '41/6008 likely duplicate and distant record must remain separate'
+Assert-PcCare ($groups[0].evidenceCount -eq 2) 'Grouped signal must preserve evidence count'
+Assert-PcCare ($groups[0].interpretation -eq 'possibly_related_shutdown_signals') 'No confirmed outage claims'
+Assert-PcCare (@(ConvertTo-PcCareEvidence -Events @()).Count -eq 0) 'Empty event set'
+Assert-PcCare (@(Group-PcCareShutdownSignals -Evidence @()).Count -eq 0) 'Empty grouping'
+Write-Host 'EVENT FIXTURE PASS: normalization, provider filter, duplicate grouping, timestamps, privacy.' -ForegroundColor Green
