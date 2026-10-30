@@ -133,3 +133,12 @@
 - Created `products/pc-care/tests/test_qr_vendor.cjs` (6 Node built-in cases against real vendor), wired into manual-only Windows workflow with existing `tests/test_qr_ui.cjs`, added Python package static check. GitHub Actions runner unassigned earlier, so these new Node fixture files haven't executed in CI.
 - Next ㄱ: run real vendor in local headless Chromium + QR decoder if tooling permits, Windows PowerShell 5.1 tests and PDF/USB/WinRE gates after. Never remove the vendor 5-character fix without replacement tests. Read HANDOFF.md → STATUS.md → spec → current source first.
 
+
+## 2026-10-30 KST — 252-case actual vendor encoding and file:// scanner QA
+
+- Repo hibi89/AX_MART, branch feature/pc-care-usb only, production main unchanged. QR vendor minified UTF8 per-character reset `b=[];` remains patched; MIT license preserved.
+- Executed actual patched GitHub vendor in isolated JS V8 for 252 valid 7-line Korean/status/signal/omission combinations: **252/252 successful** encodes, payload max 228 UTF-8 bytes (under 250), QR matrices 53~61. Added 252-loop regression to `tests/test_qr_vendor.cjs`. Node CI itself NOT run.
+- Strengthened optional `tests/qr_browser_smoke.py`: a standalone Korean-named local file loaded by `file://`, external HTTP(S) routes aborted, all page errors collected, OpenCV scannability and BOM, stale QR clearing, impossible timestamps checked. This browser test script has NOT run with actual vendor; cannot call the Chromium screenshot scan verified.
+- Attempts to download public upstream MIT file to container via raw/CDN/GitHub HTML failed due access restrictions; stop same method. Next approach run tests in environment with repository checkout rather than synthetic copies. GitHub Actions 41034866482 unassigned runner; workflow manual-only.
+- Next ㄱ: real Windows 11 USB/PowerShell smoke and browser+phone scan, print-to-PDF; QA blockers aside, ship independent fixes on feature only. STATUS.md/HANDOFF.md contain details.
+
