@@ -554,3 +554,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본·보안: 고객 REPORTS/디스크/로그/BitLocker/복구/환경변수 변경 없음; 외부 전송·결제·공개 배포 없음. 기존 Git SHA로 복원. 유료 런타임/재설계 도입 안함.
 9. 다음 우선순위: 전체 Windows checkout Native QA+읽기전용 실제 생성 보고서; eventEvidence→H08→private 인쇄 및 Edge/한글 USB 경로·QR/A4·SHA ZIP; 마지막 WinRE 격리 VM 안전검증 후 별도 출시 승인.
 10. 2026-10-31 KST, 원격 readback/JS V8/정적 체크까지만. 증거 `tests/evidence/h08_system_evidence_integration_qa_20261031.json`; 최종 문서 HEAD는 이후 원격 확인.
+
+## 2026-10-31 KST — CUBE provider contract 10항 최신화
+1. 목표·기술: PC CARE Release A 진단→정규화→분석→JSON/HTML→오프라인 H08 비교·인쇄, PS5.1/CMD/JS/JSON 기존 스택.
+2. 변경·이유: H08 System 이벤트 provider 검증 누락으로 임의 kind/ID/UTC 기록을 진짜 이벤트로 오판하던 문제 재현·수정. `history_compare.js`에서 실제 `event_analysis.ps1` provider 허용 목록 대조. 볼륨 수집 실패/중복 차단 및 비Windows QA `partial` 상태도 직전 `ㄱ`에서 반영.
+3. 테스트: 커밋된 실제 JS 소스/단위·통합 3개 스위트 V8 어댑터 **38 PASS / 0 FAIL**. Native Node/Python/Windows PS5.1/실 ZIP/USB/QR/A4/WinRE **미실행**.
+4. 단계: GitHub feature 코드·회귀 보강 완료. 전체 Release A 실기기 검증 대기, Release B 실제 백업/수리·고객 배포 차단.
+5. 오류·대안: 별도 센서 모듈·ZIP allowlist 통합 도구 차단 및 패키지 불일치 우려로 새 fast-forward 복구 SHA `2112c95c11edfbaa1584e16f0c881a2848017c9e` 적용. 동일 위험한 편집 반복 금지; 기존 번들된 정상 소스 유지.
+6. Git: `hibi89/AX_MART@feature/pc-care-usb`. 기존 베이스 `b568c942c00ee4cc32e24863e2608c93806df290`; 현 HEAD는 문서 갱신 후 조회. 주요 파일 `ui/history_compare.js`와 `tests/test_history_compare.cjs`, `tests/test_history_evidence_integration.cjs`, `tests/test_package.py`.
+7. 실행·운영: `RUN_RELEASE_QA.cmd` Windows 11/PS5.1+Python 3.11+Node. Cloudflare `https://ax-mart.pages.dev/` 운영 `main` 기능 미배포.
+8. 보존·보안: Git 베이스로 복원 가능; 고객 REPORTS·디스크·키·로그·OS/복구·환경변수·Cloudflare 설정 수정/접근 없음. 네트워크 업로드·자동 수리·지우기 없음.
+9. 다음: Windows 전체 QA→실제 read-only 보고서 저장→H08/Edge file://·USB 한글 경로·QR 스마트폰/A4 인쇄→별도 WinRE VM 안전 검증. 고객 공개/실복사/승인형 수리 실행은 사전 승인.
+10. 갱신: 2026-10-31 KST. 검증 근거 GitHub 원격 읽기·V8 실행 38/38; 외부·실기기 완주 여부 미확인. 문서 커밋 후 실제 feature SHA 별도 확인.
