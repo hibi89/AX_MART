@@ -1,30 +1,27 @@
-# AXMART Cloudflare Pages Git 배포 안내 (2026-10-30 KST)
+# AXMART³ (AXMART CUBE) — Cloudflare Pages 운영 인계 (2026-10-30 KST)
 
-**기존 GitHub**: hibi89/AX_MART (private), production branch main
-**희망 Pages 프로젝트**: ax-mart → https://ax-mart.pages.dev (현재 미할당·미검증)
-**디자인 원본**: 기존 루트 index.html 유지. 프론트엔드 전용.
+## 현재 운영 구성
+- Private repo: `hibi89/AX_MART`, Production branch: `main`.
+- Cloudflare Pages project: `ax-mart`, 공개 URL: https://ax-mart.pages.dev/.
+- 사용자 확인된 과거 Production: Git main 자동 배포 Enabled, 녹색 성공 상태(당시 SHA `1ad0772`). 실제 사용자 Chrome 데스크톱에서 기본 화면 렌더 확인.
+- **새 브랜드 변경 소스:** `6fb4fd8e5f088645eae6050cb0fc3607ea8520f0` — 이 SHA의 Cloudflare Production 실제 배포 성공 및 운영 페이지 최신 화면은 **별도 확인 필요**. 사이트 주소와 Cloudflare 프로젝트 자체는 변경하지 않는다.
+- Build: Node >=18, `npm run build`, output `dist`, no environment variables required.
 
-## 소유자 Cloudflare 계정에서 최초 1회
-1. https://dash.cloudflare.com/ 열기 → Workers & Pages → Create application → Pages → Import an existing Git repository.
-2. GitHub 연결/설치/권한 승인이 뜨면 **hibi89/AX_MART 저장소만** 허용하여 인증한다. 인증 토큰을 채팅이나 GitHub에 공개하지 않는다.
-3. Git repo hibi89/AX_MART, Project name ax-mart (선점되어 있으면 다른 이름), Production branch main 선택.
-4. Framework preset None, Root directory /, Build command **npm run build**, Build output directory **dist**. 별도 환경변수 없음.
-5. Save and Deploy. Cloudflare가 확정한 실제 pages.dev URL 및 배포 SHA를 확인한다.
-6. 공개 HTTPS 접속·이미지 로드·데스크톱/모바일·상품 카드·필터·검색·상세·장바구니 미리보기·Console/Network 오류를 확인한다.
+## 소스 변경 후 검증
+1. `npm test`, `npm run build` 실행 (제품 자체 Windows 테스트가 아님).
+2. Cloudflare Pages dashboard → `ax-mart` → Deployments → Production의 source SHA 및 성공 결과 확인.
+3. https://ax-mart.pages.dev/ 접속 후 제목 AXMART³ (AXMART CUBE), 헤더·푸터 로고의 ³, PC CARE (USB 단어 제외) 단일 제품 카드 확인.
+4. `#care-concept` 디자인 프리뷰가 **가상 화면**이라고 표시되는지 확인하고, 데스크톱/모바일 가로 스크롤, 자산 로딩, 검색/필터/상세 모달과 Console 오류 점검.
+5. 판매·다운로드 링크 없는 상태 보존. 결제·로그인·실배포 제품 링크는 안전성 검증·별도 승인 전 만들지 않는다.
 
-Git 연동 이후 main에 push하면 자동으로 다시 배포된다. Cloudflare API/로그인 연결은 현재 ChatGPT 도구에 없어 **실제 프로젝트 생성 및 배포는 아직 완료되지 않음**.
+## 오류 및 롤백
+- 빌드 실패 → Node 버전과 `scripts/build.mjs`·`tests/site.test.mjs`를 점검.
+- 운영 화면 이전 버전 → Cloudflare Production SHA 대조 후 배포 경로 확인. 브라우저 탭 캐시/새로고침과 배포 반영을 혼동하지 않는다.
+- 정상 작동 이전 Git 소스: `af2996965691e4e9e318cd843de758c10baa7d23` (사용자 브랜드 변경 승인 전 main).
+- 사용자 Chrome의 기존 탭 콘텐츠는 새 소스 배포 확인의 근거가 아니다.
 
-## 확인 명령
-- npm test
-- npm run build
-- python -m http.server 4173 --directory dist
-
-## 배포 오류
-- 저장소 미표시 → Cloudflare GitHub 앱의 접근 가능한 저장소 목록을 확인(권한 무단 확대 금지).
-- 404 → Build output dist 안에 index.html이 있는지, build 명령과 루트 / 설정 확인.
-- Pages 이름 중복 → 가용 이름으로 수정하고 실제 할당 주소 기록.
-- 성공 배포와 실제 서비스 정상은 다름: Production 렌더링 및 SHA 확인 필요.
-
-## 안전
-실제 로그인·결제·DB·SMAX² 연동은 없음. 다섯 상품과 가격은 데모이며 판매 기능은 제공하지 않는다.
-Cloudflare 정적 자산에 API 비밀·세션·고객 데이터를 넣지 않는다. 소스 비공개 저장소는 그대로 유지한다.
+## 안전·제품 상태
+- 플랫폼: AXMART³, 제품: AXMART PC CARE.
+- 첫 제품은 알파, Windows 10/11 및 WinRE·복구 안전성 실기기 미검증. '이동식 USB 자체 부팅'을 주장하지 않는다.
+- 가상 상품/가격/후기/구매/로그인 등 미구현 요소 제거 유지. 외부 사용자 로그 수집 없음.
+- Cloudflare 토큰·계정 ID·비밀키를 저장소나 HTML에 넣지 않는다.

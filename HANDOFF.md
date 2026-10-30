@@ -64,3 +64,6 @@
 - 사용자가 선택한 다크 퍼플·민트 포스터 감성을 CSS/HTML 프리뷰로 반영. 프리뷰는 **가상 UI**로 표시하고 실제 코드는 아직 Windows 기기·WinRE 미검증 상태 유지.
 - 기존 Cloudflare URL과 GitHub 레포명, 다운로드/판매 차단 정책 유지.
 - 변경 전 main SHA: `af2996965691e4e9e318cd843de758c10baa7d23`. 커밋 후 Cloudflare 새 Production SHA·브라우저 UI 별도 확인 필요.
+
+## 2026-10-30 KST — 운영 문서 정정
+- AXMART³ 브랜드 기준, PC CARE 제품 분리, Cloudflare 기존 프로젝트/도메인 유지. 과거 'Cloudflare 미연결/미할당' 시점의 이력은 최신 운영 상태로 오해하지 말 것. 최신 검증 절차는 `CLOUDFLARE_DEPLOY.md` 참고.

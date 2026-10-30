@@ -60,3 +60,6 @@
 - 사용자가 선택한 다크 퍼플·민트 포스터 감성을 CSS/HTML 프리뷰로 반영. 프리뷰는 **가상 UI**로 표시하고 실제 코드는 아직 Windows 기기·WinRE 미검증 상태 유지.
 - 기존 Cloudflare URL과 GitHub 레포명, 다운로드/판매 차단 정책 유지.
 - 변경 전 main SHA: `af2996965691e4e9e318cd843de758c10baa7d23`. 커밋 후 Cloudflare 새 Production SHA·브라우저 UI 별도 확인 필요.
+
+## 2026-10-30 KST — 운영 문서 최신화
+- 구 문서의 'Pages 미할당/예시 상품 5개/Vercel' 등 현재와 다른 상태를 최신 `CLOUDFLARE_DEPLOY.md` 및 `AGENTS.md`에서 교정. 최초 Cloudflare 연결은 완료돼 있으나 새 브랜드 SHA의 Production 배포는 별도 확인 필요.
