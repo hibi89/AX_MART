@@ -92,6 +92,16 @@ foreach ($window in @($timeReport.windows)) {
         }
     }
 }
+# A full report with incomplete evidence must never present a clean assessment.
+if ($json.analysis.status -eq 'incomplete' -and
+    $json.assessment -eq '관찰 범위 내 특이사항 없음') {
+    throw 'Report claims a clean assessment while incident evidence is incomplete.'
+}
+if ($json.assessment -eq '관찰 범위 내 특이사항 없음' -and
+    @($json.limitations).Count -gt 0) {
+    throw 'Clean assessment contradicts explicit report limitations.'
+}
+Write-Host 'ASSESSMENT CONTRACT PASS: incomplete evidence cannot appear as clean.' -ForegroundColor Green
 Write-Host 'TIMELINE CONTRACT PASS: local collector provenance, coverage and no causal claims.' -ForegroundColor Green
 # Validate the saved static consultation report without executing JavaScript or initiating repair.
 $savedHtml = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)

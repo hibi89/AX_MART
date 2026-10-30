@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "dateKst": "2026-10-31",
+  "baselineSha": "0782902848f736ea43d4530b2a1ef9fb717a3396",
+  "sourceChecks": [
+    {
+      "name": "PowerShell UTF8 BOM",
+      "passed": true
+    },
+    {
+      "name": "pure assessment helper inserted",
+      "passed": true
+    },
+    {
+      "name": "severity preserved",
+      "passed": true
+    },
+    {
+      "name": "incomplete never all clear",
+      "passed": true
+    },
+    {
+      "name": "diagnostic main wired",
+      "passed": true
+    },
+    {
+      "name": "limitation propagated",
+      "passed": true
+    },
+    {
+      "name": "smoke invariant",
+      "passed": true
+    },
+    {
+      "name": "PS fixtures",
+      "passed": true
+    },
+    {
+      "name": "Python contract",
+      "passed": true
+    },
+    {
+      "name": "no repair logic added",
+      "passed": true
+    },
+    {
+      "name": "original incident function preserved",
+      "passed": true
+    }
+  ],
+  "staticPassed": 11,
+  "staticFailed": 0,
+  "newSyntheticAssertions": 6,
+  "syntheticAssertionsExecuted": false,
+  "winPS51": "NOT_RUN",
+  "nativePython": "NOT_RUN",
+  "nativeNode": "NOT_RUN",
+  "realWindows": "UNVERIFIED",
+  "CI": "NOT_RUN",
+  "release": "HOLD"
+}

@@ -272,10 +272,11 @@ $observations['collectionStatus'] = $collectionStatus
 . (Join-Path $PSScriptRoot 'incident_analysis.ps1')
 $incidentAssessment = Get-PcCareIncidentAssessment -EventEvidence $evidence -DiskObservations @($diskData.ToArray()) -DiskCollectionStatus ([string]$collectionStatus['physicalDisks']) -EventCollectionStatus $eventResult.status -UpdateEvidence $updateEvidence -UpdateCollectionStatus $updateResult.status -PnPSummary $pnpSummary
 
-$assessment = if (@($issues | Where-Object {$_.severity -eq 'high'}).Count -gt 0) { '위험 신호' }
-              elseif (@($issues | Where-Object {$_.severity -eq 'medium'}).Count -gt 0) { '주의 필요' }
-              elseif ($limits.Count -gt 0) { '확인 불완전' }
-              else { '관찰 범위 내 특이사항 없음' }
+# Align the main verdict and detailed analysis; an incomplete review is not a clean bill of health.
+if ($incidentAssessment.status -eq 'incomplete' -and $limits.Count -eq 0) {
+    [void]$limits.Add('근거 분석 일부가 불완전합니다. 정보 부족을 정상 또는 문제 해결로 해석하지 마세요.')
+}
+$assessment = Get-PcCareAssessmentLabel -Issues @($issues.ToArray()) -Limitations @($limits.ToArray()) -IncidentAssessment $incidentAssessment
 $report = [ordered]@{
     schemaVersion=1; product='AXMART PC CARE'; version='0.1.0-alpha'; mode='read-only'
     generatedAt=(Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz')

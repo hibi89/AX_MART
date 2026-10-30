@@ -34,6 +34,20 @@ function Test-PcCareIncidentEvidence {
     return $false
 }
 
+
+# A missing warning is not an all-clear verdict when evidence coverage is incomplete.
+function Get-PcCareAssessmentLabel {
+    [CmdletBinding()]
+    param([object[]]$Issues = @(), [object[]]$Limitations = @(), [object]$IncidentAssessment)
+    if (@($Issues | Where-Object { $null -ne $_ -and $_.severity -eq 'high' }).Count -gt 0) { return '위험 신호' }
+    if (@($Issues | Where-Object { $null -ne $_ -and $_.severity -eq 'medium' }).Count -gt 0) { return '주의 필요' }
+    if (@($Limitations).Count -gt 0 -or $null -eq $IncidentAssessment -or
+        [string]$IncidentAssessment.status -ne 'limited_observations') {
+        return '확인 불완전'
+    }
+    return '관찰 범위 내 특이사항 없음'
+}
+
 function Get-PcCareIncidentAssessment {
     [CmdletBinding()]
     param(

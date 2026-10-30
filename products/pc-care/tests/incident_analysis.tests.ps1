@@ -93,4 +93,18 @@ Assert-PcCareIncident ($partValid.observedCounts.bugcheckRecords -eq 1 -and $par
 Assert-PcCareIncident ($partValid.status -eq 'incomplete') 'Mixed valid and invalid evidence is not complete'
 Assert-PcCareIncident (@($partValid.findings | Where-Object { $_.causeConfirmed }).Count -eq 0) 'Verified record is not a confirmed root cause'
 Assert-PcCareIncident (($partValid | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE') 'Rejected source identity is never copied to report'
+
+# Coverage and severity must agree with the public-facing verdict.
+$emptyVerdict = Get-PcCareAssessmentLabel -Issues @() -Limitations @() -IncidentAssessment $empty
+Assert-PcCareIncident ($emptyVerdict -eq '확인 불완전') 'Incomplete evidence cannot show an all-clear verdict'
+$highVerdict = Get-PcCareAssessmentLabel -Issues @([pscustomobject]@{ severity='high'; code='DISK_HEALTH' }) -Limitations @() -IncidentAssessment $empty
+Assert-PcCareIncident ($highVerdict -eq '위험 신호') 'Observed high-severity warning remains visible during incomplete collection'
+$mediumVerdict = Get-PcCareAssessmentLabel -Issues @([pscustomobject]@{ severity='medium'; code='BUGCHECK' }) -Limitations @() -IncidentAssessment $empty
+Assert-PcCareIncident ($mediumVerdict -eq '주의 필요') 'Observed medium warning remains visible during incomplete collection'
+$cleanVerdict = Get-PcCareAssessmentLabel -Issues @() -Limitations @() -IncidentAssessment ([pscustomobject]@{ status='limited_observations' })
+Assert-PcCareIncident ($cleanVerdict -eq '관찰 범위 내 특이사항 없음') 'Valid bounded observations preserve original clean verdict'
+$missingVerdict = Get-PcCareAssessmentLabel -Issues @() -Limitations @() -IncidentAssessment $null
+Assert-PcCareIncident ($missingVerdict -eq '확인 불완전') 'Missing analysis never becomes a clean verdict'
+$limitedVerdict = Get-PcCareAssessmentLabel -Issues @() -Limitations @('로그 접근 불가') -IncidentAssessment ([pscustomobject]@{ status='limited_observations' })
+Assert-PcCareIncident ($limitedVerdict -eq '확인 불완전') 'Explicit source limitation overrides no-warning output'
 Write-Host 'INCIDENT FIXTURE PASS: missing evidence, 41-only, BugCheck, storage priority, uncertainty.' -ForegroundColor Green
