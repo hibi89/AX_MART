@@ -20,7 +20,7 @@ function snapshot(at,{after=false}={}){
    issues:after?[]:[{code:"BUGCHECK"},{code:"STORAGE_EVENTS"}],
    observations:{
     eventWindowDays:30,eventCollection:"collected",eventEvidence:e,
-    collectionStatus:{events:"collected",windows:"collected",physicalDisks:"collected",
+    collectionStatus:{events:"collected",windows:"collected",volumes:"collected",physicalDisks:"collected",
       windowsUpdate:after?"no matching events":"collected",driverDevices:after?"no matching devices":"collected"},
     windows:{build:"26100"},volumes:[{drive:"C:",sizeGB:100,remainingGB:after?24:21}],
     physicalDisks:[{status:"Healthy"}],
