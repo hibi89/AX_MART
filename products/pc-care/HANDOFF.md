@@ -167,3 +167,16 @@
 9. **다음 우선순위·완료조건:** Windows PS5.1 parser 및 synthetic fixture 실행 → Windows USB에서 실제 read-only 진단 및 상담표·공유 미리보기 작동 확인 → 로컬 QR 인코더의 라이선스·무네트워크 검사·UTF8 250byte/QR scannability 실증 → A4/PDF 1페이지/한글 테스트 → 베타 게이트. CI 없으면 그 자체가 성공이 아니며 다음 독립 작업은 지연하지 않는다.
 10. **갱신 시각·검증 범위:** 2026-10-30 KST. GitHub source 정적 검사 40/40, PS5.1/QR/Python/ZIP/Windows 실측 0회. 다음 ㄱ은 브랜치 확인 후 남은 작업을 이어가고 완료/검증 여부를 구별.
 
+## [최신] 2026-10-30 KST — 오프라인 QR 비트맵 명시 생성 인수인계
+
+1. **제품/목표/스택:** AXMART PC CARE의 P2 REPORT R04-R07. Windows 11 x64, Windows PowerShell 5.1, 저장된 로컬 HTML + 내장 JavaScript. QR 공유 문구 250 UTF-8 bytes 제한·비식별화·사용자 선택 미리보기와 선택 시 bitmap 생성. Cloudflare/외부 QR 서버·계정 없음.
+2. **완료 코드·기술/근거:** ui/qrcode.min.js는 공개 davidshimjs/qrcodejs MIT 코드 원문을 동봉. ui/QR_CODE_LICENSE.txt에 저작권/라이선스 전문 저장. ui/qr_ui.js는 QR 생성 버튼의 직접 click에만 new QRCode 실행하며 TextEncoder로 250바이트 재검증. tools/diagnose.ps1은 라이브러리·자체 JS·MIT 전문을 저장되는 HTML에 인라인 삽입하고 없는 경우 텍스트-only로 돌아감. tools/share_preview.ps1은 명시 생성 버튼·상태 영역·QR DOM 대상 및 사용자 경고 표시. QR 자동 생성/업로드/clipboard 저장 없음.
+3. **테스트 명령·실제 결과·한계:** GitHub 소스 11개 cross-file static 검증 40/40 충족. tests/share_payload.tests.ps1 확장(QR 조건 지원/불지원, 버튼 존재, 생성 전 이미지 없음). tests/test_package.py, test_release.py, windows_smoke.ps1, tools/release.py internal ZIP 파일/fixture 의존성 수정. 실제 `powershell.exe -NoProfile -File tests/windows_smoke.ps1`, Python unittest/ZIP 생성, Edge/Chrome QR 렌더, Android/iOS 스캔/한글 디코딩, Wireshark/오프라인 네트워크 확인, A4 출력은 전부 미실행. 이는 소스 계약이지 실제 작동 PASS가 아님.
+4. **진행/대기/차단:** P2 QR 비트맵 생성 소스 및 UX 구현, QR 텍스트/인쇄 모델 코드 존재. 실측 QA, 홈 UI/접근성/UI 디자인 다듬기, P0/P1 Windows 런타임 수정과 WinRE Release B 검증 대기. 실제 스마트폰 스캔 증명 전 공개 QR 완성·베타/판매 중단.
+5. **오류/실패·원인·대안:** QR 라이브러리 자산 분실/변조 등 문제 시 보고서 전체 실패를 피하려고 HTML 생성 전 QR 사용 가능성 분리, missing/invalid 시 텍스트-only 폴백. 250바이트 초과/검증 실패 시 QR 생성 차단. QR 라이브러리는 로컬 JS이고 실제 한국어 스캔 호환성은 별도 검증. MIT 전문은 독립 HTML에도 삽입되도록 설계.
+6. **저장소·브랜치·SHA·파일:** hibi89/AX_MART feature/pc-care-usb. 기능 전 체크포인트 c5a2251a5edf33d3a9cab94eae97b2913bbd1803. 주요 `products/pc-care/ui/qrcode.min.js`, `ui/QR_CODE_LICENSE.txt`, `ui/qr_ui.js`, `tools/share_payload.ps1`, `tools/share_preview.ps1`, `tools/diagnose.ps1`, `tests/share_payload.tests.ps1`, `tests/windows_smoke.ps1`, `tools/release.py`, `tests/test_release.py`, `tests/test_package.py`, `docs/WINDOWS_TEST_PLAN.md`; HEAD는 본 파일 이후 재확인.
+7. **Production·환경:** https://ax-mart.pages.dev/ 운영 main은 변경 없음. 이 feature 코드는 공개 페이지 미배포. 고객 브라우저: Windows Edge/Chrome 우선. Windows 10 제한 호환성, 다른 스마트폰 OS 스캔 검증 별도.
+8. **보안·원본/백업·권한:** 기존 Git commit으로 코드 복구 가능. Windows 사용자 데이터 삭제/레지스트리/파티션/BCD/WinRE 자동 조작 없음. 외부 서비스·CDN·계정/위치/복구키·이벤트 원문 QR 자동 삽입 금지. ZIP에는 MIT 전문 포함, 생성 HTML에는 원문 고지 인라인; 전체 HTML/JSON 공유 전 개인정보 검토 필요.
+9. **다음 우선순위·완료 조건:** Windows 11 PowerShell parser+fixture 실제 실행 → RUN_SELF_TEST.cmd 로컬 ZIP에서 read-only 진단 → Edge/Chrome 버튼 직접 클릭으로 QR 생성 → Android/iOS 스캔한 문자열 UTF-8 원본과 바이트 동일 비교 → 한글/250바이트/USB 분리/offline/모바일 카메라, A4 PDF 한 페이지 검증 → P2 UI 마감, Release A/B 별도 QA. CI 기다리는 동안 다른 독립 UI/회귀 보강은 진행 가능.
+10. **시각/검증 범위:** 2026-10-30 KST. GitHub 원격 정적 계약 40/40. 어떤 Windows/QR 스캔·Python 제품 테스트도 통과 판정을 내릴 실제 실행 증거는 없다. 다음 채팅에서 최신 GitHub branch HEAD와 본 인수인계 확인.
+
