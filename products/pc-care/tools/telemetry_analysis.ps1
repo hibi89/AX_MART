@@ -70,7 +70,7 @@ function ConvertTo-PcCareUpdateEvidence {
         try {
             $id = [int]$item.Id
             $provider = [string]$item.ProviderName
-            if ($id -notin @(19,20) -or $provider -notmatch '(^|-)WindowsUpdateClient$') { continue }
+            if ($id -notin @(19,20) -or $provider -ne 'Microsoft-Windows-WindowsUpdateClient') { continue }
             $when = [datetime]$item.TimeCreated
             if ($when -eq [datetime]::MinValue) { continue }
         } catch { continue }
