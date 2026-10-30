@@ -2,6 +2,12 @@
 # Never delete pre-existing files or write to Windows system configuration.
 function Save-PcCareReportPair {
     param([string]$JsonText, [string]$HtmlText, [string[]]$Candidates, [string]$FileBase)
+    # Never let a caller-provided name resolve outside a nominated REPORTS folder.
+    # Production uses pc-care-YYYYMMDD-HHmmss-GUID8; fixtures use fixture-one, etc.
+    if ([string]::IsNullOrWhiteSpace($FileBase) -or
+        $FileBase -cnotmatch '^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$') {
+        throw 'Invalid report file base: path separators, dots and reserved characters are not allowed.'
+    }
     $utf8 = New-Object System.Text.UTF8Encoding($false)
     foreach ($folder in $Candidates) {
         if ([string]::IsNullOrWhiteSpace($folder)) { continue }
