@@ -362,6 +362,22 @@ class PackageTests(unittest.TestCase):
         self.assertNotIn('fetch(', qr_ui)
         self.assertNotIn('XMLHttpRequest', qr_ui)
 
+    def test_qr_rejects_impossible_calendar_dates(self):
+        source = (ROOT/'ui/qr_ui.js').read_text(encoding='utf-8')
+        node = (ROOT/'tests/test_qr_ui.cjs').read_text(encoding='utf-8')
+        browser = (ROOT/'tests/qr_browser_smoke.py').read_text(encoding='utf-8')
+        self.assertIn('Date.UTC(year, month - 1, day', source)
+        self.assertIn('d.getUTCFullYear() === year', source)
+        self.assertIn('d.getUTCMonth() + 1 === month', source)
+        self.assertIn('d.getUTCDate() === day', source)
+        self.assertIn('if (time === "미확인") return true;', source)
+        for term in ('impossible February date', 'invalid leap day', 'valid leap-day timestamp',
+                     'unknown recorded time remains'):
+            self.assertIn(term, node)
+        for term in ('invalid_february_30_rejected','invalid_leap_day_rejected',
+                     'valid_leap_day_accepted','unknown_record_time_accepted','invalid_month_rejected'):
+            self.assertIn(term, browser)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
         for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/pnp_analysis.ps1','tools/recorded_timeline.ps1','tools/consultation_report.ps1','tools/consultation_render.ps1','tools/share_payload.ps1','tools/share_preview.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/driver_timeline.tests.ps1','tests/consultation_report.tests.ps1','tests/share_payload.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
