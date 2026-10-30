@@ -367,3 +367,9 @@
 - 커밋된 JS 두 단위테스트 소스 **V8 어댑터 28/28 PASS**, 신규 통합 **V8 5/5 PASS**, GitHub 파일 정적 **12/12 PASS**; 오류 재현 및 수정 후 차단 확인. **Native Node, Python 전체, PowerShell 5.1, ZIP, Windows/Edge/USB/QR/A4/WinRE는 NOT_RUN**. 증거: `tests/evidence/h08_system_evidence_integration_qa_20261031.json`.
 - 기존 CI `41034866482`는 과거 SHA `5c6c794d`, Windows job 결론 failure/steps 0/runner name 없음; 신규 HEAD에 대한 CI 검증 아님. 자동 재실행하지 않음. 원본·운영 `main`·Cloudflare·고객 데이터 무변경. 출시 금지 유지.
 - 다음 P0: 전체 Windows checkout의 `RUN_RELEASE_QA.cmd` 실제 실행 → `windows_smoke.ps1` read-only → 실제 보고서와 H08→인쇄→USB/QR 검증. Release B WinRE 별도 안전 승인.
+
+## 2026-10-31 KST — H08 공급자 검증 및 이전 QA 상태 복구
+- 진단 정규화(`event_analysis.ps1`)는 System provider를 검증했으나 H08 재조회(`ui/history_compare.js`)는 kind/ID/UTC만 검사하던 결함 발견. BugCheck/Kernel-Power/EventLog/스토리지 provider의 일치성까지 검증하고 누락·위장 기록은 비교 불가로 처리. 재현·수정 후 기존 두 JS 회귀+실제 JSON 유사 통합 **V8 어댑터 38/38 PASS**. `tests/test_package.py` 소스-계약 검사 추가.
+- 직전 `ㄱ` 미반영 이력도 통합: `collectionStatus.volumes`가 실패·미수집이거나 중복 드라이브이면 H08 용량 비교 보류; 실제 값은 유지. `tools/preflight.py`에서 비Windows host의 Windows QA 미실행은 `partial`/exit 2. 저장장치 센서 분리 시도는 패키지 미연결 위험으로 `2112c95c11edfbaa1584e16f0c881a2848017c9e`에서 롤백.
+- 실기기 Windows PowerShell 5.1/네이티브 Node·Python 전체/제품 ZIP·WinRE·USB·QR/PDF 및 현재 SHA CI **미검증**. `main`/Cloudflare 운영·고객 파일·수리 변경 없음.
+- 다음 P0: Windows 전체 체크아웃 `RUN_RELEASE_QA.cmd` 실실행 및 실제 읽기 전용 보고서 JSON→H08→인쇄 확인. Release B 실제 백업과 고객 배포는 승인/안전 QA 전 차단.
