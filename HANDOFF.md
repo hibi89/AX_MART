@@ -278,3 +278,8 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - Windows Update 이벤트 `ConvertTo-PcCareUpdateEvidence` 공급자 검사에서 임의 접두사 통과 버그를 정확한 Microsoft provider 비교로 수정하고 합성 회귀 추가. Windows 수동 workflow에 최신 E2E JS 시험 추가.
 - 소스 정적 **26/26 PASS**, 로컬 별도 추출 Python QA helper 스모크 **6/6 PASS**(GitHub 전체 native는 아님). 실제 Windows PS5.1/Node/Python 전체·Windows/USB·ZIP·QR/A4/WinRE·현재 SHA CI 미검증. 증거 `products/pc-care/tests/evidence/native_qa_receipt_update_provider_static_20261031.json`.
 - 개발 전 SHA `f604d2f4902dec82e3e58a0166f2dc94faa0e5ce`, 운영 main/Cloudflare·고객 파일/권한/키/복구 불변. 상세 10항 `products/pc-care/HANDOFF.md`. 다음 Windows checkout `RUN_RELEASE_QA.cmd` 1회→QA_RESULTS 영수증 확인→사용자 명시 read-only 보고서/H08·USB/QR/A4→WinRE 격리 안전 검증. 문서 최종 SHA 재확인.
+
+## 2026-10-31 KST — CUBE PC CARE QA 완전성 인수인계
+- `hibi89/AX_MART@feature/pc-care-usb`: 개발 QA 4대 필수 단계(Python/Node/ZIP/PS5.1)가 하나라도 누락/중복되면 전체 PASS가 나오지 않도록 `classify_full_qa_stages` 구현. `run_qa`와 프라이빗 JSON 영수증 공통 적용, 기존 일반 상태 분류와 분리. 테스트 `test_preflight.py`/소스 계약 `test_package.py` 갱신.
+- 실제 원격 소스 readback·격리 로컬 Python 3.13 10/10 PASS. **전체 native Python/Node/PS5.1/실 ZIP·Windows·USB/QR/A4·WinRE·CI 미검증**. 증거 `products/pc-care/tests/evidence/qa_gate_matrix_20261031.json`. 자세한 10항은 `products/pc-care/HANDOFF.md`.
+- 기준 변경 전 SHA `c8ca0136a1ec65f2d3490e0d7245f2e6b97f81f3`, 운영 main/Cloudflare·개인자료·OS/복구/결제 불변. 다음 Windows `RUN_RELEASE_QA.cmd` 실제 검증 후 영수증 확인, 출시 승인 이전 고객 배포 금지. 최종 SHA는 원격 재조회.
