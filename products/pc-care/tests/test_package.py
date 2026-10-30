@@ -74,6 +74,16 @@ class PackageTests(unittest.TestCase):
         self.assertIn('[switch]$RunReadOnly', text)
         self.assertNotIn('repair.ps1 -', text)
 
+
+    def test_report_has_escaped_disk_and_crash_details(self):
+        text = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn('최근 블루스크린 상세', text)
+        self.assertIn('물리 저장장치 상태', text)
+        self.assertIn('(Esc $d.model)', text)
+        self.assertIn('(Esc $e.stopCode)', text)
+        self.assertIn('if ($eventQueryFailed)', text)
+        self.assertIn('마모율/온도는 드라이버 지원', text)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
         for name in ['tools/diagnose.ps1','tools/repair.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))

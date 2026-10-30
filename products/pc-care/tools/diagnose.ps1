@@ -75,8 +75,8 @@ foreach ($disk in $disks) {
     [void]$diskData.Add($item)
     if ($state -in @('Warning','Unhealthy')) {
         Add-Issue 'high' 'DISK_HEALTH' '저장장치 상태 경고' ("{0}: {1}" -f $disk.FriendlyName,$state) '디스크 수리를 시도하기 전에 데이터를 다른 저장장치에 백업하고 저장장치 점검을 받으세요.'
-    } elseif ($state -eq 'Unknown' -or [string]::IsNullOrWhiteSpace($state)) {
-        [void]$limits.Add(('저장장치 {0}: 상태 확인 불가' -f $disk.FriendlyName))
+    } elseif ($state -ne 'Healthy') {
+        [void]$limits.Add(('저장장치 {0}: 상태 확인 불가/미지원 ({1})' -f $disk.FriendlyName,$state))
     }
 }
 if ($diskData.Count -eq 0) { [void]$limits.Add('장치별 SMART/저장장치 상태를 확인하지 못했습니다.') }
@@ -177,6 +177,25 @@ foreach ($v in $report.observations.volumes) {
     [void]$rows.Add(('<tr><td>{0}</td><td>{1}GB</td><td>{2}%</td></tr>' -f (Esc $v.drive), (Esc $v.remainingGB), (Esc $v.freePercent)))
 }
 if ($rows.Count -eq 0) { [void]$rows.Add('<tr><td colspan="3">저장장치 공간 정보를 확인하지 못했습니다.</td></tr>') }
+$diskRows = New-Object 'System.Collections.Generic.List[string]'
+foreach ($d in $report.observations.physicalDisks) {
+    $health = if ($d.status -eq 'Healthy') { '정상 신호(보증 아님)' }
+              elseif ($d.status -in @('Warning','Unhealthy')) { '경고: ' + [string]$d.status }
+              else { '확인 불가: ' + [string]$d.status }
+    $wear = if ($null -eq $d.wearPercent) { '미지원' } else { ('{0}%' -f $d.wearPercent) }
+    $temp = if ($null -eq $d.temperatureC) { '미지원' } else { ('{0}°C' -f $d.temperatureC) }
+    [void]$diskRows.Add(('<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td></tr>' -f (Esc $d.model),(Esc $health),(Esc $wear),(Esc $temp)))
+}
+if ($diskRows.Count -eq 0) { [void]$diskRows.Add('<tr><td colspan="4">물리 저장장치 정보를 읽지 못했습니다. 정상 판정이 아닙니다.</td></tr>') }
+$crashRows = New-Object 'System.Collections.Generic.List[string]'
+foreach ($e in @($report.observations.bugchecks | Select-Object -First 15)) {
+    [void]$crashRows.Add(('<tr><td>{0}</td><td>{1}</td></tr>' -f (Esc $e.time),(Esc $e.stopCode)))
+}
+if ($crashRows.Count -eq 0) {
+    $crashMessage = if ($eventQueryFailed) { '시스템 로그를 조회하지 못해 블루스크린 기록을 판단할 수 없습니다.' }
+                    else { '확인한 System 이벤트 범위에서 BugCheck 기록이 없었습니다. 블루스크린이 없었다는 보증은 아닙니다.' }
+    [void]$crashRows.Add(('<tr><td colspan="2">{0}</td></tr>' -f (Esc $crashMessage)))
+}
 $limRows = New-Object 'System.Collections.Generic.List[string]'
 foreach ($l in $report.limitations) { [void]$limRows.Add('<li>'+(Esc $l)+'</li>') }
 if ($limRows.Count -eq 0) { [void]$limRows.Add('<li>보고된 접근 제한이 없습니다. 다만 검사 범위 밖의 문제는 있을 수 있습니다.</li>') }
@@ -195,14 +214,16 @@ h1{font-size:clamp(30px,5vw,54px);letter-spacing:-2px;margin:32px 0 12px}.lead{c
 .tile,section{background:#171520;border:1px solid #31293a;border-radius:18px;padding:22px}.tile strong{display:block;font-size:28px;margin-top:8px}
 .small{color:#a7a0b4;font-size:12px;line-height:1.7}h2{font-size:22px;margin:0 0 16px}section{margin:18px 0}.issue{padding:16px 18px;background:#211b2b;border:1px solid #3b304a;border-radius:13px;margin:12px 0}
 .issue.danger{border-left:4px solid #ff6a8a}.issue.warn{border-left:4px solid #f6cb73}.issue h3{margin:6px 0}.issue p{color:#c4c0cc;line-height:1.6;font-size:14px}.issue .advice{color:#a5f0d0}
-.tag{font-size:11px;color:#cba4ff;letter-spacing:.1em;text-transform:uppercase}table{width:100%;border-collapse:collapse}td,th{padding:12px;border-bottom:1px solid #33303a;text-align:left}th{color:#aaa3b8}
+.tag{font-size:11px;color:#cba4ff;letter-spacing:.1em;text-transform:uppercase}.scroll-table{overflow-x:auto}table{width:100%;border-collapse:collapse}td,th{padding:12px;border-bottom:1px solid #33303a;text-align:left}th{color:#aaa3b8}
 footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-height:1.7;color:#c1b9cf}
 </style></head><body><main><header><div class="brand"><b>AX</b>MART <em>PC CARE</em></div><div class="small">READ-ONLY / v0.1-alpha</div></header>
 <h1>내 PC 건강검진 결과<span style="color:#a977e4">.</span></h1><p class="lead">시스템 로그와 저장장치 상태를 읽어 주요 위험 신호를 점검했습니다. 파일 삭제나 시스템 설정 변경 없이 검사했습니다.</p>
 <div class="status">$(Esc $assessment)</div>
 <div class="grid"><div class="tile"><div class="small">블루스크린 관련 기록</div><strong>$(Esc $bugCountLabel)</strong></div><div class="tile"><div class="small">비정상 종료 이벤트</div><strong>$(Esc $shutdownCountLabel)</strong></div><div class="tile"><div class="small">저장장치 오류 이벤트</div><strong>$(Esc $storageCountLabel)</strong></div><div class="tile"><div class="small">발견한 주요 주의사항</div><strong>$($issues.Count)건</strong></div></div>
 <section><h2>진단 결과와 권장 조치</h2>$($cards -join "`n")</section>
-<section><h2>드라이브 공간</h2><table><thead><tr><th>드라이브</th><th>여유 공간</th><th>여유 비율</th></tr></thead><tbody>$($rows -join "`n")</tbody></table></section>
+<section><h2>드라이브 공간</h2><div class="scroll-table"><table><thead><tr><th>드라이브</th><th>여유 공간</th><th>여유 비율</th></tr></thead><tbody>$($rows -join "`n")</tbody></table></div></section>
+<section><h2>물리 저장장치 상태</h2><p class="small">Windows에서 제공한 상태 신호이며 실제 SSD/HDD 수명 또는 정상 작동을 보증하지 않습니다. 마모율/온도는 드라이버 지원 기기에서만 표시됩니다.</p><div class="scroll-table"><table><thead><tr><th>장치</th><th>상태 신호</th><th>마모율</th><th>온도</th></tr></thead><tbody>$($diskRows -join "`n")</tbody></table></div></section>
+<section><h2>최근 블루스크린 상세</h2><p class="small">Windows System 로그의 BugCheck 관련 공급자 기록 중 최대 15건을 표시합니다. STOP 코드는 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>STOP 코드(추출값)</th></tr></thead><tbody>$($crashRows -join "`n")</tbody></table></div></section>
 <section><h2>검사 한계</h2><ul>$($limRows -join "`n")</ul><p class="small">Windows $(Esc $report.observations.windows.name) · 검사 기간: $Days 일 · 생성 $(Esc $report.generatedAt)</p></section>
 <footer>AXMART PC CARE v0.1 테스트용 제품. 하드웨어 자체 검사, 메모리 덤프 분석, 악성코드 전수 검사, 수리 성공 보증은 제공하지 않습니다. BitLocker 복구키는 절대 입력하거나 이 도구에 저장하지 마세요.<br>결과는 이 기기에만 저장하며 인터넷으로 전송하지 않습니다. 판매 준비 전 실제 Windows 환경 검증이 필요합니다.</footer></main></body></html>
 "@

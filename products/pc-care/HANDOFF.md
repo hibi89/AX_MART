@@ -33,3 +33,8 @@
 8. **원본/보안**: 변경 전 4d48eb5f3078e1442410205923f89fc5b4a77207로 소스 추적 가능. 키·덤프·디스크 시리얼 수집/업로드 없음; WinRE 로그 공유 전 신원정보 검토.
 9. **다음 우선순위**: Windows 파서 → 표준 사용자 읽기 전용 1일 진단 → 관리자 진단 → WinRE 격리 VM → 복구/BitLocker/스토리지 장애 스냅샷 시험 → SHA256/코드 서명/무료 베타 승인.
 10. **갱신시각/검증범위**: 2026-10-30 15:35 KST. GitHub 코드 정적 검토와 변환 가드; Windows/CI/Production 미검증.
+
+## 2026-10-30 KST — 보고서 실용성 보강
+- 범위: `tools/diagnose.ps1` HTML 장치 건강 상태, 드라이버 지원 시 마모율/온도, BugCheck 시각·STOP 코드 표시. 미지원/로그 실패를 정상으로 보이지 않게 함. 보고서 입력은 HTML encoding 유지.
+- 파일 변경 전 SHA: `9177ffd8822eb4ac64f3bb9702a7757529c23ab9`; `tests/test_package.py` 계약 정적 검사가 추가됨.
+- 코드만 보강, Windows/WinRE 실제 실행·품질은 미검증. 웹 main/Cloudflare 무변경.
