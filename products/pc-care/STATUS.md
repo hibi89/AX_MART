@@ -131,3 +131,13 @@
 - **잔여 P1:** 업데이트/드라이버 오류 범위 확장, 배터리 설계·완충 용량 공급자 호환성 실기기 조사, 실제 사건 간 시각 연결·오탐 QA. P0 Windows/WinRE 안전 게이트와 P2 단일 인쇄 보고서/QR 미완료. 공개 ZIP·결제·강제 복구 없음.
 - **기준 커밋:** 시작 SHA 9ca1bca478bed6ffb90ba7c1c67e52ee8cef99e3. 작업 문서 반영 후 feature HEAD를 재확인할 것.
 
+## 2026-10-30 KST — P1 드라이버 구성 관측·기록 시간축 초기 구현 (최신)
+
+- 기준: `FINAL_SPEC_V2.md` H05/ANALYZE. 제품은 AXMART PC CARE, 운영 플랫폼은 AXMART³. 이번 구현은 feature/pc-care-usb만, main/Cloudflare 미변경.
+- **드라이버 관측:** `tools/pnp_analysis.ps1` 신규. 읽기 전용 `Get-CimInstance Win32_PnPEntity`에서 비정상 Configuration Manager 코드 및 제한된 PNPClass 범주만 관찰. 드라이버 이름/장치 ID/시리얼 번호 저장 금지. code 22는 의도적 비활성화 가능으로 구분하고 오류 코드만으로 고장/재설치 필요를 단정하지 않음. query 실패/비어 있음/제한 초과를 별도 상태로 기록.
+- **시간축:** `tools/recorded_timeline.ps1` 신규. BugCheck 1001, 41/6008, 스토리지 이벤트와 Windows Update 19/20의 기록 시각을 UTC로 정렬. 최신 80개를 15분 윈도우에 묶어 사건 종류/건수만 출력. 기록 시각은 실제 충돌 시각과 다르며 관찰 시점 근접은 원인/영향/동일 사고의 증명이 아님. 실시간 수집이나 네트워크 없음.
+- **연동:** `tools/diagnose.ps1`에 read-only PnP CIM 및 timeline 호출을 추가하고 JSON의 observations.driverDevices/recordedTimeline과 HTML의 범주/코드/시간축 테이블로 출력. 사용자 식별 문구는 HTML 인코딩, 자동 드라이버 설치/수리 없음. `tools/incident_analysis.ps1`에 PNP_CONFIG_REVIEW 보수적 후보, code 22 제외, 불완전 수집 caveat 추가.
+- **테스트:** `tests/driver_timeline.tests.ps1` 새 합성 fixture(코드 0/10/22/28/이상값, 누출 방지, UTC+09 동치, 15분 그룹, 80건 제한, 인과 부정). `windows_smoke.ps1` 파서·fixture 목록, `tools/release.py` 내부 테스트 ZIP ALLOWLIST, `test_package.py`·`test_release.py` 참조 업데이트. `docs/WINDOWS_TEST_PLAN.md`에 수용 조건 추가.
+- **실제 검증 범위:** GitHub의 9개 코드 소스에서 참조·정적 계약 검사를 **37/37 조건 충족**으로 확인. 컨테이너 Python 버전 3.13.5 확인, 그러나 비공개 원본을 직접 클론/실행하지 않았으므로 **Python unittest/Powershell/parser/Windows/실제 ZIP 생성 결과 0회**. Windows 11 x64 실기기·USB/WinRE/VM 실패주입·SmartScreen 검증 전 P0/P1 완료 및 무료 공개/판매 주장 금지.
+- **잔여:** Windows 실제 실행 QA 우선. P1의 추가 사건 상관 오탐 검증, P2 수리점 1페이지 인쇄/PDF+개인정보 최소 오프라인 QR, P3 Rescue 독립 안전 검증은 미완료. 시작 feature SHA 46db07771cdb45bbd733ef766919672801c2dc47, 문서 변경 후 HEAD 확인.
+
