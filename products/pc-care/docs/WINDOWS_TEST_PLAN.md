@@ -292,3 +292,8 @@ Pending manual tests:
 - Existing report JSON carries `observations.windows.build`, `windowsUpdate.installationFailureRecords`, and `driverDevices.observedCount`. Browser module `history_signals.js` now compares them only when collection state, source counts, and bounds are valid; no new system reads/permissions.
 - Negative QA: unavailable/truncated update or PnP queries; mismatched lookback days; 300 event / 30 device sample caps; invalid build; inconsistent evidence; absent devices must all render **comparison unavailable**, never zero successes.
 - New Linux Node fixture `node --test tests/test_history_signals.cjs` **7/7 PASS**; one GitHub-source V8 integration scenario PASS. Real Edge file://, Windows PowerShell5.1, USB, PDF/QR, WinRE, entire Python and ZIP unverified.
+
+## 2026-10-30 H08 multi-file local-history selection acceptance
+- Local file chooser accepts 2–25 explicit JSONs (each at most 2 MB, total at most 12 MB); no automatic file enumeration, network or file deletion. Sorted by validated PowerShell timestamp UTC, not by potentially private filename.
+- Display only enumerated timestamps and strict Korean assessment allowlist; refuse whole batch on malformed JSON, invalid timestamp, oversized or unsupported schema. Select earlier/later from ordered dropdown; choosing old and new as same record must fail. Explicit manual file selection cancels batch mode.
+- Node22 full synthetic `node --test tests/test_history_*.cjs`: **37 PASS / 0 FAIL**, including eight new DOM-mode and race tests. Real Windows Edge/Chrome file://, USB Unicode paths, full Python/ZIP, QR/PDF and WinRE acceptance **UNVERIFIED**; publication remains blocked.

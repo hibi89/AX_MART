@@ -285,3 +285,8 @@
 - `ui/history_signals.js` 새 순수 JS 로컬 모듈 추가. 비교 전제: 양쪽 보고서의 완전 수집 상태, 동일한 업데이트 조회 기간(최대 90일), 300개 업데이트 이벤트/30개 PnP 표본 상한 미도달 등. Windows 빌드·업데이트 실패 기록·장치 구성 코드 관측 건수 추가로 표시. 동일 PC·원인 고장 확정 금지.
 - `ui/history_compare.html/js`, `tools/release.py`, `tests/test_release.py`, `tests/test_package.py`, `.github/workflows/pc-care-windows-synthetic.yml`, README 갱신. Linux Node22 실제 신규 테스트 **7/7 PASS**, V8 기존 비교 함수+신규 모듈 합성 통합 PASS; 전체 Node/Python/Windows/ZIP 별도 실행 미수행. QA 증빙 `tests/evidence/h08_extended_signals_qa_20261030.json`.
 - 새 CI dispatch 실행 권한 미제공. 이전 failed run 41034866482는 runner 미배정으로 테스트 결과가 아님; 비차단 기록 후 개발 진행. 이전 GitHub `04d9979b89739c4dfaad336875489aaeca9b02c3`, main/Cloudflare 불변, 공개/판매 차단.
+
+## 2026-10-30 KST — H08 로컬 검사 기록 25개 일괄 선택
+- 기존 2파일 선택 화면에 25개·총 12MB 이내의 읽기 전용 검사 JSON을 한 번에 수동 선택하는 화면 추가. 시간대 검증된 생성시각으로 정렬, 허용 상태명만 표시, 과거/현재 드롭다운으로 두 건 지정 후 기존 비교 엔진 실행. 파일 이름과 경로, 원문 로그는 목록에 노출하지 않음.
+- batch 선택 비동기 경쟁 차단, 불량/과대 batch 전체 거부, 수동 개별 파일 방식 유지. Node.js v22.16.0 실제 `node --check` 및 `node --test tests/test_history_*.cjs` **37/37 PASS**; 테스트 source SHA 원격 일치. `.github/workflows/pc-care-windows-synthetic.yml` 회귀 신규 8종 추가. QA `tests/evidence/h08_batch_history_qa_20261030.json`.
+- 자동 검색·이력 저장·삭제는 미구현. Windows PS5.1/Edge file://, USB·QR·A4·WinRE, 전체 Python/ZIP 실기기는 아직 미검증. 신규 CI 실행 미수행(도구 제한/이전 runner 실패). 운영 main/Cloudflare·수리/원본 데이터 불변. 복구 기준 feature `b64635b25355963544303acd803c73f78db31d07`. 공개·유료 판매 금지.

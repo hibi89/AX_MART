@@ -111,3 +111,10 @@
 - 검증: Linux Node v22.16.0 `node --test tests/test_history_signals.cjs` **7/7 PASS**. 기존 compareReports와 new module을 GitHub 소스로 결합한 순수 V8 통합 합성 PASS. 새 JS 원본 Blob `f4d47bd2f0bb9850019b0fd3feb81a0dfd50c1fe`, 테스트 Blob `5b0d3a4db182314371c56d0aa9fcc0db2426a316` 및 Blob readback 확인. 이전 22개 Node 회귀 테스트는 이 변경에 대해 **재실행하지 않음**.
 - CI: workflow_dispatch-only `.github/workflows/pc-care-windows-synthetic.yml`에 새 Node 테스트 등록. 기존 Actions 41034866482는 failed/테스트 단계·runner 기록 없음. GitHub 연결에 신규 workflow dispatch 권한·도구가 없어 **이번 CI 실행 미수행**, 성공이라 표기 금지. 불필요한 기존 실패 러너 재시도 금지.
 - 검증 대기: 전체 Python/ZIP, Windows PS5.1/11, Edge/Chrome file:// USB, QR 실제 스캔/A4 PDF, WinRE VM/복구. 제품별 `products/pc-care/HANDOFF.md` 참조. 사용자 승인 없는 공개 다운로드·유료 판매 금지.
+
+## 2026-10-30 KST — H08 일괄 검사 기록 선택 / 빠른 기능 묶음 인수인계
+- 목표: AXMART PC CARE Release A H08 반복 진단 사용성 확보. 저장소 `hibi89/AX_MART`, `feature/pc-care-usb`, 시작 SHA `b64635b25355963544303acd803c73f78db31d07`.
+- 구현: `ui/history_compare.html/js`에서 수동 최대 25개·총 12MB(각 2MB) JSON 일괄 선택, 날짜순 허용 상태명만 표시, 과거/현재 드롭다운 선택 후 기존 비교 버튼. 실패 batch 전체 거부, stale 비동기 응답 폐기, 개별 2파일 방식 보존. 자동 파일검색·저장·삭제·외부 업로드 없음.
+- 실행 검증: Linux Node v22.16.0 `node --check ui/history_compare.js && node --test tests/test_history_*.cjs` **37 PASS, 0 FAIL**, git blob SHA `f5e7a98438aaf37b22ae30196c02ed013c72c526` JS/`c4c68175819b3bee2589baf372e3ffe5a9cceabd` HTML/`c70dd298f9515ca603243745e43ca3059412c802` 테스트. 증빙 `products/pc-care/tests/evidence/h08_batch_history_qa_20261030.json`.
+- CI/배포: 수동 Windows workflow에 batch Node fixture 등록, 원격 신규 CI 실행은 연결 도구에 dispatch 없음; 이전 runner 실패 41034866482 반복 재시도 안 함. Production https://ax-mart.pages.dev/ main 미변경·기능 배포 미적용.
+- 차단·다음: 실제 Windows PS5.1 진단 JSON 생성 및 Edge file:// 실제 batch 입력/USB 한글 경로/QR A4/WinRE 검증 필요. H08 자동 보관·삭제 기능 미구현. 고객 파일/BitLocker/수리 설정 불변, 강제 푸시 금지. 출시·유료 판매 사용자 승인 전 금지.

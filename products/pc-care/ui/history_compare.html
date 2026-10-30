@@ -10,10 +10,17 @@ p,li,small{color:#bac6d8}.panel{background:#1b2532;border:1px solid #334459;padd
 label{display:block;font-weight:650;margin:14px 0 6px}
 input[type=file]{display:block;width:100%;padding:12px;border:1px dashed #718399;border-radius:8px;color:#dceaf6}
 button{border:0;border-radius:9px;background:#55c5b5;color:#09201e;font-size:1rem;font-weight:700;padding:12px 20px;margin:20px 0 10px;cursor:pointer}
-button:disabled{opacity:.5}pre{overflow-wrap:anywhere;white-space:pre-wrap;font:inherit;color:#eaf5ff}
+button:disabled{opacity:.5}.selectors{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}select{width:100%;padding:12px;border:1px solid #718399;border-radius:8px;background:#111722;color:#ecf2fa}select:disabled{opacity:.5}pre{overflow-wrap:anywhere;white-space:pre-wrap;font:inherit;color:#eaf5ff}
 </style><script src="./history_signals.js" defer></script><script src="./history_compare.js" defer></script></head>
 <body><main><header><small>AXMART³ · PC CARE · Release A 시험용</small><h1>반복 검사 결과 비교</h1></header>
 <p>같은 PC에서 생성한 읽기 전용 진단 JSON 두 개를 사용자가 직접 선택합니다. 파일은 이 브라우저의 메모리에서만 처리하며 서버로 보내거나 보관하지 않습니다.</p>
+<section class="panel"><h2>여러 검사 이력 한 번에 선택</h2>
+<p>사용자가 직접 선택한 JSON만 읽습니다. 파일당 2MB, 최대 25개·합계 12MB. 파일 이름·경로는 화면에 표시하지 않습니다.</p>
+<label for="history-batch">검사 결과 일괄 선택</label><input id="history-batch" type="file" accept=".json,application/json" multiple>
+<div class="selectors"><div><label for="history-previous">과거 검사</label><select id="history-previous" disabled></select></div>
+<div><label for="history-current">현재 검사</label><select id="history-current" disabled></select></div></div>
+<p><small id="history-status" role="status" aria-live="polite">검사 JSON 두 개 이상을 직접 선택하면 날짜순 목록이 나타납니다.</small></p>
+<p><small>이력 자동 검색·영구 저장·삭제 기능은 없습니다. 아래 기존 개별 선택도 계속 사용할 수 있습니다.</small></p></section>
 <section class="panel"><h2>로컬 JSON 두 개 선택</h2>
 <label for="previous-json">1. 이전 진단 보고서</label><input id="previous-json" type="file" accept=".json,application/json">
 <label for="current-json">2. 최신 진단 보고서</label><input id="current-json" type="file" accept=".json,application/json">

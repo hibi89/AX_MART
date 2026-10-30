@@ -103,3 +103,8 @@
 - 사용자 요청에 따라 반복 소규모 수정보다 **연관 기능 일괄 개발→Node/정적 검증→안전한 GitHub 커밋→CI 상태 별도 확인**을 원칙으로 채택. CI가 차단 조건이 아니면 다른 개발 계속, runner 미배정 반복 재시도 금지.
 - PC CARE `feature/pc-care-usb` 이전 SHA `04d9979b89739c4dfaad336875489aaeca9b02c3`. 기존 진단 JSON을 활용한 H08 추가 비교(Windows 빌드/Windows Update 실패 이벤트/장치 구성 상태) 구현 및 패키지·CI 테스트 등록. Node22 독립 신호 테스트 **7/7 PASS**, GitHub 원본 통합 V8 비교 합성 PASS. Windows CI 새 실행 불가(연결 권한에 dispatch 없음, 이전 런 41034866482는 runner 이전 단계 실패)로 **미실행**.
 - 운영 main `fbb32362455378b85bcdd0b5037d1f338055fb71` / Cloudflare https://ax-mart.pages.dev/ 그대로, 실제 Windows/USB/QR/A4/WinRE 미검증. 판매·무료 배포 보류.
+
+## 2026-10-30 KST — PC CARE H08 이력 일괄 선택 개발
+- AXMART CUBE 집중 개발: 읽기 전용 JSON을 사용자가 직접 최대 25건(총 12MB) 선택하면 안전한 날짜순 목록에서 과거/현재를 골라 기존 비교 엔진을 사용하도록 H08 UI를 확장. 기존 개별 2파일 선택도 유지.
+- Linux Node22 전체 `node --test tests/test_history_*.cjs` **37/37 PASS (기존 29 + 신규 8)**. 일괄 수집 오류/파일명 비노출/총용량·개수 제한/경합·변경 인덱스 회귀 확인. 소스 Blob과 실제 실행 파일 SHA 일치. 증빙 `products/pc-care/tests/evidence/h08_batch_history_qa_20261030.json`.
+- 작업 전 feature `b64635b25355963544303acd803c73f78db31d07`. 운영 main `fbb32362455378b85bcdd0b5037d1f338055fb71`, Cloudflare 배포 변경 없음. CI dispatch 권한 도구 없음/과거 runner 실패, Windows·USB·QR/PDF·WinRE·전체 Python/ZIP 미검증; 공개 및 판매 차단.

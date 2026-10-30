@@ -373,3 +373,15 @@
 8. **원본·백업/보안:** 전 feature SHA로 복원 가능, 실제 사용자 데이터/Windows 설정/BitLocker/WinRE/수리 코드/게시 상품 불변. Git secret 없음, source는 읽기 전용.
 9. **다음 실행 계획:** 개별 CI 실패를 막힘으로 취급하지 않고 남은 Release A(오프라인 보고서·이력 관리·QR/PDF)의 기능 완성 병렬 진행. Windows 표준권한 실증 → file:// UTF-8/USB → 1페이지 PDF·휴대폰 QR → WinRE 별도 VM/승인 Gate. 완료 전 판매 금지.
 10. **확인·검증:** 2026-10-30 KST GitHub 원격 원본 JS/Blob 무결성 + Node 신규 7 tests + V8 통합. Windows/Edge/USB/WinRE·전체 CI 등 **미검증**; 커밋 후 최종 SHA 재확인.
+
+## [최신] 2026-10-30 KST — H08 multi-file batch 선택·검증 인수인계
+1. **목표·용도·기술:** PC CARE Release A H08, 사용자 로컬 기존 진단 보고서 2~25건을 편리하게 비교. Windows 설치/계정/서버/추가 권한 없이 브라우저 File API/JS.
+2. **완료 기능·결정 근거:** `history_compare.html/js`에 다중 파일 input(25건·총12MB·개별2MB), JSON schema·시간 검증/시간순 목록, 허용 상태명, 과거/현재 선택, 기존 비교 경로 연결. 파일명·경로 비노출. 자동 탐색/보관·삭제는 기기 안전을 위해 추가하지 않음; 수동 2파일 방식을 보존.
+3. **테스트·성공/실패:** Linux Node v22.16.0 `node --check ui/history_compare.js && node --test tests/test_history_*.cjs` **37 PASS/0 FAIL**. 이전 29개+신규 8개 VM mock DOM. 셀프 파일 선택, malformed batch 전체 차단, 개수/총용량, 중복 선택, manual override, stale async, 인덱스 변조, 불명확한 시각/민감 텍스트 검증. 원격 blob readback 및 Git hash-object 확인.
+4. **상태:** 기능 소스·Node QA 완료, Windows 실제 구동/USB·브라우저·WinRE·판매 배포 **검증 대기**. H08 자동 보관/삭제 UI 미구현. 전체 제품 부분 완료.
+5. **문제·실패 근거·대안:** 기존 Chromium 브라우저 테스트 환경은 관리자 정책으로 file:// 접근 거부. 이 환경 우회/반복 금지. GitHub CI 이전 run 41034866482 job steps 없음·failed, 새 workflow dispatch 도구 없음. Windows 실기기에서 별도 검증하거나 CI runner 가용 시 실행; 테스트 통과 주장 금지.
+6. **저장소·브랜치·SHA·경로:** `hibi89/AX_MART`, `feature/pc-care-usb`, 백업 HEAD `b64635b25355963544303acd803c73f78db31d07`. 신규 `products/pc-care/tests/test_history_batch.cjs`, `ui/history_compare.js/html`, `tests/evidence/h08_batch_history_qa_20261030.json`, docs, CI.
+7. **Production/실행:** `https://ax-mart.pages.dev/` Cloudflare main `fbb32362455378b85bcdd0b5037d1f338055fb71` 미변경; `START_PC_CARE.cmd` 메뉴5→로컬 HTML. JS는 업로드/네트워크 전송 없음.
+8. **원본·보안·복구:** 원본 PC 데이터/REPORTS/수리·WinRE/BitLocker 설정 미변경. 사용자가 브라우저에서 명시 선택한 JSON만 메모리 읽기. Git 이전 HEAD로 복원, force push 없음.
+9. **다음 우선순위·완료기준·승인:** Windows11 표준 사용자 진단 두 건→Edge file:// batch UI·한글 USB 경로·네트워크 0·오류 0→A4 인쇄/휴대폰 QR/WinRE VM 통과. 출시·다운로드/결제 활성화는 별도 사용자 승인 필요.
+10. **갱신 시각/검증범위:** 2026-10-30 KST. 실제 Node 37/37·SHA 검증, Windows/브라우저 실기기·전체 Python/ZIP·Cloudflare Production 적용 미검증. 작업 후 원격 Git HEAD 재확인.

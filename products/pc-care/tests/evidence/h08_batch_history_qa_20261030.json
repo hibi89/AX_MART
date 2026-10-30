@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "project": "AXMART PC CARE",
+  "feature": "Release A H08 multi-file history selection",
+  "dateKST": "2026-10-30",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "baselineSHA": "b64635b25355963544303acd803c73f78db31d07",
+  "implementation": [
+    "Explicit manual browser multi-file selection of 2–25 local PC CARE JSON reports, total <=12 MB and each <=2 MB",
+    "Validation of schema, mode, product, Gregorian date and timezone, fail entire batch if any report invalid",
+    "Chronological summaries with assessment allowlist only; no file names, paths, raw log/issue text shown",
+    "Choice of old/new report from sorted dropdowns; click compares via existing safe H08 modules",
+    "Revision-based cancellation of obsolete asynchronous file reads; manual selection overrides batch"
+  ],
+  "executed": {
+    "command": "node --check ui/history_compare.js && node --test tests/test_history_*.cjs",
+    "runtime": "Linux Node.js v22.16.0",
+    "totalTests": 37,
+    "passed": 37,
+    "failed": 0,
+    "exitCode": 0,
+    "baselineTests": 29,
+    "newTests": 8,
+    "scope": "actual Node unit and virtual DOM synthetic tests; not real browser"
+  },
+  "blobs": {
+    "products/pc-care/ui/history_compare.js": "f5e7a98438aaf37b22ae30196c02ed013c72c526",
+    "products/pc-care/ui/history_compare.html": "c4c68175819b3bee2589baf372e3ffe5a9cceabd",
+    "products/pc-care/tests/test_history_batch.cjs": "c70dd298f9515ca603243745e43ca3059412c802"
+  },
+  "ci": {
+    "previousFailedRun": 41034866482,
+    "newRunTriggered": false,
+    "reason": "GitHub connector has no workflow_dispatch action; known prior runner allocation failure; do not repeatedly rerun"
+  },
+  "unverified": [
+    "PowerShell5.1 runtime",
+    "Edge/Chrome file:// in Windows",
+    "Unicode USB path",
+    "HTML print A4/PDF",
+    "QR device scanning",
+    "WinRE read-only recovery and Release B",
+    "Python test suite and real ZIP build",
+    "Production"
+  ],
+  "safety": "No user system or report files modified, deleted or uploaded; user explicitly selects source JSON; browser memory only; existing main and Cloudflare production untouched."
+}

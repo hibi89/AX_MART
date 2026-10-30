@@ -70,6 +70,12 @@ function compareReports(oldReport,newReport){
     const output = document.getElementById("output");
     if (!prev || !curr || !button || !output) return;
     let selectionRevision = 0; // Invalidate an in-flight comparison when a selected file changes.
+    const batch = document.getElementById("history-batch");
+    const historyPrevious = document.getElementById("history-previous");
+    const historyCurrent = document.getElementById("history-current");
+    const historyStatus = document.getElementById("history-status");
+    let selectedHistory = null; // Ephemeral File handles, never persistent storage.
+    const safeAssessment = report => ["위험 신호","주의 필요","확인 불완전","관찰 범위 내 특이사항 없음"].includes(report.assessment)?report.assessment:"확인 불가";
     function checkFile(f) {
       if (!f || f.size < 1 || f.size > 2000000) throw Error("JSON 파일은 2MB 이하만 선택하세요.");
       if (!/[.]json$/i.test(f.name)) throw Error("JSON 파일만 선택하세요.");
@@ -78,14 +84,78 @@ function compareReports(oldReport,newReport){
       checkFile(f);
       return JSON.parse((await f.text()).replace(/^\uFEFF/, ""));
     }
+    if (batch && historyPrevious && historyCurrent && historyStatus) {
+      const clearHistory = () => {
+        selectedHistory = null;
+        historyPrevious.disabled = true;
+        historyCurrent.disabled = true;
+        historyPrevious.replaceChildren();
+        historyCurrent.replaceChildren();
+      };
+      batch.addEventListener("change", async () => {
+        const revision = ++selectionRevision;
+        clearHistory();
+        output.textContent = "이력 파일이 변경되어 이전 비교 내용을 지웠습니다.";
+        const files = Array.from(batch.files || []);
+        if (!files.length) { historyStatus.textContent = "선택한 파일이 없습니다."; return; }
+        if (files.length > 25 || files.reduce((sum,f)=>sum+f.size,0) > 12000000) {
+          historyStatus.textContent = "최대 25개, 합계 12MB 이하의 JSON만 선택하세요.";
+          return;
+        }
+        historyStatus.textContent = "선택한 파일을 로컬에서 확인하고 있습니다.";
+        try {
+          const history = await Promise.all(files.map(async file => {
+            const report = await parseFile(file);
+            const validated = validateReport(report);
+            return {file, stamp:validated.stamp, time:report.generatedAt, assessment:safeAssessment(report)};
+          }));
+          if (revision !== selectionRevision) return;
+          if (history.length < 2) throw Error("적어도 두 건의 보고서를 선택해야 합니다.");
+          history.sort((a,b)=>a.stamp-b.stamp);
+          history.forEach((item,i) => {
+            const label = (i+1)+". "+item.time+" | "+item.assessment;
+            for (const select of [historyPrevious,historyCurrent]) {
+              const option = document.createElement("option");
+              option.value = String(i);
+              option.textContent = label; // Never display file names or raw issues.
+              select.appendChild(option);
+            }
+          });
+          historyPrevious.value = "0";
+          historyCurrent.value = String(history.length-1);
+          historyPrevious.disabled = false;
+          historyCurrent.disabled = false;
+          selectedHistory = history;
+          historyStatus.textContent = history.length+"개 보고서 확인. 과거/현재를 지정한 뒤 비교를 누르세요. 목록은 메모리에서만 유지됩니다.";
+        } catch (_err) {
+          if (revision === selectionRevision) {
+            clearHistory();
+            historyStatus.textContent = "보고서 일괄 선택을 사용할 수 없습니다. 개수·용량·JSON 형식 및 검사시각을 확인하세요.";
+          }
+        }
+      });
+      [historyPrevious,historyCurrent].forEach(select=>select.addEventListener("change",()=>{
+        selectionRevision++;
+        output.textContent = "비교 대상으로 선택한 검사 결과가 변경되었습니다.";
+      }));
+    }
     button.addEventListener("click", async () => {
       const requestRevision = selectionRevision;
       button.disabled = true;
       output.textContent = "기기 내부에서 보고서를 읽고 있습니다.";
       try {
-        if (!prev.files.length || !curr.files.length) throw Error("과거와 현재 JSON을 각각 선택하세요.");
-        checkFile(prev.files[0]);checkFile(curr.files[0]);
-        const [before,after] = await Promise.all([parseFile(prev.files[0]),parseFile(curr.files[0])]);
+        const selectedIndex = (select) => {
+          const n = Number(select.value);
+          return Number.isSafeInteger(n) && n >= 0 && n < selectedHistory.length ? n : -1;
+        };
+        const oldIndex = selectedHistory ? selectedIndex(historyPrevious) : -1;
+        const newIndex = selectedHistory ? selectedIndex(historyCurrent) : -1;
+        if (selectedHistory && (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex)) throw Error("일괄 이력에서 서로 다른 두 검사를 선택하세요.");
+        const oldFile = selectedHistory ? selectedHistory[oldIndex].file : prev.files[0];
+        const newFile = selectedHistory ? selectedHistory[newIndex].file : curr.files[0];
+        if (!oldFile || !newFile) throw Error("과거와 현재 JSON을 각각 선택하세요.");
+        checkFile(oldFile);checkFile(newFile);
+        const [before,after] = await Promise.all([parseFile(oldFile),parseFile(newFile)]);
         if (requestRevision !== selectionRevision) return; // Never display stale file data.
         if (JSON.stringify(before) === JSON.stringify(after)) throw Error("서로 다른 두 검사 결과를 선택하세요.");
         const result = compareReports(before,after);
@@ -115,6 +185,9 @@ function compareReports(oldReport,newReport){
     });
     [prev,curr].forEach(input=>input.addEventListener("change",()=>{
       selectionRevision++;
+      selectedHistory = null; // Explicit manual file selection overrides a prior batch.
+      if (historyPrevious && historyCurrent) {historyPrevious.disabled=true; historyCurrent.disabled=true;}
+      if (historyStatus) historyStatus.textContent="개별 JSON 선택으로 전환했습니다. 이력 일괄 선택을 다시 사용하려면 파일을 재선택하세요.";
       output.textContent="파일 선택이 변경되어 이전 비교 내용을 지웠습니다.";
     }));
   }
