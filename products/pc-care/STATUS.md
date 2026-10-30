@@ -182,3 +182,12 @@
 - **테스트 코드:** `tests/test_package.py`에 정적 내비게이션 앵커·출력 분리·오프라인/키보드 검사 추가. 렌더러의 `#consultation-print` ID가 별도 `consultation_render.ps1`에 위치하므로 두 파일을 함께 검사하도록 수정. 원격 GitHub 소스 **정적 9/9 조건 확인**, Windows 브라우저 실제 작동·출력·QR 스캔 테스트는 아직 0회.
 - **게이트:** GitHub CI 미검증, Python unittest/ZIP 실빌드 미실행, Win11·USB·WinRE·안전 복구 QA 미완료. 제품 무료 공개/크몽 서비스 등록/다운로드 활성화 불가. 계정 GitHub Actions 러너/청구/권한 문제는 추가 확인 필요; 실패 원인 확정 불가.
 
+## 2026-10-30 KST — Windows 실행기 하이재킹 위험 완화·QR Node 실행검증·저장 HTML QA (최신)
+
+- **보안 취약점 수정:** `RUN_HEALTH_CHECK.cmd`, `RUN_SELF_TEST.cmd`, `RUN_SAFE_REPAIR.cmd` 모두 호출 실행 파일 검색을 PATH/`powershell.exe` 이름 호출에 의존하지 않도록 `%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe` 절대경로와 존재 확인(없으면 exit 2)으로 교체. USB 작업 폴더에 같은 이름의 실행 파일이 놓여도 프로그램이 이를 우연히 실행하는 경로 검색 위험을 줄임. 기존 승인형 복구의 관리자/백업/명시 승인 게이트는 변경하지 않음. 자가 테스트/진단 모두 `DisableDelayedExpansion` 사용; 실제 Windows CMD의 경로·공백·USB 검증은 대기.
+- **실행한 JS 검증:** GitHub `ui/qr_ui.js` 소스와 동일함을 FNV32 `3087562328`으로 대조한 로컬 복사본을 Node.js v22.16.0 `vm`+가짜 DOM/QR 생성자로 **6/6 실제 실행 성공**, `node --check` 구문검사 성공. 성공 영역: 초기 자동 생성 금지, 한국어 정상 입력 클릭, 250바이트 초과 차단, 잘못된 접두부 차단, TextEncoder/QR 라이브러리 없음 시 폴백, 생성 실패 시 안전 표시. 이는 실제 QR 비트맵 렌더/브라우저/카메라 스캔 결과가 아님.
+- **추가 테스트 코드:** `tests/test_qr_ui.cjs` Node 내장 `node:test`의 10개 QR UI 모의 시나리오, GitHub workflow 수동 단계에 `node --test tests/test_qr_ui.cjs` 연결(새 파일의 GitHub runner 실제 실행 대기). `tests/test_package.py`에 CMD 절대경로/실패 시 fail-closed/안전 명령·Node 테스트 파일 검증. `tests/windows_smoke.ps1 -RunReadOnly`에는 생성된 JSON/HTML 내용에 대하여 A4 #consultation-print/QR 자산 라이선스/QR 지원 여부/QR 페이로드 미저장/외부 <script src>/<link href> 부재 검사를 추가.
+- **GitHub 정적 검사:** 변경된 세 CMD, JS fixture, workflow, PS smoke, Python 테스트 및 문서 소스 8종의 **교차 조건 21/21 충족**. 실제 Windows PowerShell 5.1 fixture/자가 검사, Python unittest/ZIP 빌드, Chrome/Edge QR 렌더·PDF 1페이지, 스마트폰 QR 스캔, WinRE 테스트 **미실행**. GitHub Windows Actions 최초 run 41034866482는 runner_id=0/steps=[] 인프라 실패였으며 자동 트리거를 수동 전용으로 유지. 해당 러너 테스트를 PASS로 간주하면 안 됨.
+- **제품/출시:** AXMART³ main/Cloudflare 미변경. 무료 공개/크몽 유료 서비스/사용자 다운로드 미실시. 전체 최종 설계 진척률 기존 약 30% 수준 추정(실제 장치·복구 QA 비중 큼); 테스트 산출물을 중복으로 완성률에 과도하게 더하지 않음.
+- **향후:** Windows 11 x64 PS5.1 실기기에서 CMD 실행기/USB 경로 스푸핑/표준 사용자 권한/저장된 JSON+HTML/한글 A4 및 QR 스캔 확인. 운영 환경에서 테스트/드라이버 설치/복구를 자동으로 시작하지 않음. WinRE 백업/안전 복구는 별도 VM + 승인 게이트 뒤 진행. `docs/WINDOWS_TEST_PLAN.md` 최신 수용조건 참조.
+
