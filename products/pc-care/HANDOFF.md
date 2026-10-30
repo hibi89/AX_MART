@@ -614,3 +614,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본·백업·보안: Git 변경 전 SHA 복원점. 고객 REPORTS·OS·BitLocker·인증키·파일 무접근/무변경. `QA_RESULTS/` Git ignore 및 배포 ZIP 제외. 영수증에는 경로/원시 로그·시리얼/개인정보 없음. 별도 외부 전송 없음.
 9. 다음 P0·승인: 전체 Windows 개발 체크아웃에서 `RUN_RELEASE_QA.cmd` 네이티브 1회 실행→`QA_RESULTS/pc-care-qa-*.json` 확인→명시적 read-only 진단 생성 JSON/HTML/H08·한글USB/QR/A4. WinRE 실제 복사·수리·출시/결제·권한 변경은 사전 승인 필수.
 10. 시점·범위: 2026-10-31 KST. GitHub 원격 readback/정적 26건 + 복사된 isolated receipt smoke 6건까지만 확인. 진짜 Windows Native/CI/배포 미검증. 문서 커밋 후 feature SHA 별도 확인.
+
+## 2026-10-31 KST — CUBE QA 4단계 근거 판정 / 10항
+1. 목표/기술: PC CARE Release A PS5.1/CMD·로컬 JSON/HTML·H08, USB/QR/A4, Release B WinRE 격리.
+2. 변경: QA 단계 일부만 PASS여도 전체 PASS가 가능했던 집계 취약점 해결; `classify_full_qa_stages`가 Python/Node/ZIP/WinPS5.1 4개 슬롯을 1회씩 요구. `run_qa`와 프라이빗 영수증 `safe_qa_receipt` 모두 동일 판정.
+3. 검증: 원격 GitHub 코드·테스트 readback. GitHub 실소스의 두 함수만 복사하여 로컬 Python 3.13 **10 PASS/0 FAIL**(비통합 검사). 실제 전체 repo unittest, native Windows PS5.1/Node·ZIP·USB/QR/A4·WinRE/CI NOT_RUN.
+4. 상태: QA 정확도 기능·합성 테스트 코드 반영, Windows 실제 acceptance 검증 대기. 배포와 WinRE 실제 복사·수리 차단.
+5. 오류/대안: 누락/중복된 단계의 긍정 오판. 구형 상태 집계는 일반용으로 두고 통합 QA와 저장 영수증에 엄격한 matrix 적용. 같은 의미 없는 Actions runner 재시도 금지.
+6. 저장소/브랜치/SHA: `hibi89/AX_MART@feature/pc-care-usb`, 작업 전 `c8ca0136a1ec65f2d3490e0d7245f2e6b97f81f3`, `tools/preflight.py`, `tests/test_preflight.py`, `tests/test_package.py`, 근거 `tests/evidence/qa_gate_matrix_20261031.json`; 최종 SHA는 재조회.
+7. Production/환경: `https://ax-mart.pages.dev/` 운영 main 유지/미배포. Windows 11/PS5.1, Python≥3.11, Node, 개발용 `RUN_RELEASE_QA.cmd`.
+8. 원본/백업/비밀: Git 작업 전 SHA 복원점, 고객 REPORTS·Windows/BitLocker·복구·계정·환경변수·실데이터 무접근/무수정. QA_RESULTS Git ignore 유지.
+9. 다음 작업/승인: Windows 전체 체크아웃에서 네이티브 `RUN_RELEASE_QA.cmd` 실행 및 로컬 영수증 확인→별도 명시 승인한 실제 read-only JSON/HTML/H08→USB·QR/A4→WinRE 격리 안전 검증. 실수리·복사·공개·결제 사전 승인 필수.
+10. 갱신: 2026-10-31 KST. 격리 Python 10케이스 외 전 범위 미검증. 문서 SHA 최종 GitHub 확인 필요.
