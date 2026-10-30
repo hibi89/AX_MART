@@ -65,8 +65,9 @@ class PreflightTests(unittest.TestCase):
         raw={'status':'partial','stages':[
             {'name':'python-tests','status':'pass','tests':77,
              'output':'PRIVATE USER\\\\HOST event log and C:\\\\Users\\\\Private'},
-            {'name':'private-stolen-username','status':'pass','tests':True,
+            {'name':'node-tests','status':'pass','tests':True,
              'output':'PRIVATE-SECRET'},
+            {'name':'internal-zip','status':'pass','output':'PRIVATE-SECRET'},
             {'name':'windows-powershell-51-synthetic','status':'not-run',
              'output':'PRIVATE-SECRET'}
         ],'warning':'PRIVATE-SECRET'}
@@ -84,9 +85,31 @@ class PreflightTests(unittest.TestCase):
             self.assertNotIn('warning',text)
             self.assertEqual(loads(text)['status'],'partial')
             self.assertEqual(loads(text)['stages'][0]['tests'],77)
-            self.assertEqual(loads(text)['stages'][1]['name'],'unknown')
+            self.assertEqual(loads(text)['stages'][1]['name'],'node-tests')
             self.assertNotIn('tests',loads(text)['stages'][1])
             self.assertEqual(loads(text)['scope'],'synthetic_only_no_live_diagnosis')
+
+    def test_required_qa_matrix_prevents_missing_or_duplicate_passes(self):
+        full=[
+            {'name':'python-tests','status':'pass'},
+            {'name':'node-tests','status':'pass'},
+            {'name':'internal-zip','status':'pass'},
+            {'name':'windows-powershell-51-synthetic','status':'pass'}
+        ]
+        validate=preflight.classify_full_qa_stages
+        self.assertEqual(validate(full),'pass')
+        self.assertEqual(validate(full[:-1]),'fail')
+        self.assertEqual(validate(full+[full[-1]]),'fail')
+        self.assertEqual(validate(full[:2]+[full[1]]+full[3:]),'fail')
+        self.assertEqual(validate(full[:2]+[{'name':'unexpected','status':'pass'}]+full[3:]),'fail')
+        partial=[*full[:-1],{'name':'windows-powershell-51-synthetic','status':'not-run'}]
+        self.assertEqual(validate(partial),'partial')
+        self.assertEqual(preflight.safe_qa_receipt({'status':'pass','stages':full[:-1]})['status'],'fail')
+        self.assertEqual(preflight.safe_qa_receipt({'status':'partial','stages':partial})['status'],'partial')
+        error=[full[0],{'name':'node-syntax:ui/history_compare.js','status':'fail'},full[2],full[3]]
+        self.assertEqual(validate(error),'fail')
+        error=[full[0],full[1],{'name':'internal-zip-verify','status':'fail'},full[3]]
+        self.assertEqual(validate(error),'fail')
 
     def test_receipt_fails_closed_on_status_mismatch_and_unsupported_states(self):
         result={'status':'pass','stages':[
