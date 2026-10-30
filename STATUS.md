@@ -207,3 +207,8 @@
 - WindowsUpdate 이벤트 공급자를 전체 이름으로 정확히 확인하도록 변경하고 위장 provider 회귀 추가. 기존 수동 Windows QA workflow 누락된 H08 System E2E JS 테스트 등록.
 - GitHub 정적 계약 **26/26 PASS**; 분리된 동일 Python helper 로컬 스모크 **6/6 PASS**, **전체 GitHub native Python/Node 및 Windows/PS5.1/실 ZIP·USB·QR/A4·WinRE·CI NOT_RUN**. `products/pc-care/tests/evidence/native_qa_receipt_update_provider_static_20261031.json`.
 - 운영 main/Cloudflare·고객 원본·OS/복구·인증 불변, 공개 배포 금지. 다음 Windows `RUN_RELEASE_QA.cmd` 1회 실제 검증 후 `QA_RESULTS` 검토.
+
+## 2026-10-31 KST — AXMART CUBE QA 필수 단계 정합성
+- `feature/pc-care-usb`: 일부 PASS만 있는 QA를 전체 PASS로 판정하던 `preflight.py` 경로 개선. Python/Node/내부 ZIP/Windows PS5.1 단계 4개 유일성 강제, 누락/중복은 FAIL, Windows 미실행은 PARTIAL. 개인 정보 없는 QA 영수증도 동일 검사 적용.
+- `tests/test_preflight.py`·`tests/test_package.py` 회귀·계약 갱신. GitHub 코드 복사 격리 Python 3.13 **10/10 PASS**, 전체 native Python/Node·PS5.1/ZIP·실Windows·USB/QR/A4·WinRE·현재 CI 미실행. 증거 `products/pc-care/tests/evidence/qa_gate_matrix_20261031.json`.
+- 운영 main·Cloudflare·사용자 파일/OS/복구·출시 불변. 다음 Windows 네이티브 `RUN_RELEASE_QA.cmd` 결과 영수증 확인.
