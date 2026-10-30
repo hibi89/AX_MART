@@ -32,22 +32,40 @@ Assert-PcCareDriverTimeline (($pnp | ConvertTo-Json -Depth 6) -notmatch 'PRIVATE
 $cap = ConvertTo-PcCarePnPSummary -Devices $devices -QueryStatus 'collected' -MaxSamples 1
 Assert-PcCareDriverTimeline ($cap.status -eq 'truncated' -and $cap.samples.Count -eq 1) 'Bounded PnP samples'
 $evidence = @(
-    [pscustomobject]@{ kind='bugcheck_record'; recordedUtc='2026-10-30T01:01:00.0000000+00:00'; Message='PRIVATE-LOG' },
-    [pscustomobject]@{ kind='shutdown_signal'; recordedUtc='2026-10-30T10:04:00+09:00'; id='PRIVATE-LOG' },
-    [pscustomobject]@{ kind='storage_signal'; recordedUtc='2026-10-30T01:40:00.0000000Z' },
+    [pscustomobject]@{ kind='bugcheck_record'; eventId=1001; recordedUtc='2026-10-30T01:01:00.0000000+00:00'; Message='PRIVATE-LOG' },
+    [pscustomobject]@{ kind='shutdown_signal'; eventId=41; recordedUtc='2026-10-30T10:04:00+09:00'; id='PRIVATE-LOG' },
+    [pscustomobject]@{ kind='storage_signal'; eventId=7; recordedUtc='2026-10-30T01:40:00.0000000Z' },
     [pscustomobject]@{ kind='not_from_normalizer'; recordedUtc='2026-10-30T01:05:00.0000000Z' }
 )
-$updates = @([pscustomobject]@{ kind='update_installation_failure_record'; recordedUtc='2026-10-30T01:03:00.0000000Z'; Message='PRIVATE-LOG' })
-$timeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updates -WindowMinutes 15
+$updates = @([pscustomobject]@{ kind='update_installation_failure_record'; eventId=20; recordedUtc='2026-10-30T01:03:00.0000000Z'; Message='PRIVATE-LOG' })
+$timeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updates -WindowMinutes 15 -SystemCollectionStatus 'collected' -UpdateCollectionStatus 'collected'
 Assert-PcCareDriverTimeline ($timeline.acceptedCount -eq 4 -and $timeline.windows.Count -eq 2) 'Only allowed kinds and separate distant window'
 Assert-PcCareDriverTimeline ($timeline.windows[0].evidenceCount -eq 3) 'Same instant zone offsets should group by UTC'
 Assert-PcCareDriverTimeline ($timeline.windows[0].interpretation -eq 'recorded_timestamp_proximity_only') 'Never infer cause'
 Assert-PcCareDriverTimeline (@($timeline.windows | Where-Object { $_.causeConfirmed }).Count -eq 0) 'No causal conclusion'
 Assert-PcCareDriverTimeline (($timeline | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE-') 'No raw event messages or identifiers'
-$bounded = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updates -MaxEntries 2
+$bounded = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updates -MaxEntries 2 -SystemCollectionStatus 'collected' -UpdateCollectionStatus 'collected'
 Assert-PcCareDriverTimeline ($bounded.status -eq 'truncated' -and $bounded.returnedCount -eq 2) 'Enforced timeline limit'
-$invalidTime = Get-PcCareRecordedTimeline -SystemEvidence @([pscustomobject]@{ kind='shutdown_signal'; recordedUtc='not-a-date' })
+$invalidTime = Get-PcCareRecordedTimeline -SystemEvidence @([pscustomobject]@{ kind='shutdown_signal'; eventId=41; recordedUtc='not-a-date' }) -SystemCollectionStatus 'collected'
 Assert-PcCareDriverTimeline ($invalidTime.acceptedCount -eq 0) 'Reject invalid timestamp'
+# The same arrays may survive a failed/no-match event query: status wins.
+$staleTimeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updates -SystemCollectionStatus 'unavailable' -UpdateCollectionStatus 'no matching events'
+Assert-PcCareDriverTimeline ($staleTimeline.acceptedCount -eq 0 -and $staleTimeline.windows.Count -eq 0) 'Failed/no-match collectors cannot generate timeline windows'
+Assert-PcCareDriverTimeline ($staleTimeline.sourceCollection.system -eq 'unavailable') 'Collection provenance exposed without raw identifiers'
+$partialTimeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updates -SystemCollectionStatus 'truncated' -UpdateCollectionStatus 'collected'
+Assert-PcCareDriverTimeline ($partialTimeline.status -eq 'truncated' -and $partialTimeline.acceptedCount -eq 4) 'Collector cap preserved even below timeline display cap'
+$crossOrigin = Get-PcCareRecordedTimeline -SystemEvidence $updates -UpdateEvidence $evidence -SystemCollectionStatus 'collected' -UpdateCollectionStatus 'collected'
+Assert-PcCareDriverTimeline ($crossOrigin.acceptedCount -eq 0) 'Update and System evidence cannot cross collector boundaries'
+$wrongId = Get-PcCareRecordedTimeline -SystemEvidence @([pscustomobject]@{ kind='bugcheck_record'; eventId=41; recordedUtc='2026-10-30T01:00:00Z' }) -SystemCollectionStatus 'collected'
+Assert-PcCareDriverTimeline ($wrongId.acceptedCount -eq 0) 'BugCheck kind requires event 1001'
+$unknownId = Get-PcCareRecordedTimeline -SystemEvidence @([pscustomobject]@{ kind='storage_signal'; eventId=999; recordedUtc='2026-10-30T01:00:00Z' }) -SystemCollectionStatus 'collected'
+Assert-PcCareDriverTimeline ($unknownId.acceptedCount -eq 0) 'Only allowlisted storage IDs are accepted'
+$noOffset = Get-PcCareRecordedTimeline -SystemEvidence @([pscustomobject]@{ kind='shutdown_signal'; eventId=41; recordedUtc='2026-10-30T01:00:00' }) -SystemCollectionStatus 'collected'
+Assert-PcCareDriverTimeline ($noOffset.acceptedCount -eq 0) 'Ambiguous local timezone is not an evidence time'
+$fakeDate = Get-PcCareRecordedTimeline -SystemEvidence @([pscustomobject]@{ kind='shutdown_signal'; eventId=41; recordedUtc='2026-02-30T01:00:00Z' }) -SystemCollectionStatus 'collected'
+Assert-PcCareDriverTimeline ($fakeDate.acceptedCount -eq 0) 'Invalid calendar day never becomes an event'
+$validOffset = Get-PcCareRecordedTimeline -SystemEvidence @([pscustomobject]@{ kind='shutdown_signal'; eventId=6008; recordedUtc='2026-10-30T10:00:00+09:00' }) -SystemCollectionStatus 'collected'
+Assert-PcCareDriverTimeline ($validOffset.acceptedCount -eq 1 -and $validOffset.windows.Count -eq 1) 'Explicit offsets accepted and normalized'
 $pnpFinding = Get-PcCareIncidentAssessment -EventEvidence @() -DiskObservations @([pscustomobject]@{ status='Healthy' }) -EventCollectionStatus 'collected' -UpdateCollectionStatus 'collected' -PnPSummary $pnp
 Assert-PcCareDriverTimeline (@($pnpFinding.findings | Where-Object { $_.code -eq 'PNP_CONFIG_REVIEW' }).Count -eq 1) 'PnP error gets conservative review'
 Assert-PcCareDriverTimeline ($pnpFinding.observedCounts.pnpIssueSamples -eq 1) 'Disabled code 22 is excluded from active issue count'
