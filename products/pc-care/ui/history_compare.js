@@ -49,6 +49,20 @@ function compareReports(oldReport,newReport){
    bugcheck_record:[1001],shutdown_signal:[41,6008],
    storage_signal:[7,51,55,129,153,157]
  };
+ // Match the producer's event_analysis.ps1 provider allowlist exactly.
+ // A forged kind/ID/timestamp is not enough to establish a Windows System event.
+ const validSystemProvider=ev=>{
+   if(typeof ev.provider!=="string")return false;
+   const provider=ev.provider;
+   if(ev.kind==="bugcheck_record")
+     return /^(?:BugCheck|WER-SystemErrorReporting|Microsoft-Windows-(?:BugCheck|WER-SystemErrorReporting))$/i.test(provider);
+   if(ev.kind==="shutdown_signal")
+     return ev.eventId===41 ? /^(?:Microsoft-Windows-)?Kernel-Power$/i.test(provider)
+                            : /^EventLog$/i.test(provider);
+   if(ev.kind==="storage_signal")
+     return /^(?:(?:Microsoft-Windows-)?(?:disk|ntfs|volmgr|storahci|stornvme|storport|storvsc|nvme)|Microsoft-Windows-Storage-Storport|iaStor(?:A|AC|V|VD))$/i.test(provider);
+   return false;
+ };
  const validUtc=s=>{
    const m=typeof s==="string" && /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,7})?(?:Z|\+00:00)$/.exec(s);
    if(!m)return false;
@@ -69,7 +83,7 @@ function compareReports(oldReport,newReport){
    for(const ev of o.eventEvidence){
      if(!ev||typeof ev!=="object"||Array.isArray(ev)||ev.timeBasis!=="event_recorded_time"||
        !Object.prototype.hasOwnProperty.call(systemIds,ev.kind)||
-       !systemIds[ev.kind].includes(ev.eventId)||!validUtc(ev.recordedUtc))return null;
+       !systemIds[ev.kind].includes(ev.eventId)||!validSystemProvider(ev)||!validUtc(ev.recordedUtc))return null;
      observed[ev.kind==="bugcheck_record"?0:ev.kind==="shutdown_signal"?1:2]++;
    }
    const displayed=names.map(n=>o[n].length);
