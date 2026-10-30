@@ -45,11 +45,16 @@ class PackageTests(unittest.TestCase):
         # All report cleanup is isolated, never embedded in a scanning command.
         self.assertNotIn("Remove-Item", text)
         report_io = (ROOT/'tools/report_io.ps1').read_text(encoding='utf-8-sig')
-        self.assertIn("foreach ($owned in @($tempJson,$tempHtml))", report_io)
+        self.assertIn('[System.IO.FileMode]::CreateNew', report_io)
+        self.assertIn('[System.IO.File]::Move($tempJson, $finalJson)', report_io)
+        self.assertIn('[System.IO.File]::Move($tempHtml, $finalHtml)', report_io)
+        self.assertIn('if ($ownedJson) { Remove-Item -LiteralPath $tempJson', report_io)
+        self.assertIn('if ($ownedHtml) { Remove-Item -LiteralPath $tempHtml', report_io)
         self.assertIn("if ($movedJson) { Remove-Item -LiteralPath $finalJson", report_io)
         self.assertIn("if ($movedHtml) { Remove-Item -LiteralPath $finalHtml", report_io)
         self.assertIn("Report filename collision:", report_io)
-        self.assertNotIn("foreach ($owned in @($tempJson,$tempHtml,$finalJson,$finalHtml))", report_io)
+        self.assertNotIn('[System.IO.File]::WriteAllText($tempJson', report_io)
+        self.assertNotIn('Move-Item -LiteralPath $tempJson', report_io)
 
     def test_explicit_repair_approval_and_bounded_commands(self):
         text = (ROOT/'tools/repair.ps1').read_text(encoding='utf-8-sig')

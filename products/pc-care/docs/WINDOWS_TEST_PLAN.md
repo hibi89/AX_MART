@@ -244,3 +244,10 @@ Pending manual tests:
 - 메뉴 [0], 비정상 입력, 누락된 진단/자가검사 실행기, 신뢰 경로 choice.exe 부재 시 fail-closed.
 - USB 경로에 공백/한글/괄호/앰퍼샌드가 포함된 경우, 표준 사용자·Windows 10 22H2·USB 읽기 전용 여부를 별도 테스트. CMD CALL 경로 특수문자 및 종료 코드 전파는 실기기 확인 전 PASS 선언 금지.
 - 내부 ZIP에 START_PC_CARE.cmd 포함, 정적 보안 회귀는 test_package.py 및 test_release.py로 검사. 현재 Windows 실제 실행 결과는 **미검증**.
+
+## 2026-10-30 P0 report writer CreateNew safety hardening (Windows QA pending)
+
+- Product report_io.ps1 now uses FileMode.CreateNew + no-overwrite File.Move for two local JSON/HTML reports. The writer records ownership of each temporary path and removes ONLY paths it created, preventing accidental deletion of another process's .partial file.
+- New report_io.tests.ps1 synthetic cases: stale partial file and one-sided existing HTML remain unchanged when collisions are rejected; existing normal and blocked destination fallback fixtures remain. No customer log or device data used.
+- Static checks in test_package.py assert exclusive create and no-overwrite moves. Run Windows PowerShell 5.1 tests/windows_smoke.ps1 for fixture runtime before interpreting this as validated. Test in separate user-owned scratch directory, not real customer REPORTS.
+- Concurrent-process stress and crash/power-loss injection are still NOT verified. The pair is rollback-on-error, not a single filesystem transaction; abrupt power loss can leave one file and must be reported as partial, never 'success'.

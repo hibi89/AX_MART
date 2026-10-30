@@ -71,3 +71,8 @@
 - `products/pc-care/START_PC_CARE.cmd` 시작 메뉴(진단/자가검사/로컬 보고서 위치/안전 안내/종료), 시험 ZIP allowlist 및 회귀 테스트 추가. 자동 수리, 관리자 상승, 삭제, 외부 통신 연결 금지 유지.
 - 코드 정적 계약 점검. Windows CMD·PS5.1, USB 경로, Python unittest, QR 실제 스캔/A4 출력, WinRE/VM 복구 실행 **미검증**. GitHub Actions runner 미배정 문제는 재시도하지 않고 기록 유지.
 - 다음: Windows11 사용자 환경에서 메뉴/읽기 전용 보고서·QR/PDF 실검증, 별도 격리 VM 복구 시험 및 정식 출시 승인. 제품 상세 `products/pc-care/HANDOFF.md`/STATUS 참조. 기존 제품 기능 SHA `92294f1` 복구점.
+
+## 2026-10-30 KST — P0 원자적 신규 파일 생성·타 실행 결과 보존 — 최상위 인수인계
+- PC CARE 보고서 JSON/HTML 저장기에 원자적 신규 파일 생성(FileMode.CreateNew)·기존 파일 덮어쓰기 방지·본 실행 소유 파일만 정리 로직 추가, synthetic fixture·정적 테스트·제품 문서 동기화.
+- 대상 `hibi89/AX_MART` `feature/pc-care-usb`, 시작 SHA `9087a3bc3b72c14e3b8730d6f4709b9dbdc50056`, Cloudflare `main`/사이트 변경 없음.
+- 실제 Windows/PowerShell5.1/경합 스트레스/USB/WinRE/QR·A4 PDF **미검증**. 이전 runner 미배정 실패 재시도 금지. 신뢰 가능한 Windows 시험 후 Beta 재평가.

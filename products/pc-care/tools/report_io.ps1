@@ -16,21 +16,38 @@ function Save-PcCareReportPair {
         }
         $movedJson = $false
         $movedHtml = $false
+        $ownedJson = $false
+        $ownedHtml = $false
         try {
             New-Item -ItemType Directory -Path $folder -Force -ErrorAction Stop | Out-Null
-            [System.IO.File]::WriteAllText($tempJson, $JsonText, $utf8)
-            [System.IO.File]::WriteAllText($tempHtml, $HtmlText, $utf8)
-            Move-Item -LiteralPath $tempJson -Destination $finalJson -ErrorAction Stop
+            # CreateNew is atomic: concurrent writers and existing .partial files
+            # cannot be overwritten between Test-Path and the actual file open.
+            $jsonStream = [System.IO.File]::Open($tempJson, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
+            $ownedJson = $true
+            try {
+                $jsonBytes = $utf8.GetBytes($JsonText)
+                $jsonStream.Write($jsonBytes, 0, $jsonBytes.Length)
+                $jsonStream.Flush()
+            } finally { $jsonStream.Dispose() }
+            $htmlStream = [System.IO.File]::Open($tempHtml, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
+            $ownedHtml = $true
+            try {
+                $htmlBytes = $utf8.GetBytes($HtmlText)
+                $htmlStream.Write($htmlBytes, 0, $htmlBytes.Length)
+                $htmlStream.Flush()
+            } finally { $htmlStream.Dispose() }
+            # File.Move refuses an existing final path; never use overwrite/Force.
+            [System.IO.File]::Move($tempJson, $finalJson)
             $movedJson = $true
-            Move-Item -LiteralPath $tempHtml -Destination $finalHtml -ErrorAction Stop
+            [System.IO.File]::Move($tempHtml, $finalHtml)
             $movedHtml = $true
             return @{ json=$finalJson; html=$finalHtml }
         } catch {
             Write-Warning ('보고서 저장 위치 사용 불가: {0} ({1})' -f $folder,$_.Exception.GetType().Name)
-            # Remove generated temporary files; delete final names only when WE moved them.
-            foreach ($owned in @($tempJson,$tempHtml)) {
-                Remove-Item -LiteralPath $owned -Force -ErrorAction SilentlyContinue
-            }
+            # Delete only paths created or moved by THIS attempt. A conflicting
+            # .partial path belongs to another run and must never be removed.
+            if ($ownedJson) { Remove-Item -LiteralPath $tempJson -Force -ErrorAction SilentlyContinue }
+            if ($ownedHtml) { Remove-Item -LiteralPath $tempHtml -Force -ErrorAction SilentlyContinue }
             if ($movedJson) { Remove-Item -LiteralPath $finalJson -Force -ErrorAction SilentlyContinue }
             if ($movedHtml) { Remove-Item -LiteralPath $finalHtml -Force -ErrorAction SilentlyContinue }
         }

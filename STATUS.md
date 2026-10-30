@@ -67,3 +67,8 @@
 - PC CARE `feature/pc-care-usb`에 `START_PC_CARE.cmd` 비관리자 메뉴 소스 추가. 패키지 allowlist/회귀 테스트 및 제품 문서 업데이트.
 - 운영 `main`/Cloudflare 변경 없음, 실제 Windows/WinRE/QR 스캔/인쇄/ZIP 전체 테스트·무료 다운로드·판매 미검증/비활성.
 - 변경 전 feature HEAD `92294f15486e63d08c4b707024c0409779e1ba92`, 세부 내용은 `products/pc-care/HANDOFF.md` 참조.
+
+## 2026-10-30 KST — P0 원자적 신규 파일 생성·타 실행 결과 보존 (기능 브랜치만)
+- PC CARE `feature/pc-care-usb` 보고서 저장기의 임시 파일 경쟁 조건 수정, 기존 결과 보존 테스트 추가. 최신 코드 확인은 제품 `STATUS.md` 참조.
+- `main`/Cloudflare 운영 사이트 미수정. Windows PS5.1/실기기·동시성·QR·USB·WinRE는 검증 대기, 다운로드/유료 판매 차단.
+- 변경 전 SHA `9087a3bc3b72c14e3b8730d6f4709b9dbdc50056`.

@@ -236,3 +236,9 @@
 - 내부 시험 ZIP 허용목록 및 정적 회귀 검사에 신규 파일 포함. 기존 진단·수리/QR·Production main 소스 미변경.
 - GitHub 소스 정적 검증만 진행; **Windows CMD/PowerShell 실제 실행, Python 전체 suite, ZIP 생성, Cloudflare 배포 미실행**. 무료 베타/크몽 판매/다운로드 차단 유지.
 - 복구 기준: 기능 변경 전 `92294f15486e63d08c4b707024c0409779e1ba92`. 다음은 Windows 11 표준 사용자에서 메뉴 1/2/0 및 특수문자 USB 경로 검증, 이후 실제 QR 및 한 페이지 PDF 검사.
+
+## 2026-10-30 KST — P0 원자적 신규 파일 생성·타 실행 결과 보존
+- `tools/report_io.ps1`: FileMode.CreateNew 전용쓰기/덮어쓰기 거부형 File.Move, 실행별 .partial 소유권 기반 정리. 다른 실행이 만든 부분 파일/기존 HTML·JSON 무단 변경 방어.
+- `tests/report_io.tests.ps1`: stale partial 및 한쪽 최종 HTML 존재 시 바이트 보존 fixture 추가; `tests/test_package.py` 교차 정적 가드 갱신.
+- Windows 11/PowerShell 5.1 실제 fixture 실행, 동시 실행/전원 강제 중단 실험, 전체 Python suite, USB 경로·QR·PDF·WinRE **미검증**. 실제 런타임 성공 주장 불가.
+- 복구 기준 이전 feature HEAD `9087a3bc3b72c14e3b8730d6f4709b9dbdc50056`. main 및 Cloudflare 다운로드/판매 변경 없음.

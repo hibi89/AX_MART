@@ -20,6 +20,31 @@ try {
     Assert-Report $collision 'Existing report name must be rejected'
     Assert-Report (([System.IO.File]::ReadAllText($first.json)) -eq '{"mode":"read-only"}') 'Collision modified previous JSON'
     Assert-Report (([System.IO.File]::ReadAllText($first.html)) -eq '<html>local only</html>') 'Collision modified previous HTML'
+    # A stale or other process-owned temp file must never be rewritten or deleted.
+    $stale = Join-Path $sandbox 'stale-temp'
+    New-Item -ItemType Directory -Path $stale -ErrorAction Stop | Out-Null
+    $stalePath = Join-Path $stale 'fixture-stale.json.partial'
+    [System.IO.File]::WriteAllText($stalePath, 'SENTINEL-DO-NOT-DELETE')
+    $staleRejected = $false
+    try {
+        Save-PcCareReportPair -JsonText 'new-data' -HtmlText 'new-html' -Candidates @($stale) -FileBase 'fixture-stale' | Out-Null
+    } catch { $staleRejected = ([string]$_.Exception.Message -match 'filename collision') }
+    Assert-Report $staleRejected 'Existing partial name must be rejected'
+    Assert-Report (([System.IO.File]::ReadAllText($stalePath)) -eq 'SENTINEL-DO-NOT-DELETE') 'Existing partial data changed'
+    Assert-Report (-not (Test-Path -LiteralPath (Join-Path $stale 'fixture-stale.json'))) 'Partial collision wrote a final JSON'
+    Assert-Report (-not (Test-Path -LiteralPath (Join-Path $stale 'fixture-stale.html'))) 'Partial collision wrote a final HTML'
+    # An existing final file still blocks publishing and must remain byte-for-byte intact.
+    $oneSided = Join-Path $sandbox 'one-sided'
+    New-Item -ItemType Directory -Path $oneSided -ErrorAction Stop | Out-Null
+    $existingHtml = Join-Path $oneSided 'fixture-existing.html'
+    [System.IO.File]::WriteAllText($existingHtml, 'EXISTING-HTML')
+    $existingRejected = $false
+    try {
+        Save-PcCareReportPair -JsonText 'fresh' -HtmlText 'fresh' -Candidates @($oneSided) -FileBase 'fixture-existing' | Out-Null
+    } catch { $existingRejected = ([string]$_.Exception.Message -match 'filename collision') }
+    Assert-Report $existingRejected 'Existing one-sided HTML must block overwrite'
+    Assert-Report (([System.IO.File]::ReadAllText($existingHtml)) -eq 'EXISTING-HTML') 'Existing final HTML was altered'
+    Assert-Report (-not (Test-Path -LiteralPath (Join-Path $oneSided 'fixture-existing.json'))) 'Partial final pair was unexpectedly published'
     $blocker = Join-Path $sandbox 'blocked-parent-is-file'
     [System.IO.File]::WriteAllText($blocker, 'not a directory')
     $fallback = Join-Path $sandbox 'fallback'

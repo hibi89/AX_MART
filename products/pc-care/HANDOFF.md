@@ -273,3 +273,15 @@
 8. **원본/보안:** Git 이전 SHA로 복구 가능. 기존 보고서·사용자 원본/비밀키·배포 자산 미수정. 시작 메뉴가 시스템 수리 명령/관리자 요청/네트워크·삭제를 수행하지 않음.
 9. **다음 순서:** Windows11 CMD에서 1/2/0 및 누락 파일·표준 권한·USB 특수문자 테스트→로컬 HTML/JSON/QR·A4 한 장→Windows 10/WinRE/VM에서 별도 안전 시험→검증 후 사용자 출시 승인.
 10. **갱신:** 2026-10-30 KST. GitHub 작업 브랜치 코드 및 정적 계약만 검증, 기준 변경 전 커밋 `92294f1`; 변경 후 실제 HEAD 재조회.
+
+## [최신] 2026-10-30 KST — P0 원자적 신규 파일 생성·타 실행 결과 보존
+1. **목표/스택:** AXMART PC CARE Windows PowerShell5.1 보고서 페어(JSON/HTML) 생성 충돌·타 실행 결과 보존 안전 보강.
+2. **변경:** `report_io.ps1`의 Check-then-WriteAllText 경쟁 조건을 `FileMode.CreateNew`로 해결. File.Move는 기존 최종 파일 덮어쓰기 거부, catch는 `ownedJson/ownedHtml/movedJson/movedHtml` 플래그가 참인 본 실행 생성물만 정리.
+3. **테스트:** `report_io.tests.ps1`에 다른 실행의 부분파일 시뮬레이션 및 한쪽 최종 HTML 보존 시험 추가. `test_package.py` 정적 계약 갱신. Windows 파서/실행, Python 전체 suite 및 ZIP 빌드 **미실행**. GitHub 원본 문자열·코드 구조 정적 대조만 수행.
+4. **상태:** P0 파일 저장 안전장치 코드 업데이트. 동시성·전원중단·Windows 실제 QA 여전히 대기. Release A/B·무료 공개·판매 금지.
+5. **오류/피벗:** 과거 Test-Path 이후 WriteAllText는 파일 생성 사이 경쟁 시 기존 임시 파일을 덮어쓸 수 있음. 소유권 없는 파일 삭제도 위험. 더 이상의 파서 없는 'PASS' 주장은 금지. Windows sandbox에서 정상/충돌 fixture 검증.
+6. **저장소/브랜치/경로/SHA:** `hibi89/AX_MART` / `feature/pc-care-usb`; 변경 전 `9087a3bc3b72c14e3b8730d6f4709b9dbdc50056`. `products/pc-care/tools/report_io.ps1`, `tests/report_io.tests.ps1`, `tests/test_package.py`.
+7. **배포/환경:** `https://ax-mart.pages.dev/`는 Cloudflare main 전용, 변경/배포 없음. Windows 11 x64 PS5.1/표준 권한에 대한 실제 테스트 대기.
+8. **원본/백업/보안:** 기존 보고서·QR·진단 원본 및 실제 개인정보 미변경. Git 이전 SHA로 제품 코드 복원 가능. 시스템 변경/수리 명령/외부 통신 추가 없음.
+9. **다음 작업:** 독립 Windows11에서 `RUN_SELF_TEST.cmd`로 report_io fixture + 생성 보고서 검증 → 읽기 전용/권한 거부/동시 실행 실증 → QR/PDF/USB/WinRE 별도 안전 게이트.
+10. **갱신:** 2026-10-30 KST. 정적 계약 확인만, 브랜치 HEAD는 새 커밋 적용 후 재조회.
