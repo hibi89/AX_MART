@@ -26,14 +26,14 @@ class PackageTests(unittest.TestCase):
         normalizer = (ROOT/'tools/event_analysis.ps1').read_text(encoding='utf-8-sig')
         self.assertIn("NoMatchingEventsFound", normalizer)
         self.assertIn("mode='read-only'", text)
-        # The diagnostic may delete only its OWN generated temporary report pair
-        # after a failed save; no arbitrary source/system file deletion is permitted.
-        self.assertEqual(text.lower().count("remove-item"), 3)
-        self.assertIn("foreach ($owned in @($tempJson,$tempHtml))", text)
-        self.assertIn("if ($movedJson) { Remove-Item -LiteralPath $finalJson", text)
-        self.assertIn("if ($movedHtml) { Remove-Item -LiteralPath $finalHtml", text)
-        self.assertIn("Report filename collision:", text)
-        self.assertNotIn("foreach ($owned in @($tempJson,$tempHtml,$finalJson,$finalHtml))", text)
+        # All report cleanup is isolated, never embedded in a scanning command.
+        self.assertNotIn("Remove-Item", text)
+        report_io = (ROOT/'tools/report_io.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("foreach ($owned in @($tempJson,$tempHtml))", report_io)
+        self.assertIn("if ($movedJson) { Remove-Item -LiteralPath $finalJson", report_io)
+        self.assertIn("if ($movedHtml) { Remove-Item -LiteralPath $finalHtml", report_io)
+        self.assertIn("Report filename collision:", report_io)
+        self.assertNotIn("foreach ($owned in @($tempJson,$tempHtml,$finalJson,$finalHtml))", report_io)
 
     def test_explicit_repair_approval_and_bounded_commands(self):
         text = (ROOT/'tools/repair.ps1').read_text(encoding='utf-8-sig')
@@ -120,6 +120,10 @@ class PackageTests(unittest.TestCase):
         self.assertIn("['shutdownGroups']", diagnose)
         self.assertIn("['eventCollection']", diagnose)
         self.assertIn('Save-PcCareReportPair', diagnose)
+        self.assertIn('report_io.ps1', diagnose)
+        self.assertIn("'tools/report_io.ps1'", release)
+        self.assertIn("'tests/report_io.tests.ps1'", release)
+        self.assertIn('report_io.tests.ps1', smoke)
         self.assertIn('event_analysis.tests.ps1', smoke)
         self.assertIn("'tools/event_analysis.ps1'", release)
         self.assertIn('EVENT FIXTURE PASS', fixture)
@@ -137,7 +141,7 @@ class PackageTests(unittest.TestCase):
         self.assertIn("['collectionStatus']", diagnose)
 
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
-        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tests/event_analysis.tests.ps1']:
+        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
 
 if __name__ == '__main__':
