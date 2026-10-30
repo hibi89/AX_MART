@@ -118,3 +118,14 @@
 - 실행 검증: Linux Node v22.16.0 `node --check ui/history_compare.js && node --test tests/test_history_*.cjs` **37 PASS, 0 FAIL**, git blob SHA `f5e7a98438aaf37b22ae30196c02ed013c72c526` JS/`c4c68175819b3bee2589baf372e3ffe5a9cceabd` HTML/`c70dd298f9515ca603243745e43ca3059412c802` 테스트. 증빙 `products/pc-care/tests/evidence/h08_batch_history_qa_20261030.json`.
 - CI/배포: 수동 Windows workflow에 batch Node fixture 등록, 원격 신규 CI 실행은 연결 도구에 dispatch 없음; 이전 runner 실패 41034866482 반복 재시도 안 함. Production https://ax-mart.pages.dev/ main 미변경·기능 배포 미적용.
 - 차단·다음: 실제 Windows PS5.1 진단 JSON 생성 및 Edge file:// 실제 batch 입력/USB 한글 경로/QR A4/WinRE 검증 필요. H08 자동 보관·삭제 기능 미구현. 고객 파일/BitLocker/수리 설정 불변, 강제 푸시 금지. 출시·유료 판매 사용자 승인 전 금지.
+
+## 2026-10-30 — AXMART CUBE 병렬 QA 인수인계
+- 목표/기술: PC CARE 기능 유지, 개발 QA 가속. Python/Node/임시 ZIP 병렬.
+- 완료: `tools/preflight.py`, `tests/test_preflight.py`, CI ZIP 확인 단계·안전 테스트.
+- 검증: Python 전용 4 PASS/0 FAIL 및 구문 PASS. 전체 suite·실 ZIP·CI·Windows 미실행.
+- 대기/원인: 비공개 전체 원본 로컬 미확보. 이전 Actions 41034866482 실패, 재실행 반복 금지.
+- 저장소: `hibi89/AX_MART`, `feature/pc-care-usb`, 복구 SHA `de5da50f851bfd18b75e9e78fa8b7dceef380f3d`.
+- 운영: `https://ax-mart.pages.dev/` 기존 main 불변; 개발 실행 `python tools/preflight.py`.
+- 보존: 고객 보고서·수리·WinRE 및 공개 배포 불변, QA 실행기 제품 ZIP 제외.
+- 다음: 전체 소스 있는 PC에서 통합 QA 후 Windows/USB/QR/A4/WinRE 테스트 및 출시 승인.
+- 2026-10-30 KST 기준 범위: 로컬 QA 전용 테스트만 확인, 나머지 미검증.

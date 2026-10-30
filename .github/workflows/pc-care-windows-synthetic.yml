@@ -39,6 +39,15 @@ jobs:
         run: |
           & node --test tests/test_qr_ui.cjs tests/test_qr_vendor.cjs tests/test_history_compare.cjs tests/test_history_dom.cjs tests/test_history_signals.cjs tests/test_history_batch.cjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify actual internal-only QA ZIP
+        shell: pwsh
+        run: |
+          $qaDir = Join-Path $env:RUNNER_TEMP 'pc-care-qa'
+          & python tools/release.py --internal-testing --output $qaDir
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $qaFile = Join-Path $qaDir 'AXMART_PC_CARE_USB_v0.1-alpha_INTERNAL_TEST_ONLY.zip'
+          & python tools/release.py --verify $qaFile
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Confirm only synthetic checks were executed
         shell: pwsh
         run: Write-Host 'Windows parser + synthetic fixtures + Python package tests only. No diagnosis, repair, WinRE, scan, user data or publication.'

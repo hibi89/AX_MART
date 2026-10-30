@@ -108,3 +108,8 @@
 - AXMART CUBE 집중 개발: 읽기 전용 JSON을 사용자가 직접 최대 25건(총 12MB) 선택하면 안전한 날짜순 목록에서 과거/현재를 골라 기존 비교 엔진을 사용하도록 H08 UI를 확장. 기존 개별 2파일 선택도 유지.
 - Linux Node22 전체 `node --test tests/test_history_*.cjs` **37/37 PASS (기존 29 + 신규 8)**. 일괄 수집 오류/파일명 비노출/총용량·개수 제한/경합·변경 인덱스 회귀 확인. 소스 Blob과 실제 실행 파일 SHA 일치. 증빙 `products/pc-care/tests/evidence/h08_batch_history_qa_20261030.json`.
 - 작업 전 feature `b64635b25355963544303acd803c73f78db31d07`. 운영 main `fbb32362455378b85bcdd0b5037d1f338055fb71`, Cloudflare 배포 변경 없음. CI dispatch 권한 도구 없음/과거 runner 실패, Windows·USB·QR/PDF·WinRE·전체 Python/ZIP 미검증; 공개 및 판매 차단.
+
+## 2026-10-30 — AXMART CUBE PC CARE 개발 QA 가속
+- `feature/pc-care-usb` 기준 SHA `de5da50f851bfd18b75e9e78fa8b7dceef380f3d`. `tools/preflight.py`로 Python/Node/임시 ZIP 검증 병렬화, Windows CI에 내부 ZIP 확인 단계 추가. 고객 ZIP에는 개발 QA 제외.
+- Linux 전용 테스트 `python -m unittest tests.test_preflight -v` **4 PASS, 0 FAIL**, Python 구문 PASS. 전체 원본 Python/Node/ZIP·CI·Windows 실장치 미실행·미검증.
+- 운영 main/Cloudflare 및 기존 제품 기능 불변. 공개·판매 승인 보류. 상세 `products/pc-care/HANDOFF.md`.

@@ -290,3 +290,9 @@
 - 기존 2파일 선택 화면에 25개·총 12MB 이내의 읽기 전용 검사 JSON을 한 번에 수동 선택하는 화면 추가. 시간대 검증된 생성시각으로 정렬, 허용 상태명만 표시, 과거/현재 드롭다운으로 두 건 지정 후 기존 비교 엔진 실행. 파일 이름과 경로, 원문 로그는 목록에 노출하지 않음.
 - batch 선택 비동기 경쟁 차단, 불량/과대 batch 전체 거부, 수동 개별 파일 방식 유지. Node.js v22.16.0 실제 `node --check` 및 `node --test tests/test_history_*.cjs` **37/37 PASS**; 테스트 source SHA 원격 일치. `.github/workflows/pc-care-windows-synthetic.yml` 회귀 신규 8종 추가. QA `tests/evidence/h08_batch_history_qa_20261030.json`.
 - 자동 검색·이력 저장·삭제는 미구현. Windows PS5.1/Edge file://, USB·QR·A4·WinRE, 전체 Python/ZIP 실기기는 아직 미검증. 신규 CI 실행 미수행(도구 제한/이전 runner 실패). 운영 main/Cloudflare·수리/원본 데이터 불변. 복구 기준 feature `b64635b25355963544303acd803c73f78db31d07`. 공개·유료 판매 금지.
+
+## 2026-10-30 KST — 병렬 통합 QA 실행기
+- `tools/preflight.py` 개발용: Python unittest, Node JS 테스트, 내부 ZIP 생성/manifest/SHA256 검증을 병렬 수행한다. 실제 진단이나 수리를 실행하지 않고, 0개 테스트를 합격 처리하지 않는다.
+- `tests/test_preflight.py` 4/4 PASS (Linux Python 3.13.5), Python 구문 PASS. `test_package.py`·`test_release.py` 정적 안전 회귀와 Windows CI 내부 ZIP 검증 단계 추가.
+- 이번 턴 전체 저장소 Python/Node suite와 실제 ZIP 빌드, Windows/Edge/USB/QR/PDF/WinRE/CI는 **미실행**. 공개 배포 불가 유지.
+- 이전 HEAD `de5da50f851bfd18b75e9e78fa8b7dceef380f3d`; 운영 main/Cloudflare 불변. 증빙 `tests/evidence/preflight_orchestrator_qa_20261030.json`.

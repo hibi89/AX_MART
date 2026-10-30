@@ -1,0 +1,26 @@
+{
+  "project": "AXMART PC CARE",
+  "dateKST": "2026-10-30",
+  "branch": "feature/pc-care-usb",
+  "baseline": "de5da50f851bfd18b75e9e78fa8b7dceef380f3d",
+  "feature": "Local QA runner plus CI ZIP verification",
+  "localUnitTests": {
+    "command": "python -m unittest tests.test_preflight -v",
+    "passed": 4,
+    "failed": 0
+  },
+  "localSyntax": "PASS",
+  "sourceGitShas": {
+    "runner": "a3603b3a8c1a05af9a83bd0a7829797815e64c3e",
+    "tests": "b22cf0775a17e5d0e7d91532176953a771680d97"
+  },
+  "notRun": [
+    "full Python and Node suites",
+    "actual internal ZIP",
+    "Windows PowerShell",
+    "USB, QR, print, WinRE",
+    "Production"
+  ],
+  "ci": "Workflow updated; no new run dispatched; previous run 41034866482 failed without test steps",
+  "distribution": "Not published"
+}

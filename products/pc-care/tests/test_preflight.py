@@ -1,0 +1,58 @@
+"""Tests for the developer-only QA orchestrator, not Windows runtime proof."""
+import importlib.util
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import sys
+import unittest
+from unittest.mock import patch
+
+MODULE_PATH = Path(__file__).resolve().parents[1] / 'tools/preflight.py'
+spec=importlib.util.spec_from_file_location('pc_care_preflight',MODULE_PATH)
+preflight=importlib.util.module_from_spec(spec)
+sys.modules[spec.name]=preflight
+spec.loader.exec_module(preflight)
+
+class PreflightTests(unittest.TestCase):
+    def test_missing_source_and_node_fail_closed(self):
+        with TemporaryDirectory() as tmp:
+            with patch.object(preflight.shutil,'which',return_value=None):
+                result=preflight.run_qa(Path(tmp),windows_synthetic=False)
+            self.assertEqual(result['status'],'fail')
+            by_name={s['name']:s['status'] for s in result['stages']}
+            self.assertEqual(by_name['node-tests'],'blocked')
+            self.assertEqual(by_name['internal-zip'],'blocked')
+            self.assertEqual(by_name['windows-powershell-51-synthetic'],'not-run')
+            self.assertIn('actual Windows',result['warning'])
+    def test_nonwindows_skips_windows_only_not_core_failure(self):
+        with TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            def fake_cmd(name,*args,**kwargs):
+                return dict(name=name,status='pass',exit_code=0,output='')
+            with patch.object(preflight,'command',side_effect=fake_cmd),\
+                 patch.object(preflight.shutil,'which',return_value='/usr/bin/node'),\
+                 patch.object(preflight,'JS_SCRIPTS',()),\
+                 patch.object(preflight,'NODE_TESTS',()),\
+                 patch.object(preflight.tempfile,'TemporaryDirectory',side_effect=TemporaryDirectory),\
+                 patch.object(preflight.Path,'is_file',return_value=True):
+                # We only test the reporting rules; a missing real ZIP remains a failure.
+                result=preflight.run_qa(root,windows_synthetic=False)
+            self.assertEqual(result['status'],'fail')
+            self.assertEqual(result['stages'][-1]['status'],'not-run')
+    def test_command_reports_failure_and_bounds_output(self):
+        with TemporaryDirectory() as tmp:
+            cmd=preflight.command('negative',[sys.executable,'-c',
+                'import sys;print("x"*6000);sys.exit(7)'],cwd=Path(tmp))
+            self.assertEqual(cmd['status'],'fail')
+            self.assertEqual(cmd['exit_code'],7)
+            self.assertLessEqual(len(cmd['output']),5000)
+    def test_no_release_or_repair_commands_are_in_runner(self):
+        source=MODULE_PATH.read_text(encoding='utf-8')
+        for forbidden in ('--run-readonly','RUN_SAFE_REPAIR.cmd','--publish',
+                          'git push','subprocess.Popen','shell=True'):
+            self.assertNotIn(forbidden,source)
+        self.assertIn('TemporaryDirectory',source)
+        self.assertIn('test_*.py',source)
+        self.assertIn('tests/test_history_batch.cjs',source)
+
+if __name__=='__main__':
+    unittest.main(verbosity=2)

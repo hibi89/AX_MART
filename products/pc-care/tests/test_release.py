@@ -99,6 +99,10 @@ class ReleaseTests(unittest.TestCase):
         for item in required:
             self.assertIn(f'{release.FOLDER}/{item}', paths)
 
+    def test_developer_preflight_not_shipped_in_product(self):
+        self.assertNotIn('tools/preflight.py', release.ALLOWLIST)
+        self.assertNotIn('tests/test_preflight.py', release.ALLOWLIST)
+
     def test_no_default_public_release(self):
         with self.assertRaises(SystemExit) as raised:
             release.main([])

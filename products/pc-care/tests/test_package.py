@@ -90,6 +90,20 @@ class PackageTests(unittest.TestCase):
         self.assertIn("'ui/history_compare.js'", packager)
         self.assertIn("'ui/history_signals.js'", packager)
 
+    def test_internal_qa_runner_is_not_in_customer_zip(self):
+        qa = ROOT/'tools/preflight.py'
+        suite = ROOT/'tests/test_preflight.py'
+        packager = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        workflow = (ROOT.parent.parent/'.github/workflows/pc-care-windows-synthetic.yml').read_text(encoding='utf-8')
+        self.assertTrue(qa.is_file())
+        self.assertTrue(suite.is_file())
+        self.assertIn('ThreadPoolExecutor(max_workers=3)', qa.read_text(encoding='utf-8'))
+        self.assertIn('tests/test_history_batch.cjs', qa.read_text(encoding='utf-8'))
+        self.assertNotIn("'tools/preflight.py'", packager)
+        self.assertNotIn("'tests/test_preflight.py'", packager)
+        self.assertIn('Verify actual internal-only QA ZIP', workflow)
+        self.assertIn('python tools/release.py --verify', workflow)
+
     def test_normal_check_is_read_only(self):
         text = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
         # No change-enabling cmdlets or dangerous commands in scanner.

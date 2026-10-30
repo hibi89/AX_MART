@@ -385,3 +385,15 @@
 8. **원본·보안·복구:** 원본 PC 데이터/REPORTS/수리·WinRE/BitLocker 설정 미변경. 사용자가 브라우저에서 명시 선택한 JSON만 메모리 읽기. Git 이전 HEAD로 복원, force push 없음.
 9. **다음 우선순위·완료기준·승인:** Windows11 표준 사용자 진단 두 건→Edge file:// batch UI·한글 USB 경로·네트워크 0·오류 0→A4 인쇄/휴대폰 QR/WinRE VM 통과. 출시·다운로드/결제 활성화는 별도 사용자 승인 필요.
 10. **갱신 시각/검증범위:** 2026-10-30 KST. 실제 Node 37/37·SHA 검증, Windows/브라우저 실기기·전체 Python/ZIP·Cloudflare Production 적용 미검증. 작업 후 원격 Git HEAD 재확인.
+
+## 2026-10-30 — 개발 QA 통합 인계
+1. 목표: Release A/B 개발 QA 병렬화. 기존 사양 유지.
+2. 구현: `tools/preflight.py` 병렬 Python/Node/임시 ZIP 검사, `tests/test_preflight.py` 4개, CI ZIP 확인.
+3. 실행: Linux Python 3.13.5 전용 테스트 4 PASS/0 FAIL, `py_compile` PASS. 전체 프로젝트 suite 미실행.
+4. 상태: 개발 QA 도구 완료, 실제 Windows/USB/QR/PDF/WinRE QA 대기.
+5. 장애: 전체 비공개 원본을 이 환경에 내려받을 수 없음. CI 기존 실패 run 41034866482 반복 재시도 금지.
+6. 위치: `hibi89/AX_MART` `feature/pc-care-usb`, 백업 SHA `de5da50f851bfd18b75e9e78fa8b7dceef380f3d`.
+7. 환경: 운영 `https://ax-mart.pages.dev/` 불변. 개발 환경 Python/Node.
+8. 보존: 원본 보고서·수리 코드 수정 없음. 내부 ZIP은 임시 생성 후 폐기.
+9. 다음: `python tools/preflight.py` 전체 환경 실증, Windows 현장 테스트 후 별도 출시 승인.
+10. 확인: 2026-10-30 KST, 테스트 4건 및 Git Blob 동일성만 검증. 전체 빌드·CI·Production 미검증.

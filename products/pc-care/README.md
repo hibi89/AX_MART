@@ -149,3 +149,10 @@ QR 이미지 생성 전 UTC 기록 시각을 **정규식 + 실제 달력 날짜*
 - 파일이 모두 유효하면 생성시각과 허용된 상태명만 날짜순으로 표시하고 과거/현재를 드롭다운으로 지정하여 기존 비교 버튼으로 분석한다. 기본 선택은 가장 오래된/최신 검사이며 변경 가능하다. 파일명·개인 경로·원시 로그·임의 상태 문자열은 목록에 표시하지 않는다.
 - 하나라도 잘못된 JSON/시각/스키마인 경우 **일괄 목록 전체를 차단**하며, 개별 2파일 선택은 계속 지원한다. 파일이 바뀌거나 늦게 로딩돼도 이전 결과가 최신 선택을 덮어쓰지 않도록 보호한다. 자동 보관·탐색·삭제는 아직 없고 사용자가 Windows 파일 탐색기에서 수동 관리한다.
 - 실제 Linux Node22에서 `node --test tests/test_history_*.cjs` **37/37 PASS**, 신규 `test_history_batch.cjs` 8개. 실제 Windows PowerShell·Edge/Chrome `file://`·USB·QR/PDF·WinRE 실기기는 미검증. 일반 배포/판매 보류.
+
+## 개발자용 통합 QA 실행 (2026-10-30)
+
+- 제품 폴더에서 `python tools/preflight.py` 실행. 개발 전용 도구로 Python 전체 unittest, Node 구문·QR·H08 회귀, 내부 시험 ZIP 실제 생성·manifest/SHA256 독립 검증을 **서로 독립된 그룹으로 병렬 실행**하고 마지막에 결과를 요약한다. 실행된 테스트 수가 0이면 PASS로 인정하지 않는다.
+- ZIP은 일시 폴더에서만 생성하고 검증한 뒤 제거한다. 고객 제품용 ZIP 허용목록에는 `tools/preflight.py`와 `tests/test_preflight.py`가 들어가지 않는다. 무료/유료 배포·사용자 파일 삭제·진단·수리 실행 기능이 없다.
+- Windows에서는 별도로 기본 PowerShell 5.1 구문/합성 검사만 실행한다(`-RunReadOnly` 미사용). 비-Windows에서는 `not-run`으로 기록한다. **Windows 실기기 진단, USB, Edge, QR 실스캔, A4/PDF, WinRE/복구는 이 도구가 통과해도 미검증**이다.
+- Linux Python 3.13.5 `python -m unittest tests.test_preflight -v` **4/4 PASS**, `python -m py_compile tools/preflight.py tests/test_preflight.py` PASS. **현재 환경에서 전체 저장소 테스트 및 실제 ZIP 생성은 미실행**이다. Windows CI 워크플로에는 별도 내부 ZIP 생성+재검증 단계만 추가했으며, 실행 도구·러너 제한으로 CI 자체는 새로 돌리지 못했다.
