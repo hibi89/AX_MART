@@ -70,11 +70,7 @@ def main() -> int:
             page.locator("#pc-care-generate-qr").click()
             page.locator("#pc-care-qr-canvas img, #pc-care-qr-canvas canvas").first.wait_for(state="attached", timeout=5000)
             checks["click_created_qr"] = "만들었습니다" in page.locator("#pc-care-qr-status").inner_text()
-            checks["no_external_http_requests"] = not any(
-                url.startswith(("http://", "https://")) for url in external_requests
-            )
             checks["loaded_from_local_file"] = page.url.startswith("file://")
-            checks["no_javascript_exceptions"] = not javascript_errors
             qr_png = Path(temp) / "qr.png"
             page.locator("#pc-care-qr-canvas").screenshot(path=str(qr_png))
             pixels = cv2.imread(str(qr_png))
@@ -131,6 +127,12 @@ def main() -> int:
                 else:
                     checks[label] = (images.count() == 0 and
                                      "차단" in page.locator("#pc-care-qr-status").inner_text())
+            # Check the entire session, including delayed QR image loading.
+            page.wait_for_timeout(150)
+            checks["no_external_http_requests"] = not any(
+                url.startswith(("http://", "https://")) for url in external_requests
+            )
+            checks["no_javascript_exceptions"] = not javascript_errors
         finally:
             browser.close()
     print(json.dumps({
