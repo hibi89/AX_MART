@@ -212,3 +212,8 @@
 - `feature/pc-care-usb`: 일부 PASS만 있는 QA를 전체 PASS로 판정하던 `preflight.py` 경로 개선. Python/Node/내부 ZIP/Windows PS5.1 단계 4개 유일성 강제, 누락/중복은 FAIL, Windows 미실행은 PARTIAL. 개인 정보 없는 QA 영수증도 동일 검사 적용.
 - `tests/test_preflight.py`·`tests/test_package.py` 회귀·계약 갱신. GitHub 코드 복사 격리 Python 3.13 **10/10 PASS**, 전체 native Python/Node·PS5.1/ZIP·실Windows·USB/QR/A4·WinRE·현재 CI 미실행. 증거 `products/pc-care/tests/evidence/qa_gate_matrix_20261031.json`.
 - 운영 main·Cloudflare·사용자 파일/OS/복구·출시 불변. 다음 Windows 네이티브 `RUN_RELEASE_QA.cmd` 결과 영수증 확인.
+
+## 2026-10-31 KST — CUBE ZIP checksum overwrite 방지
+- `feature/pc-care-usb` 내부 개발 ZIP 저장 시 `.sha256` 링크/타 실행 임시 파일을 잘못 덮거나 삭제할 수 있는 결함 수정. 기존 결정적 ZIP/manifest 검증 유지하며 전용 exclusive 임시파일 + 안전 교체 적용. `tests/test_release.py`·`tests/test_package.py` 보강.
+- 원격 GitHub `build_internal` 실소스 함수와 일치하는 격리 Python 3.13 테스트 **9/9 PASS**(합성 단일 파일 입력/대체 verifier). 실제 전체 Python suite/제품 allowlist ZIP/Windows PS5.1·Node·USB·QR/PDF·WinRE/CI는 미검증. `products/pc-care/tests/evidence/zip_sidecar_atomic_native_qa_20261031.json`.
+- main/Cloudflare·고객 데이터·OS/복구·출시 불변. 다음 Windows 전체 checkout `RUN_RELEASE_QA.cmd`.
