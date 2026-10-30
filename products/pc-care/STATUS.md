@@ -173,3 +173,12 @@
 - **출시 게이트:** QR 코드가 스마트폰으로 정확히 읽히는지, QR quiet zone/에러 정정/UTF-8 한글, USB 분리된 HTML, 긴 데이터/250바이트, Edge/Chrome·iOS/Android 및 PDF 인쇄를 실제 확인하기 전 Release A 통과·QR 완성·무료/크몽 배포 주장 금지. QR 외 P0/P1 및 Release B 실제 Windows 검증도 계속 대기.
 - **운영/브랜치:** hibi89/AX_MART `feature/pc-care-usb`만 변경, Cloudflare AXMART³ 운영 main `fbb32362455378b85bcdd0b5037d1f338055fb71` 불변. 이번 QR 기능 추가 전 기능 SHA `c5a2251a5edf33d3a9cab94eae97b2913bbd1803`, 최종 HEAD는 문서 커밋 뒤 확인.
 
+
+## 2026-10-30 KST — Windows synthetic QA 시도·CI 러너 미배정 및 P2 보고서 탐색 개선 (최신)
+
+- **실제 GitHub Actions CI 구축:** `.github/workflows/pc-care-windows-synthetic.yml` 추가. Windows-latest에서 PowerShell 5.1 `tests/windows_smoke.ps1`(파서+합성 fixture만; `-RunReadOnly` 생략)과 Python `unittest discover`/내부 ZIP 회귀를 실행하도록 구성. GitHub Actions `contents:read`, 12분 타임아웃, 실제 OS 진단·수리·WinRE·외부 업로드 없음.
+- **실행 기록:** Run ID **41034866482**, 최초 feature push SHA `5c6c794d0ac59615e28726051d2751e0f065e4c9`. 결과 `completed/failure`, job `windows-powershell-51`에는 `steps=[]`, runner_id=0/runner_name 빈 값, 로그 다운로드는 404 BlobNotFound. 즉 **러너 배정 이전의 CI 인프라 실패**로, 코드의 PowerShell·Python 테스트 성공/실패 원인은 판단 불가. 비용/실패 반복 방지를 위해 workflow 트리거를 **workflow_dispatch 수동 전용**으로 변경, 자동 push 실행 차단.
+- **사용성 개선:** `tools/diagnose.ps1`의 기존 로컬 HTML에 키보드 focus 가능한 스킵 링크, ARIA 보고서 내비게이션, 일곱 개 바로가기(수리 상담표/원인 해설/저장장치/업데이트/장치 상태/시간축/검사 한계), 모바일 반응형 CSS 및 section 앵커 ID 추가. 새 코드에서 외부 네트워크 통신/자동 복구 없음. `@media print`은 상담표만 출력하게 그대로 유지.
+- **테스트 코드:** `tests/test_package.py`에 정적 내비게이션 앵커·출력 분리·오프라인/키보드 검사 추가. 렌더러의 `#consultation-print` ID가 별도 `consultation_render.ps1`에 위치하므로 두 파일을 함께 검사하도록 수정. 원격 GitHub 소스 **정적 9/9 조건 확인**, Windows 브라우저 실제 작동·출력·QR 스캔 테스트는 아직 0회.
+- **게이트:** GitHub CI 미검증, Python unittest/ZIP 실빌드 미실행, Win11·USB·WinRE·안전 복구 QA 미완료. 제품 무료 공개/크몽 서비스 등록/다운로드 활성화 불가. 계정 GitHub Actions 러너/청구/권한 문제는 추가 확인 필요; 실패 원인 확정 불가.
+
