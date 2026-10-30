@@ -9,7 +9,7 @@ bugchecks:[{time:"2026-10-28T10:00:00.000+09:00",stopCode:"0x0000000A"}],
 unexpectedShutdowns:[],storageEvents:[],volumes:[{drive:"C:",sizeGB:100,remainingGB:20}],
 physicalDisks:[{status:"Healthy"}]}};}
 const a=sample("2026-10-29 11:00:00 +09:00"), b=sample("2026-10-30 11:00:00 +09:00");
-test("new/missing issues and capacity delta",()=>{const r=compareReports(a,{...b,issues:[{code:"DISK_SPACE_CRITICAL"}],observations:{...b.observations,volumes:[{drive:"C:",sizeGB:100,remainingGB:4}]}});assert.deepEqual(r.added,["DISK_SPACE_CRITICAL"]);assert.deepEqual(r.missing,["DISK_SPACE_LOW"]);assert.equal(r.drives[0].change,-16);});
+test("new/missing issues and capacity delta",()=>{const r=compareReports(a,{...b,issues:[{code:"DISK_SPACE_CRITICAL"}],observations:{...b.observations,volumes:[{drive:"C:",sizeGB:100,remainingGB:4}]}});assert.deepEqual(r.added,["DISK_SPACE_CRITICAL"]);assert.deepEqual(r.missing,[]);assert.equal(r.drives[0].change,-16);assert.ok(r.added.includes("DISK_SPACE_CRITICAL"));});
 test("schema, mode, product, timestamp are mandatory",()=>{assert.ok(validateReport(a));for(const x of [{...b,schemaVersion:2},{...b,mode:"repair"},{...b,product:"wrong"},{...b,generatedAt:"bad"}])assert.throws(()=>compareReports(a,x));});
 test("older/current order cannot be inverted or equal",()=>{assert.throws(()=>compareReports(b,a));assert.throws(()=>compareReports(a,a));});
 test("no event comparisons when logs unavailable/truncated",()=>{for(const status of ["unavailable","truncated"])assert.equal(compareReports(a,{...b,observations:{...b.observations,eventCollection:status}}).eventCounts,null);});
@@ -212,4 +212,33 @@ test("physical disk warning missing requires comparable complete disk inventory"
  const failed={...complete,observations:{...complete.observations,
    collectionStatus:{...complete.observations.collectionStatus,physicalDisks:"unavailable"}}};
  assert.deepEqual(compareReports(earlier,failed).missing,[]);
+});
+
+test("changed drive identity cannot claim that old disk-space warning vanished",()=>{
+ const previous={...a,issues:[{code:"DISK_SPACE_LOW"}]};
+ for(const volumes of [
+  [{drive:"D:",sizeGB:100,remainingGB:80}],
+  [{drive:"C:",sizeGB:100,remainingGB:80},{drive:"D:",sizeGB:100,remainingGB:80}],
+  [{drive:"C:",sizeGB:120,remainingGB:80}],
+ ]) {
+  const latest={...b,issues:[],observations:{...b.observations,volumes}};
+  const r=compareReports(previous,latest);
+  assert.deepEqual(r.missing,[]);
+  assert.ok(r.caution.some(s=>s.includes("문자·용량이 일치하지 않아")));
+ }
+});
+test("escalated LOW to CRITICAL is not a vanished old warning",()=>{
+ const current={...b,issues:[{code:"DISK_SPACE_CRITICAL"}],observations:{...b.observations,
+  volumes:[{drive:"C:",sizeGB:100,remainingGB:2}]}};
+ const r=compareReports(a,current);
+ assert.deepEqual(r.added,["DISK_SPACE_CRITICAL"]);
+ assert.deepEqual(r.missing,[]);
+ assert.equal(r.drives[0].change,-18);
+});
+test("complete same-volume evidence still permits old LOW warning no longer observed",()=>{
+ const current={...b,issues:[],observations:{...b.observations,
+  volumes:[{drive:"C:",sizeGB:100,remainingGB:40}],volumeRejectedCount:0}};
+ const r=compareReports(a,current);
+ assert.deepEqual(r.missing,["DISK_SPACE_LOW"]);
+ assert.equal(r.drives[0].change,20);
 });

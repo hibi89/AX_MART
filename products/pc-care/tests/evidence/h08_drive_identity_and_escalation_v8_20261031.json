@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "dateKst": "2026-10-31",
+  "baselineSha": "5431b28ca2ddd46bb1622685d9d908618b3ba1ee",
+  "runner": "V8 JavaScript with Node test/assert compatibility adapter",
+  "officialFixtures": [
+    "test_history_signals.cjs",
+    "test_history_compare.cjs",
+    "test_history_issue_allowlist.cjs",
+    "test_history_evidence_integration.cjs"
+  ],
+  "officialTests": 57,
+  "passed": 57,
+  "failed": 0,
+  "newRegressionTests": 3,
+  "sourceContracts": 7,
+  "contractPassed": 7,
+  "nativeNode": "NOT_RUN",
+  "nativeWindowsPowerShell51": "NOT_RUN",
+  "realBrowser": "NOT_RUN",
+  "usbQrA4": "NOT_RUN",
+  "CI": "NOT_RUN",
+  "publicRelease": "HOLD",
+  "sourceCommitted": [
+    "ui/history_compare.js",
+    "tests/test_history_compare.cjs",
+    "tests/test_package.py"
+  ]
+}

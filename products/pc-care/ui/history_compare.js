@@ -58,14 +58,23 @@ function compareReports(oldReport,newReport){
  // Missing low-space warnings are not reliable if the newer volume inventory is
  // incomplete, even if the report contains no new low-space issue.
  const volumeIssueCodes=new Set(["DISK_SPACE_LOW","DISK_SPACE_CRITICAL"]);
- const currentVolumesComparable=volumeMap(b).size>0;
+ const pastDrives=volumeMap(a), currentDrives=volumeMap(b);
+ // Both inventories must identify the same drive letters at consistent capacity.
+ // A replacement or missing drive is not proof that a historical warning vanished.
+ const currentVolumesComparable=pastDrives.size>0&&pastDrives.size===currentDrives.size&&
+   [...pastDrives].every(([id,v])=>{
+     const now=currentDrives.get(id);
+     return !!now&&Math.abs(now.sizeGB-v.sizeGB)/Math.max(now.sizeGB,v.sizeGB)<=0.05;
+   });
  // Unknown issue lists must not be presented as "no warnings".
  const added=prev&&next?[...next].filter(x=>!prev.has(x)).sort():null;
  const missingCandidates=prev&&next?[...prev].filter(x=>!next.has(x)&&
-   (!volumeIssueCodes.has(x)||currentVolumesComparable)).sort():null;
+   (!volumeIssueCodes.has(x)||currentVolumesComparable)&&
+   // LOW -> CRITICAL indicates deterioration, not disappearance of the hazard.
+   !(x==="DISK_SPACE_LOW"&&next.has("DISK_SPACE_CRITICAL"))).sort():null;
  if(prev&&next&&!currentVolumesComparable&&
     [...prev].some(x=>volumeIssueCodes.has(x)&&!next.has(x)))
-   caution.push("현재 드라이브 수집이 불완전하거나 값이 유효하지 않아 과거 디스크 공간 경고의 미관찰 여부를 판단하지 않습니다.");
+   caution.push("드라이브 수집이 불완전하거나 이전과 문자·용량이 일치하지 않아 과거 디스크 공간 경고의 미관찰 여부를 판단하지 않습니다.");
  // Arrays of displayed rows are NOT proof of actual Windows events. Verify the
  // complete System normalizer evidence before comparing any event counts.
  const systemIds={
@@ -118,7 +127,7 @@ function compareReports(oldReport,newReport){
  const comparableEvents=complete(a)&&complete(b)&&Number.isSafeInteger(a.o.eventWindowDays)&&a.o.eventWindowDays>=1&&a.o.eventWindowDays<=90&&a.o.eventWindowDays===b.o.eventWindowDays&&oldCounts!==null&&newCounts!==null;
  const eventCounts=comparableEvents?{days:a.o.eventWindowDays,before:oldCounts,after:newCounts}:null;
  caution.push(eventCounts?"이벤트 수는 이동하는 조회 기간의 로그 수로, 실제 사건 횟수나 호전을 의미하지 않습니다.":"이벤트 수는 기간·수집상태·표시 상한이 달라 비교하지 않습니다.");
- const pastDrives=volumeMap(a),currentDrives=volumeMap(b),drives=[];
+ const drives=[];
  for(const [id,v] of currentDrives){const prevDisk=pastDrives.get(id);if(!prevDisk||Math.abs(v.sizeGB-prevDisk.sizeGB)/Math.max(v.sizeGB,prevDisk.sizeGB)>0.05)continue;drives.push({drive:id,before:prevDisk.remainingGB,after:v.remainingGB,change:Math.round((v.remainingGB-prevDisk.remainingGB)*10)/10});}
  drives.sort((x,y)=>x.drive.localeCompare(y.drive));
  if(drives.length)caution.push("같은 드라이브 문자·용량이어도 같은 물리 저장장치라는 보장은 없습니다.");

@@ -352,3 +352,9 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - 파일 시스템의 실제 `[IO.DriveInfo].DriveType` 확인: `Fixed` 또는 `Removable`만 허용, `Network`/알 수 없는·광학 드라이브는 거부. 이름/환경변수/조상 reparse 검사는 그대로 유지. USB(제거식) 진단·LocalApplicationData(고정식) fallback은 보존.
 - `tests/report_io.tests.ps1`에 DriveType 상태별 5건+로컬 경로 허용 회귀, `test_package.py` 원본 계약 추가. **소스 정적 12/12 PASS**, PowerShell5.1 네이티브·Windows·네트워크 매핑·USB·Python 전체·ZIP/CI **NOT_RUN/UNVERIFIED**. 보고서·사용자 데이터·OS/권한/판매/배포에 실제 변경 없음.
 - baseline `bee6b09382fa960171a821f3c3e5ed7f08795f2a`, `feature/pc-care-usb` 한정. `main`/Cloudflare 유지, 출시 HOLD. Windows `RUN_RELEASE_QA.cmd` 우선, 정상 fixed/removable·mapped network·OneDrive/Junction E2E 테스트 후 공개 판단.
+
+## 2026-10-31 KST — CUBE H08 볼륨 교체·경고 악화 미관찰 오판 수정
+- **재현:** 이전 C: 경고가 있던 보고서와 최신 D:만 수집한 보고서를 비교해도 `currentVolumesComparable=volumeMap(b).size>0` 조건으로 과거 디스크 공간 경고가 `missing` 처리됨. `LOW→CRITICAL` 악화 시에도 LOW가 사라진 경고로 출력됨. '미관찰'은 수리 성공이 아니지만 사용자의 개선 오해를 유발할 수 있음.
+- **변경:** `ui/history_compare.js`는 이전/최신 각각 수집 상태·거부 건수·중복/비정상 값이 유효한 볼륨 목록이고 **같은 드라이브 문자 집합/개수 및 5% 이내 용량 일치**할 때에만 과거 디스크 공간 경고의 미관찰 비교를 허용. 새 CRITICAL이 있으면 과거 LOW를 별도 미관찰로 표시하지 않음. 신규 CRITICAL은 그대로 표시. 정상 동일 볼륨·실제 경고 해소 사례는 이전 기능 유지.
+- **검증:** GitHub 원본 JS + 공식 `test_history_signals.cjs`, `test_history_compare.cjs`, `test_history_issue_allowlist.cjs`, `test_history_evidence_integration.cjs`를 V8 Node 호환 어댑터로 실행 **57/57 PASS**(신규 테스트 3개, 재현은 여러 변형). 자체 JS 원본/정적 계약 7/7. 네이티브 Node 실행과 Windows PowerShell5.1/USB/H08 실 브라우저/QA ZIP/CI는 **NOT_RUN/UNVERIFIED**, 제품 출시 HOLD. 증빙 `products/pc-care/tests/evidence/h08_drive_identity_and_escalation_v8_20261031.json`.
+- **복구/운영:** 기준 SHA `5431b28ca2ddd46bb1622685d9d908618b3ba1ee`, 작업 브랜치 `feature/pc-care-usb`만 수정. `main`/Cloudflare Production/고객 파일·OS/권한/수리/유료 배포 변화 없음. 원본 커밋으로 복구 가능. 다음 P0: Windows에서 `RUN_RELEASE_QA.cmd` 내부 합성 QA → `RUN_HEALTH_CHECK.cmd` 실기기 읽기 전용 보고서/H08→QR/A4/USB 실수용→WinRE 격리 안전성 시험.
