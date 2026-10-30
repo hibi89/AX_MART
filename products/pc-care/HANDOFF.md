@@ -542,3 +542,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본/보안: 고객 REPORTS·시스템 파일·장치·복구·BitLocker·유료 결제·공개 다운로드 변경 없음. JS는 임시 로컬 파일 선택만, 식별자·원문 메시지·외부 전송 없음. Git 브랜치 SHA 복구 가능.
 9. 다음: 전체 소스 Windows에서 Node/Python/ZIP/PS5.1 테스트, 실제 JSON 비교·한글 USB·Edge file://·QR/A4, 이후 별도 WinRE 격리 VM 검증. 판매/복사/고권한 복구 게이트 유지.
 10. 확인: 2026-10-31 KST, 원격 blob readback 및 V8 두 시험 묶음/정적 검증만 확인. 증거 `tests/evidence/h08_normalized_sample_validation_20261031.json`, 최종 문서 커밋은 이후 실제 HEAD로 확인.
+
+## 2026-10-31 KST — CUBE H08 System event E2E / 10항
+1. 목표·스택: Win11/PS5.1 진단 결과의 오프라인 JSON → H08 이력 비교 → A4/PDF 요약. 기존 로컬 CMD/PS/JS, 최종 사양 v2 유지.
+2. 구현·근거: 정규화 `eventEvidence` 미검증 상태에서 출력 배열 길이를 신뢰하던 실제 오류 재현. `ui/history_compare.js`는 종류·Event ID·UTC/timeBasis, collector provenance, 원본-표시 건수 동등 확인. 정상 no-match만 0, 불완전·비정상은 비교 불가. `tests/test_history_evidence_integration.cjs` 포함.
+3. 테스트: GitHub 실소스+기존 JS 단위테스트 V8(노드 API 어댑터) 28 PASS, 추가 통합 V8 5 PASS, 정적 12 PASS, FAIL 0. **Native Node --test / Python 전체 / PowerShell5.1 / 진짜 ZIP·Windows·USB·QR·A4·WinRE NOT_RUN**.
+4. 완료·차단: 코드와 회귀 소스 반영, 제품 E2E Windows 실행/출시 완료 아님. WinRE copy·고권한 수리·판매 별도 승인 게이트 유지.
+5. 실패·재시도: 원인은 H08 displayed sample 개수만 비교한 검증 누락. 수집 실패/변조 입력 fail-closed. 과거 Actions `41034866482` (SHA `5c6c794d`) 실패, job 0 steps·runner 없음; 기존 문제가 현재 코드 실패를 입증하는 것은 아니며 무의미한 rerun 금지.
+6. 저장소·브랜치·복구: `hibi89/AX_MART@feature/pc-care-usb`, 변경 전 SHA `a7843dd4983959d8e4d19d4ee85d567a82982c6a`. 주요 소스 `ui/history_compare.js`, `tests/test_history_compare.cjs`, `tests/test_history_evidence_integration.cjs`, `tools/preflight.py`, `tests/test_package.py`.
+7. 운영·명령: `https://ax-mart.pages.dev/`는 `main`만, 이 기능 미배포. Windows 11/PS5.1 전체 개발 소스 `RUN_RELEASE_QA.cmd`, 이후 opt-in `RUN_SELF_TEST.cmd`와 로컬 Edge file:// UI.
+8. 원본·보안: 고객 REPORTS/디스크/로그/BitLocker/복구/환경변수 변경 없음; 외부 전송·결제·공개 배포 없음. 기존 Git SHA로 복원. 유료 런타임/재설계 도입 안함.
+9. 다음 우선순위: 전체 Windows checkout Native QA+읽기전용 실제 생성 보고서; eventEvidence→H08→private 인쇄 및 Edge/한글 USB 경로·QR/A4·SHA ZIP; 마지막 WinRE 격리 VM 안전검증 후 별도 출시 승인.
+10. 2026-10-31 KST, 원격 readback/JS V8/정적 체크까지만. 증거 `tests/evidence/h08_system_evidence_integration_qa_20261031.json`; 최종 문서 HEAD는 이후 원격 확인.
