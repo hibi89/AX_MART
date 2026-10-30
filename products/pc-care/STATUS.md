@@ -209,3 +209,13 @@
 - **발견한 QR 벤더 특성:** qrcodejs 최소화 JS에서 비ASCII 데이터에 BOM(EF BB BF)을 선행하는 코드 확인. 독립 Python `qrcode`+OpenCV QR 해독(실제 벤더와 별개)을 실행해 BOM 포함 QR은 선행 U+FEFF가 문자열에 나타나 원문과 직접 비교 시 다르다는 것을 확인. 이는 벤더 라이브러리 실제 동작 성공 증거가 아님. QR 스캐너 시험에서는 0개 또는 정확히 선행 BOM 한 개만 명시적으로 허용/보고, 임의 문자 차이는 실패 처리.
 - **지속 차단:** 실제 `qrcode.min.js` QR 이미지 생성·OpenCV 디코딩, Android/iOS 스캔, Windows 11/PowerShell 5.1, 내부 ZIP/테스트, A4 PDF 한 페이지, WinRE/USB 검증은 미수행. GitHub Actions runner 미배정으로 수동 workflow만. 무료 배포/크몽 제품 판매/운영 main 변경 없음. 전체 완성률 약 30% 보수적 유지.
 
+## 2026-10-30 KST — P2 동봉 QR 인코더 실제 실패 재현·5바이트 수정·OpenCV 디코딩 성공 (최신)
+
+- **시작 상태:** 브랜치 `feature/pc-care-usb`, 기능 작업 전 HEAD `f775961a0e8a6bb840fa9af1be8c472c8be3b48d`. 운영 main `fbb32362455378b85bcdd0b5037d1f338055fb71` 변경 금지. 기존 Chromium 20/20은 QR 생성자 mock으로 실제 인코더 오류를 놓치고 있었음.
+- **실제로 재현한 버그:** GitHub의 *원본 동봉 MIT qrcodejs* `ui/qrcode.min.js` blob `993e88f396640f881b69f98db7a4d17401ef83ca`를 V8 모의 DOM에서 실행. **195 UTF-8 바이트의 정상 한글 7줄 상담 공유 문구**에서 `Error: code length overflow. (2180>1728)` 재현. 원인은 qrcodejs UTF-8 변환 중 문자별 byte 배열 재사용으로, 한글(3bytes) 뒤 ASCII(1byte)에서 뒤쪽 byte들이 남아 payload를 과대 계측하던 원본 라이브러리 버그.
+- **최소 수정:** `ui/qrcode.min.js` 한 곳에 `b=[];` 5문자를 추가해 각 코드 유닛 처리 전 버퍼를 초기화. 원본 외부 SDK의 최소 패치만 적용, MIT 원문 `ui/QR_CODE_LICENSE.txt` 보존, 오프라인/명시 QR 생성/개인정보 최소화 흐름 유지, main/Cloudflare/사용자 리포트 수정 없음.
+- **실행 검증:** 수정된 *실제 qrcodejs 인코딩 로직*을 제한된 V8 DOM에서 실행, 정상 한글 상담 195 bytes와 `한A`, `한A1한B`, `테스트2026-10-30`, `AXMART 제품 v1`, 영문 ASCII-only **6/6 UTF-8 바이트 일치**(한글 있는 경우 BOM EF BB BF 3 bytes 별도 계산). 상담 QR 행렬 **57×57** 모듈 생성, 7×7 finder patterns **3/3** 정상. 실제 vendor가 생성한 모듈 행렬을 Python OpenCV `QRCodeDetector`에서 **검출·디코딩 성공**, 디코딩 값 `U+FEFF + 원래 7줄 한글 문구`, 단일 선행 BOM을 명시적으로 제거한 뒤 내용 정확 일치. 이는 *QR 인코딩/해독 알고리즘 검증*이지 Chromium의 벤더 캔버스 렌더·스마트폰 카메라/Windows 실기기 검증은 아님.
+- **회귀:** `tests/test_qr_vendor.cjs` 실제 벤더 JS 6개 Node built-in regression 작성, `.github/workflows/pc-care-windows-synthetic.yml` 수동 테스트에 `node --test tests/test_qr_ui.cjs tests/test_qr_vendor.cjs` 연결. `tests/test_package.py`에서 벤더 5문자 패치/라이선스/테스트 참조 고정. 실제 GitHub Actions 작업은 러너 미배정으로 수행하지 못함; 수동 workflow 유지.
+- **미검증/출시 차단:** Windows11 PowerShell5.1, 일반 Windows/Edge·Chrome 저장 HTML의 캔버스 실제 이미지, QR 휴대전화 한글 스캔·BOM UX, USB·저장/프린터/A4 PDF 1장, WinRE/BitLocker 안전성, Python 전체 unittest/ZIP 빌드 **미검증**. Release A/B 공개/크몽 등록 금지. 제품 진척률은 종합 설계 기준 보수적으로 **약 30%** 수준 유지(Windows/WinRE 검증 비중 큼).
+- **다음:** Node vendor+UI 테스트 실행 증거 → `tests/qr_browser_smoke.py` 실제 Chromium/QR decoder → Windows 실기기 `RUN_SELF_TEST.cmd`와 저장 HTML/JSON/A4 QR 스캔 → 안전 테스트/승인 기반 Release B. QA가 준비되지 않은 상태에서 운영 사이트 연결·유료 출시 금지.
+
