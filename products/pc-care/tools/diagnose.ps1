@@ -273,6 +273,33 @@ $report['sharePreview'] = [ordered]@{
     qrImageGenerated = $false
     payloadStoredInJson = $false
 }
+# Inline only licensed local assets so REPORTS still works after USB removal.
+# QR code image is NEVER generated automatically; user must click inside the expanded preview.
+$qrInlineScripts = ''
+$qrEnabled = $false
+try {
+    $qrLibraryPath = Join-Path $root 'ui/qrcode.min.js'
+    $qrUiPath = Join-Path $root 'ui/qr_ui.js'
+    $qrLicensePath = Join-Path $root 'ui/QR_CODE_LICENSE.txt'
+    if (-not (Test-Path -LiteralPath $qrLicensePath -PathType Leaf)) {
+        throw 'QR license missing'
+    }
+    $qrVendorJs = [System.IO.File]::ReadAllText($qrLibraryPath, [System.Text.Encoding]::UTF8)
+    $qrUserJs = [System.IO.File]::ReadAllText($qrUiPath, [System.Text.Encoding]::UTF8)
+    if ($qrVendorJs.Length -gt 100000 -or $qrUserJs.Length -gt 20000 -or
+        [string]::IsNullOrWhiteSpace($qrVendorJs) -or
+        [string]::IsNullOrWhiteSpace($qrUserJs) -or
+        $qrVendorJs -match '(?i)</script' -or $qrUserJs -match '(?i)</script') {
+        throw 'Invalid embedded QR script'
+    }
+    $qrInlineScripts = '<script>' + $qrVendorJs + '</script><script>' + $qrUserJs + '</script>'
+    $qrEnabled = $true
+} catch {
+    # QR is optional: preserve the local read-only report and manual share text.
+    $qrInlineScripts = ''
+    $qrEnabled = $false
+}
+$report['sharePreview']['qrImageSupported'] = $qrEnabled
 $jsonText = $report | ConvertTo-Json -Depth 10
 
 $cards = New-Object 'System.Collections.Generic.List[string]'
@@ -368,7 +395,7 @@ $color = if ($assessment -eq '위험 신호') {'#ff6a8a'} elseif ($assessment -e
 . (Join-Path $PSScriptRoot 'consultation_render.ps1')
 $consultationHtml = ConvertTo-PcCareConsultationHtml -Summary $consultationSummary
 . (Join-Path $PSScriptRoot 'share_preview.ps1')
-$sharePreviewHtml = ConvertTo-PcCareSharePreviewHtml -Share $sharePayload
+$sharePreviewHtml = ConvertTo-PcCareSharePreviewHtml -Share $sharePayload -QrSupported $qrEnabled
 # Static local HTML: all dynamic fields encoded, no remote scripts, fonts, or data requests.
 $html = @"
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -401,6 +428,9 @@ footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-heig
 .share-disclosure textarea{display:block;width:100%;margin:8px 0 12px;padding:12px;border:1px solid #60506e;border-radius:8px;background:#101019;color:#f2f1f6;font-family:'Malgun Gothic',monospace;font-size:12px;line-height:1.5;resize:vertical}
 .share-select{background:#6f53a0;border:0;border-radius:8px;color:white;padding:10px 14px;cursor:pointer;font-weight:700}
 .share-select:focus-visible,.share-panel summary:focus-visible{outline:2px solid #a1edc8;outline-offset:3px}
+.qr-holder{display:inline-block;background:#fff;padding:24px;border-radius:10px;margin-top:8px;max-width:100%}
+.qr-holder:empty{display:none}.qr-holder img,.qr-holder canvas,.qr-holder svg{display:block;max-width:100%;height:auto}
+.qr-generate{margin:10px 8px 8px 0}
 @page{size:A4 portrait;margin:10mm}
 @media print{
   html,body{background:#fff!important;color:#161616!important;font-family:'Malgun Gothic',Arial,sans-serif!important;color-scheme:light!important}
@@ -441,7 +471,7 @@ $sharePreviewHtml
 <section><h2>사건 기록 시간축</h2><p class="small">최신 이벤트 80건의 기록 시각 기준 15분 내 관측을 묶었습니다. 실제 충돌 시각·사건 횟수·업데이트 인과관계를 보증하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>시작 기록 UTC</th><th>기록 수</th><th>사건 분류</th></tr></thead><tbody>$($timelineRows -join [Environment]::NewLine)</tbody></table></div></section>
 <section><h2>최근 블루스크린 상세</h2><p class="small">Windows System 로그 중 BugCheck 관련 기록 최대 15건입니다. 표의 시각은 이벤트가 기록된 시간이며 실제 충돌 시각이 아닐 수 있습니다. STOP 코드는 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>STOP 코드(추출값)</th></tr></thead><tbody>$($crashRows -join "`n")</tbody></table></div></section>
 <section><h2>검사 한계</h2><ul>$($limRows -join "`n")</ul><p class="small">Windows $(Esc $report.observations.windows.name) · 검사 기간: $Days 일 · 생성 $(Esc $report.generatedAt)</p></section>
-<footer>AXMART PC CARE v0.1 테스트용 제품. 하드웨어 자체 검사, 메모리 덤프 분석, 악성코드 전수 검사, 수리 성공 보증은 제공하지 않습니다. BitLocker 복구키는 절대 입력하거나 이 도구에 저장하지 마세요.<br>결과는 이 기기에만 저장하며 인터넷으로 전송하지 않습니다. 판매 준비 전 실제 Windows 환경 검증이 필요합니다.</footer></main></body></html>
+<footer>AXMART PC CARE v0.1 테스트용 제품. 하드웨어 자체 검사, 메모리 덤프 분석, 악성코드 전수 검사, 수리 성공 보증은 제공하지 않습니다. BitLocker 복구키는 절대 입력하거나 이 도구에 저장하지 마세요.<br>결과는 이 기기에만 저장하며 인터넷으로 전송하지 않습니다. 판매 준비 전 실제 Windows 환경 검증이 필요합니다.</footer></main>$qrInlineScripts</body></html>
 "@
 # Do not report success until both outputs are safely persisted.
 # A writable directory is not guaranteed by New-Item; a USB may be read-only.
