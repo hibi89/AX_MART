@@ -1,0 +1,41 @@
+name: PC CARE synthetic Windows QA
+on:
+  push:
+    branches: [feature/pc-care-usb]
+    paths:
+      - '.github/workflows/pc-care-windows-synthetic.yml'
+      - 'products/pc-care/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pc-care-synthetic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-powershell-51:
+    runs-on: windows-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: products/pc-care
+    steps:
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Parse scripts and run offline synthetic PowerShell 5.1 fixtures
+        shell: pwsh
+        run: |
+          & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tests/windows_smoke.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run Python source and internal ZIP tests
+        shell: pwsh
+        run: |
+          & python -m unittest discover -s tests -p 'test_*.py' -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Confirm only synthetic checks were executed
+        shell: pwsh
+        run: Write-Host 'Windows parser + synthetic fixtures + Python package tests only. No diagnosis, repair, WinRE, scan, user data or publication.'
