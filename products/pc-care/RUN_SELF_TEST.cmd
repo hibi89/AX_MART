@@ -10,8 +10,7 @@ echo 3. NEVER launches the DISM/SFC repair script.
 echo 4. Do not share generated reports before reviewing private data.
 echo.
 set "AXMART_PS51=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
-if not exist "%AXMART_PS51%"
-if errorlevel 1 (
+if not exist "%AXMART_PS51%" (
   echo ERROR: Windows PowerShell 5.1 not found at the trusted OS path. No code was executed.
   pause
   exit /b 2
