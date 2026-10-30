@@ -373,6 +373,17 @@ class PackageTests(unittest.TestCase):
         self.assertIn("reliabilityStatus='unavailable'", diagnose)
         self.assertIn("$item.reliabilityStatus = 'collected'", diagnose)
         self.assertIn("$item.reliabilityStatus = 'empty'", diagnose)
+        telemetry = (ROOT/'tools/telemetry_analysis.ps1').read_text(encoding='utf-8-sig')
+        storage_fixture = (ROOT/'tests/telemetry_analysis.tests.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn('function ConvertTo-PcCareStorageMetrics', telemetry)
+        self.assertIn('ConvertTo-PcCareStorageMetrics -Counter $counter', diagnose)
+        self.assertLess(diagnose.index(". (Join-Path $PSScriptRoot 'telemetry_analysis.ps1')"),
+                        diagnose.index('ConvertTo-PcCareStorageMetrics -Counter $counter'))
+        self.assertEqual(diagnose.count(". (Join-Path $PSScriptRoot 'telemetry_analysis.ps1')"), 1)
+        self.assertNotIn('[int]$counter.Wear', diagnose)
+        self.assertNotIn('[int]$counter.Temperature', diagnose)
+        self.assertIn('Invalid wear must not hide valid temperature', storage_fixture)
+        self.assertIn('Invalid temperature must not hide valid wear', storage_fixture)
         self.assertNotIn('-Verb RunAs', diagnose)
         self.assertIn("['collectionStatus']", diagnose)
 
