@@ -81,6 +81,8 @@ class ReleaseTests(unittest.TestCase):
             'ui/qrcode.min.js',
             'ui/QR_CODE_LICENSE.txt',
             'ui/qr_ui.js',
+            'ui/history_compare.html',
+            'ui/history_compare.js',
             'tests/incident_analysis.tests.ps1',
             'tests/telemetry_analysis.tests.ps1',
             'tests/driver_timeline.tests.ps1',

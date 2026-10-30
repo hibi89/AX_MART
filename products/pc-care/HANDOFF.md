@@ -313,3 +313,15 @@
 8. 원본/보안: 사용자 로그·민감정보 업로드 없음; 시스템 파일/파티션/BitLocker/수리 실행 변경 없음. Git SHA로 되돌리기 가능.
 9. 다음 순위: Windows 11 PS5.1 syntax + fixture + 표준 사용자 진단, 실 OEM 이벤트 공급자 확인 → USB 한글/특수경로 → QR 실제 스캔·A4 PDF → WinRE/안전 수리 별도 VM/승인 후 출시 판단.
 10. 확인/갱신: 2026-10-30 KST, GitHub 원격 바이트 및 JS regex 모델, 실제 Windows/Production 동작 검증 범위 제외. 변경 후 HEAD 확인.
+
+## [최신] 2026-10-30 KST — H08 반복진단 오프라인 수동 비교 1단계
+1. **목표·기술:** AXMART PC CARE Release A H08, 파일 탐색기 수동 선택/브라우저 JS만으로 같은 PC의 반복 검사 두 건 비교. 관리자 권한·네트워크·PowerShell 추가 권한 불필요.
+2. **완료 기능·설계 결정:** ui/history_compare.html/js 추가. 사용자가 이전·현재 JSON을 명시 선택하고 신규/미관찰 경고 코드, 드라이브 가용 GB, 조회조건이 같은 이벤트 신호 수, 저장장치 경고 합계만 비교. 같은 PC·디스크인지 보증 못하므로 주의 문구 제공. 자동 이력 검색/삭제 대신 사용자 수동 제어 선택.
+3. **테스트:** 순수 JS V8 synthetic 16/16 통과. test_history_compare.cjs Node 9 테스트 등록, 패키지 allowlist/메뉴/CI 연결. 원본 Git Blob readback 확인. 실제 Node/Windows PowerShell5.1·Edge/Chrome file://·USB·QR/PDF·WinRE·ZIP 빌드 미실행.
+4. **완료/대기:** H08 수동 비교 UI와 소스 완료, 자동 보존기간·검색·삭제 UI/실기기 QA 대기. Release A/B 출시 승인 아님.
+5. **오류 근거·대안:** 다른 PC의 리포트 혼합/개인정보 과잉 읽기 위험으로 사용자가 2개 파일 직접 선택. malformed/2MB 초과/미지원 스키마 차단. 기존 GitHub long Unicode Base64 문서 Blob 오류 발생 → 직접 UTF-8 Blob 저장 및 readback 검증. CI runner 미배정 재시도 반복 금지.
+6. **저장소·브랜치·SHA:** hibi89/AX_MART feature/pc-care-usb, 작업 시작 789a831f0e21f52071f642effafee94ca0a89141. 파일 ui/history_compare.html/js, tests/test_history_compare.cjs, START_PC_CARE.cmd, tools/release.py, test_release.py, test_package.py 및 문서.
+7. **Production/실행 환경:** https://ax-mart.pages.dev/ Cloudflare main 미변경/미배포. Windows CMD 시작 메뉴 5, 아니면 ui/history_compare.html 직접 열기. JS 로컬 File API, account/server 없음.
+8. **원본·백업·보안:** 기존 보고서/수리·WinRE/PC 시스템·BitLocker·사이트 코드는 수정하지 않음. 보고서를 브라우저 메모리에서만 읽고 업로드/삭제/자동 보관하지 않음. Git 이전 SHA로 복원 가능.
+9. **다음 작업:** Node 테스트 실제 실행→Windows 11 표준권한 메뉴5/0→Edge/Chrome file:// 2개 진짜 JSON 실험(한글 USB 경로·오프라인)→A4/QR/WinRE 안전성 별도 검증. 출시 전 사용자 승인 필수.
+10. **갱신/검증 범위:** 2026-10-30 KST. 순수 V8 비교 로직 및 GitHub 소스 읽기 일치만 입증. Windows/Production/USB·실기기 브라우저 미검증. 최종 HEAD 반영 후 재조회.

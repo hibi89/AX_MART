@@ -30,6 +30,8 @@ ALLOWLIST = (
     'ui/qrcode.min.js',
     'ui/QR_CODE_LICENSE.txt',
     'ui/qr_ui.js',
+    'ui/history_compare.html',
+    'ui/history_compare.js',
     'tools/report_io.ps1',
     'tools/repair.ps1',
     'tests/windows_smoke.ps1',

@@ -17,7 +17,7 @@ class PackageTests(unittest.TestCase):
         self.assertIn('DisableDelayedExpansion', home)
         self.assertIn(r'%SystemRoot%\System32\choice.exe', home)
         self.assertIn('if not exist "%PC_CARE_CHOICE%" goto NO_CHOICE', home)
-        self.assertIn('/C 12340 /N', home)
+        self.assertIn('/C 123450 /N', home)
         self.assertIn('call "%PC_CARE_ROOT%RUN_HEALTH_CHECK.cmd"', home)
         self.assertIn('call "%PC_CARE_ROOT%RUN_SELF_TEST.cmd"', home)
         self.assertIn('if not exist "%PC_CARE_ROOT%RUN_HEALTH_CHECK.cmd" goto MISSING', home)
@@ -26,6 +26,25 @@ class PackageTests(unittest.TestCase):
         for forbidden in ['RUN_SAFE_REPAIR.cmd', 'tools\\repair.ps1', 'Start-Process', 'runas', 'powershell.exe', 'curl ', 'Invoke-WebRequest', 'diskpart ', 'bcdedit /set', 'del /', 'rmdir ']:
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden.lower(), home.lower())
+
+    def test_h08_local_history_compare_is_opt_in(self):
+        home = (ROOT/'START_PC_CARE.cmd').read_text(encoding='utf-8')
+        html = (ROOT/'ui/history_compare.html').read_text(encoding='utf-8')
+        js = (ROOT/'ui/history_compare.js').read_text(encoding='utf-8')
+        packager = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        self.assertIn('if "%PC_CARE_PICK%"=="5" goto HISTORY', home)
+        self.assertIn('if "%PC_CARE_PICK%"=="6" exit /b 0', home)
+        self.assertIn(r'start "" "%PC_CARE_ROOT%ui\history_compare.html"', home)
+        self.assertIn("connect-src 'none'", html)
+        self.assertIn('src="./history_compare.js"', html)
+        self.assertIn('type="file"', html)
+        self.assertIn('output.textContent = lines.join', js)
+        self.assertIn('f.size > 2000000', js)
+        self.assertIn('schemaVersion!==1', js)
+        for forbidden in ('fetch(', 'XMLHttpRequest', 'sendBeacon', 'WebSocket', 'localStorage', 'sessionStorage', 'innerHTML'):
+            self.assertNotIn(forbidden, js)
+        self.assertIn("'ui/history_compare.html'", packager)
+        self.assertIn("'ui/history_compare.js'", packager)
 
     def test_normal_check_is_read_only(self):
         text = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')

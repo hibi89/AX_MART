@@ -264,3 +264,9 @@ Pending manual tests:
 - Diagnostic JSON root adds schemaVersion=1; Windows read-only smoke requires this field. The existing data fields and local-only behavior remain unchanged.
 - Check real OEM storage provider names, Windows locale, event 1001/41/6008, truncated/no-match/access-denied states in Windows 11. Strict allowlisting can miss valid OEM names; no event count means no fault confirmed, not a health guarantee.
 - GitHub source checks and independent JS regex boundaries only; PS5.1 real execution, USB, QR/A4, WinRE and full unit tests remain unverified. No raw customer logs are needed for QA evidence.
+
+## 2026-10-30 H08: standalone local JSON history comparison acceptance
+- Launch START_PC_CARE.cmd [5] from normal Windows CMD without elevation. Assert ui/history_compare.html and history_compare.js load from a USB directory with spaces/Korean/ampersands. No external HTTP calls or repair.
+- Pick prior and current JSON for the same PC; verify schemaVersion=1, generatedAt order, changed issue codes, drive free space, log collection statuses and equal eventWindowDays. For unavailable/truncated logs, changed lookback, 30-record cap, different volume size, unsupported JSON, wrong order or same file: clearly reject/inhibit misleading comparisons.
+- No silent report folder enumeration, original JSON modification, auto deletion, network, cookies, storage, or upload; input JSON sizes capped at 2MB. HTML result uses textContent only. Confirm behavior on Edge and Chrome file:// and after USB is unplugged.
+- V8 pure JS comparison logic 16/16 synthetic pass. Node test_history_compare.cjs 9 tests authored/manual-only CI linked; actual node command, Chromium/Windows/USB/real user report acceptance unverified. H08 automated retention and delete features remain unimplemented.

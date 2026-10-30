@@ -258,3 +258,8 @@
 - JSON root schemaVersion=1, Windows smoke 스키마 검사, 부정 fixture 5종·Python 정적 가드 추가. 기존 수리·USB·QR·HTML/보고서 필드는 보존.
 - 저장 전 Git Blob Base64 생성/바이트 재조회 확인. 실제 Windows PowerShell5.1/지원 장치 OEM 공급자 범위·전체 unittest/USB/QR/A4/WinRE는 미검증. 정식 배포/크몽 판매 차단.
 - 이전 정상 SHA e39f345a88d8f03d3cfb1432ca7cee0e2b9b9dc3. 운영 main/Cloudflare 미변경.
+
+## 2026-10-30 KST — H08 수동 반복 검사 비교
+- 동일 PC의 과거/현재 읽기 전용 JSON 두 개를 수동 선택하고 신규·미관찰 경고/디스크 여유/조건부 이벤트 수/저장장치 경고 합계를 브라우저 오프라인에서 비교. 자동 업로드·파일 탐색·삭제 없음.
+- 메뉴 5번, ui/history_compare.html/js, JS 합성 16/16 통과, Node 테스트 9개 작성, 내부 ZIP/수동 CI·문서 연결. 실제 Node 실행/Windows Edge file:// /USB/QR/PDF/WinRE **미검증**.
+- H08 자동 저장/보존기간/삭제 UI 미구현. 무료/판매 배포 차단, 운영 main 불변. 변경 전 SHA 789a831f0e21f52071f642effafee94ca0a89141.
