@@ -28,6 +28,7 @@ NODE_TESTS = (
     'tests/test_history_compare.cjs', 'tests/test_history_dom.cjs',
     'tests/test_history_signals.cjs', 'tests/test_history_batch.cjs',
     'tests/test_history_print.cjs', 'tests/test_history_issue_allowlist.cjs',
+    'tests/test_history_evidence_integration.cjs',
 )
 NOT_VERIFIED = (
     'real Windows 11 system diagnosis and permissions',
