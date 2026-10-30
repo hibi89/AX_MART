@@ -239,3 +239,8 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - 검증: 실제 GitHub 파일 정적 계약 **32 PASS/0 FAIL**, 증거 `products/pc-care/tests/evidence/timeline_coverage_static_qa_20261031.json`. **Windows PS5.1/전체 테스트/실 ZIP/WinRE/QR/A4/CI NOT_RUN**, 실제 기능 100% 아님.
 - 복구: 작업 전 SHA `dfe918e3c1860aaa6fe9bd1deeaf1e8eb2fc1274`; 현재 `feature/pc-care-usb`만 작업, `main`·Cloudflare 운영 사이트/사용자 데이터 및 복구 기능 미변경.
 - 다음: Windows 실기기/VM `RUN_RELEASE_QA.cmd`/읽기 전용 저장 JSON·HTML → USB·QR·PDF 검증 → WinRE 독립 위험 게이트. 무인 수리·실 복사·무료/유료 배포 금지. 최종 작업 SHA는 GitHub 확인 결과로 보고.
+
+## 2026-10-31 KST — AXMART CUBE H08 허위 샘플 판정 보강
+- 해총 지시대로 최종 v2.0 설계 유지·기존 로컬 JS 모듈 최소 수정. H08 비교기가 업데이트·PnP 잘못된 JSON 샘플을 정상 관측 수치로 취급하던 결함을 재현 후 kind/eventId/UTC/timeBasis/장치 코드 검증으로 차단. `products/pc-care/HANDOFF.md` 최신 10항 상세.
+- GitHub 정확한 소스·test V8 실행 **25/25 PASS**, 독립 12/12, 정적 12/12. 이는 native Node/Windows/USB/QR/PDF/WinRE/ZIP/CI 미검증과 엄격히 분리. 근거 `products/pc-care/tests/evidence/h08_normalized_sample_validation_20261031.json`.
+- 변경 전 복구 SHA `209a3366ed841519c871be1aba3bdf84cf815d0b`. `feature/pc-care-usb`만 수정, 사이트 `main`/Cloudflare·사용자 보고서·권한·복구·판매 변경 없음. 다음 Windows 개발 checkout `RUN_RELEASE_QA.cmd` 실행→Read-only 보고서·H08 통합 증명, 필요 시 UI·QR/A4, 마지막 WinRE 안전 게이트. 인수인계 이후 최종 feature SHA 별도 확인.
