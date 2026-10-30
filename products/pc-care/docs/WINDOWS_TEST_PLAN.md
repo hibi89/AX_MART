@@ -47,3 +47,10 @@
 **기록 항목:** Windows 빌드/PowerShell 버전, 표준·관리자 여부, 비식별 환경, 명령, 종료 코드, 결과 JSON의 collectionStatus/eventCollection, HTML-JSON 파일 쌍 존재 여부, 실패 원인. 개인 이름/경로/실디스크 일련번호/BitLocker 키/원문 이벤트는 커밋 금지.
 
 **출시 판정:** 위 표는 실행 전 계획이며 합격 결과가 아니다. GitHub 내 소스 검토와 CI 상태는 Windows 실측·WinRE/BitLocker·위험 수리 VM 게이트를 대신할 수 없다.
+
+## 2026-10-30 P0 report persistence fixture (not yet run)
+
+- The Windows smoke suite now includes a synthetic report persistence fixture.
+- It uses an isolated temporary directory and has four cases: successful JSON/HTML pair, existing-name collision preservation, fallback from an unusable first destination, and explicit failure when all destinations are unusable.
+- The fixture is read/write within only its own temporary directory; it does not run system repair or modify real diagnostic reports.
+- Actual Windows PowerShell 5.1 execution, error codes, and output evidence remain unverified.
