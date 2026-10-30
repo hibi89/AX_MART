@@ -47,9 +47,17 @@ else { $observations['windows'] = @{ name='확인 불가'; version=''; build='';
 $volumes = @(Safe-Collect { @(Get-CimInstance -ClassName Win32_LogicalDisk -Filter 'DriveType=3' -ErrorAction Stop) } '디스크 여유 공간' 'volumes')
 $volData = New-Object 'System.Collections.Generic.List[object]'
 foreach ($v in $volumes) {
-    if ($null -eq $v -or $null -eq $v.DeviceID -or [double]$v.Size -le 0) { continue }
+    if ($null -eq $v) { continue }
+    if ($null -eq $v.DeviceID -or $null -eq $v.Size -or $null -eq $v.FreeSpace) {
+        [void]$limits.Add('드라이브: 일부 용량 데이터가 제공되지 않아 해당 볼륨을 평가하지 않았습니다.')
+        continue
+    }
     $remaining = [double]$v.FreeSpace
     $capacity = [double]$v.Size
+    if ($capacity -le 0 -or $remaining -lt 0 -or $remaining -gt $capacity) {
+        [void]$limits.Add('드라이브: 유효하지 않은 용량 값이 있어 해당 볼륨을 평가하지 않았습니다.')
+        continue
+    }
     $pct = [math]::Round(($remaining / $capacity) * 100, 1)
     $gb = [math]::Round($remaining / 1GB, 1)
     [void]$volData.Add(@{ drive=[string]$v.DeviceID; remainingGB=$gb; freePercent=$pct; sizeGB=[math]::Round($capacity / 1GB,1) })
@@ -223,7 +231,7 @@ footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-heig
 <section><h2>진단 결과와 권장 조치</h2>$($cards -join "`n")</section>
 <section><h2>드라이브 공간</h2><div class="scroll-table"><table><thead><tr><th>드라이브</th><th>여유 공간</th><th>여유 비율</th></tr></thead><tbody>$($rows -join "`n")</tbody></table></div></section>
 <section><h2>물리 저장장치 상태</h2><p class="small">Windows에서 제공한 상태 신호이며 실제 SSD/HDD 수명 또는 정상 작동을 보증하지 않습니다. 마모율/온도는 드라이버 지원 기기에서만 표시됩니다.</p><div class="scroll-table"><table><thead><tr><th>장치</th><th>상태 신호</th><th>마모율</th><th>온도</th></tr></thead><tbody>$($diskRows -join "`n")</tbody></table></div></section>
-<section><h2>최근 블루스크린 상세</h2><p class="small">Windows System 로그의 BugCheck 관련 공급자 기록 중 최대 15건을 표시합니다. STOP 코드는 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>STOP 코드(추출값)</th></tr></thead><tbody>$($crashRows -join "`n")</tbody></table></div></section>
+<section><h2>최근 블루스크린 상세</h2><p class="small">Windows System 로그 중 BugCheck 관련 기록 최대 15건입니다. 표의 시각은 이벤트가 기록된 시간이며 실제 충돌 시각이 아닐 수 있습니다. STOP 코드는 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>STOP 코드(추출값)</th></tr></thead><tbody>$($crashRows -join "`n")</tbody></table></div></section>
 <section><h2>검사 한계</h2><ul>$($limRows -join "`n")</ul><p class="small">Windows $(Esc $report.observations.windows.name) · 검사 기간: $Days 일 · 생성 $(Esc $report.generatedAt)</p></section>
 <footer>AXMART PC CARE v0.1 테스트용 제품. 하드웨어 자체 검사, 메모리 덤프 분석, 악성코드 전수 검사, 수리 성공 보증은 제공하지 않습니다. BitLocker 복구키는 절대 입력하거나 이 도구에 저장하지 마세요.<br>결과는 이 기기에만 저장하며 인터넷으로 전송하지 않습니다. 판매 준비 전 실제 Windows 환경 검증이 필요합니다.</footer></main></body></html>
 "@
