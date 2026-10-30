@@ -566,3 +566,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 보존·보안: Git 베이스로 복원 가능; 고객 REPORTS·디스크·키·로그·OS/복구·환경변수·Cloudflare 설정 수정/접근 없음. 네트워크 업로드·자동 수리·지우기 없음.
 9. 다음: Windows 전체 QA→실제 read-only 보고서 저장→H08/Edge file://·USB 한글 경로·QR 스마트폰/A4 인쇄→별도 WinRE VM 안전 검증. 고객 공개/실복사/승인형 수리 실행은 사전 승인.
 10. 갱신: 2026-10-31 KST. 검증 근거 GitHub 원격 읽기·V8 실행 38/38; 외부·실기기 완주 여부 미확인. 문서 커밋 후 실제 feature SHA 별도 확인.
+
+## 2026-10-31 KST — P0 disk provenance / 10항
+1. 목표·용도·확정 기술: PC CARE Release A Windows PS5.1/CMD 진단→정규화→분석→로컬 JSON/HTML/H08·A4/QR. 기존 v2.0 설계와 Read-only/수동 승인 분리 유지.
+2. 실제 구현·결정: `incident_analysis.ps1`의 디스크 Warning 표본을 소스 상태와 분리해 과거 조회 실패에도 경고 근거로 쓰던 결함 수정. `DiskCollectionStatus=collected/truncated`만 읽고 `unavailable/empty`면 잔존 배열 배제. 절단 수집의 관측 신호는 유지하되 불완전 판정.
+3. 테스트: 코드·회귀 파일 GitHub readback 및 정적 계약 19 PASS/0 FAIL. `incident_analysis.tests.ps1` 경계 fixture, `test_package.py` 소스 계약 추가. **Windows PS5.1 실제 구문/fixture, native Python/Node·ZIP·실기기·USB·QR·A4·WinRE·CI NOT_RUN**.
+4. 상태: 서버/배포가 없는 로컬 진단기 Release A 코드 보강 완료, 실사용품 검증 대기. Release B WinRE 파일 복사/수리·대외 배포 차단.
+5. 오류·원인·재시도 금지: 기존 `$allDisks`를 `DiskCollectionStatus`와 무관하게 채운 것이 문제. 수집 실패의 잠재 경고를 사실로 단정하지 않게 제한. 과거 CI `41034866482`의 runner 미배정 실패는 현재 HEAD 기능 오류 증거 아님; 의미 없는 재실행 금지.
+6. 저장소·SHA·경로: `hibi89/AX_MART@feature/pc-care-usb`, 이전 HEAD `009ac6b9fa1a81c313aae71b9d85190d4e036d16`; 핵심 `tools/incident_analysis.ps1`, `tests/incident_analysis.tests.ps1`, `tests/test_package.py`, 근거 `tests/evidence/incident_disk_provenance_static_qa_20261031.json`; 최종 HEAD는 이번 문서 커밋 뒤 재조회.
+7. 환경·운영: Windows 11 x64, PS5.1, Node/Python (내부 QA). `RUN_RELEASE_QA.cmd`→`tests/windows_smoke.ps1`; `https://ax-mart.pages.dev/` 운영 main에는 미배포·미적용.
+8. 원본·백업·인증: 사용자 고객 REPORTS/시스템 설정·파일/토큰·BitLocker 키 무접근·무수정. Git 이전 HEAD 복원점. 원본과 정상 기능·인증 설정 변경/외부 업로드 없음.
+9. 다음 우선순위·절차·승인: Windows 전체 소스 QA/PS5.1 fixture → 명시적 read-only 실제 JSON/HTML 결과 → H08/Edge file://·한글 USB→QR/A4·해시 ZIP→WinRE 격리 VM 안전 증명. 실제 수리·WinRE 복사·고객 배포/유료화는 사전 승인.
+10. 갱신: 2026-10-31 KST, GitHub 실제 원격 소스/정적 검사 19개까지만 확인. 정적 PASS를 native/E2E PASS라고 기록하지 않음. 최종 SHA 원격 확인 후 보고.
