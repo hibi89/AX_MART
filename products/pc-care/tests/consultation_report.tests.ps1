@@ -130,7 +130,9 @@ $report.observations.eventEvidence = @(
     [pscustomobject]@{ kind='update_installation_failure_record'; eventId=20; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:04:00Z' }
 )
 $report.observations.windowsUpdate.evidence = @(
-    [pscustomobject]@{ kind='update_installation_failure_record'; eventId=20; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:05:00+00:00' },
+    [pscustomobject]@{ kind='update_installation_failure_record'; provider='Microsoft-Windows-WindowsUpdateClient'; eventId=20; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:05:00+00:00' },
+    [pscustomobject]@{ kind='update_installation_failure_record'; provider='Fake-Microsoft-Windows-WindowsUpdateClient'; eventId=20; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:08:00Z' },
+    [pscustomobject]@{ kind='update_installation_failure_record'; eventId=20; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:09:00Z' },
     [pscustomobject]@{ kind='shutdown_signal'; eventId=41; provider='Microsoft-Windows-Kernel-Power'; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:06:00Z' },
     [pscustomobject]@{ kind='update_installation_failure_record'; eventId=20; timeBasis='event_recorded_time'; recordedUtc='2026-02-30T03:07:00Z' }
 )

@@ -80,6 +80,7 @@ function Get-PcCareConsultationSummary {
                 $label = '저장장치 신호'
             }
         } elseif ($entry.scope -eq 'update') {
+            if ([string]$item.provider -cne 'Microsoft-Windows-WindowsUpdateClient') { continue }
             if ($kind -eq 'update_installation_failure_record' -and $id -eq 20) { $label = '업데이트 설치 실패 기록' }
             elseif ($kind -eq 'update_installation_success_record' -and $id -eq 19) { $label = '업데이트 설치 성공 기록' }
         }

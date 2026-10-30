@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "baseSha": "f445f3bbf898db6e5c64f9d99622652cb5b4bff6",
+  "scope": "source-level provenance regression",
+  "checksPassed": [
+    "update token",
+    "timeline provider gate",
+    "timeline source gate",
+    "consult update gate",
+    "telemetry fixture",
+    "timeline spoof fixture",
+    "timeline 6008 provider",
+    "consult test spoof",
+    "static package contract",
+    "BOM intact"
+  ],
+  "checksCount": 10,
+  "powershell51": "NOT_RUN",
+  "pythonFull": "NOT_RUN",
+  "node": "NOT_RUN",
+  "windows": "UNVERIFIED",
+  "ci": "NOT_RUN",
+  "production": "UNCHANGED",
+  "release": "HOLD"
+}

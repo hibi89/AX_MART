@@ -38,6 +38,7 @@ $updates = @(
     [pscustomobject]@{ Id=999; ProviderName='Microsoft-Windows-WindowsUpdateClient'; RecordId=113; TimeCreated=$time; Message='unrelated' }
 )
 $evidence = @(ConvertTo-PcCareUpdateEvidence -Events $updates)
+Assert-Telemetry (@($evidence | Where-Object { $_.provider -cne 'Microsoft-Windows-WindowsUpdateClient' }).Count -eq 0) 'Only canonical update providers can be normalized'
 Assert-Telemetry ($evidence.Count -eq 2) 'Only approved provider/IDs with record dedup'
 Assert-Telemetry (@($evidence | Where-Object { $_.kind -eq 'update_installation_failure_record' }).Count -eq 1) 'Event 20 is installation failure record'
 Assert-Telemetry (@($evidence | Where-Object { $_.kind -eq 'update_installation_success_record' }).Count -eq 1) 'Event 19 is installation success record'

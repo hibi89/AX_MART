@@ -85,6 +85,7 @@ function ConvertTo-PcCareUpdateEvidence {
         [pscustomobject]@{
             kind = $kind
             eventId = $id
+            provider = 'Microsoft-Windows-WindowsUpdateClient'
             recordedAt = $when.ToString('yyyy-MM-ddTHH:mm:ss.fffK', [Globalization.CultureInfo]::InvariantCulture)
             recordedUtc = $when.ToUniversalTime().ToString('o', [Globalization.CultureInfo]::InvariantCulture)
             timeBasis = 'event_recorded_time'
