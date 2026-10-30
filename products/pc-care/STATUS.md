@@ -352,3 +352,11 @@
 - GitHub 파일 읽기·정적 계약 **32 PASS / 0 FAIL**; 근거 `tests/evidence/timeline_coverage_static_qa_20261031.json`. **PowerShell 5.1 실제 파서/fixture, 원본 ZIP, Python·Node 전체, 실 Windows/USB/QR/PDF/WinRE, CI NOT_RUN**. 근거 범위 밖의 E2E PASS 주장 금지.
 - 수정 전 복구 SHA `dfe918e3c1860aaa6fe9bd1deeaf1e8eb2fc1274`; `feature/pc-care-usb`만 변경. 운영 `main`/Cloudflare 및 고객 파일·로그·수리/복구 동작 변경 없음. 공개/판매 차단 유지.
 - 다음 핵심 경로: Windows 11 실 checkout `RUN_RELEASE_QA.cmd` → `tests/windows_smoke.ps1` synthetic 및 선택적 실제 read-only → 저장 JSON/HTML과 QR/A4/USB 확인 → 별도 WinRE/복사 VM 안전 게이트.
+
+## 2026-10-31 KST — H08 normalized evidence validation (Release A)
+- 실제 결함 재현: `ui/history_signals.js`가 Windows Update `evidence:[{},{}]` 및 PnP `samples:[{}]`와 선언한 건수만 맞으면 관측 결과로 비교하던 문제. 이는 진단 JSON의 무효 표본을 신뢰하는 오류였다.
+- 수정: 업데이트 항목의 kind↔eventId(19/20)·기록시각 UTC ISO/실제 달력·timeBasis, 실패/성공 건수 일치 검사; PnP 구성코드 정수 1..55·`rootCauseConfirmed=false` 검사. 정상 상태의 수집 결과 0건은 기존과 같이 허용. `history_compare.js`·로컬 HTML의 사용자 동작은 유지하고 외부 통신·파일 접근 추가 없음.
+- `tests/test_history_signals.cjs` fixture 실제 정규화 구조로 교체하고 3개 결함 회귀 묶음 추가. `tests/test_package.py`에 소스 계약 8개 보강.
+- **실행**: GitHub 실소스와 커밋된 두 JS 단위테스트 파일을 V8+Node API 어댑터에서 실행 **25/25 PASS**; 직접 V8 시나리오 12/12 PASS; 원격 소스 정적 체크 12/12 PASS. 이는 Node 실제 `node --test`, Chromium file://, Windows PowerShell 5.1 실행을 대체하지 않음. 증빙 `tests/evidence/h08_normalized_sample_validation_20261031.json`.
+- **미검증**: 네이티브 Node/Python 전체, 실제 Windows·USB, QR/A4·WinRE, 원본 ZIP, CI. 운영 `main`/Cloudflare 무변경; 고객 보고서·수리/삭제/공개·결제 없음. 이전 브랜치 기준 SHA `209a3366ed841519c871be1aba3bdf84cf815d0b` 복구 가능.
+- 다음 필수: 전체 소스 Windows에서 `RUN_RELEASE_QA.cmd` → 진짜 5.1 스모크 → read-only 저장 JSON/HTML → Edge file:// H08 및 인쇄/QR/USB → WinRE 별도 게이트.
