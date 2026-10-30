@@ -1,0 +1,61 @@
+{
+  "dateKST": "2026-10-31",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "sourceBaseline": "a7843dd4983959d8e4d19d4ee85d567a82982c6a",
+  "defect": "H08 allowed displayed System event arrays to drive count comparisons without checking normalized eventEvidence kinds/IDs/UTC timestamps and matching totals.",
+  "fix": "H08 event comparison validates normalized System record kind/EventID/timeBasis/explicit UTC; verifies three displayed arrays against observed counts and collectionStatus.events. Absent or truncated source is non-comparable, genuine successful no-match is zero.",
+  "changes": [
+    "ui/history_compare.js",
+    "tests/test_history_compare.cjs",
+    "tests/test_history_evidence_integration.cjs",
+    "tools/preflight.py",
+    "tests/test_package.py"
+  ],
+  "verifiedGitBlobShas": {
+    "ui/history_compare.js": "bb24b9fcd55ecd03da4a4b1d5bb8e8a3c5905787",
+    "tests/test_history_compare.cjs": "c51f38398a051040b3468a9ba2cb4507e671ddcb",
+    "tests/test_history_evidence_integration.cjs": "aefeee0f8071e5bf96fe6f85e0315120de272eff",
+    "tools/preflight.py": "316368f12d620599676bc5723cfb6098c3afbf63",
+    "tests/test_package.py": "606c4e2a617758c773a95de912a4ce9db8595c1c"
+  },
+  "testResults": {
+    "baselineBugReproduced": true,
+    "V8TwoCommittedUnitSuites": {
+      "executed": 28,
+      "pass": 28,
+      "fail": 0,
+      "method": "GitHub JS and committed node:test bodies executed using V8 with Node test/assert adapter"
+    },
+    "V8NewIntegrationSuite": {
+      "executed": 5,
+      "pass": 5,
+      "fail": 0,
+      "method": "Original code and committed synthetic System JSON -> compare -> private print; V8 adapter"
+    },
+    "remoteSourceStaticContracts": {
+      "checked": 12,
+      "pass": 12,
+      "fail": 0
+    },
+    "nativeNodeRunner": "NOT_RUN",
+    "nativePython": "NOT_RUN",
+    "fullActualZip": "NOT_RUN",
+    "nativePowerShell51": "NOT_RUN",
+    "Windows11USBEdge": "NOT_RUN",
+    "actualQRandA4": "NOT_RUN",
+    "WinRE": "NOT_RUN",
+    "GitHubActionsCurrentHead": "NOT_RUN"
+  },
+  "olderCIObservation": {
+    "runId": 41034866482,
+    "headSha": "5c6c794d0ac59615e28726051d2751e0f065e4c9",
+    "conclusion": "failure",
+    "jobName": "windows-powershell-51",
+    "jobSteps": 0,
+    "runnerName": "",
+    "note": "Not associated with this current revision; cannot infer product runtime failed; not rerun."
+  },
+  "safety": "No customer JSON opened, no Windows settings or disk writes, no code deployment, no auto repair or WinRE backup; current changes limited to feature branch.",
+  "acceptanceNext": "Run complete checkout Windows 11: RUN_RELEASE_QA.cmd, Windows PowerShell 5.1 synthetic and explicit read-only E2E; validate file:// H08, QR and print; WinRE separate."
+}
