@@ -12,11 +12,15 @@ const valid = "AXMART PC CARE\n상태:주의 필요\n신호:저장장치\n원인
 function setup(text = valid, options = {}) {
   const calls = [];
   let click = null;
+  let change = null;
   const button = {addEventListener(name, fn) {
     assert.equal(name, "click");
     click = fn;
   }};
-  const input = {value: text};
+  const input = {value: text, addEventListener(name, fn) {
+    assert.equal(name, "input");
+    change = fn;
+  }};
   const target = {textContent: "old result"};
   const state = {textContent: ""};
   const nodes = {
@@ -41,6 +45,9 @@ function setup(text = valid, options = {}) {
   vm.runInNewContext(source, env, {timeout: 1000, filename: "qr_ui.js"});
   return {calls, click: () => {
     if (click !== null) click();
+  }, edit: nextText => {
+    input.value = nextText;
+    if (change !== null) change();
   }, attached: () => click !== null, input, target, state};
 }
 
@@ -100,6 +107,28 @@ test("QR constructor error clears old output and gives a safe fallback", () => {
   assert.equal(ui.target.textContent, "");
   assert.equal(ui.calls.length, 0);
   assert.match(ui.state.textContent, /실패/);
+});
+
+test("editing a generated QR payload clears stale QR immediately", () => {
+  const ui = setup();
+  ui.click();
+  assert.equal(ui.calls.length, 1);
+  ui.target.textContent = "PREVIOUS-QR";
+  ui.edit("AXMART PC CARE\n상태:주의 필요\n신호:업데이트실패");
+  assert.equal(ui.target.textContent, "");
+  assert.match(ui.state.textContent, /변경/);
+  assert.equal(ui.calls.length, 1);
+});
+
+test("invalid regeneration clears a QR created for older text", () => {
+  const ui = setup();
+  ui.click();
+  ui.target.textContent = "PREVIOUS-QR";
+  ui.input.value = "PRIVATE-INPUT";
+  ui.click();
+  assert.equal(ui.target.textContent, "");
+  assert.equal(ui.calls.length, 1);
+  assert.match(ui.state.textContent, /차단/);
 });
 
 test("missing DOM nodes leave QR disabled without a page-load exception", () => {
