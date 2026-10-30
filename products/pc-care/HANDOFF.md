@@ -638,3 +638,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본·백업·인증: Git 기준 SHA 복구 가능, 사용자 로컬 REPORTS·임의 원본 파일·OS·BitLocker·자격증명/토큰·Cloudflare 설정 무접근/무수정. 테스트는 격리 임시 폴더에서 합성 파일만 사용.
 9. 다음 작업 우선순위/승인: Windows 개발 체크아웃의 `RUN_RELEASE_QA.cmd` 1회 실실행 → 전체 원본 ZIP/sha256·Python/Node/PS5.1 증빙 → 명시적 read-only 진단/JSON·HTML/H08/USB·QR/A4 → WinRE 격리 VM 안전성 검증. 실복사·수리·출시/비용 변경 시 사전 승인.
 10. 갱신 KST: 2026-10-31, GitHub readback + 동일 원본 함수의 합성 ZIP 로컬 테스트 9/9만 실증. CI 및 실제 Windows/고객 사용 범위 미확인.
+
+## 2026-10-31 KST — CUBE 원본 ZIP 네이티브 QA / 인수인계 10항
+1. 목표: AXMART PC CARE USB Release A 읽기 전용 Windows 11/PS5.1 진단·JSON/HTML·H08·상담 출력. ZIP 안전/무결성 확인; WinRE 실제 복사는 별도 Release B 안전 게이트.
+2. 완료·의사결정: 코드를 임의 재작성하지 않고 GitHub 원격 `tools/release.py`와 공식 `tests/test_release.py`를 로컬에 바이트 동일 복원해 네이티브 Python 테스트. 이번엔 정상 작동하는 기존 원본 파일을 수정하지 않음.
+3. 테스트: `python -m unittest discover -s tests -p test_release.py -v` (Python 3.13.5 Linux) **15 PASS/0 FAIL/0 SKIP**. 별도 동일 실제 원본 코드 기반 사용자 정의 합성 14 PASS/0 FAIL(범위 중복). Git blob SHA가 원격과 정확히 일치: `df378a1a308089e5b7ccbf1d2dd3c1a6b9d24095`(release), `8758f0df5a1dbf46770b4376534d64397d42d05f`(test). 제품 실제 allowlist 소스 ZIP·전체 Python/Node·Windows PS5.1/실 PC/USB·QR/A4·WinRE/CI 미실행.
+4. 단계: 합성 ZIP 처리 실제 네이티브 검증 완료. 실제 제품 콘텐츠 ZIP/Windows 디바이스/E2E 수용 시험은 대기. 실수리·복사·고객 공개 금지.
+5. 실패 근거·방법: 로컬 `git ls-remote`는 비공개 GitHub DNS 불가. 같은 실패 반복하지 않고 GitHub 연결 실제 소스를 원격 blob 검증해 복원. 테스트 오류/제품 결함 이번엔 없었음. 합성 파일 QA를 실제 고객 패키지 합격으로 오판 금지.
+6. 저장소·브랜치·SHA·경로: `hibi89/AX_MART@feature/pc-care-usb`; 본 시험 기준 HEAD `973faa92980e6c22e4748d2012ec346875f06872`. 무수정 원본 `tools/release.py`, `tests/test_release.py`; 증빙 `tests/evidence/release_actual_python_native_20261031.json`. 최종 문서 SHA 원격 재확인.
+7. Production·환경: `https://ax-mart.pages.dev/`는 운영 main 유지. Python 3.13.5/Linux 합성 테스트, 사용자 실기기 목표 Windows 11/PS5.1/Python≥3.11/Node, `RUN_RELEASE_QA.cmd` 로컬 실행.
+8. 원본/백업/민감정보: Git baseline `973faa92980e6c22e4748d2012ec346875f06872` 복구점. 테스트는 임시 합성 데이터만; 고객 REPORTS/OS·BitLocker·키/개인정보 접근·수정/외부 업로드·계정/배포/권한 변경 없음.
+9. 다음 우선순위·승인: 전체 실제 소스 ZIP `release.py` 검증→Windows 전체 `RUN_RELEASE_QA.cmd` (native PS5.1+Python+Node+ZIP)→명시적 read-only 실제 진단/저장/H08→USB·QR/A4→격리 WinRE 안전성. 실제 수리/백업 복사/상품 배포/결제 시 사전 승인.
+10. 갱신·근거: 2026-10-31 KST, 공식 네이티브 Python unittest 15/15 + 중복 합성 커스텀 14/14까지 확인. 그 외 NOT_RUN, 구형 runner 실패는 현 SHA 오류로 오판 금지.
