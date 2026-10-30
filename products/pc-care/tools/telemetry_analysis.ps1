@@ -129,7 +129,7 @@ function ConvertTo-PcCareVolumeSample {
     param([object]$Volume)
     if ($null -eq $Volume) { return $null }
     try {
-        $drive = [string]$Volume.DeviceID
+        $drive = ([string]$Volume.DeviceID).ToUpperInvariant()
         if ($drive -cnotmatch '^[A-Z]:$') { return $null }
         if ($null -eq $Volume.Size -or $null -eq $Volume.FreeSpace) { return $null }
         $capacity = [double]$Volume.Size
