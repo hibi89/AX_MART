@@ -418,3 +418,9 @@
 - Python 3.13.5 Linux에서 **공식 `python -m unittest discover -s tests -p test_release.py -v` 15 PASS / 0 FAIL / 0 SKIP**. 별도 동일 실제 코드의 합성 보안·ZIP 스모크 **14 PASS / 0 FAIL**(공식 테스트와 겹치는 범위가 있으므로 독립 항목 29개로 집계하지 않음).
 - 테스트는 실제 ZIP/manifest/SHA256 처리 코드를 실행했으나 `ALLOWLIST`의 내용은 합성 placeholder. **실제 제품 파일이 모두 들어간 ZIP, Windows PS5.1/Windows 실기기·USB/QR/A4/WinRE/Node·전체 Python·CI NOT_RUN**. 근거 `tests/evidence/release_actual_python_native_20261031.json`.
 - 코드 결함 새로 발견되지 않아 제품 소스 무수정. feature 증빙/상태만 반영, 운영 main/Cloudflare·고객 데이터·인증/수리/배포 불변. 다음 전체 소스 Windows 체크아웃 `RUN_RELEASE_QA.cmd` 실행 및 사설 `QA_RESULTS` 검토.
+
+## 2026-10-31 KST — 드라이브 용량 수집 오류 격리·H08 완전성
+- `diagnose.ps1`의 Win32_LogicalDisk 결과 변환이 직접 `[double]` 캐스팅과 NaN/Infinity 미검증으로 전체 진단 중단 또는 왜곡된 값 직렬화 가능. 기존 ZIP에 포함된 `tools/telemetry_analysis.ps1`의 순수 `ConvertTo-PcCareVolumeSample`를 먼저 1회 로딩하여 사용. 올바른 드라이브 문자·유한한 크기/여유량·비음수·여유≤전체 검증, 실패한 볼륨만 제외하고 정상 볼륨은 계속 수집. raw 볼륨명·경로는 복사하지 않음.
+- 누락 건수 `observations.volumeRejectedCount` 기록, 수집 중 잘못된 값이 하나라도 있으면 `collectionStatus.volumes=incomplete` 처리. H08는 collected일 때만 공간 비교하므로 부분 관측을 '정상/개선'으로 판단하지 않음. `tests/telemetry_analysis.tests.ps1` 정상/가득 참/NaN·Infinity·음수·비정상 문자/후속 정상값 및 `tests/test_package.py` 소스 회귀 갱신.
+- 실제 원격 GitHub 정적 QA **23/23 PASS**. 기존 `release.py`/공식 `test_release.py` 로컬 Python 테스트 **15/15 PASS**(이번에 바뀐 PowerShell 코드와 무관). 변경된 PS5.1 fixture/Windows 진단/전체 Python·Node/제품 전체 ZIP·USB/QR/A4/WinRE/현 SHA CI **NOT_RUN**. `tests/evidence/volume_metric_failclosed_source_qa_20261031.json`.
+- 수정 전 GitHub HEAD `328bcf1611d588b3c4c285cf773ac6540decdc40`. 운영 main/Cloudflare·고객 파일·OS·자동 복구/출시 불변. 다음 Windows 개발 체크아웃 `RUN_RELEASE_QA.cmd` 네이티브 검증→명시적 읽기전용 JSON·HTML/H08→USB·QR/A4·WinRE 격리 시험.
