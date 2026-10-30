@@ -345,3 +345,10 @@
 - 기존 모듈 개선: `tools/recorded_timeline.ps1`이 System/Update 수집 결과(`collected`/`truncated`만 유효)를 요구하고, 출처 교차 사용·종류/이벤트 ID 불일치·시차 없는/잘못된 날짜 기록을 배제. 진단에서 수집 상태를 직접 전달하고 원본 수집 상한이 걸리면 시간축도 `truncated`로 표기. 해당 상태를 개인정보 없이 `sourceCollection`으로 출력.
 - `tests/driver_timeline.tests.ps1` 정상 2개 시간대, 빈/실패 상태, 교차 출처, ID 변조, UTC 누락, 불가능 날짜/정상 오프셋을 회귀에 추가. 별도 제품·통합 기준선 문서화. 변경 전 `dc53774703d1ea856599c599f3cf4b97418d885c`.
 - 원격 소스 재조회 정적 계약 **17/17 PASS**. 초기 잘못된 치환 손상은 복구원본으로 재작성 후 GitHub에서 정규식/본체를 검증. **PowerShell 5.1 parser 및 테스트 실제 실행 NOT_RUN**, Windows/USB/QR/A4/WinRE/전체 Python+Node/실 ZIP/CI 미검증. Beta/판매 금지, `main` 및 Production 변동 없음.
+
+## 2026-10-31 — Release A 기록 시간축 판정 강화 (CUBE ㄱ)
+- 본체 `tools/recorded_timeline.ps1`: 원본 수집 상태에 따른 `unavailable / incomplete / no matching events / truncated / collected` 구분과 `coverageComplete` 추가. 종류·EventID·출처·UTC 검사 유지. 같은 15분 기록 창의 BugCheck/스토리지, 종료/스토리지, BugCheck/업데이트 실패 **근접 관측** 3종만 코드로 표현하며 인과 확정 금지.
+- `tools/diagnose.ps1`: 실제 수집 누락·상한을 HTML/JSON에 반영하고 시간축 표에 한국어 근접 신호·검사 한계 표시(값 HTML escaping). `tests/driver_timeline.tests.ps1`, `test_package.py`, `windows_smoke.ps1`의 원본 출처/상태/원인 미확정 회귀 계약 보강.
+- GitHub 파일 읽기·정적 계약 **32 PASS / 0 FAIL**; 근거 `tests/evidence/timeline_coverage_static_qa_20261031.json`. **PowerShell 5.1 실제 파서/fixture, 원본 ZIP, Python·Node 전체, 실 Windows/USB/QR/PDF/WinRE, CI NOT_RUN**. 근거 범위 밖의 E2E PASS 주장 금지.
+- 수정 전 복구 SHA `dfe918e3c1860aaa6fe9bd1deeaf1e8eb2fc1274`; `feature/pc-care-usb`만 변경. 운영 `main`/Cloudflare 및 고객 파일·로그·수리/복구 동작 변경 없음. 공개/판매 차단 유지.
+- 다음 핵심 경로: Windows 11 실 checkout `RUN_RELEASE_QA.cmd` → `tests/windows_smoke.ps1` synthetic 및 선택적 실제 read-only → 저장 JSON/HTML과 QR/A4/USB 확인 → 별도 WinRE/복사 VM 안전 게이트.
