@@ -82,6 +82,7 @@ foreach ($v in $volumes) {
 $observations['volumes'] = @($volData.ToArray())
 
 # Storage provider may not expose NVMe SMART. Unknown is not Healthy.
+. (Join-Path $PSScriptRoot 'storage_metrics.ps1')
 $disks = @(Safe-Collect { @(Get-PhysicalDisk -ErrorAction Stop) } '저장장치 건강 상태' 'physicalDisks')
 $diskData = New-Object 'System.Collections.Generic.List[object]'
 foreach ($disk in $disks) {
@@ -91,9 +92,10 @@ foreach ($disk in $disks) {
     try {
         $counter = $disk | Get-StorageReliabilityCounter -ErrorAction Stop
         if ($null -ne $counter) {
-            $item.reliabilityStatus = 'collected'
-            if ($null -ne $counter.Wear -and $counter.Wear -ne 0) { $item.wearPercent=[int]$counter.Wear }
-            if ($null -ne $counter.Temperature -and $counter.Temperature -ne 0) { $item.temperatureC=[int]$counter.Temperature }
+            $metrics = ConvertTo-PcCareStorageMetrics -Counter $counter
+            $item.reliabilityStatus = $metrics.reliabilityStatus
+            $item.wearPercent = $metrics.wearPercent
+            $item.temperatureC = $metrics.temperatureC
         } else { $item.reliabilityStatus = 'empty' }
     } catch {
         # Optional device-dependent telemetry; an unsupported API is not proof of health.
