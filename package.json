@@ -1,0 +1,13 @@
+{
+  "name": "axmart-storefront",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AXMART dark hacker storefront prototype for Cloudflare Pages",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/site.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

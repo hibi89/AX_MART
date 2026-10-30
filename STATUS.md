@@ -1,25 +1,18 @@
 # AXMART 현황 — 2026-10-30 KST
 
 ## 완료
-- `main/index.html`: 완전한 단일 파일의 다크 해커 UI 배포 소스
-- GitHub 소스 커밋: `2651c14eb39754e5f2d43ed184474398e641fe31` (후속 문서 커밋으로 HEAD 변경 가능)
-- 정적 구문 검사: PASS
-- HTTP 정적 서버: 200 PASS
-- 브라우저 문서 삽입 검증(외부 폰트 요청 차단): 상품 5개, 카테고리 필터, 상세 모달, 장바구니 담기/삭제, 검색 PASS
-- 390px 모바일 가로 스크롤 없음, 메뉴 열기 PASS, JavaScript 오류 0건
+- GitHub 기존 index.html의 다크 해커 디자인 원본 보존.
+- Cloudflare Pages 무의존성 Build npm run build, dist/index.html 복사 및 _headers 보안 헤더 추가.
+- Node 22.16.0: npm test **PASS 1/1**, npm run build **PASS**, 결과 파일 104,502 bytes(로컬 기준).
+- Playwright Chromium 직접 HTML 주입 테스트 PASS: 상품 5개, 필터 1개, 상세 모달, 검색 결과 1개, 390px 모바일 메뉴 및 가로 넘침 0, JS 오류 0.
+- CLOUDFLARE_DEPLOY.md 절차 문서화. 예시 상품 가격 실제 판매 아님.
 
-## 차단
-- `mcp__Vercel__create_git_project` 로 `hibi89/AX_MART`를 `hibi89` 팀의 `axmart` 프로젝트로 연결 시도 → **403 Forbidden (create project permission)**.
-- 로컬 Vercel CLI 인증 구성도 없음. 동일 요청 무의미한 반복 금지.
-- **Vercel Production URL / 실제 배포 / Production SHA 검증: 미완료.**
+## 미완료·차단
+- Cloudflare Pages 계정/저장소 연결 가능 도구 없음. 사용자의 1회 OAuth 승인·대시보드 Git import 필요.
+- 희망 ax-mart.pages.dev는 **미할당/미검증**. 실제 Production URL, Cloudflare 배포 SHA, HTTPS·브라우저 기능은 미검증.
+- localhost 브라우저 직접 접근은 관리자 네트워크 정책 차단으로 HTML 직접 주입으로 전환하여 검증. 로컬 HTTP 확인은 미검증.
+- 실제 결제·로그인·DB·SMAX² 연동 미적용.
 
-## 미적용
-실거래, 인증, 구매·결제, 데이터베이스, 실제 마켓 상품, 이메일 접수 기능.
-
-## 다음 단계
-Vercel 권한이 있는 사용자 계정으로 `Add New → Project → Import Git Repository → hibi89/AX_MART → Deploy` 진행. 연결 후 Ready/Production URL/커밋 SHA/익명 접근·실제 기능을 검증.
-
-## 최종 UI 수정
-- 동적 상품 카드 아이콘의 SVG 참조 경로 수정. 최종 UI 커밋: `86d5f09f41b5f8fa343b9eb939540369d21a470a`.
-- 재검증: 데스크톱·모바일 상품 5개·아이콘 표시, 필터·검색·장바구니·390px 메뉴 PASS.
-- Github index.html SHA `6ca2cad359f450bc7432ecb85a475c680da22aa0` 확인.
+## 소스
+- repo: hibi89/AX_MART, branch main; 이전 기준 HEAD f4cbf5b3c3c1e609af18c0d368ea5b98cea7caa9.
+- Cloudflare 배포 기준 커밋은 본 변경 커밋 SHA (GitHub 결과 확인).

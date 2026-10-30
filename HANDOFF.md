@@ -1,17 +1,12 @@
-# AXMART 인수인계 (2026-10-30 KST)
+# AXMART HANDOFF — 2026-10-30 KST
 
-1. **목표·확정 요구·기술:** 사용자가 고른 다크 해커 AXMART 마켓 디자인 구현. 독립 브랜드, SMAX² 연동은 후속. 정적 HTML+내장 CSS/JS/SVG/WebP로 백엔드 없이 작동.
-2. **완료·변경·근거:** `index.html` 단일 파일로 사이트 구현. 헤더/히어로/상품/특징/사용법/가격/푸터, 상품 5개 데모, 검색·분류·상세·장바구니 UI. 실제 판매인 척하지 않도록 예시·준비 중 표시.
-3. **테스트:** `node --check app.js` PASS(별도 로컬 소스), Python HTTP 200, Playwright Chromium set_content에서 상품 5개/필터/모달/담기/삭제/검색 및 모바일 390px 메뉴·가로넘침 PASS, 페이지 오류 0. Vercel 배포 실제 브라우저는 미검증.
-4. **상태:** UI/로컬 검증 완료. Vercel 연결 차단. 백엔드·결제·로그인 미적용.
-5. **실패·대안:** 로컬 파일/localhost 직접 브라우저 로드가 관리자 정책으로 차단. 외부 폰트 요청도 지연; 브라우저 콘텐츠 직접 삽입 및 폰트 요청 제외로 로컬 기능 검증 성공. Vercel 신규 프로젝트 생성 403 Forbidden, 무권한 재시도 금지. 사용자가 Vercel 대시보드에서 Git import 수행 필요.
-6. **저장소·브랜치·경로:** `hibi89/AX_MART` / `main`; UI 커밋 `2651c14eb39754e5f2d43ed184474398e641fe31`, 현재 HEAD는 문서 추가 커밋에 따라 갱신됨. 루트 `index.html` 배포.
-7. **Vercel:** 예정 프로젝트 이름 `axmart`, 소유 팀 `hibi89`(Hobby). Production URL·SHA·상태 없음(배포 실패/미착수). 빌드 명령 없이 정적 호스팅.
-8. **원본·백업·보안:** 승인된 이미지 시안에서 히어로 영역만 래스터 크롭. 원본 편집 레이어 없음. 별도 ZIP에는 모듈화된 원본 포함. 민감값·API 토큰·사용자 데이터 없음.
-9. **우선순위·완료조건·승인:** P0 Vercel 대시보드 Git import (사용자 권한 필요) → 실제 URL에서 웹·모바일·콘솔·자산 확인, SHA 대조. P1 실제 상품 DB/API 설계. P2 계정/결제는 사용자 승인 후.
-10. **갱신 시각·검증 범위:** 2026-10-30 KST. 기준 디자인 커밋 `2651c14`; 후속 문서 커밋 SHA는 GitHub에서 확인. 화면 검증은 격리 브라우저 HTML 직접 렌더링(실제 Production 아님).
-
-### 최종 수정 기록
-- 상품 카드의 동적 SVG href를 외부 경로에서 인라인 심볼(`#id`) 참조로 수정.
-- UI 최종 기준 커밋: `86d5f09f41b5f8fa343b9eb939540369d21a470a`.
-- 최종 데스크톱/모바일 화면 캡처 및 기능 테스트 PASS; 배포 불가 사유 403 그대로 유지.
+1. 목표/요구/기술: 선택된 귀여운 다크 해커 AXMART 사이트를 Cloudflare Pages Git 연동 가능하게 준비. 정적 HTML/CSS/JS, Node 18+ 외부 의존성 없는 build, 실제 결제 제외.
+2. 완료/결정: 사용자 확정된 index.html 원본 미수정. package.json, scripts/build.mjs, cloudflare/_headers, tests/site.test.mjs, CLOUDFLARE_DEPLOY.md 추가. Vercel Hobby 상업 이용 제한에 따라 Cloudflare Pages 선택.
+3. 테스트: npm test PASS 1/1; npm run build PASS(로컬 dist/index.html 104,502 bytes); Playwright set_content PASS: 상품 5개/필터/상세/검색/모바일 390px/JS 오류 0. 실제 Cloudflare Production 테스트 미검증.
+4. 단계: 코드/정적 빌드 완료. Cloudflare 계정 Git 인증·프로젝트 생성·실 URL/E2E 미완료. 백엔드·결제·계정은 후속.
+5. 오류/원인/시도·대안: 이전 Vercel 프로젝트 생성 403, 재시도 금지. 현재 Cloudflare 커넥터 없음; 사용자 Cloudflare 대시보드에서 GitHub repo 최소 범위 승인. 로컬 localhost 접근 네트워크 정책 차단, Playwright HTML 직접 주입 테스트로 전환.
+6. 저장소·브랜치·SHA·경로: hibi89/AX_MART/main. 이전 SHA f4cbf5b3c3c1e609af18c0d368ea5b98cea7caa9. 이번 변경은 GitHub 새 커밋; index.html 원본 유지. build script scripts/build.mjs, 설정 cloudflare/_headers.
+7. Production·명령·환경: Cloudflare Pages 희망 project ax-mart, https://ax-mart.pages.dev (미할당). root /, branch main, preset None, Build npm run build, output dist, Node >=18.
+8. 백업·인증·보안: 이전 SHA로 복귀 가능, GitHub private 유지, 원본은 레이어 없는 래스터 히어로 포함. API/Cloudflare 토큰·민감 데이터 정적 파일/commit 금지.
+9. 다음 우선순위/승인/완료 조건: 소유자가 Cloudflare dashboard에서 GitHub hibi89/AX_MART 접근 승인→Pages 프로젝트 생성→URL 및 배포 SHA 확인→익명 HTTP·desktop/mobile·이미지·Console/Network·UI 동작 검증→문서에 실제 URL 반영. 유료 결제·도메인 구매·범위 확대는 별도 승인.
+10. 확인·갱신: 2026-10-30 KST. 문서 기준은 이번 Cloudflare 준비 GitHub 커밋, Live Production 상태는 아직 대기.

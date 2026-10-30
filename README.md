@@ -1,19 +1,16 @@
-# AXMART — 다크 해커 AI 자동화 마켓 디자인
+# AXMART — 귀여운 다크 해커 자동화 마켓
 
-귀여운 다크 해커 콘셉트로 만든 정적 랜딩페이지입니다. 승인된 화면 시안의 히어로 아트를 사용합니다.
+확정된 검정·네온 보라·민트색 디자인의 **정적 프론트엔드**. 기존 index.html을 변경하지 않고 Cloudflare Pages로 배포하기 위한 도구를 추가한 버전.
 
-## 배포
-저장소 루트의 `index.html`은 **완전한 단일 정적 파일**입니다. HTML 안에 CSS, JavaScript, SVG, WebP 이미지를 포함하므로 Vercel Framework Preset을 **Other**로 선택하고 빌드 명령 없이 배포할 수 있습니다.
+## 로컬 검증
+- Node 18+ (외부 npm 의존성 없음)
+- npm test
+- npm run build
+- python -m http.server 4173 --directory dist
 
-## 기능
-- 다크 프리미엄 랜딩페이지, 네온 보라·민트, 반응형(데스크톱/모바일)
-- 예시 상품 5개, 분류 필터, 상세 모달, 검색(⌘/Ctrl+K)
-- 예시 장바구니 담기/삭제
-- 실제 로그인·구매·결제·백엔드 미연결 표시
+## Cloudflare Pages 설정
+Git repo hibi89/AX_MART / branch main / preset None / Build npm run build / output dist / root /.
+연결 상세 및 남은 사용자 인증 작업: CLOUDFLARE_DEPLOY.md.
 
-## 중요한 제한
-상품·가격은 **예시**입니다. 결제 성공·실거래·회원정보 처리 기능은 없습니다.
-일러스트는 승인된 이미지 시안에서 크롭한 래스터로, 원본 레이어가 아닙니다.
-
-## 상태
-Vercel 신규 프로젝트 연결 시도는 2026-10-30 **403 Forbidden**으로 차단됨. GitHub 코드 반영과 로컬 화면 검증은 완료됐으나 Vercel Production 배포는 **미완료**. Vercel에서 직접 프로젝트를 Import해야 합니다.
+기능: 상품 예시 5개, 반응형 UI, 상품 검색, 카테고리 필터, 상세 보기, 데모 장바구니.
+**실제 구매·결제·로그인·백엔드는 아직 없다.** 허위 통계나 판매가 발생한 것으로 오인되지 않도록 데모 표시를 유지한다.
