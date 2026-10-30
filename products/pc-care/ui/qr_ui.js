@@ -35,8 +35,15 @@
     }
     if (lines[3].slice(0, 6) !== "기록UTC:") return false;
     var time = lines[3].slice(6);
-    return time === "미확인" ||
-      /^\d{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[01]) ([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time);
+    if (time === "미확인") return true;
+    var match = /^(\d{4})-(0[1-9]|1[0-2])-([0-2][0-9]|3[01]) ([01][0-9]|2[0-3]):([0-5][0-9])$/.exec(time);
+    if (!match) return false;
+    // Reject impossible dates (e.g. Feb 30), not merely malformed timestamp strings.
+    var year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+    if (year < 2000 || year > 9999) return false;
+    var d = new Date(Date.UTC(year, month - 1, day, Number(match[4]), Number(match[5])));
+    return d.getUTCFullYear() === year && d.getUTCMonth() + 1 === month &&
+      d.getUTCDate() === day;
   }
   function clearPreviousQr() {
     target.textContent = "";
