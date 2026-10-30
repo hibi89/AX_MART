@@ -207,3 +207,16 @@
 9. **상태/완료 조건:** P2 UI/QR/인쇄 소스 구현에 진전 있으나 실제 실기기 QA 제로. Release A/B 완료·무료/크몽 판매·일반 배포 불가. 제품 전체는 약 30% 추정에 머무르며 과장하지 않음.
 10. **기록시각/맥락:** 2026-10-30 KST. GitHub connector 직접 수정, Node VM 로컬 테스트 6/6+JS syntax, GitHub 정적 21/21, Windows/WinRE 실제 실행 미확인. 다음 ㄱ은 Windows QA 확보를 우선하되 사용자가 직접 테스트할 수 있는 명확한 로컬 진입점과 증거 수집에 집중.
 
+## [최신] 2026-10-30 KST — QR stale-image/privacy bugfix and Chromium test handoff
+
+1. **목표/기술:** AXMART PC CARE 포터블 진단의 P2 비식별 오프라인 QR. `feature/pc-care-usb` 브랜치만 수정; PowerShell 5.1 비식별 모델 + 정적 HTML/JS. main/Cloudflare 미변경.
+2. **완료 구현/근거:** `ui/qr_ui.js`는 `clearPreviousQr()`로 입력 수정 즉시/생성 시도 전에 QR 이미지를 제거. 클릭 시 250 UTF-8 byte + 고정 7줄 schema, 허용 평가·신호·UTC/시간 의미·원인 미확정·백업 문구를 재검증. 입력 변조·개인정보 자유 문장·인과 확정 문구를 QR로 인코딩하지 않음. 기존 실제 QR 엔진/라이선스/요약·리포트 소스 보존.
+3. **실제 수행 테스트:** 로컬 Chromium Playwright에서 GitHub `ui/qr_ui.js` exact Git blob `b0b06f527bed53f147e05e6512ee289608048de1` 동일 소스 확인 후 **13/13 브라우저 mocked-QR 동작 PASS**, JS 문법 `node --check` PASS. 범위: 실제 브라우저의 이벤트/DOM/UTF8 크기/오류 상태·네트워크 요청 0. `tests/test_qr_ui.cjs` 17개 synthetic Node fixture 코드 갱신 및 `tests/test_package.py` 계약 추가했지만 새 17개 테스트 파일 자체는 runner에서 미실행. GitHub remote static 21/21. QR 실제 라이브러리 bitmap/디코딩·휴대전화 스캔·Windows PS5.1·Python ZIP 테스트는 미실행.
+4. **상태:** QR UI 수정 완료/Chromium mocked 인수테스트 완료. 실제 QR 이미지 디코딩/휴대전화 오프라인 QR 스캔, A4 PDF 실기기, WinRE 백업 및 복구 QA 대기; 무료 다운로드/유료 서비스 게시 금지.
+5. **발견한 문제/해결/중단:** 과거 QR 잔류는 사용자에게 다른 내용 공유할 수 있는 결함. onInput/생성 시도에 clear 수행해 해결. 네트워크 접근 금지된 도구 환경 때문에 벤더 QR 파일로 실제 픽셀 해독 검증 불가; 실제 소스 `ui/qrcode.min.js`를 가진 Windows 개발 환경에서 아래 browser smoke 실행. 임의 재시도·검증 없는 스캔 성공 주장 금지.
+6. **브랜치·SHA·경로:** hibi89/AX_MART `feature/pc-care-usb`, 시작 HEAD `b171525c98e1c73a7f7844e427d3bf72ce9ed65b`. 핵심 `products/pc-care/ui/qr_ui.js`, `tests/test_qr_ui.cjs`, `tests/qr_browser_smoke.py`, `tests/test_package.py`, `README.md`, `docs/WINDOWS_TEST_PLAN.md`. 최신 SHA는 문서 커밋 뒤 재조회.
+7. **Production/실행환경:** https://ax-mart.pages.dev/ Cloudflare 운영 main 수정 없음. Windows 11 + PowerShell 5.1, Edge/Chrome 실기기 목표. 브라우저 synthetic QA는 Linux Chromium (가짜 QR 생성자)에서만 실행.
+8. **원본/백업/인증:** 기존 main·사용자 보고서·분석 스키마 보존, Git SHA로 복구 가능. 사용자 비밀/키/이벤트 원문/장치 ID를 QR/웹으로 보내지 않음. QR 원문은 촬영 시 제3자가 읽을 수 있음을 UI 고지, 수리 권한 자동 상승·서버 통신 없음.
+9. **다음 우선순위/완료 기준:** ①실제 `qrcode.min.js` 렌더+OpenCV 정확 UTF-8 roundtrip: `python tests/qr_browser_smoke.py --chromium <경로>` (개발 환경/의존성 필요) ②Windows `RUN_SELF_TEST.cmd` PS5.1/parser/HTML JSON 저장+USB 권한/한글 경로 ③Edge/Chrome 인쇄 PDF A4 한 페이지 ④Android/iOS 스캔 및 텍스트 대조 ⑤Release A/B 게이트 독립 통과 후 사용자 승인하에 공개.
+10. **작성/검증/재개:** 2026-10-30 KST, GitHub source 수정·정적 21/21, 로컬 Chromium mock 13/13 PASS. GitHub Windows Action 41034866482는 runner 미배정/steps=[]/FAIL, 그 뒤 수동-only. ZIP/PowerShell/QR 실제 디코드/WinRE 검증 대기. 다음 ㄱ은 원격 브랜치 HEAD·이 문서·STATUS·FINAL_SPEC 확인 후 QA 또는 독립 P0/P2 수정 재개.
+
