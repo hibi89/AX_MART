@@ -2,8 +2,7 @@
 setlocal EnableExtensions DisableDelayedExpansion
 cd /d "%~dp0"
 set "AXMART_PS51=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
-if not exist "%AXMART_PS51%"
-if errorlevel 1 (
+if not exist "%AXMART_PS51%" (
   echo Windows PowerShell 5.1 not found at the trusted OS path. No code was executed.
   pause
   exit /b 2
