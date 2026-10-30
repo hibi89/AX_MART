@@ -81,11 +81,25 @@ function compareReports(oldReport,newReport){
  const comparableEvents=complete(a)&&complete(b)&&Number.isSafeInteger(a.o.eventWindowDays)&&a.o.eventWindowDays>=1&&a.o.eventWindowDays<=90&&a.o.eventWindowDays===b.o.eventWindowDays&&oldCounts!==null&&newCounts!==null;
  const eventCounts=comparableEvents?{days:a.o.eventWindowDays,before:oldCounts,after:newCounts}:null;
  caution.push(eventCounts?"이벤트 수는 이동하는 조회 기간의 로그 수로, 실제 사건 횟수나 호전을 의미하지 않습니다.":"이벤트 수는 기간·수집상태·표시 상한이 달라 비교하지 않습니다.");
- const volumeMap=x=>{const m=new Map();if(Array.isArray(x.o.volumes))for(const v of x.o.volumes){if(!v||!(/^[A-Z]:$/i.test(v.drive))||!Number.isFinite(v.sizeGB)||!Number.isFinite(v.remainingGB)||v.sizeGB<=0||v.remainingGB<0||v.remainingGB>v.sizeGB)continue;m.set(v.drive.toUpperCase(),v);}return m;};
+ // Stale volume arrays from failed CIM reads are never evidence of free-space change.
+ // Duplicate drive letters in a malformed JSON are ambiguous, so fail closed.
+ const volumeMap=x=>{
+   const m=new Map();
+   if(!x.o.collectionStatus || x.o.collectionStatus.volumes!=="collected" || !Array.isArray(x.o.volumes))return m;
+   for(const v of x.o.volumes){
+     if(!v||!(/^[A-Z]:$/i.test(v.drive))||!Number.isFinite(v.sizeGB)||!Number.isFinite(v.remainingGB)||
+       v.sizeGB<=0||v.remainingGB<0||v.remainingGB>v.sizeGB)return new Map();
+     const key=v.drive.toUpperCase();
+     if(m.has(key))return new Map();
+     m.set(key,v);
+   }
+   return m;
+ };
  const pastDrives=volumeMap(a),currentDrives=volumeMap(b),drives=[];
  for(const [id,v] of currentDrives){const prevDisk=pastDrives.get(id);if(!prevDisk||Math.abs(v.sizeGB-prevDisk.sizeGB)/Math.max(v.sizeGB,prevDisk.sizeGB)>0.05)continue;drives.push({drive:id,before:prevDisk.remainingGB,after:v.remainingGB,change:Math.round((v.remainingGB-prevDisk.remainingGB)*10)/10});}
  drives.sort((x,y)=>x.drive.localeCompare(y.drive));
  if(drives.length)caution.push("같은 드라이브 문자·용량이어도 같은 물리 저장장치라는 보장은 없습니다.");
+ else caution.push("디스크 여유 공간은 수집 실패·중복·불일치 또는 비교 가능한 관측치 없음으로 비교하지 않습니다.");
  const diskSummary=x=>!Array.isArray(x.o.physicalDisks)?null:{count:x.o.physicalDisks.length,warning:x.o.physicalDisks.filter(d=>d&&["Warning","Unhealthy"].includes(d.status)).length,unknown:x.o.physicalDisks.filter(d=>!d||!["Healthy","Warning","Unhealthy"].includes(d.status)).length};
  const disks={before:diskSummary(a),after:diskSummary(b)};
  // Missing data, unsupported device status, or a changing number of detected
