@@ -88,3 +88,16 @@
 8. 백업·보안: GitHub 과거 커밋에서 소스 복구 가능. main 미변경. 이벤트 원문/복구키/고객 로그·인증정보 GitHub 업로드 금지, 외부 자동전송 없음. DISM/SFC/WinRE 파일 복사는 실제 VM 스냅샷·별도 안전 검증 전 실행 금지.
 9. 우선순위·완료조건: Python 테스트 → Windows 파서/합성 fixture → 일반 사용자 1일 검사 → JSON/HTML 쌍 및 오류/폴백 재현 → 저장장치 지원 차이/권한 → Win10 한정 호환성. 오류 발견 시 최소 수정과 재검증, 그 전 P0 전체 완료/공개 베타 불가.
 10. 갱신 시각/범위: 2026-10-30 KST. GitHub 소스 35/35 정적 점검과 브랜치·커밋 작성/커미터 hibi89 확인. 실제 Windows, CI, 배포/브라우저 검증은 미수행. 최종 문서 커밋 후 HEAD 재확인 필요.
+
+## [최신] 2026-10-30 KST — P0 보고서 저장 안전성 보강 인수인계
+
+1. 목표/기술: 최종 설계 v2 Release A P0에서 로컬 HTML/JSON 보고서를 안전하게 저장·복구하는 기능 정비. Windows PowerShell 5.1 기반, 설치/클라우드 없이 오프라인 동작.
+2. 변경/근거: 기존 실패 처리에서 기존 보고서 파일까지 삭제할 위험을 발견. tools/report_io.ps1로 함수를 분리하고 이름 충돌 차단·실제 생성/이동 소유 여부에 따른 정리·후보 저장 경로 폴백을 구현. 진단기는 모듈을 불러 사용하며 원본 Windows 데이터 수정 없음.
+3. 검증: GitHub 최신 소스/BOM/모듈 연결/테스트 ZIP 의존성 정적 검사 16/16 조건 충족(실제 테스트 실행과 무관). 테스트 코드 tests/report_io.tests.ps1 신규 4개 시나리오. Python unittest 0회, Windows PowerShell 실제 Parser/fixture 0회, Windows/WinRE 동작 0회. CI 상태는 재확인 필요.
+4. 상태: P0 보고서 쓰기 보호 코드 반영, 실기기/실패주입 수용검사 대기. P1-P4, Release B까지 전체 완성 아님. 무료 베타/다운로드/판매 금지.
+5. 실패와 피벗: 현재 런타임에 Windows/pwsh가 없고 컨테이너에서 비공개 GitHub 클론이 불가하여 실제 PowerShell 실행을 하지 못함. 코드/정적 계약 검증으로 범위를 한정하고 Windows VM/실기기에서 실제 fixture 검증하도록 인계. 임의로 Windows 테스트 성공 처리 금지.
+6. 저장소/브랜치: hibi89/AX_MART, feature/pc-care-usb. 경로 products/pc-care/tools/report_io.ps1, diagnose.ps1, tests/report_io.tests.ps1, windows_smoke.ps1, tests/test_package.py, tests/test_release.py, tools/release.py. 최종 commit SHA는 문서 반영 후 원격 HEAD를 확인.
+7. Production/환경: AXMART³ Cloudflare Pages https://ax-mart.pages.dev/ 는 main에서 배포, 현재 PC CARE feature 코드는 미배포. Windows 11 x64/PS5.1가 우선 검증 환경; Windows 10은 제한 지원용 호환성 검사 별도.
+8. 원본/보안: 원본 소스는 기존 Git 커밋으로 추적 및 되돌리기 가능. 보고서 저장 로직은 원본 사용자 파일을 삭제·수정할 의도 없음. WinRE 쓰기 복구·DISM/SFC·파티션/BitLocker 자동 변경 금지. GitHub에 진단 로그/개인정보/키 업로드 금지.
+9. 다음 작업: Python 정적/ZIP 테스트 → Windows 11 Parser 및 synthetic event/report fixture → 일반 사용자 진단 및 1일 JSON/HTML 쌍 → Windows VM에서 이름 충돌/쓰기 실패/폴백 테스트 → Win10 제한 호환성 및 복구 안전성 별도 검증. 실제 증거가 확보될 때만 P0 완료 판정.
+10. 갱신 일시/범위: 2026-10-30 KST. GitHub 코드 직접 검토, 교차 정적 계약 16/16. Windows·CI·Production 실제 기능 검증은 미확인. 본 문서 최종 반영 후 SHA 확인.
