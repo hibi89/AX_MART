@@ -18,3 +18,8 @@
 
 ## 다음 단계
 Vercel 권한이 있는 사용자 계정으로 `Add New → Project → Import Git Repository → hibi89/AX_MART → Deploy` 진행. 연결 후 Ready/Production URL/커밋 SHA/익명 접근·실제 기능을 검증.
+
+## 최종 UI 수정
+- 동적 상품 카드 아이콘의 SVG 참조 경로 수정. 최종 UI 커밋: `86d5f09f41b5f8fa343b9eb939540369d21a470a`.
+- 재검증: 데스크톱·모바일 상품 5개·아이콘 표시, 필터·검색·장바구니·390px 메뉴 PASS.
+- Github index.html SHA `6ca2cad359f450bc7432ecb85a475c680da22aa0` 확인.
