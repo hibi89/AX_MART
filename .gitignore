@@ -10,3 +10,4 @@ node_modules/
 products/pc-care/REPORTS/*
 !products/pc-care/REPORTS/README.txt
 products/pc-care/dist-internal/
+products/pc-care/QA_RESULTS/
