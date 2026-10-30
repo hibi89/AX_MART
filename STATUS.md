@@ -169,3 +169,8 @@
 - 해총 Backend-first 지침에 따라 `feature/pc-care-usb`에서 수집 출처/실패/절단 상태를 근거 시간축까지 전달하고, 원인 미확정 근접 신호 3종을 JSON/오프라인 HTML에 표시. 회귀 fixture + 전체 Windows 저장 보고서 검증 계약 추가.
 - GitHub 원격 소스 기준 32/32 정적 조건 PASS. **PowerShell5.1 native·Windows·USB·QR·PDF·WinRE·full ZIP·CI 미검증**. 기준 evidence `products/pc-care/tests/evidence/timeline_coverage_static_qa_20261031.json`. `main`/Cloudflare Production·사용자 파일 불변.
 - 다음은 Windows 전체 소스 `RUN_RELEASE_QA.cmd` 실실행과 저장 보고서·프린트·QR 검증. Release B 파일 복사/공개·결제는 승인 전 금지.
+
+## 2026-10-31 KST — AXMART CUBE PC CARE H08 데이터 무결성
+- `feature/pc-care-usb`에 실제 반복 검사 비교 결함 수정: 업데이트 이벤트·PnP 샘플의 빈/허위 항목을 건수만으로 비교하는 오류 방지. 원래 정상 관측/실패·무결과 비교 의미 유지.
+- GitHub 원본 JS+커밋된 단위 테스트 V8 어댑터 실행 **25/25 PASS**, 추가 V8 12/12, 정적 12/12. **네이티브 Node·Python·Windows·USB·QR·A4·WinRE·CI·제품 ZIP NOT_RUN**. 증거 `products/pc-care/tests/evidence/h08_normalized_sample_validation_20261031.json`.
+- 기존 운영 `main`·Cloudflare, 고객 데이터, 수리/복구, 무료/유료 배포 변경 없음. 다음 Release A 실 Windows 진단→보고서→H08 비교의 실제 런타임 검증을 우선.
