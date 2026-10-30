@@ -590,3 +590,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본·보안: 고객 REPORTS/원시 로그·개인 파일·OS/BitLocker·복구·환경변수/키·Cloudflare 인증 무접근·무수정. 이전 SHA로 복원. 외부 데이터 업로드/무인 파일 삭제·포맷·복사·수리 없음.
 9. 다음 우선순위·절차·승인: Windows 개발 체크아웃 합성 PS 파싱/fixture 및 native Python/Node+ZIP→사용자 승인한 read-only 실제 진단 JSON/HTML 저장→H08/USB 한글 경로/QR 실스캔/A4→WinRE 격리 VM 백업 안전 시험. 실복사·고권한 수리/배포/비용 지출 시 별도 승인.
 10. 기록: 2026-10-31 KST, GitHub 원격 소스·정적 24개 검증만 확인. 최종 SHA/CI 상태는 본문 작성 뒤 GitHub에서 재확인. 현재 문서를 제품 완성/판매 승인으로 간주하지 않는다.
+
+## 2026-10-31 KST — CUBE 시간축 신뢰성 / 10항 인수인계
+1. 목표·확정 기술: AXMART PC CARE USB Release A PS5.1/CMD/로컬 JSON·HTML, H08, 오프라인 QR·A4. WinRE Release B는 별도 허가와 물리 안전 시험.
+2. 완료 기능: `recorded_timeline.ps1` 정규화 kind/ID/timeBasis/UTC 검증 실패 입력을 `rejectedCount`로 추적, `coverageComplete=false`·`status=incomplete` 처리. 정상 수집은 기존 UTC 근접/원인 미확정 처리 유지. `diagnose.ps1` JSON·HTML에서 비검증 기록 개수 표시 및 조회 실패와 구별.
+3. 테스트 명령·결과: 원격 소스 계약 **25 PASS/0 FAIL**; `tests/driver_timeline.tests.ps1`/ `tests/windows_smoke.ps1`/ `tests/test_package.py` regression 소스 추가. **Native Windows PS5.1, Python/Node 전체, 실제 ZIP/USB/QR/A4/WinRE NOT_RUN**.
+4. 단계: GitHub feature 코드·정적 안전 검사 완료; Release A 네이티브 수용검증 대기. 실제 WinRE 파일 복사/자동 수리/고객 배포 차단.
+5. 오류·실패 근거·대안: 이전 코어가 invalid 입력을 조용히 버려 '기록 없음'·'완전 수집' 오판 가능. 유효 입력만 시간창 생성, 거부 여부 별도 노출. Windows PS5.1을 현재 비Windows/비공개 GitHub DNS 차단 환경에서 실행하지 못함; 정적 검사로 native PASS 대체 금지. 무의미한 CI 재시도 금지.
+6. GitHub·브랜치·SHA·경로: `hibi89/AX_MART@feature/pc-care-usb`, 변경 전 `63ca3c8513d921bfa990dbdec813118f2372e9b2`. `tools/recorded_timeline.ps1`, `tools/diagnose.ps1`, `tests/driver_timeline.tests.ps1`, `tests/windows_smoke.ps1`, `tests/test_package.py`; 근거 `tests/evidence/timeline_rejected_evidence_static_qa_20261031.json`. 문서 최종 SHA는 커밋 후 확인.
+7. 운영·실행 환경: `https://ax-mart.pages.dev/`은 운영 main 전용(이번 코드 미배포). 개발 Windows 11/PS5.1·Python≥3.11·Node; `RUN_RELEASE_QA.cmd` native QA, `RUN_SELF_TEST.cmd` 선택적 실제 read-only 수집.
+8. 원본·백업·인증 관리: Git 작업 전 SHA 복구 가능. 개인 REPORTS·장치·BitLocker 키·자격증명·OS 설정·백업/복구 데이터 무접근/무변경; 자동 수리·외부 업로드·공개 없음.
+9. 다음 우선순위·승인: Windows 전체 개발 checkout/합성 fixture→실기기 읽기전용 JSON·HTML/타임라인→H08/USB 한글/QR 실스캔/A4→WinRE 격리VM 위험검증. 실복사·복구·결제·운영 변경 시 사전 승인. 완료 기준은 Windows 정상 실행과 실제 기능 검증.
+10. 갱신: 2026-10-31 KST. 원격 GitHub source/readback/정적 25개만 검증; 실제 Native/Windows 여부 미확인. 테스트 원본 SHA는 evidence, 기준 최종 커밋은 GitHub 재조회.
