@@ -209,3 +209,19 @@ Pending manual tests:
 - Required before release: run the actual bundled library in offline Chromium, capture the PNG, decode and compare canonical text, record whether BOM is present and check smartphone camera behavior. If BOM causes customer-visible artifacts, consider an alternative standards-compliant ECI/UTF-8 QR encoder and retest license/bytes/scan; do not patch the vendored minified library without its own regression tests.
 - Actual QR scanner script not yet executed, no Windows/PowerShell/WinRE tests. Local Chromium QR *UI mocked* checks 20/20 on the exact GitHub JS blob 13faebe44753b73f2a1cf9c99308aab220745276. GitHub runner still not assigned and workflow remains manual-only.
 
+
+## 2026-10-30 — actual bundled QR engine bugfix: Korean/ASCII byte-buffer overflow
+
+**Reproduced failure:** the *original, exact* `products/pc-care/ui/qrcode.min.js` GitHub blob `993e88f396640f881b69f98db7a4d17401ef83ca` executed in a sandboxed JavaScript VM with an inert DOM. The 7-line Korean consultation payload (195 UTF-8 bytes, which is below our 250-byte sharing limit) threw **`Error: code length overflow. (2180>1728)`**. UI-only/mocked-QR tests could not detect this.
+
+**Root cause:** the minified upstream qrcodejs UTF-8 encoder reuses its per-character `b` array. After a Korean character populates 3 bytes, a later ASCII character overwrites only `b[0]` and mistakenly retains the previous `b[1],b[2]`, artificially inflating the data. It is *not* a 250-byte limit bug or a legitimate QR capacity failure.
+
+**Minimal reversible patch:** only one 5-character insertion `b=[];` at the start of that character loop in `ui/qrcode.min.js`, while preserving the original MIT license/attribution `ui/QR_CODE_LICENSE.txt` and offline no-network behavior. No server, QR provider, model, or architecture change.
+
+**Executed runtime verification** (no Windows/phone):
+- Evaluated the actual patched vendor minified JavaScript in an isolated V8 environment, not a fake QR constructor. Six cases including the Korean 7-line payload, `한A`, `한A1한B`, `테스트2026-10-30`, `AXMART 제품 v1`, and ASCII-only were **6/6 byte-for-byte** against the expected UTF-8 byte stream (including the vendor's documented 3-byte BOM for non-ASCII). The reference QR matrix for the main 195-byte text was **57x57 modules**; all three 7x7 finder patterns were validated.
+- Transferred the actual vendor-generated QR module bit matrix to a local Python OpenCV `QRCodeDetector` fixture, rendered with a 4-module quiet zone and nearest-neighbor scaling. QR was **detected and decoded**, and the exact decoded string was **U+FEFF + original seven-line Korean text**; removing exactly one *reported* leading BOM restored text equality. This proves the encoding algorithm/QR matrix is decodable by OpenCV, but not real Chromium/Windows display or Android/iOS camera scanning.
+- Added `tests/test_qr_vendor.cjs` (six Node built-in test cases using the *actual* vendor and a mock DOM, covering buffer reset, UTF-8 bytes/BOM, QR matrix and ASCII/Korean transitions); wired it into the existing **manual-only** Windows CI alongside `tests/test_qr_ui.cjs`. These newly committed CI Node cases have **not** run in GitHub Actions because the previous workflow runner was never allocated. `tests/test_package.py` adds source/approval regression.
+
+**Remaining acceptance:** run `node --test tests/test_qr_ui.cjs tests/test_qr_vendor.cjs` on a normal developer machine, the local `tests/qr_browser_smoke.py` against actual saved offline HTML and Chromium canvas, confirm exact Korean decoded text with reported BOM, and manually scan on Android+iOS before any public release. Windows PowerShell 5.1 diagnostic/report/USB/WinRE and A4 single-page PDF tests remain separate release blockers.
+
