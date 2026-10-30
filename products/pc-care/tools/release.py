@@ -17,6 +17,7 @@ ALLOWLIST = (
     'RUN_SELF_TEST.cmd',
     'RUN_SAFE_REPAIR.cmd',
     'tools/diagnose.ps1',
+    'tools/event_analysis.ps1',
     'tools/repair.ps1',
     'tests/windows_smoke.ps1',
     'recovery/WINRE_READ_ONLY.cmd',
