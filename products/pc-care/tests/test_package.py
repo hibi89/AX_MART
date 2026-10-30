@@ -96,8 +96,28 @@ class PackageTests(unittest.TestCase):
         self.assertIn("'RUN_SELF_TEST.cmd'", package)
         self.assertIn("'tests/windows_smoke.ps1'", package)
 
+    def test_offline_event_normalization_and_fixture_wiring(self):
+        normalizer = (ROOT/'tools/event_analysis.ps1').read_text(encoding='utf-8-sig')
+        diagnose = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        smoke = (ROOT/'tests/windows_smoke.ps1').read_text(encoding='utf-8-sig')
+        release = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        fixture = (ROOT/'tests/event_analysis.tests.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn('ConvertTo-PcCareEvidence', normalizer)
+        self.assertIn('Group-PcCareShutdownSignals', normalizer)
+        self.assertIn('event_recorded_time', normalizer)
+        self.assertIn('possibly_related_shutdown_signals', normalizer)
+        self.assertIn('event_analysis.ps1', diagnose)
+        self.assertIn("['shutdownGroups']", diagnose)
+        self.assertIn("['eventCollection']", diagnose)
+        self.assertIn('Save-PcCareReportPair', diagnose)
+        self.assertIn('event_analysis.tests.ps1', smoke)
+        self.assertIn("'tools/event_analysis.ps1'", release)
+        self.assertIn('EVENT FIXTURE PASS', fixture)
+        self.assertNotIn('Invoke-RestMethod', normalizer)
+        self.assertNotIn('Invoke-WebRequest', normalizer)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
-        for name in ['tools/diagnose.ps1','tools/repair.ps1']:
+        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tests/event_analysis.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
 
 if __name__ == '__main__':
