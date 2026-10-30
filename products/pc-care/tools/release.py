@@ -150,25 +150,40 @@ def build_internal(root: Path, output: Path) -> tuple[Path, str]:
     zip_path = output / f'{FOLDER}_INTERNAL_TEST_ONLY.zip'
     if zip_path.is_symlink():
         raise ValueError('Refusing symlink output target')
-    # Build to a temporary file, then atomically replace to avoid a partial ZIP.
+    sidecar = Path(str(zip_path) + '.sha256')
+    # A crafted sidecar symlink must never redirect an overwrite to user files.
+    if sidecar.is_symlink():
+        raise ValueError('Refusing symlink checksum target')
+    # Build in unique exclusive files; a conflicting .tmp belongs to someone else.
     pending = output / (zip_path.name + '.tmp')
-    if pending.is_symlink():
+    checksum_pending = Path(str(sidecar) + '.tmp')
+    if pending.is_symlink() or checksum_pending.is_symlink():
         raise ValueError('Refusing symlink temp target')
+    if pending.exists() or checksum_pending.exists():
+        raise ValueError('Existing incomplete internal build; manual review required')
     try:
-        with zipfile.ZipFile(pending, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
-            for name, data in sorted(contents.items()):
-                zip_member(archive, name, data)
-            zip_member(archive, MANIFEST, manifest_bytes(contents))
+        with pending.open('xb') as stream:
+            with zipfile.ZipFile(stream, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+                for name, data in sorted(contents.items()):
+                    zip_member(archive, name, data)
+                zip_member(archive, MANIFEST, manifest_bytes(contents))
         # Validate contents before exposing the completed file name.
         verify_archive(pending)
+        checksum = file_digest(pending)
+        with checksum_pending.open('x', encoding='ascii', newline='\n') as target:
+            target.write(f'{checksum}  {zip_path.name}\n')
+        # Never follow a symlink when publishing these two owned output names.
+        if zip_path.is_symlink() or sidecar.is_symlink():
+            raise ValueError('Refusing symlink output target')
         os.replace(pending, zip_path)
-        checksum = file_digest(zip_path)
-        Path(str(zip_path) + '.sha256').write_text(f'{checksum}  {zip_path.name}\n', encoding='ascii')
-        if verify_archive(zip_path) != checksum:
+        os.replace(checksum_pending, sidecar)
+        if verify_archive(zip_path, require_sidecar=True) != checksum:
             raise ValueError('Post-write checksum verification failed')
     finally:
-        if pending.exists():
+        if pending.exists() and not pending.is_symlink():
             pending.unlink()
+        if checksum_pending.exists() and not checksum_pending.is_symlink():
+            checksum_pending.unlink()
     return zip_path, checksum
 
 
