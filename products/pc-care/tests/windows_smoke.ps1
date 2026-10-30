@@ -63,6 +63,14 @@ if ($timeReport.sourceCollection.system -ne $json.observations.eventCollection -
     $timeReport.sourceCollection.update -ne $json.observations.windowsUpdate.status) {
     throw 'Recorded timeline input provenance differs from collectors.'
 }
+if ($null -eq $timeReport.rejectedCount -or
+    $timeReport.rejectedCount -isnot [int] -or $timeReport.rejectedCount -lt 0) {
+    throw 'Timeline input rejection count is missing or invalid.'
+}
+if ($timeReport.rejectedCount -gt 0 -and
+    ($timeReport.coverageComplete -or $timeReport.status -in @('collected','no matching events'))) {
+    throw 'Timeline discarded raw records but claims complete event coverage.'
+}
 if ($timeReport.coverageComplete -and
     ($timeReport.status -notin @('collected','no matching events') -or
      $timeReport.sourceCollection.system -in @('unavailable','truncated') -or
