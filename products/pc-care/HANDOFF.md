@@ -220,3 +220,16 @@
 9. **다음 우선순위/완료 기준:** ①실제 `qrcode.min.js` 렌더+OpenCV 정확 UTF-8 roundtrip: `python tests/qr_browser_smoke.py --chromium <경로>` (개발 환경/의존성 필요) ②Windows `RUN_SELF_TEST.cmd` PS5.1/parser/HTML JSON 저장+USB 권한/한글 경로 ③Edge/Chrome 인쇄 PDF A4 한 페이지 ④Android/iOS 스캔 및 텍스트 대조 ⑤Release A/B 게이트 독립 통과 후 사용자 승인하에 공개.
 10. **작성/검증/재개:** 2026-10-30 KST, GitHub source 수정·정적 21/21, 로컬 Chromium mock 13/13 PASS. GitHub Windows Action 41034866482는 runner 미배정/steps=[]/FAIL, 그 뒤 수동-only. ZIP/PowerShell/QR 실제 디코드/WinRE 검증 대기. 다음 ㄱ은 원격 브랜치 HEAD·이 문서·STATUS·FINAL_SPEC 확인 후 QA 또는 독립 P0/P2 수정 재개.
 
+## [최신] 2026-10-30 KST — QR 달력 검증/UTF-8 BOM 호환성 인수인계
+
+1. **목표:** AXMART PC CARE P2 QR 오프라인 공유의 정확한 로그 기록 시각·실제 스캔 호환성을 강화. 기존 7줄 최소화 모델/문서·HTML 보존, main/배포 변경 없음.
+2. **구현:** `ui/qr_ui.js`에서 `Date.UTC` 기준 실달력 검증을 추가. 2026-02-29/02-30 등 존재하지 않는 날짜 차단; 윤년 2024-02-29와 `미확인` 허용. `tests/qr_browser_smoke.py`는 실제 벤더 라이브러리 장착 시 날짜 5건 테스트와 선행 U+FEFF BOM 감지/명시적 1회 정규화/내용 SHA-256 대조를 수행하도록 보강.
+3. **실행 테스트:** GitHub `ui/qr_ui.js` Git blob `13faebe44753b73f2a1cf9c99308aab220745276`와 로컬 bytes 동일. Linux Chromium 실제 UI JavaScript를 *모의 QR 생성자*로 구동하여 총 20/20 브라우저 조건 PASS(기존 13, 달력 7). Node --check 성공. 독립 Python qrcode/OpenCV reference에선 synthetic 한글 QR, BOM 없음/선행 BOM QR 디코딩 확인. 이는 실제 벤더 QR bitmap/스마트폰 스캔 증거가 아님. `tests/test_qr_ui.cjs` 21개 fixture 작성, GitHub runner 실제 실행 대기.
+4. **진행/차단:** QR UI 날짜 방어 완료; 실제 QR 이미지/디코딩/BOM 처리·스마트폰·Windows/USB/WinRE·A4 인쇄·Python 전체 unittest/ZIP 런타임 미검증. 공개/판매 금지. Actions runner 이전 실패 41034866482, push 자동 재시도 꺼짐.
+5. **기술위험·대안:** 벤더 qrcodejs 소스가 비ASCII 텍스트에 EF BB BF를 삽입할 수 있음. OpenCV는 독립 실험에서 복원 U+FEFF를 반환. 스캐너 검증기는 이 사실을 숨기지 않고 표시, 단일 선행 BOM 외 변경은 실패. 휴대전화 스캔이 불편하면 새로운 로컬 MIT 등 QR 인코더 교체 검토/승인 및 회귀 검증. 벤더 최소화 코드의 무증거 직접 패치 금지.
+6. **저장소:** `hibi89/AX_MART`, `feature/pc-care-usb`; 새 주요 경로 `products/pc-care/ui/qr_ui.js`, `tests/test_qr_ui.cjs`, `tests/qr_browser_smoke.py`, `tests/test_package.py`, `docs/WINDOWS_TEST_PLAN.md`, `STATUS.md`; 문서 이후 SHA 검증.
+7. **Production/실행:** AXMART³ `https://ax-mart.pages.dev/` Cloudflare main 미변경; 벤더 QR과 Windows 실행기 검증은 아직 운영 환경/일반 소비자 공개 대상 아님.
+8. **안전/백업:** 원본 시스템/개인파일/복구키/장치 ID 변경·전송 없음. Git feature 커밋으로 복구 가능. 모든 QR/진단 테스트는 합성 데이터, 사용자 실제 로그 활용 금지. 인터넷 자동 전송 금지.
+9. **다음 순서/완료조건:** ①실제 `qrcode.min.js` 로컬 Chromium 렌더 + QRCodeDetector & BOM 여부 확인(필요시 QR 인코더 비교) ②Windows PowerShell 5.1 테스트 및 보고서 저장/USB 안전성 ③A4 PDF/폰카 iOS·Android 스캔 ④WinRE 승인형 복구 분리 QA. 결과와 ZIP SHA 매칭 후 출시 평가.
+10. **갱신 일시/검증 범위:** 2026-10-30 KST. 정확한 GitHub source 검증, headless Chromium mocked QR UI 20/20, 독립 Python reference QR decoding 성공; **벤더 QR/Windows 실제 QA는 미실행**. 본 문서가 다음 ㄱ의 기준.
+
