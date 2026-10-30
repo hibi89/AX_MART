@@ -286,13 +286,16 @@ try {
     }
     $qrVendorJs = [System.IO.File]::ReadAllText($qrLibraryPath, [System.Text.Encoding]::UTF8)
     $qrUserJs = [System.IO.File]::ReadAllText($qrUiPath, [System.Text.Encoding]::UTF8)
+    $qrLicenseText = [System.IO.File]::ReadAllText($qrLicensePath, [System.Text.Encoding]::UTF8)
     if ($qrVendorJs.Length -gt 100000 -or $qrUserJs.Length -gt 20000 -or
         [string]::IsNullOrWhiteSpace($qrVendorJs) -or
         [string]::IsNullOrWhiteSpace($qrUserJs) -or
-        $qrVendorJs -match '(?i)</script' -or $qrUserJs -match '(?i)</script') {
+        $qrVendorJs -match '(?i)</script' -or $qrUserJs -match '(?i)</script' -or
+        $qrLicenseText -notmatch 'MIT License' -or $qrLicenseText -match '\*/') {
         throw 'Invalid embedded QR script'
     }
-    $qrInlineScripts = '<script>' + $qrVendorJs + '</script><script>' + $qrUserJs + '</script>'
+    # Include the complete MIT attribution in each standalone saved HTML file.
+    $qrInlineScripts = '<script>/*' + $qrLicenseText + '*/' + $qrVendorJs + '</script><script>' + $qrUserJs + '</script>'
     $qrEnabled = $true
 } catch {
     # QR is optional: preserve the local read-only report and manual share text.
