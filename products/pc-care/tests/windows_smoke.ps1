@@ -46,6 +46,36 @@ $json = Get-Content -LiteralPath $jsonFile -Raw -Encoding UTF8 | ConvertFrom-Jso
 if ($json.mode -ne 'read-only' -or $json.version -notmatch 'alpha' -or $null -eq $json.observations.eventCollection -or $null -eq $json.observations.collectionStatus -or $null -eq $json.analysis -or $null -eq $json.observations.battery -or $null -eq $json.observations.windowsUpdate -or $null -eq $json.observations.driverDevices -or $null -eq $json.observations.recordedTimeline -or $null -eq $json.consultation -or $null -eq $json.sharePreview -or $null -eq $json.sharePreview.qrImageSupported) {
     throw 'Diagnostic output schema mismatch.'
 }
+# Validate the saved static consultation report without executing JavaScript or initiating repair.
+$savedHtml = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
+if ($savedHtml -notmatch 'id="consultation-print"' -or
+    $savedHtml -notmatch '@page\{size:A4 portrait' -or
+    $savedHtml -notmatch 'main>:not\(#consultation-print\)' -or
+    $savedHtml -notmatch 'aria-label="진단 보고서 바로가기"' -or
+    $savedHtml -notmatch 'share-panel') {
+    throw 'Saved HTML missing the private consultation/print/share sections.'
+}
+if ($json.sharePreview.payloadStoredInJson -ne $false -or
+    @($json.sharePreview.PSObject.Properties.Name | Where-Object { $_ -in @('payloadText','rawMessage','serialNumber') }).Count -ne 0) {
+    throw 'Share preview JSON unexpectedly contains share text or raw identifiers.'
+}
+if ($json.sharePreview.qrImageSupported -eq $true) {
+    if ($savedHtml -notmatch 'id="pc-care-generate-qr"' -or
+        $savedHtml -notmatch 'id="pc-care-qr-canvas"' -or
+        $savedHtml -notmatch 'Copyright \(c\) 2012 davidshimjs' -or
+        $savedHtml -notmatch 'QRCode.CorrectLevel') {
+        throw 'QR reported supported, but offline image generator or its license is missing.'
+    }
+} else {
+    if ($savedHtml -match 'id="pc-care-generate-qr"') {
+        throw 'QR generation button present despite unsupported local vendor.'
+    }
+}
+if ($savedHtml -match '(?i)<script\s+[^>]*src\s*=\s*["'']?https?://' -or
+    $savedHtml -match '(?i)<link\s+[^>]*href\s*=\s*["'']?https?://') {
+    throw 'Saved report depends on a remote script or stylesheet.'
+}
+Write-Host 'REPORT HTML CONTRACT PASS: consultation A4, QR local fallback, no remote asset tags.' -ForegroundColor Green
 Write-Host ('READ-ONLY TEST PASS: ' + $json.assessment)
 Write-Host ('Report pair: ' + $jsonFile + ' / ' + $htmlFile) -ForegroundColor Green
 Write-Host 'No disk repair or boot configuration changes were initiated. Local HTML/JSON report files WERE written.'
