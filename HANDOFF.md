@@ -53,3 +53,7 @@
 - **가격 방향:** 첫 공개는 무료. 정식 유료 단계에서는 AXMART 자체 목표 ₩5,000, 크몽 판매시 카테고리 최소가격 확인 후 ₩10,000 검토. 사업자등록·결제·정산·소프트웨어 라이선스 정책 필요. 현재 어떤 결제도 연결되지 않음.
 - **최우선 다음 작업:** GitHub feature 브랜치 실제 코드 전체 검사 → Windows 지원 환경 수집/오류 처리·진단 정확도 테스트 → Windows 10/11 가상머신 및 실기기 런 실행 → 복구 안전성 테스트(스냅샷·백업·고장 시나리오) → 정식 릴리스 패키징과 코드 서명/체크섬 → 무료 사용자 피드백 시스템 → 사이트 상품 다운로드 연결. 작업 결과와 미검증 사항을 `products/pc-care/STATUS.md`, `products/pc-care/HANDOFF.md`에 업데이트. Production은 사용자 승인 및 안전성 검증 후 변경.
 - **주의:** 기존 이전 섹션에서 'PC CARE GitHub 미반영'이나 '가상 상품 5개 유지'라고 적힌 내용은 과거 이력이며, **이 최신 섹션과 브랜치 실측 결과가 우선**한다. GitHub `main`의 사이트 내용과 `feature/pc-care-usb` 소스 코드를 구분.
+
+## 2026-10-30 KST — AXMART 로고 간격
+- 브랜드명은 AXMART 유지(AXMART³는 미채택 후보). 기존 디자인·기능 보호하면서 `index.html`의 `.brand-ax`에 `margin-right:.12em`만 추가.
+- 변경 전 GitHub main SHA: `cdd3c6e182387d452da41aa98980d572d559715a`; Cloudflare 실제 배포/렌더/콘솔 검증은 수행되지 않음. PC CARE USB 제품 개발은 `feature/pc-care-usb`에서 별도로 진행 중.

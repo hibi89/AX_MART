@@ -48,3 +48,8 @@
 - `feature/pc-care-usb`의 `products/pc-care/` 폴더에 실제 15개 제품 코드·문서·정적 테스트 파일 업로드 검증. 최초 업로드 SHA `5bd374badbb63b1c6bb0aa911f9e2fd1412d36d1`. 제품 브랜치의 `STATUS.md`, `HANDOFF.md`는 최신 추가 갱신됨.
 - 진단 실행: Windows 10/11 실제 기기 미검증, 수리/WinRE 실제 실행 미검증. 공개 다운로드/유료 판매 금지. 무료 베타 및 익명 선택 피드백은 테스트 이후.
 - 새 채팅방 인계용 상세사항은 루트 `NEXT_CHAT_PC_CARE_USB.md` 참고. GitHub 코드 저장 완료 ≠ Windows 기능 완료.
+
+## 2026-10-30 KST 로고 자간 소폭 조정
+- 브랜드명 AXMART 유지, 헤더와 푸터에 공통 적용되는 `.brand-ax` 우측 여백 `0.12em`만 추가. 사용자 요청에 따른 최소 UI 수정.
+- 사이트 가상 상품·결제 미노출 정책, 제품 상태, JavaScript·이미지 및 반응형 구조는 변경하지 않음.
+- 정적 소스 일치 점검만 수행, 실제 Cloudflare 배포 SHA 및 운영 브라우저 검증은 미확인.
