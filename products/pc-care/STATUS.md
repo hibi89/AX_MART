@@ -462,3 +462,10 @@
 - **검증:** 기존 합성 PowerShell fixtures에 공식 provider/UTC를 추가하고 위조 공급자·ID/종류 충돌·현지 시각·불가능한 날짜·교차 출처·일부 유효 데이터 회귀 추가. Python 정적 계약 추가. GitHub 원본 확인 기반 **9/9 SOURCE CONTRACT PASS**. 실제 WinPS 5.1/전체 Python/Node/Windows·USB·QR/A4·WinRE·ZIP·CI **NOT_RUN/UNVERIFIED**, 따라서 실제 기능 PASS 주장 금지. 증빙 `products/pc-care/tests/evidence/incident_provenance_guard_20261031.json`.
 - **운영·복구:** 기준 SHA `6b17c88863bc035c266ac159b61e7ab3812b84e9`; `feature/pc-care-usb`만 수정. `main`/Cloudflare·실 사용자 데이터/파일·계정·BitLocker/복구·유료·배포 무변경, 출시 HOLD.
 - **다음:** 실제 Windows 전체 checkout의 `RUN_RELEASE_QA.cmd` PowerShell/parser/fixture → Python/Node/ZIP → 읽기전용 JSON·HTML, H08/A4/QR 및 USB 실기기 검증. WinRE는 별도 승인/격리. 실패 시 해당 SHA로 복구, `STATUS/HANDOFF` 재최신화.
+
+## 2026-10-31 KST — CUBE PC CARE 진단 보고서 자동 동기화 방지
+- 주요 개인정보 결함: `tools/diagnose.ps1`의 `REPORTS` 및 `MyDocuments` 저장 후보가 사용자의 OneDrive 동기화 디렉터리일 수 있어, 앱이 직접 전송하지 않아도 OS 클라우드 동기화 위험. 외부 전송·데이터 유출 확인은 아니며 **잠재적 자동 동기화 경로** 발견.
+- `tools/report_io.ps1`에 `Test-PcCarePrivateReportFolder` 추가: UNC, OneDrive/Dropbox/Google Drive/iCloud/Box 알려진 경로명·환경 루트, 기존 경로 조상 junction/reparse를 fail-closed. 부적합 후보에는 디렉터리나 파일을 만들지 않고 다른 후보로 진행. 원자적인 `CreateNew` 저장/충돌 보존·자기 소유 temp만 제거·사용자 원본 유지.
+- USB `REPORTS`를 기본 후보로 유지. 보안 검증된 `LocalApplicationData\AXMART-PC-CARE-Reports`를 두 번째로 추가하고, 동기화되지 않는 구형 Documents는 세 번째로 유지. 기존 보고서 이동/삭제/덮어쓰기 없음. `tests/windows_smoke.ps1` 영수증 허용 경로도 갱신하고 잘못된 경로 거부. `tests/report_io.tests.ps1`에 합성 OneDrive/UNC, 정상 로컬 fallback, 클라우드 단독 후보 거부 회귀 추가. `tests/test_package.py` 소스 계약·README 안내 갱신.
+- 정적 원본 검사 **10/10 PASS**, Windows PowerShell 5.1·실Windows/OneDrive/USB/QR/A4·Python/Node 네이티브 전체·ZIP·CI **NOT_RUN/UNVERIFIED**. 별도 사용자 클라우드·OS·기존 보고서 접근/수정 없음. **기타 동기화 클라이언트와 특이 사용자 설정은 완전 검출 보장하지 않으며 Windows 실기기 검증 전 공개 금지**.
+- 기준 커밋 `69b8b8e84fc3ec4fa3863c945dceeb9790dc637b`, `main`/Cloudflare 운영 불변. 다음 실제 Windows `RUN_RELEASE_QA.cmd` → 폴더 동기화 경계·로컬 보고서 JSON/HTML/H08/상담/QR/USB 안전 확인, WinRE는 별도 승인 게이트.

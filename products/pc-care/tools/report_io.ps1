@@ -1,5 +1,41 @@
 ﻿# AXMART PC CARE: only locally-generated JSON/HTML report pair persistence.
 # Never delete pre-existing files or write to Windows system configuration.
+# Reject known cloud-sync folders, network paths and directory reparse ancestors.
+# This cannot detect every third-party sync client; only private local directories are candidates.
+function Test-PcCarePrivateReportFolder {
+    [CmdletBinding()]
+    param([string]$Folder)
+    if ([string]::IsNullOrWhiteSpace($Folder) -or -not [System.IO.Path]::IsPathRooted($Folder)) { return $false }
+    try {
+        $full = [System.IO.Path]::GetFullPath($Folder).TrimEnd([char[]]@('\','/'))
+        if ($full.StartsWith('\\', [System.StringComparison]::Ordinal)) { return $false }
+        # Standard Windows cloud-sync folder names, including OneDrive - Organization.
+        if ($full -match '(?i)(?:^|[\\/])(?:OneDrive(?: - [^\\/]+)?|Dropbox|Google Drive|GoogleDrive|iCloudDrive|Box Sync|BoxDrive)(?:[\\/]|$)') { return $false }
+        foreach ($name in @('OneDrive','OneDriveCommercial','OneDriveConsumer','Dropbox','GoogleDrive','iCloudDrive')) {
+            $syncFolder = [Environment]::GetEnvironmentVariable($name)
+            if ([string]::IsNullOrWhiteSpace($syncFolder)) { continue }
+            $syncRoot = [System.IO.Path]::GetFullPath($syncFolder).TrimEnd([char[]]@('\','/'))
+            if ([string]::Equals($full, $syncRoot, [System.StringComparison]::OrdinalIgnoreCase) -or
+                $full.StartsWith(($syncRoot + [System.IO.Path]::DirectorySeparatorChar), [System.StringComparison]::OrdinalIgnoreCase)) {
+                return $false
+            }
+        }
+        # Existing directory junctions/symlinks can redirect otherwise local paths.
+        $part = $full
+        while (-not [string]::IsNullOrWhiteSpace($part)) {
+            if ([System.IO.File]::Exists($part)) { return $false }
+            if ([System.IO.Directory]::Exists($part)) {
+                $attr = [System.IO.File]::GetAttributes($part)
+                if (($attr -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) { return $false }
+            }
+            $parent = [System.IO.Path]::GetDirectoryName($part)
+            if ([string]::IsNullOrWhiteSpace($parent) -or $parent -eq $part) { break }
+            $part = $parent
+        }
+        return $true
+    } catch { return $false }
+}
+
 function Save-PcCareReportPair {
     param([string]$JsonText, [string]$HtmlText, [string[]]$Candidates, [string]$FileBase)
     # Never let a caller-provided name resolve outside a nominated REPORTS folder.
@@ -10,7 +46,10 @@ function Save-PcCareReportPair {
     }
     $utf8 = New-Object System.Text.UTF8Encoding($false)
     foreach ($folder in $Candidates) {
-        if ([string]::IsNullOrWhiteSpace($folder)) { continue }
+        if (-not (Test-PcCarePrivateReportFolder -Folder $folder)) {
+            Write-Warning '동기화 또는 외부/연결 경로에는 개인 PC 진단 보고서를 자동 저장하지 않습니다.'
+            continue
+        }
         $tempJson = Join-Path $folder ($FileBase + '.json.partial')
         $tempHtml = Join-Path $folder ($FileBase + '.html.partial')
         $finalJson = Join-Path $folder ($FileBase + '.json')

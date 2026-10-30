@@ -41,13 +41,16 @@ if ($name -notmatch '^pc-care-[0-9]{8}-[0-9]{6}-[0-9a-f]{8}[.]json$') { throw 'U
 if (-not [string]::Equals([System.IO.Path]::ChangeExtension($jsonFile, '.html'), $htmlFile, [System.StringComparison]::OrdinalIgnoreCase)) { throw 'Report names mismatch.' }
 $jsonFolder = [System.IO.Path]::GetDirectoryName($jsonFile)
 $allowedFolders = @((Join-Path $root 'REPORTS'))
+$localData = [Environment]::GetFolderPath('LocalApplicationData')
+if (-not [string]::IsNullOrWhiteSpace($localData)) { $allowedFolders += (Join-Path $localData 'AXMART-PC-CARE-Reports') }
 $documents = [Environment]::GetFolderPath('MyDocuments')
 if (-not [string]::IsNullOrWhiteSpace($documents)) { $allowedFolders += (Join-Path $documents 'AXMART-PC-CARE-Reports') }
 $allowed = $false
 foreach ($folder in $allowedFolders) {
     if ([string]::Equals($jsonFolder, [System.IO.Path]::GetFullPath($folder), [System.StringComparison]::OrdinalIgnoreCase)) { $allowed = $true; break }
 }
-if (-not $allowed) { throw 'Diagnostic receipt points outside allowed local report folders.' }
+. (Join-Path $root 'tools/report_io.ps1')
+if (-not $allowed -or -not (Test-PcCarePrivateReportFolder -Folder $jsonFolder)) { throw 'Diagnostic receipt points outside safe private local report folders.' }
 if (-not (Test-Path -LiteralPath $jsonFile -PathType Leaf) -or -not (Test-Path -LiteralPath $htmlFile -PathType Leaf)) { throw 'Diagnostic receipt JSON or HTML is missing.' }
 $json = Get-Content -LiteralPath $jsonFile -Raw -Encoding UTF8 | ConvertFrom-Json
 if ($json.schemaVersion -ne 1 -or $json.mode -ne 'read-only' -or $json.version -notmatch 'alpha' -or $null -eq $json.observations.eventCollection -or $null -eq $json.observations.collectionStatus -or $null -eq $json.analysis -or $null -eq $json.observations.battery -or $null -eq $json.observations.windowsUpdate -or $null -eq $json.observations.driverDevices -or $null -eq $json.observations.recordedTimeline -or $null -eq $json.consultation -or $null -eq $json.sharePreview -or $null -eq $json.sharePreview.qrImageSupported) {

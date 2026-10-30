@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "baselineSha": "69b8b8e84fc3ec4fa3863c945dceeb9790dc637b",
+  "checks": [
+    {
+      "name": "writer BOM",
+      "status": "PASS_SOURCE_STATIC"
+    },
+    {
+      "name": "smoke BOM",
+      "status": "PASS_SOURCE_STATIC"
+    },
+    {
+      "name": "writer only skips unsafe",
+      "status": "PASS_SOURCE_STATIC"
+    },
+    {
+      "name": "existing collision logic",
+      "status": "PASS_SOURCE_STATIC"
+    },
+    {
+      "name": "no user-owned overwrite",
+      "status": "PASS_SOURCE_STATIC"
+    },
+    {
+      "name": "offline fallback",
+      "status": "PASS_SOURCE_STATIC"
+    },
+    {
+      "name": "smoke accepts fallback",
+      "status": "PASS_SOURCE_STATIC"
+    },
+    {
+      "name": "smoke validates safe path",
+      "status": "PASS_SOURCE_STATIC"
+    },
+    {
+      "name": "cloud regression",
+      "status": "PASS_SOURCE_STATIC"
+    },
+    {
+      "name": "README note",
+      "status": "PASS_SOURCE_STATIC"
+    }
+  ],
+  "passedSourceChecks": 10,
+  "failures": 0,
+  "actualPowerShell51": "NOT_RUN",
+  "realWindows": "UNVERIFIED",
+  "cloudPathReparse": "UNVERIFIED",
+  "nativePythonNode": "NOT_RUN",
+  "usbWinre": "UNVERIFIED",
+  "CI": "NOT_RUN",
+  "production": "UNCHANGED",
+  "release": "HOLD"
+}

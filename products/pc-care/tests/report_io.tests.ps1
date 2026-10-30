@@ -67,6 +67,22 @@ try {
         Save-PcCareReportPair -JsonText 'X' -HtmlText 'Y' -Candidates @($blocker) -FileBase 'fixture-three' | Out-Null
     } catch { $allFailed = ([string]$_.Exception.Message -match '저장에 실패') }
     Assert-Report $allFailed 'Exhausted candidate destinations must fail explicitly'
+
+    # Cloud-synced paths must never receive sensitive local reports, even if writable.
+    $cloud = Join-Path $sandbox 'OneDrive - Synthetic Organization'
+    $cloudReports = Join-Path $cloud 'REPORTS'
+    Assert-Report (-not (Test-PcCarePrivateReportFolder -Folder $cloudReports)) 'Known OneDrive-style sync folder is blocked'
+    $offline = Join-Path $sandbox 'private-fallback'
+    $local = Save-PcCareReportPair -JsonText 'private-json' -HtmlText 'private-html' -Candidates @($cloudReports,$offline) -FileBase 'fixture-private'
+    Assert-Report ((Test-Path -LiteralPath $local.json) -and ($local.json.StartsWith($offline, [System.StringComparison]::OrdinalIgnoreCase))) 'Cloud folder skipped in favor of local fallback'
+    Assert-Report (-not (Test-Path -LiteralPath $cloudReports)) 'Cloud folder must not be created as a report destination'
+    $onlyCloudRejected = $false
+    try {
+        Save-PcCareReportPair -JsonText 'must-not-sync' -HtmlText 'must-not-sync' -Candidates @($cloudReports) -FileBase 'fixture-cloud-only' | Out-Null
+    } catch { $onlyCloudRejected = ([string]$_.Exception.Message -match '저장에 실패') }
+    Assert-Report $onlyCloudRejected 'Only cloud destinations must fail closed'
+    Assert-Report (-not (Test-Path -LiteralPath (Join-Path $cloudReports 'fixture-cloud-only.json'))) 'Cloud-only failure must not write personal JSON'
+    Assert-Report (-not (Test-PcCarePrivateReportFolder -Folder '\\example-server\public\reports')) 'UNC network shares are not private report folders'
     Write-Host 'REPORT IO FIXTURE PASS: paired output, existing-file preservation, fallback and failure.' -ForegroundColor Green
 } finally {
     # This path is created from a fresh GUID beneath the OS temp folder by this fixture.

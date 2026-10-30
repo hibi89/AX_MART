@@ -532,6 +532,12 @@ $sharePreviewHtml
 # A writable directory is not guaranteed by New-Item; a USB may be read-only.
 . (Join-Path $PSScriptRoot 'report_io.ps1')
 $reportCandidates = @(Join-Path $root 'REPORTS')
+# USB may be read-only; LocalApplicationData is normally outside synced Documents.
+$localData = [Environment]::GetFolderPath('LocalApplicationData')
+if (-not [string]::IsNullOrWhiteSpace($localData)) {
+    $reportCandidates += (Join-Path $localData 'AXMART-PC-CARE-Reports')
+}
+# Legacy fallback is kept only when the writer confirms a private local path.
 $documents = [Environment]::GetFolderPath('MyDocuments')
 if (-not [string]::IsNullOrWhiteSpace($documents)) {
     $reportCandidates += (Join-Path $documents 'AXMART-PC-CARE-Reports')
