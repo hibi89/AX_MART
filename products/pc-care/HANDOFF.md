@@ -487,3 +487,10 @@
 8. Source/backups/credentials: Report data and system unchanged; feature previous commit recoverable; no credentials exposed, no forced Git rewrite.
 9. Next steps/acceptance/approval: Native PS5.1 synthetic, whole source Python/ZIP, USB/file://, real PDF/QR, WinRE physical backup gate, user approval before public release.
 10. Confirmed at 2026-10-31 KST; 22 remote source contract checks passed, all native Windows/Production checks unverified; re-read final Git commit after push.
+
+## 2026-10-31 — PC CARE collection provenance
+- System/Update collector arrays now enter normalization only for collected/truncated status. Failed and no-match results cannot create incidents or timeline entries. PnP failed/no-match records similarly yield no samples.
+- Changed: tools/diagnose.ps1, tools/pnp_analysis.ps1, tests/driver_timeline.tests.ps1 (+4 assertions), tests/test_package.py (+1 contract). GitHub source static checks 14/14 PASS; native Windows, full suite, original ZIP and CI not run.
+- Evidence: tests/evidence/collector_provenance_qa_20261031.json. Source baseline a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Feature only; main and deployment unchanged.
+
+Handoff: Objective—avoid untrusted stale observations; status—source checked, runtime pending. Restore SHA: a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Next—PowerShell 5.1 fixtures, full native Python/Node, original ZIP, USB/QR/PDF and WinRE VM. Customer files and credentials unchanged. Checked 2026-10-31 KST.

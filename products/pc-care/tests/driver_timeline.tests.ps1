@@ -16,6 +16,13 @@ $devices = @(
     [pscustomobject]@{ ConfigManagerErrorCode=22; PNPClass='Unknown PRIVATE-NAME'; SerialNumber='PRIVATE-SERIAL' },
     [pscustomobject]@{ ConfigManagerErrorCode=999; PNPClass='USB'; Name='PRIVATE-NAME' }
 )
+# Query result status must beat stale raw samples, even if the CIM array survives.
+$noMatchStale = ConvertTo-PcCarePnPSummary -Devices $devices -QueryStatus 'no matching devices'
+Assert-PcCareDriverTimeline ($noMatchStale.status -eq 'no matching devices' -and $noMatchStale.observedCount -eq 0) 'Stale PnP records cannot override no-match status'
+Assert-PcCareDriverTimeline ($noMatchStale.samples.Count -eq 0) 'No-match PnP samples remain empty despite stale input'
+$unavailableStale = ConvertTo-PcCarePnPSummary -Devices $devices -QueryStatus 'unavailable'
+Assert-PcCareDriverTimeline ($unavailableStale.status -eq 'unavailable' -and $null -eq $unavailableStale.observedCount) 'Failed PnP lookup cannot invent observed code count'
+Assert-PcCareDriverTimeline ($unavailableStale.samples.Count -eq 0) 'Unavailable PnP input never leaks code samples'
 $pnp = ConvertTo-PcCarePnPSummary -Devices $devices -QueryStatus 'collected'
 Assert-PcCareDriverTimeline ($pnp.observedCount -eq 2 -and $pnp.samples.Count -eq 2) 'Only valid nonzero codes counted'
 Assert-PcCareDriverTimeline ($pnp.samples[0].interpretation -eq 'driver_not_installed_record') 'Code 28 meaning'

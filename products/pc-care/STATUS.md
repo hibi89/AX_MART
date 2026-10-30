@@ -331,3 +331,8 @@
 - System 이벤트, WindowsUpdateClient 19/20, PnP 장치 샘플: `collected`·`truncated`만 관측 근거 사용. `unavailable`·`no matching events/devices` 상태의 잔류 배열은 발견한 오류 신호로 표시하지 않음.
 - `DiskCollectionStatus`를 `diagnose.ps1`에서 분석기에 전달. 물리 저장장치 조회가 `collected`가 아니면 결과를 `incomplete`로 표기. 실제 관찰된 Warning/Unhealthy는 잃지 않고 한계 고지. 기존 5종 finding 코드 유지.
 - 합성 PS fixture 신규 15 Assertion, Python 계약 테스트 추가. GitHub 코드 정적 검증 22/22; **Windows PowerShell·전체 Python·ZIP·CI 미실행**. 증빙 `tests/evidence/incident_provenance_qa_20261031.json`. 운영 main/Cloudflare·WinRE 복사 차단 불변.
+
+## 2026-10-31 — PC CARE collection provenance
+- System/Update collector arrays now enter normalization only for collected/truncated status. Failed and no-match results cannot create incidents or timeline entries. PnP failed/no-match records similarly yield no samples.
+- Changed: tools/diagnose.ps1, tools/pnp_analysis.ps1, tests/driver_timeline.tests.ps1 (+4 assertions), tests/test_package.py (+1 contract). GitHub source static checks 14/14 PASS; native Windows, full suite, original ZIP and CI not run.
+- Evidence: tests/evidence/collector_provenance_qa_20261031.json. Source baseline a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Feature only; main and deployment unchanged.

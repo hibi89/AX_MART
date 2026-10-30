@@ -346,6 +346,25 @@ class PackageTests(unittest.TestCase):
         self.assertNotIn('-Verb RunAs', diagnose)
         self.assertIn("['collectionStatus']", diagnose)
 
+    def test_diagnostics_drop_failed_collector_arrays_before_analysis(self):
+        diag = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        pnp = (ROOT/'tools/pnp_analysis.ps1').read_text(encoding='utf-8-sig')
+        fixtures = (ROOT/'tests/driver_timeline.tests.ps1').read_text(encoding='utf-8-sig')
+        event_gate = "if ($eventResult.status -in @('collected','truncated'))"
+        update_gate = "if ($updateResult.status -in @('collected','truncated'))"
+        self.assertIn(event_gate, diag)
+        self.assertIn(update_gate, diag)
+        self.assertLess(diag.index(event_gate), diag.index('$events = @($eventResult.events)'))
+        self.assertLess(diag.index(update_gate), diag.index('$updateInputEvents = @($updateResult.events)'))
+        self.assertIn('ConvertTo-PcCareEvidence -Events $events', diag)
+        self.assertIn('ConvertTo-PcCareUpdateEvidence -Events $updateInputEvents', diag)
+        self.assertIn('Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updateEvidence', diag)
+        self.assertIn("$QueryStatus -in @('unavailable','no matching devices')", pnp)
+        self.assertIn('status=$QueryStatus', pnp)
+        self.assertIn('samples=@()', pnp)
+        self.assertIn('Stale PnP records cannot override no-match status', fixtures)
+        self.assertIn('Unavailable PnP input never leaks code samples', fixtures)
+
     def test_incident_analysis_requires_evidence_provenance(self):
         engine = (ROOT/'tools/incident_analysis.ps1').read_text(encoding='utf-8-sig')
         collector = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')

@@ -10,10 +10,19 @@ function ConvertTo-PcCarePnPSummary {
         [int]$MaxSamples = 30
     )
     if ($MaxSamples -lt 1 -or $MaxSamples -gt 100) { throw 'MaxSamples must be 1..100' }
-    if ($QueryStatus -eq 'unavailable') {
+    if ($QueryStatus -in @('unavailable','no matching devices')) {
+        # A no-match result is not a license to reinterpret leftover raw samples.
+        # Only a successful collected/truncated query may yield observations.
+        $note = if ($QueryStatus -eq 'unavailable') {
+            '장치 관리 인터페이스를 조회하지 못했습니다. 장치 문제가 없다는 뜻이 아닙니다.'
+        } else {
+            '현재 조회 범위에서 비정상 구성 코드를 발견하지 못했습니다. 전체 장치 정상 보증이 아닙니다.'
+        }
         return [pscustomobject]@{
-            status='unavailable'; observedCount=$null; samples=@()
-            note='장치 관리 인터페이스를 조회하지 못했습니다. 장치 문제가 없다는 뜻이 아닙니다.'
+            status=$QueryStatus
+            observedCount=$(if ($QueryStatus -eq 'unavailable') { $null } else { 0 })
+            samples=@()
+            note=$note
         }
     }
     $valid = New-Object 'System.Collections.Generic.List[object]'

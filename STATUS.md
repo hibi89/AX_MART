@@ -149,3 +149,8 @@
 - `tools/diagnose.ps1`에서 물리 저장장치 전체 수집 상태를 전달. 불완전 수집은 전체 정상으로 간주하지 않고 incomplete 및 고지; 실제 관측된 Warning은 유지. `tests/incident_analysis.tests.ps1` 새 15개 합성 Assertion, `tests/test_package.py` 원본 계약 추가.
 - GitHub Blob 기반 **정적 계약 12/12 + 최종 10/10 PASS**. **Windows PowerShell 5.1/전체 Python/실제 ZIP·CI·실기기 실행은 아직 미실행**. QA `products/pc-care/tests/evidence/incident_provenance_qa_20261031.json`.
 - Release B 파일 복사는 여전히 차단, main `fbb32362455378b85bcdd0b5037d1f338055fb71`·Cloudflare `https://ax-mart.pages.dev/` 미변경. 출시/판매 금지.
+
+## 2026-10-31 — PC CARE collection provenance
+- System/Update collector arrays now enter normalization only for collected/truncated status. Failed and no-match results cannot create incidents or timeline entries. PnP failed/no-match records similarly yield no samples.
+- Changed: tools/diagnose.ps1, tools/pnp_analysis.ps1, tests/driver_timeline.tests.ps1 (+4 assertions), tests/test_package.py (+1 contract). GitHub source static checks 14/14 PASS; native Windows, full suite, original ZIP and CI not run.
+- Evidence: tests/evidence/collector_provenance_qa_20261031.json. Source baseline a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Feature only; main and deployment unchanged.

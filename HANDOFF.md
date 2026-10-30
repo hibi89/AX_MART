@@ -205,3 +205,10 @@
 8. **Originals/backups/security:** No customer REPORTS, BitLocker settings, device data, WinRE scripts, OS repairs, secrets or production code changed. Git source SHA is rollback point, no force push.
 9. **Next/criteria/approvals:** Real PS5.1 synthetic regression -> all Python/Node/real product ZIP QA -> Windows/USB Unicode/QR camera/A4 PDF -> separate WinRE/physical-disk gate. Never enable actual backup copy until independent media proof and user approval; no public or paid release without acceptance.
 10. **Updated/checkpoint:** 2026-10-31 KST, exact remote source static checks 22, native PowerShell/CI/Windows/Production unverified. Verify GitHub final HEAD after push.
+
+## 2026-10-31 — PC CARE collection provenance
+- System/Update collector arrays now enter normalization only for collected/truncated status. Failed and no-match results cannot create incidents or timeline entries. PnP failed/no-match records similarly yield no samples.
+- Changed: tools/diagnose.ps1, tools/pnp_analysis.ps1, tests/driver_timeline.tests.ps1 (+4 assertions), tests/test_package.py (+1 contract). GitHub source static checks 14/14 PASS; native Windows, full suite, original ZIP and CI not run.
+- Evidence: tests/evidence/collector_provenance_qa_20261031.json. Source baseline a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Feature only; main and deployment unchanged.
+
+Handoff: Objective—avoid untrusted stale observations; status—source checked, runtime pending. Restore SHA: a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Next—PowerShell 5.1 fixtures, full native Python/Node, original ZIP, USB/QR/PDF and WinRE VM. Customer files and credentials unchanged. Checked 2026-10-31 KST.

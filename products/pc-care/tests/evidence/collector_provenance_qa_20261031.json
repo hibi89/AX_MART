@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "updatedAtKST": "2026-10-31",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "baseSHA": "a0548d62d18fbb7dd59c60399ccbe3290310c7d4",
+  "goal": "Release A collector provenance: reject stale System, WindowsUpdate and PnP arrays before normalization, issue generation, timeline and incident interpretation.",
+  "changes": [
+    "tools/diagnose.ps1: normalize System events only if eventResult.status collected/truncated; otherwise empty input.",
+    "tools/diagnose.ps1: normalize Windows Update events only if updateResult.status collected/truncated; otherwise empty input.",
+    "tools/pnp_analysis.ps1: when unavailable/no matching devices, return exact status with no samples and unknown/zero observedCount, never interpret stale device array.",
+    "tests/driver_timeline.tests.ps1: 4 added assertions for stale data under unavailable/no-match status.",
+    "tests/test_package.py: new static provenance contract for all downstream paths."
+  ],
+  "tests": {
+    "staticContract": {
+      "engine": "V8",
+      "verifiedAgainstGitHubBlobs": true,
+      "total": 14,
+      "passed": 14,
+      "failed": 0
+    },
+    "powerShell51": {
+      "executed": false,
+      "reason": "Windows PowerShell 5.1 unavailable in current container"
+    },
+    "fullPythonSuite": {
+      "executed": false
+    },
+    "actualSourceZip": {
+      "executed": false,
+      "reason": "37 private GitHub source files are available individually but cannot be directly mounted together in this container; no false ZIP build success"
+    },
+    "CI": {
+      "executed": false,
+      "reason": "Manual workflow dispatch unavailable; previous runner had no test steps"
+    },
+    "realWindowsUsbQrA4WinRE": {
+      "executed": false
+    }
+  },
+  "blobs": {
+    "products/pc-care/tools/diagnose.ps1": "49b47707a1f6eb7dcd75e4f9641e591a07fd6784",
+    "products/pc-care/tools/pnp_analysis.ps1": "c8d13d54463f7536e9a663cc263b05beb8728e2d",
+    "products/pc-care/tests/driver_timeline.tests.ps1": "0bfcd018f88f876faaa069a6b1d19c1332d2527a",
+    "products/pc-care/tests/test_package.py": "9a2be6f8f9b4855971d9cef40193b4af11afb82b"
+  },
+  "scope": "No system calls, repairs, private file reads, telemetry, backups or deployment executed. Existing incident_analysis source and Release B copy block unchanged.",
+  "next": "Native Windows PowerShell 5.1 synthetic test then full native Python/Node source QA + actual product ZIP, USB+QR+PDF, WinRE physical-media QA."
+}

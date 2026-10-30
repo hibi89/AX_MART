@@ -115,7 +115,12 @@ $start = (Get-Date).AddDays(-$Days)
 $eventResult = Invoke-PcCareEventQuery -MaxEvents 1500 -Query {
     Get-WinEvent -FilterHashtable @{ LogName='System'; StartTime=$start; Id=41,6008,1001,7,51,55,129,153,157 } -MaxEvents 1500 -ErrorAction Stop
 }
-$events = @($eventResult.events)
+# Do not let stale/partial query output masquerade as observed evidence when
+# collection failed or returned no matching events.
+$events = @()
+if ($eventResult.status -in @('collected','truncated')) {
+    $events = @($eventResult.events)
+}
 $eventQueryFailed = ($eventResult.status -eq 'unavailable')
 if ($eventQueryFailed) {
     [void]$limits.Add('시스템 이벤트: 로그 조회 실패 또는 접근 권한 부족. 조회 결과가 0건이라고 판단하지 않습니다.')
@@ -180,7 +185,11 @@ $collectionStatus['battery'] = $batterySnapshot.status
 $updateResult = Invoke-PcCareEventQuery -MaxEvents 300 -Query {
     Get-WinEvent -FilterHashtable @{ LogName='System'; ProviderName='Microsoft-Windows-WindowsUpdateClient'; Id=19,20; StartTime=$start } -MaxEvents 300 -ErrorAction Stop
 }
-$updateEvidence = @(ConvertTo-PcCareUpdateEvidence -Events @($updateResult.events))
+$updateInputEvents = @()
+if ($updateResult.status -in @('collected','truncated')) {
+    $updateInputEvents = @($updateResult.events)
+}
+$updateEvidence = @(ConvertTo-PcCareUpdateEvidence -Events $updateInputEvents)
 $updateFailures = @($updateEvidence | Where-Object { $_.kind -eq 'update_installation_failure_record' })
 $updateSuccesses = @($updateEvidence | Where-Object { $_.kind -eq 'update_installation_success_record' })
 $observations['windowsUpdate'] = [ordered]@{
