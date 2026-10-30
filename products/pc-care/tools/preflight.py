@@ -152,12 +152,15 @@ def safe_qa_receipt(result: dict) -> dict:
     """Shareable synthetic-QA receipt: no logs, paths, commands, or user data."""
     allowed = {'pass', 'fail', 'blocked', 'partial', 'not-run'}
     status = result.get('status')
-    if status not in allowed:
+    if status not in allowed or status != classify_qa_status(result.get('stages', [])):
         status = 'fail'
     stages = []
+    expected_names = {'python-tests', 'node-tests', 'internal-zip', 'internal-zip-build',
+                      'internal-zip-verify', 'windows-powershell-51-synthetic'}
+    expected_names.update('node-syntax:' + name for name in JS_SCRIPTS)
     for stage in result.get('stages', []):
         name = stage.get('name', '')
-        name = name if isinstance(name, str) and re.fullmatch(r'[A-Za-z0-9_.:/-]{1,90}', name) else 'unknown'
+        name = name if isinstance(name, str) and name in expected_names else 'unknown'
         state = stage.get('status')
         if state not in allowed:
             state = 'fail'
