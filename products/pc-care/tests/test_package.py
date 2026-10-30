@@ -325,6 +325,21 @@ class PackageTests(unittest.TestCase):
         self.assertNotIn('<script src="http', diagnostic)
         self.assertNotIn('<script src="https', diagnostic)
 
+    def test_launchers_use_trusted_powershell_and_fail_closed(self):
+        for name in ('RUN_HEALTH_CHECK.cmd', 'RUN_SELF_TEST.cmd', 'RUN_SAFE_REPAIR.cmd'):
+            source = (ROOT/name).read_text(encoding='utf-8')
+            with self.subTest(name=name):
+                self.assertIn('set "AXMART_PS51=%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"', source)
+                self.assertIn('if not exist "%AXMART_PS51%" (', source)
+                self.assertIn('"%AXMART_PS51%" -NoLogo -NoProfile', source)
+                self.assertIn('exit /b 2', source)
+                self.assertIn('DisableDelayedExpansion', source)
+                self.assertNotIn('where powershell.exe', source)
+                self.assertNotRegex(source, r'(?im)^powershell[.]exe\\s')
+                self.assertNotIn('if not exist "%AXMART_PS51%"\\nif errorlevel 1', source)
+        self.assertTrue((ROOT/'tests/test_qr_ui.cjs').is_file())
+        self.assertIn('node:test', (ROOT/'tests/test_qr_ui.cjs').read_text(encoding='utf-8'))
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
         for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/pnp_analysis.ps1','tools/recorded_timeline.ps1','tools/consultation_report.ps1','tools/consultation_render.ps1','tools/share_payload.ps1','tools/share_preview.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/driver_timeline.tests.ps1','tests/consultation_report.tests.ps1','tests/share_payload.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
