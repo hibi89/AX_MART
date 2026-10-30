@@ -235,7 +235,7 @@ if ($activePnPErrors.Count -gt 0) {
 
 # Event time proximity is not event causation or confirmed crash occurrence time.
 . (Join-Path $PSScriptRoot 'recorded_timeline.ps1')
-$recordedTimeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updateEvidence -MaxEntries 80 -WindowMinutes 15
+$recordedTimeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updateEvidence -MaxEntries 80 -WindowMinutes 15 -SystemCollectionStatus $eventResult.status -UpdateCollectionStatus $updateResult.status
 $observations['recordedTimeline'] = $recordedTimeline
 if ($recordedTimeline.status -eq 'truncated') {
     [void]$limits.Add('시간축 시각화는 최신 기록 80건만 표시합니다. 오래된 기록은 누락될 수 있습니다.')
