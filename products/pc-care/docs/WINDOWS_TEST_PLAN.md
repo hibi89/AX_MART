@@ -192,4 +192,12 @@ Pending manual tests:
 - **Local runtime evidence:** Linux Chromium via Playwright with the exact committed `ui/qr_ui.js` checked 13/13 synthetic DOM/QR-constructor behaviors (no onload QR, click Korean payload, 250 bytes, invalid regeneration clearing, input edit clearing, strict schema, no external HTTP requests). No vendor bitmap or phone scanner involved in those 13 checks; source identity confirmed by Git blob SHA. Browser script `tests/qr_browser_smoke.py` newly committed but not run with the real vendored QR code due unavailable source in this container.
 - **Required acceptance:** Run `python tests/qr_browser_smoke.py` in an offline developer environment with local Chromium, `playwright`, `opencv-python` installed; verify strict QR text round trip from the real vendored QR library, exact Korean UTF-8 hash, quiet zone, no network, generated image clearing on edit, no extra free text. Next run on actual Windows 11/Edge/Chrome then Android/iOS camera scanner.
 - Continue to prohibit public beta/QR-verified claim/paid listing until all real Windows/USB/Print/WinRE gates are passed.
+  
+## 2026-10-30 — QR 기록시각 실달력 검증
+
+- 발견: 기존 QR JS 유효성은 시각 문자열 형식만 검사해 2026-02-30 03:10 또는 평년 2월 29일 같은 **실제로 존재하지 않는 날짜**가 QR로 처리될 수 있었음.
+- 수정: `ui/qr_ui.js`에서 날짜/시간 문자열을 파싱한 뒤 `Date.UTC` 및 UTC 연·월·일 재비교로 실달력 유효성 검사. `미확인`은 명시적 누락 상태로 유지. 임의 사용자 장치 이름과 7줄 이외 문장은 여전히 차단.
+- **실제 실행 증거:** GitHub 최신 `ui/qr_ui.js` Git blob `13faebe44753b73f2a1cf9c99308aab220745276`에 일치하는 파일로 Chromium headless에서 기존 QA 13/13, 날짜 경계 7/7 = **20/20** 가짜 QR 생성자/브라우저 DOM 실측 통과. Node `--check` 통과.
+- `tests/test_qr_ui.cjs`: 총 21개 synthetic Node 회귀 테스트 작성(이 네 가지는 GitHub CI에서 미실행). `tests/qr_browser_smoke.py`에도 실제 QR vendor + OpenCV 디코딩 이후 날짜 5종 acceptance checks 코드 추가(스크립트 미실행).
+- **미해결:** Windows 11 PS5.1/브라우저 실제 QR 이미지/UTF-8 한글 디코딩/스마트폰 스캔, Windows USB, A4 인쇄, 실제 ZIP 테스트. 라이브러리 직접 로컬 복사가 이번 컨테이너에서 불가능해 벤더 스캔 성공 주장 금지. 개발자 PC에서 `python tests/qr_browser_smoke.py --chromium <설치경로>` 실행하도록 후속.
 
