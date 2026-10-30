@@ -73,9 +73,18 @@ def main() -> int:
             # Enlarge pixels without anti-aliasing for deterministic scanner checks.
             scaled = cv2.resize(pixels, None, fx=2, fy=2, interpolation=cv2.INTER_NEAREST)
             decoded, _points, _straight = cv2.QRCodeDetector().detectAndDecode(scaled)
-            checks["utf8_qr_roundtrip_exact"] = decoded == SAMPLE
+            # The vendored qrcodejs adds a UTF-8 BOM for non-ASCII input.
+            # Never silently ignore arbitrary prefixes, only an explicit single U+FEFF.
+            leading_utf8_bom = decoded.startswith("\ufeff")
+            canonical_decoded = decoded[1:] if leading_utf8_bom else decoded
+            checks["utf8_qr_content_matches_after_explicit_bom_handling"] = (
+                canonical_decoded == SAMPLE
+            )
+            checks["qr_has_no_unexpected_prefix_or_suffix"] = (
+                decoded == SAMPLE or decoded == "\ufeff" + SAMPLE
+            )
             checks["qr_payload_sha256_matches"] = (
-                hashlib.sha256(decoded.encode("utf-8")).hexdigest()
+                hashlib.sha256(canonical_decoded.encode("utf-8")).hexdigest()
                 == hashlib.sha256(SAMPLE.encode("utf-8")).hexdigest()
             )
             page.locator("#pc-care-share-text").evaluate(
@@ -118,6 +127,8 @@ def main() -> int:
         "test_type": "offline local Chromium + OpenCV synthetic QR decode",
         "scope": "No user reports, no smartphone camera, no Windows/PowerShell runtime",
         "checks": checks,
+        "leading_utf8_bom_detected": leading_utf8_bom,
+        "note": "If BOM detected, QR encodes a leading U+FEFF; confirm phone scanner UX before release.",
     }, ensure_ascii=False, indent=2))
     return 0 if checks and all(checks.values()) else 1
 
