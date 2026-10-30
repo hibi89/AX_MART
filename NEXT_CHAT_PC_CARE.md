@@ -94,3 +94,11 @@
 - Tests updated: `tests/share_payload.tests.ps1`, `tests/test_package.py`, `tests/test_release.py`, `tests/windows_smoke.ps1`; internal ZIP adds three UI files. GitHub static contract 40/40; Windows PS5.1/parser, Python unittest/ZIP build, QR actual image and Android/iOS scan NOT RUN. Docs/STATUS.md and HANDOFF.md have details.
 - Next ㄱ: obtain actual Windows/browser/smartphone scan test if possible; otherwise continue P2 UI/accessibility/error-case hardening and safe test harness. Test offline behavior when original USB is removed, Korean UTF-8 payload, quiet zone, QR scan roundtrip and 250-byte limit before QR declared complete. WinRE file copy/repair remains gated.
 
+
+## 2026-10-30 KST — CI runner unavailable; P2 UX navigation checkpoint
+
+- AXMART PC CARE hibi89/AX_MART `feature/pc-care-usb` only; production main unchanged. Official spec `products/pc-care/docs/FINAL_SPEC_V2.md`; latest `STATUS.md` and `HANDOFF.md` authoritative.
+- New `.github/workflows/pc-care-windows-synthetic.yml` would run Windows PS5.1 parser+synthetic fixtures and Python tests, no read-only diagnosis or repair. GitHub run **41034866482** failed before any step (runner_id=0, steps empty, 404 blob logs), so actual runtime tests **not executed**. Workflow turned manual-only (`workflow_dispatch`) to avoid repeated failures/costs on push.
+- Improved `tools/diagnose.ps1` with keyboard skip link, ARIA quicknav, 7 in-page sections and responsive CSS. Existing print CSS hides all but A4 consultation; consent-gated QR unchanged. `tests/test_package.py` checks anchors across both diagnose + consultation renderer. Remote source static assertions **9/9** conditions, not runtime PASS.
+- Next ㄱ: fix runner availability/billing/permissions if possible, otherwise push independent quality improvements and provide Windows self-test entrypoint. Run PS5.1 fixture + Python tests and scan actual QR/print A4 before release. Never treat unassigned CI job as product test result. No download/payment publication.
+
