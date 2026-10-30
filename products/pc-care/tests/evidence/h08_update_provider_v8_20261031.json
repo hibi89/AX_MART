@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "baselineSha": "9df862d5d4ce5ee37041f95b3955641e328552ad",
+  "scope": "github-code-v8-unit-integration-test-adapter",
+  "originalBug": "forged WindowsUpdateClient provider accepted by H08 update count comparison",
+  "fix": "exact canonical provider required, missing provider treated incomparable",
+  "executedOfficialTests": 16,
+  "passedOfficialTests": 16,
+  "failedOfficialTests": 0,
+  "suites": [
+    "tests/test_history_signals.cjs",
+    "tests/test_history_evidence_integration.cjs"
+  ],
+  "nativeNode": "NOT_RUN",
+  "fullPython": "NOT_RUN",
+  "powershell51": "NOT_RUN",
+  "windowsDevice": "UNVERIFIED",
+  "usbQrPdfWinre": "UNVERIFIED",
+  "zip": "NOT_RUN",
+  "ci": "NOT_RUN",
+  "main": "UNCHANGED",
+  "release": "BLOCKED"
+}

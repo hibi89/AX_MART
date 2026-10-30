@@ -18,6 +18,7 @@
   const validUpdateEvent = item => item && typeof item==="object" && !Array.isArray(item) &&
     ((item.eventId===20 && item.kind==="update_installation_failure_record") ||
      (item.eventId===19 && item.kind==="update_installation_success_record")) &&
+    item.provider==="Microsoft-Windows-WindowsUpdateClient" &&
     item.timeBasis==="event_recorded_time" && validRecordedUtc(item.recordedUtc);
   const validDeviceSample = item => item && typeof item==="object" && !Array.isArray(item) &&
     Number.isSafeInteger(item.configurationCode) && item.configurationCode>=1 && item.configurationCode<=55 &&

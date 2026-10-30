@@ -4,7 +4,7 @@ const assert=require("node:assert/strict");
 const {compareSignals}=require("../ui/history_signals.js");
 function updateRecord(id,utc="2026-10-30T01:02:03.0000000Z"){return {
   kind:id===20?"update_installation_failure_record":"update_installation_success_record",
-  eventId:id,timeBasis:"event_recorded_time",recordedUtc:utc
+  eventId:id,provider:"Microsoft-Windows-WindowsUpdateClient",timeBasis:"event_recorded_time",recordedUtc:utc
 };}
 function observation(){return {
   windows:{build:"26100"},eventWindowDays:30,
@@ -58,6 +58,9 @@ test("forged update records never become a valid count comparison",()=>{
   a=>{a.windowsUpdate.evidence[0].eventId=19},
   a=>{a.windowsUpdate.evidence[0].kind="raw_private_event"},
   a=>{a.windowsUpdate.evidence[0].timeBasis="actual_crash_time"},
+  a=>{a.windowsUpdate.evidence[0].provider="Private-WindowsUpdateClient"},
+  a=>{a.windowsUpdate.evidence[0].provider="Fake-Microsoft-Windows-WindowsUpdateClient"},
+  a=>{delete a.windowsUpdate.evidence[0].provider},
   a=>{a.windowsUpdate.evidence[0].recordedUtc="2026-02-30T01:00:00Z"},
   a=>{a.windowsUpdate.evidence[0].recordedUtc="2026-10-30T01:00:00"},
   a=>{a.windowsUpdate.evidence[0].recordedUtc="2026-10-30T01:00:00+09:00"},

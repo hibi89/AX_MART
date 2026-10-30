@@ -48,6 +48,8 @@ class PackageTests(unittest.TestCase):
         self.assertIn("three complete independent signals compared", new_test)
         self.assertIn('validRecordedUtc', signals)
         self.assertIn('validUpdateEvent', signals)
+        self.assertIn('item.provider==="Microsoft-Windows-WindowsUpdateClient"', signals)
+        self.assertIn('Fake-Microsoft-Windows-WindowsUpdateClient', new_test)
         self.assertIn('validDeviceSample', signals)
         self.assertIn('v.evidence.every(validUpdateEvent)', signals)
         self.assertIn('v.samples.every(validDeviceSample)', signals)
