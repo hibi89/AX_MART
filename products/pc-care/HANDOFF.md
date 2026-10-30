@@ -626,3 +626,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본/백업/비밀: Git 작업 전 SHA 복원점, 고객 REPORTS·Windows/BitLocker·복구·계정·환경변수·실데이터 무접근/무수정. QA_RESULTS Git ignore 유지.
 9. 다음 작업/승인: Windows 전체 체크아웃에서 네이티브 `RUN_RELEASE_QA.cmd` 실행 및 로컬 영수증 확인→별도 명시 승인한 실제 read-only JSON/HTML/H08→USB·QR/A4→WinRE 격리 안전 검증. 실수리·복사·공개·결제 사전 승인 필수.
 10. 갱신: 2026-10-31 KST. 격리 Python 10케이스 외 전 범위 미검증. 문서 SHA 최종 GitHub 확인 필요.
+
+## 2026-10-31 KST — ZIP 체크섬 원본 보호 10항 인수인계
+1. 목표·기술: AXMART PC CARE USB Release A Windows PS5.1/HTML/JSON 진단·저장·H08 및 내부 Python ZIP 검증. Release B WinRE 백업/수리는 별도 위험 승인.
+2. 완료·판단: 내부 ZIP 생성기가 `.sha256` 링크를 따라 다른 파일을 덮어쓰지 않도록 링크 거부, `xb/x` exclusive 임시 ZIP·해시 작성, `os.replace` 게시. 타 실행 소유의 `.tmp`는 삭제하지 않음. 결정적 ZIP 재빌드는 유지.
+3. 테스트: `tests/test_release.py` 합성 보호 fixture + `tests/test_package.py` 코드 계약 등록. GitHub 원격 실소스 `build_internal` 함수 2561글자/FNV1a32 `21f4b696` 정확 일치, 격리 Python 3.13 합성 입력 **9 PASS/0 FAIL**. 전체 GitHub `test_release.py`/다른 제품 소스 및 native Windows PS5.1/Node·USB·QR/A4·WinRE·CI **NOT_RUN**.
+4. 진행: 내부 아카이브 체크섬 안전 보강 완료, 전체 Windows/실 ZIP 및 Release A 실제 장치 QA 대기. 사용자 배포와 Release B 실행 차단.
+5. 오류·재시도/대안: 원인 `Path(...'.sha256').write_text`가 symlink를 따름. 덮어쓰기 없는 exclusive 임시 파일 생성·원본 소유 파일만 정리. 변경 전에 인수인계된 base SHA로 복원 가능; 기존 원본 손상 근거 없음. 격리 fixture 통과를 전체 제품 ZIP PASS로 간주 금지.
+6. GitHub·브랜치·SHA: `hibi89/AX_MART@feature/pc-care-usb`, 이전 HEAD `51ffdc2695e88a7491ff903653b8fab5b303aba5`, 주요 코드 `tools/release.py`, `tests/test_release.py`, `tests/test_package.py`, 증거 `tests/evidence/zip_sidecar_atomic_native_qa_20261031.json`. 최종 HEAD는 문서 갱신 후 원격 재조회.
+7. 실행·운영: 전체 체크아웃 Windows 11/PS5.1·Python 3.11+·Node, `RUN_RELEASE_QA.cmd` 합성 QA 후 로컬 `QA_RESULTS` 확인. 운영 `https://ax-mart.pages.dev/` `main`에는 미반영.
+8. 원본·백업·인증: Git 기준 SHA 복구 가능, 사용자 로컬 REPORTS·임의 원본 파일·OS·BitLocker·자격증명/토큰·Cloudflare 설정 무접근/무수정. 테스트는 격리 임시 폴더에서 합성 파일만 사용.
+9. 다음 작업 우선순위/승인: Windows 개발 체크아웃의 `RUN_RELEASE_QA.cmd` 1회 실실행 → 전체 원본 ZIP/sha256·Python/Node/PS5.1 증빙 → 명시적 read-only 진단/JSON·HTML/H08/USB·QR/A4 → WinRE 격리 VM 안전성 검증. 실복사·수리·출시/비용 변경 시 사전 승인.
+10. 갱신 KST: 2026-10-31, GitHub readback + 동일 원본 함수의 합성 ZIP 로컬 테스트 9/9만 실증. CI 및 실제 Windows/고객 사용 범위 미확인.
