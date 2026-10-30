@@ -48,7 +48,11 @@ def main() -> int:
     )
     checks = {}
     external_requests = []
+    javascript_errors = []
     with sync_playwright() as pw, TemporaryDirectory(prefix="pc-care-offline-qr-") as temp:
+        # Load a real file:// report, not page.set_content(), to exercise USB/offline behavior.
+        html_file = Path(temp) / "오프라인 보고서 test.html"
+        html_file.write_text(html, encoding="utf-8")
         kw = dict(headless=True)
         if args.chromium:
             kw["executable_path"] = args.chromium
@@ -56,7 +60,11 @@ def main() -> int:
         try:
             page = browser.new_page()
             page.on("request", lambda req: external_requests.append(req.url))
-            page.set_content(html, wait_until="load")
+            page.on("pageerror", lambda err: javascript_errors.append(str(err)))
+            # The harness must not need HTTP services or a remote QR provider.
+            page.route("http://**/*", lambda route: route.abort())
+            page.route("https://**/*", lambda route: route.abort())
+            page.goto(html_file.as_uri(), wait_until="load")
             checks["no_qr_before_click"] = page.locator("#pc-care-qr-canvas").inner_text() == ""
             page.locator("#pc-care-share-text").evaluate("(el, value) => { el.value = value; }", SAMPLE)
             page.locator("#pc-care-generate-qr").click()
@@ -65,6 +73,8 @@ def main() -> int:
             checks["no_external_http_requests"] = not any(
                 url.startswith(("http://", "https://")) for url in external_requests
             )
+            checks["loaded_from_local_file"] = page.url.startswith("file://")
+            checks["no_javascript_exceptions"] = not javascript_errors
             qr_png = Path(temp) / "qr.png"
             page.locator("#pc-care-qr-canvas").screenshot(path=str(qr_png))
             pixels = cv2.imread(str(qr_png))
@@ -128,6 +138,10 @@ def main() -> int:
         "scope": "No user reports, no smartphone camera, no Windows/PowerShell runtime",
         "checks": checks,
         "leading_utf8_bom_detected": leading_utf8_bom,
+        "external_request_count": sum(
+            url.startswith(("http://", "https://")) for url in external_requests
+        ),
+        "javascript_errors": javascript_errors,
         "note": "If BOM detected, QR encodes a leading U+FEFF; confirm phone scanner UX before release.",
     }, ensure_ascii=False, indent=2))
     return 0 if checks and all(checks.values()) else 1
