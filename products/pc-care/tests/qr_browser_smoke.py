@@ -60,7 +60,7 @@ def main() -> int:
             checks["no_qr_before_click"] = page.locator("#pc-care-qr-canvas").inner_text() == ""
             page.locator("#pc-care-share-text").evaluate("(el, value) => { el.value = value; }", SAMPLE)
             page.locator("#pc-care-generate-qr").click()
-            page.locator("#pc-care-qr-canvas img, #pc-care-qr-canvas canvas").first.wait_for(timeout=5000)
+            page.locator("#pc-care-qr-canvas img, #pc-care-qr-canvas canvas").first.wait_for(state="attached", timeout=5000)
             checks["click_created_qr"] = "만들었습니다" in page.locator("#pc-care-qr-status").inner_text()
             checks["no_external_http_requests"] = not any(
                 url.startswith(("http://", "https://")) for url in external_requests
