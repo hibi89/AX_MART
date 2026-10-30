@@ -421,3 +421,15 @@
 8. **원본/백업·인증:** Git 이전 SHA 보존, user REPORTS, Windows 수리/WinRE/BitLocker/권한/토큰·환경변수 미변경. Force push 없음.
 9. **다음 작업:** full source Python/Node/ZIP 일괄 실제 실행, Windows11 표준/USB/Edge·PDF·QR, WinRE 가상머신 별도 검증 및 사용자 승인. 완료 기준은 실기기 기능·안전·정식 배포 검증 모두.
 10. **갱신:** 2026-10-30 KST, 검증은 V8 호환 테스트 및 고립 Python 구현 5개만; GitHub Actions, native full repo ZIP, Production 미검증. 최종 SHA는 원격 재확인.
+
+## [최신] 2026-10-30 KST — Release B RESCUE_READINESS 인수인계 10항
+1. 목표/확정 요구/기술: WinRE CMD에서 비상 백업 전 확인 가능한 최소 정보를 안전하게 보며, 실제 복사는 물리 분리/BitLocker/용량/완전성 확인 전 절대 실행하지 않음. 기존 FINAL_SPEC_V2 Release A/B 분리 유지.
+2. 완료/변경/근거: `recovery/RESCUE_READINESS.cmd` 독립 수동 실행. Windows OS 후보 문자 및 관리 도구의 존재만 확인; 원시 사용자 경로/개인 데이터/키 미수집. 기본 종료코드 3(차단). CMD를 선택한 근거는 WinRE에 PS5.1이 기본 제공되지 않을 가능성과 최소 의존성.
+3. 테스트 명령/결과/범위: Linux Python 3.13.5 `python -m unittest discover -s /mnt/data/axmart_rescue/tests -p test_rescue_readiness.py -v` **4 PASS/0 FAIL**, py_compile PASS. cmd.exe/WinRE 실제 구동 미실행, 기능 파일 Git Blob SHA는 로컬 실행 코드와 일치.
+4. 상태: 후보 탐지/안전 차단 코드는 구현됨, WinRE 런타임·물리 디스크 분리·잠금·사용량·대상 empty folder·전체/샘플 hash·실제 복사·복구/VM 검증 대기. 최종 제품 부분 완료.
+5. 오류/근거/대안/재시도 금지: 첫 정적 테스트의 echo 문구 때문에 가짜 복사 명령 탐지 1건, 검사문과 사용자 메시지를 분리해 해결 후 4/4 PASS. 동일 GitHub CI runner 이전 실패 41034866482 반복 재시도하지 않음. 자동 복사를 조기에 활성화하는 방식은 사용 금지.
+6. 저장소/브랜치/SHA: `hibi89/AX_MART`, `feature/pc-care-usb`, 변경 전 `b1ab5de8c4274b9b699fdc886a5b4d911c95ed9a`; 새 `products/pc-care/recovery/RESCUE_READINESS.cmd`, `tests/test_rescue_readiness.py`, 증빙 `tests/evidence/rescue_readiness_static_qa_20261030.json`.
+7. URL/실행 명령/환경: Cloudflare `https://ax-mart.pages.dev/` main 변경 없음. 사용자는 공식 WinRE 명령창에서 스크립트를 별도 수동 실행(자동실행·고권한 수리·외부 네트워크 없음). 제품 빌드의 시험용 ZIP에만 포함.
+8. 원본/백업/인증/수정금지: 모든 실제 고객 파일·OS 복구상태·BitLocker/BCD·로컬 보고서 불변. Git 전 SHA 복원 가능, 민감값/키/로그 repo 업로드 없음.
+9. 다음 작업/승인: Windows VM+실기기에서 사전 검사·종료값·오탐 QA → 물리 저장장치 식별 실패시 차단 확인 → 별도 신규/빈 디스크·용량·연결끊김·FAT32/EFS/OneDrive/다중 프로필 테스트 → 승인 전까지 파일 복사 기능 구현을 릴리스로 취급하지 말 것.
+10. 확인 시각·범위·문서 기준: 2026-10-30 KST. Linux Python 정적 경계 테스트만 검증, Windows/WinRE/실백업/실패복구·운영서비스 미검증. 커밋 후 HEAD·문서 갱신 검증.

@@ -100,6 +100,18 @@ class PackageTests(unittest.TestCase):
         self.assertIn('tests/test_history_print.cjs', workflow)
         self.assertIn('tests/test_history_print.cjs', (ROOT/'tools/preflight.py').read_text(encoding='utf-8'))
 
+    def test_release_b_preview_is_read_only_and_packaged(self):
+        preview = ROOT/'recovery/RESCUE_READINESS.cmd'
+        self.assertTrue(preview.is_file())
+        script = preview.read_text(encoding='ascii')
+        self.assertIn('RESULT: BLOCKED - THIS IS NOT A BACKUP', script)
+        self.assertIn('endlocal & exit /b 3', script)
+        self.assertIn('physical disk identity NOT proven', script)
+        self.assertIn('BitLocker lock state and ownership NOT verified', script)
+        self.assertIn('DisableDelayedExpansion', script)
+        self.assertIn("'recovery/RESCUE_READINESS.cmd'", (ROOT/'tools/release.py').read_text(encoding='utf-8'))
+        self.assertIn("test_never_copies_writes_or_executes_mutating_commands", (ROOT/'tests/test_rescue_readiness.py').read_text(encoding='utf-8'))
+
     def test_internal_qa_runner_is_not_in_customer_zip(self):
         qa = ROOT/'tools/preflight.py'
         suite = ROOT/'tests/test_preflight.py'

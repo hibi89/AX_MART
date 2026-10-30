@@ -46,6 +46,7 @@ ALLOWLIST = (
     'tests/share_payload.tests.ps1',
     'tests/report_io.tests.ps1',
     'recovery/WINRE_READ_ONLY.cmd',
+    'recovery/RESCUE_READINESS.cmd',
     'docs/SAFETY.md',
     'docs/TROUBLESHOOTING.md',
     'docs/PRODUCT_SCOPE.md',

@@ -168,3 +168,10 @@ QR 이미지 생성 전 UTC 기록 시각을 **정규식 + 실제 달력 날짜*
 - 내부 ZIP의 모든 파일명·중복·암호화·symlink·해제 후 크기(개별 5MB 제한)·manifest 용량을 해제 전에 검증하고, 바이트 읽기에도 제한을 적용해 비정상적으로 큰 ZIP을 거부한다.
 - 명시적 `python tools/release.py --verify <내부-시험-ZIP>` 호출은 ZIP과 같은 이름의 `.sha256` 파일이 반드시 있어야 하며 일치하지 않으면 실패한다. 내부 빌드의 임시 ZIP 자체 점검은 sidecar 없는 상태로 계속 수행한다.
 - 이 작업의 별도 ZIP 안전 구현 Linux Python 3.13.5 테스트 5/5 PASS. 저장소 신규 ZIP 회귀 4건은 **아직 GitHub CI/전체 원본에서 미실행**. 고객용 다운로드/판매 승인은 아직 없다.
+
+## Release B 준비 검사 — WinRE 읽기 전용 (2026-10-30)
+
+- 공식 Windows 복구 명령 프롬프트에서 `recovery/RESCUE_READINESS.cmd`를 **수동으로 별도 실행**하면, Windows 설치 후보 드라이브 문자와 사용자 폴더의 존재(파일 목록이나 개인 이름 미표시), `robocopy.exe`·`manage-bde.exe`의 설치 여부만 확인한다.
+- 이 검사는 BitLocker 잠금 상태, 원본과 백업 대상의 물리디스크 분리, 백업 용량, FAT32 4GiB 제한, EFS/OneDrive/연결 폴더, 해시 검증 조건을 증명하지 못한다. 따라서 **항상 BLOCKED(종료 코드 3)** 를 반환한다. 실제 파일 복사·복구키 요구·볼륨 잠금해제·명령 실행·파일 작성·삭제·자동 백업 **없음**.
+- 이는 **Release B 전체 백업 기능이 아니라 첫 준비 단계**이다. 안전하게 다른 물리 디스크를 확인하고, WinRE·BitLocker·중단·공간 부족·손상 등 VM/실기기 검증을 통과하기 전에는 실제 복사 기능을 연결하지 않는다.
+- 개발용 Linux Python 3.13.5 정적 계약 `python -m unittest discover -s tests -p test_rescue_readiness.py -v` **4/4 PASS**. CMD 자체의 WinRE 실구동은 미검증. Microsoft 참조: `https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/manage-bde-status`.

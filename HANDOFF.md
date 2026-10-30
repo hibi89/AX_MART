@@ -147,3 +147,11 @@
 - 데이터·안전: 실제 고객 데이터/REPORTS/Windows 설정/수리/WinRE와 비밀정보 불변; 내부 시험용 ZIP만 테스트, 자동 공개 불가.
 - 다음: 네이티브 Python 전체 회귀+실제 내부 ZIP 생성/재검증, Node QA → Windows 11 기본 진단/한글 USB/Edge file://·QR 실스캔/A4 PDF→WinRE VM, 출시 전 별도 승인.
 - 갱신 2026-10-30 KST. 이번 검증은 V8 호환 JS + 로컬 ZIP 알고리즘만. 커밋 후 최종 SHA 확인.
+
+## 2026-10-30 — AXMART CUBE WinRE Rescue 준비 단계 인수인계
+- 목표/기술: Release B WinRE 비상 파일 백업의 첫 안전 상태 확인. CMD 기반 오프라인 프리뷰로 PowerShell·Python 요구 없음. 검증 전 파일 복사 사용 금지.
+- 구현: `products/pc-care/recovery/RESCUE_READINESS.cmd`(WinRE 드라이브 후보·robocopy/manage-bde 파일 존재만 조사, 사용자 이름/파일내용/비밀번호 미수집, 종료 3 BLOCKED), 기존 `WINRE_READ_ONLY.cmd`에서 별도 실행 안내만, ZIP allowlist·정적 안전 테스트·README/SAFETY/QA 갱신. 상태기계의 물리디스크·BitLocker·용량·FAT32·검증 단계는 모두 미검증 표시.
+- 테스트: Linux Python 3.13.5 `python -m unittest discover -s /mnt/data/axmart_rescue/tests -p test_rescue_readiness.py -v` **4/4 PASS**, py_compile PASS. 로컬 파일 SHA `b3f3bc7c1b2cc049381f1f6b3c27061a2c038106` CMD, `f205d6ca625f7eacb5e5916123ae3af9e8bc0315` Python 테스트가 Git Blob과 일치. GitHub 전체 Python/Node/ZIP·실 CMD·WinRE 미실행.
+- 상태: Release B 프리뷰 정적 계약만 구현, **실제 백업·사후 해시·전원중단·BitLocker/다중 디스크 테스트 미구현·미검증**. 공개 금지. 설계 대안: PS5.1 기반은 WinRE 기본 탑재 미보장, CMD 접근만 선행; 물리 분리 증명 불가면 복사 절대 금지.
+- GitHub: `hibi89/AX_MART` `feature/pc-care-usb`, 변경 전 `b1ab5de8c4274b9b699fdc886a5b4d911c95ed9a`(복원 가능). Production `https://ax-mart.pages.dev/` main 불변. Git commit author/committer 신원·remote SHA 및 CI 마지막 실행 별도 확인.
+- 다음: Windows 11 VM/WinRE에서 이 스크립트의 탐지·종료 3 확인, 무단 쓰기·명령 실행 0회; 물리적으로 다른 장치 증명, FAT32·BitLocker·EFS/OneDrive·용량·USB 중단 테스트. 보안/실기기 전체 통과 전 실제 복사 코드를 패키징/노출하지 않는다. 고객 데이터/BitLocker 키/시스템 설정 미변경. 2026-10-30 KST, 실제 테스트 4개는 구조적 Python QA만.

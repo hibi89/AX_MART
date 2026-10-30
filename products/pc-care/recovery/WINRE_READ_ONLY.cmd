@@ -55,6 +55,11 @@ manage-bde -status
 bcdedit /enum
 :END
 echo.
+echo Optional read-only Rescue readiness preview ^(NO BACKUP^):
+echo   "%~dp0RESCUE_READINESS.cmd"
+echo Run it separately only if you want a candidate drive-letter check.
+echo Physical disk separation is not verified, so file copying stays disabled.
+echo.
 echo For Microsoft Startup Repair: exit Command Prompt, then select
  echo Troubleshoot ^> Advanced options ^> Startup Repair.
 echo Encrypted volumes may require a BitLocker recovery key obtained

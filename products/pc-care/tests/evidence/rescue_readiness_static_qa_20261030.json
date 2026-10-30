@@ -1,0 +1,39 @@
+{
+  "project": "AXMART PC CARE",
+  "release": "B - WinRE Rescue readiness PREVIEW ONLY",
+  "dateKST": "2026-10-30",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "baseline": "b1ab5de8c4274b9b699fdc886a5b4d911c95ed9a",
+  "scope": [
+    "Manual WinRE CMD read-only path probes for candidate Windows SYSTEM/Users folders (no user names)",
+    "Trusted command-tool presence checks without execution",
+    "Explicit fail-closed unknowns: physical disk identity, BitLocker lock, capacity/FAT32 4GiB, EFS/OneDrive/links, copy/hash verification",
+    "Always exits code 3 BLOCKED; no copy, keys, unlocks, logs, repairs or file writes"
+  ],
+  "designChoice": {
+    "A": "PowerShell-driven automation - richer APIs but WinRE availability not guaranteed",
+    "B": "CMD readiness preview, no writes - uses only basic CMD existence tests; WinRE execution still needs VM test",
+    "selected": "B, feature gate closed"
+  },
+  "tests": {
+    "environment": "Linux Python 3.13.5",
+    "command": "python -m unittest discover -s /mnt/data/axmart_rescue/tests -p test_rescue_readiness.py -v",
+    "passed": 4,
+    "failed": 0,
+    "syntax": "python -m py_compile passed",
+    "executedExactSha": [
+      "b3f3bc7c1b2cc049381f1f6b3c27061a2c038106",
+      "f205d6ca625f7eacb5e5916123ae3af9e8bc0315"
+    ]
+  },
+  "notVerified": [
+    "Real Windows 11 CMD or WinRE execution",
+    "OS physical disk separation and BitLocker actual state",
+    "Actual backup or restoration (not implemented)",
+    "Interrupted operations, USB/media failure, FAT32/EFS/OneDrive",
+    "Full repo Python/Node suite and actual internal ZIP",
+    "CI runner and production site"
+  ],
+  "deploy": "Feature branch source only, no main/Cloudflare deployment or public download"
+}

@@ -305,3 +305,8 @@
 - `tools/release.py` ZIP 검증 순서를 변경해 ZIP 엔트리명·중복·암호화·symlink·원본 크기/manifest 크기를 먼저 검사한 후에만 제한적으로 압축 해제. ZIP 자체 checksum은 streaming으로 계산. `--verify`에 필수 `.sha256` 파일 누락 시 실패. `source_files` 허용 파일의 상위 폴더가 symlink인 경우 차단. 내부 시험 ZIP allowlist·표준 빌드 경로 불변.
 - 전체 H08 46 V8 호환 시나리오 통과(기존 37+인쇄9); 로컬 Python 5/5 독립 ZIP 안전 테스트 통과. 실제 GitHub Python suite·ZIP 생성·네이티브 Node/Windows CI와 실기기 USB/QR/A4/WinRE는 여전히 미검증. `tests/test_release.py` 회귀 4건 + 정적 1건 추가, 실행 전 QA 증빙 `tests/evidence/zip_bounded_security_qa_20261030.json`.
 - 기준 feature `a7bfc292fff36b4088698fb82440397cd7538388`, 운영 main/Cloudflare 불변, 고객 공개/판매 차단.
+
+## 2026-10-30 — Release B WinRE 후보 볼륨 준비 검사(파일 복사 금지)
+- 안전한 분리 개발: `recovery/RESCUE_READINESS.cmd` 수동 WinRE CMD용. Windows SYSTEM/Users 폴더 후보·필수 명령 존재만 관찰, 자동 BitLocker 조회/키 입력/파일 복사/로그 기록/변경 없음. 별도 물리 디스크, 잠금 상태, 사용가능 용량, 복사 결과를 판별하지 못해 **무조건 BLOCKED/exit 3**.
+- `WINRE_READ_ONLY.cmd` 마지막 안내/시험 ZIP allowlist 및 `tests/test_release.py`, `tests/test_package.py` 계약에 추가. Python 3.13.5 `test_rescue_readiness.py` 실제 **4 PASS/0 FAIL**. CMD/Windows/WinRE/실복사/전체 ZIP·Python·CI·Production 미검증. 이전 SHA `b1ab5de8c4274b9b699fdc886a5b4d911c95ed9a`.
+- ZIP/README/SAFETY 참조. 실기기 확인 전 Release B 백업 기능을 상품 완성품으로 표기 금지. 복구 기능 개발 단계는 여전히 미완료.

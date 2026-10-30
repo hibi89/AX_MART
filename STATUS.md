@@ -122,3 +122,8 @@
 - H08 기존 단위·DOM/인쇄 시나리오를 GitHub 현행 소스 V8 호환 환경에서 **46/46 PASS** 재검증(네이티브 Node/실 브라우저 대체 불가).
 - PC CARE 개발용 내부 ZIP 검증기를 수정: 압축 해제 전 member 크기·암호화·symlink·manifest 크기 검사, stream bounded read 및 SHA256 스트리밍, 외부 `--verify`는 sha256 sidecar 필수, 패키지 source parent symlink 차단. 기존 허용 파일 목록/제품 기능 유지.
 - 분리 Python 3.13.5 안전성 알고리즘 5/5 PASS; 저장소 신규 회귀 4건 + 정적 1건 추가. 전체 GitHub 원본 Python test_release/실제 ZIP·CI·Windows/USB/QR/PDF/WinRE **미실행**. 운영 main/Cloudflare 불변·공개/판매 금지. 이전 feature `a7bfc292fff36b4088698fb82440397cd7538388`; 자세한 증빙 `products/pc-care/tests/evidence/zip_bounded_security_qa_20261030.json`.
+
+## 2026-10-30 KST — AXMART CUBE Release B WinRE 준비 검사 첫 단계
+- `feature/pc-care-usb` 시작 SHA `b1ab5de8c4274b9b699fdc886a5b4d911c95ed9a`. 신규 `recovery/RESCUE_READINESS.cmd`는 접근 가능한 Windows 볼륨 후보/도구 파일 존재만 읽고, 물리 디스크 분리·BitLocker·용량·해시 증명 불가로 항상 종료코드 3 BLOCKED. 파일 복사·삭제·키 입력·로그 기록·설정 변경·수리 없음.
+- 동일 기능을 내부 시험 ZIP allowlist·`WINRE_READ_ONLY.cmd`의 별도 수동 사용 안내에 연결. `tests/test_rescue_readiness.py` Linux Python 3.13.5 실제 정적 경계 **4 PASS / 0 FAIL**, Git blob SHA 원본 일치. Windows CMD/WinRE·실제 백업·전체 저장소 Python/Node·내부 ZIP/CI 미실행.
+- Release B 실복사는 준비 검사/물리 분리 증명/실기기 안전 QA까지 미활성화. main `fbb32362455378b85bcdd0b5037d1f338055fb71`, Cloudflare Production 불변; 공개/판매 차단. 증빙 `products/pc-care/tests/evidence/rescue_readiness_static_qa_20261030.json`.

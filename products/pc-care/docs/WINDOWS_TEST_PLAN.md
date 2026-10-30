@@ -302,3 +302,8 @@ Pending manual tests:
 - After a valid comparison, only explicit click on Print / Save PDF invokes the native print dialog. Selection change, batch change, new compare or invalid JSON immediately disables and clears printable data.
 - `ui/history_print.js` uses a fixed, bounded summary: timestamps, allowlisted assessment, warning codes, counts/unknowns and caveats; omits selected filenames, serials and raw logs. CSS A4 portrait hides all input panels in print media. No remote dependencies or automatic write.
 - Verified V8 with mock DOM print call 6/6, synthetic `tests/test_history_print.cjs` through a V8 Node API adapter 9/9. **Actual browser Print/PDF, page count, full native Node/Python/ZIP and Windows/USB/WinRE/QR remain unverified.**
+
+## Release B WinRE readiness preview acceptance (2026-10-30)
+- The manual `recovery/RESCUE_READINESS.cmd` (internal test ZIP only) must display candidate Windows drive letters and tool presence without executing robocopy, BitLocker commands or writing any file. It must never output user names, profile contents or raw IDs; both normal and unavailable-runtime branches exit **3=BLOCKED**.
+- Real WinRE VM tests required: RAM X: installation not mistaken for user Windows; original Windows C: moved to D:; no readable Windows install vs BitLocker locked; manage-bde/robocopy absent; destination a different letter on SAME disk must never unlock copy; no disk copy, no new files, no registry/BCD changes. Static Python `test_rescue_readiness.py` **4/4 PASS**, but real WinRE remains UNVERIFIED.
+- Release B copy/verify engine remains disabled/not developed; this is not a backup or rescue success. Full Python/ZIP/CI and QR/PDF/USB validations still pending.

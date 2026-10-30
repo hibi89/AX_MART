@@ -130,6 +130,7 @@ class ReleaseTests(unittest.TestCase):
             'ui/history_compare.js',
             'ui/history_signals.js',
             'ui/history_print.js',
+            'recovery/RESCUE_READINESS.cmd',
             'tests/incident_analysis.tests.ps1',
             'tests/telemetry_analysis.tests.ps1',
             'tests/driver_timeline.tests.ps1',
