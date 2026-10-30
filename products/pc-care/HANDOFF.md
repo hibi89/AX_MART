@@ -180,3 +180,17 @@
 9. **다음 우선순위·완료 조건:** Windows 11 PowerShell parser+fixture 실제 실행 → RUN_SELF_TEST.cmd 로컬 ZIP에서 read-only 진단 → Edge/Chrome 버튼 직접 클릭으로 QR 생성 → Android/iOS 스캔한 문자열 UTF-8 원본과 바이트 동일 비교 → 한글/250바이트/USB 분리/offline/모바일 카메라, A4 PDF 한 페이지 검증 → P2 UI 마감, Release A/B 별도 QA. CI 기다리는 동안 다른 독립 UI/회귀 보강은 진행 가능.
 10. **시각/검증 범위:** 2026-10-30 KST. GitHub 원격 정적 계약 40/40. 어떤 Windows/QR 스캔·Python 제품 테스트도 통과 판정을 내릴 실제 실행 증거는 없다. 다음 채팅에서 최신 GitHub branch HEAD와 본 인수인계 확인.
 
+
+## [최신] 2026-10-30 KST — Windows CI 시도·P2 화면 탐색 인수인계
+
+1. **목표/스택:** AXMART PC CARE Release A P2 로컬 보고서 UX, Windows PowerShell 5.1 실제 합성 fixture 검증을 통한 출시 게이트 확보. GitHub 리포지토리 `hibi89/AX_MART` feature/pc-care-usb만 변경.
+2. **구현:** `.github/workflows/pc-care-windows-synthetic.yml` Windows 5.1 Parser/fixtures + Python stdlib unittest·내부 ZIP 테스트 워크플로 구축, 최소 read 권한/12분 제한/무수리. `tools/diagnose.ps1` 오프라인 보고서에 ARIA quicknav, 키보드 스킵 링크, 7개 section 앵커 및 mobile CSS. 기존 A4 #consultation-print 전용 print media, QR 사용자 명시 클릭/개인정보 최소 규칙 유지. `tests/test_package.py`에 nav anchor coverage.
+3. **실행·검증·증거:** GitHub Actions run https://github.com/hibi89/AX_MART/actions/runs/41034866482, run_id 41034866482, job_id 123993114299, 결론 failure, `steps=[]`, `runner_id=0`, 0초 런타임 테스트, Job log 접근은 404 BlobNotFound. 러너 미배정·인프라 문제 상태; PS5.1/ Python 자체 테스트 PASS/FAIL 확정 불가. GitHub 소스 비교 9/9 정적 조건 충족; 인쇄 UI 실제 브라우저·QR 카메라 스캔도 여전히 미실행.
+4. **차단/상태:** 워크플로 실행 첫 실패 이후 push마다 실패/비용 반복하지 않도록 `workflow_dispatch` 수동 전용 전환. 원인은 계정 Actions 러너/결제/가용성 가능성 등 미확인으로 단정 금지. Windows/USB/WinRE 사용자 기기 실제 QA 출시 차단.
+5. **후속 우선순위:** (1) GitHub Actions 실행 기록의 러너 배정/계정/조직 설정 확인 및 러너 확보 후 수동 dispatch (2) Windows 11 일반 사용자 PowerShell 5.1 `tests/windows_smoke.ps1` 실행 (3) Edge/Chrome 인쇄 한 페이지 PDF, QR 한국어 UTF8 스캔/오프라인 확인 (4) USB 저장 실패/권한 문제, WinRE 읽기 전용 검증 (5) Release B 복사/복구는 별도 안전 게이트 후 진행. 기다리는 동안 추가 UI/정적 회귀 작업 가능.
+6. **파일/브랜치:** `feature/pc-care-usb`, 변경 핵심 `.github/workflows/pc-care-windows-synthetic.yml`, `products/pc-care/tools/diagnose.ps1`, `products/pc-care/tests/test_package.py`. 이전 QR 파일/설계는 기존 HANDOFF의 최신 이전 장 참조.
+7. **운영/보안:** main Cloudflare `https://ax-mart.pages.dev/` 변경 없음. 자동 복구/업로드/기기 식별 정보 외부 발송/출시 금지.
+8. **원본/복구:** Git commit revert로 되돌릴 수 있음. 인쇄/진단 원본 구조 보존.
+9. **완료 조건:** Windows 합성 fixture와 Python unittest 실제 PASS, 수리/WinRE 독립 QA, 실제 PDF 한 장/QR 스캔 실증 후만 Release A 공개 승인.
+10. **시각·맥락:** 2026-10-30 KST. 초기 feature HEAD c32ab92576ce1c5c299ae069ebf49c64e486c20f. 최종 HEAD는 문서 기록 후 확인. 다음 'ㄱ'은 CI 실패가 테스트 실패가 아님을 구분하고 개발 계속.
+
