@@ -4,7 +4,7 @@
 param([switch]$RunReadOnly)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-foreach ($rel in @('tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tests/event_analysis.tests.ps1')) {
+foreach ($rel in @('tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/report_io.tests.ps1')) {
     $path = Join-Path $root $rel
     $tokens = $null
     $parseErrors = $null
@@ -17,6 +17,7 @@ foreach ($rel in @('tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis
 }
 # Synthetic fixtures are safe even without elevated privileges.
 & (Join-Path $root 'tests/event_analysis.tests.ps1')
+& (Join-Path $root 'tests/report_io.tests.ps1')
 if (-not $RunReadOnly) {
     Write-Host 'Syntax checked only. No diagnostics or repairs were executed.'
     exit 0
