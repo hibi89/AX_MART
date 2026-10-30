@@ -109,3 +109,37 @@ test("QR matrix contains properly shaped finder patterns", () => {
     }
   }
 });
+
+test("all 252 allowed status/signal/omission combinations encode exact UTF-8 bytes", () => {
+  const QRCode = loadVendor();
+  const states = ["위험 신호", "주의 필요", "확인 불완전", "관찰 범위 내 특이사항 없음"];
+  const signals = ["저장장치", "공간부족", "블루스크린기록", "비정상종료", "업데이트실패", "장치상태"];
+  let checked = 0;
+  for (const status of states) {
+    for (let left = 0; left < signals.length; left++) {
+      for (let right = left; right < signals.length; right++) {
+        for (const extraCount of [0, 2, 8]) {
+          const signal = left === right ? signals[left] : signals[left] + "," + signals[right];
+          const text = [
+            "AXMART PC CARE",
+            "상태:" + status,
+            "신호:" + signal + (extraCount ? " 외 " + extraCount + "종" : ""),
+            "기록UTC:2026-10-30 03:10",
+            "시각:로그기록/사고시간아님",
+            "원인:미확정",
+            "권고:백업후추가점검"
+          ].join("\n");
+          const utf8 = Array.from(Buffer.from(text, "utf8"));
+          assert.ok(utf8.length <= 250, "shared text must stay under byte limit");
+          const grid = generate(QRCode, text);
+          assert.ok(grid.getModuleCount() >= 21 && grid.getModuleCount() <= 177);
+          const parsed = Array.from(grid.dataList[0].parsedData);
+          assert.deepEqual(parsed.slice(0, 3), [0xef, 0xbb, 0xbf]);
+          assert.deepEqual(parsed.slice(3), utf8);
+          checked++;
+        }
+      }
+    }
+  }
+  assert.equal(checked, 252);
+});
