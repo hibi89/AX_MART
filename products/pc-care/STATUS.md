@@ -340,3 +340,8 @@
 ## 2026-10-31 — Development-only QA entrypoint
 - `RUN_RELEASE_QA.cmd` (not in package allowlist) validates interpreter and invokes `tools/preflight.py` from full product source without live diagnosis; Python/Node/synthetic PowerShell/ephemeral internal ZIP SHA check, no repair or WinRE. The missing-source negative test fails closed (exit 1); Linux static tests 8/8 PASS.
 - Exact source ZIP/Windows batch/PS5.1/USB/QR/PDF still unverified. QA evidence `tests/evidence/oneclick_qa_20261031.json`. Baseline 489f15a72e1581c68a708c2734cfe4fd0a840537, no production change.
+
+## 2026-10-31 — 기록 시간축 수집 상태/출처/시각 신뢰성
+- 기존 모듈 개선: `tools/recorded_timeline.ps1`이 System/Update 수집 결과(`collected`/`truncated`만 유효)를 요구하고, 출처 교차 사용·종류/이벤트 ID 불일치·시차 없는/잘못된 날짜 기록을 배제. 진단에서 수집 상태를 직접 전달하고 원본 수집 상한이 걸리면 시간축도 `truncated`로 표기. 해당 상태를 개인정보 없이 `sourceCollection`으로 출력.
+- `tests/driver_timeline.tests.ps1` 정상 2개 시간대, 빈/실패 상태, 교차 출처, ID 변조, UTC 누락, 불가능 날짜/정상 오프셋을 회귀에 추가. 별도 제품·통합 기준선 문서화. 변경 전 `dc53774703d1ea856599c599f3cf4b97418d885c`.
+- 원격 소스 재조회 정적 계약 **17/17 PASS**. 초기 잘못된 치환 손상은 복구원본으로 재작성 후 GitHub에서 정규식/본체를 검증. **PowerShell 5.1 parser 및 테스트 실제 실행 NOT_RUN**, Windows/USB/QR/A4/WinRE/전체 Python+Node/실 ZIP/CI 미검증. Beta/판매 금지, `main` 및 Production 변동 없음.
