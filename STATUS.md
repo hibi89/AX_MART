@@ -190,3 +190,9 @@
 - `feature/pc-care-usb` 실제 `incident_analysis.ps1`: 물리 디스크 조회 실패·무결과에 남은 Warning 표본을 새로운 고장 징후로 분석하던 오류 차단. 수집 정상/상한 도달 시 관측 표본은 유효하되 절단은 불완전 표시. 합성 PS fixture와 Python 소스 계약 동기화.
 - 원격 소스 계약 19/19 PASS. **Windows PS5.1/실장비/USB/ZIP/QR/PDF/WinRE/CI 및 native Python·Node NOT_RUN**. 증거 `products/pc-care/tests/evidence/incident_disk_provenance_static_qa_20261031.json`. 운영 main/Cloudflare/고객 파일·실제 수리 변경 없음.
 - 다음 P0: 전체 Windows `RUN_RELEASE_QA.cmd` 및 read-only 보고서→H08 실제 기능 검증. WinRE 복사와 고객 공개 차단 유지.
+
+## 2026-10-31 KST — CUBE PC CARE 보고서 쓰기 및 SMART 신뢰성
+- `feature/pc-care-usb`에서 원시 `FileBase`로 보고서 저장 경로가 이탈할 수 있는 취약 경로 차단. 임의 점·슬래시·절대경로/긴 파일명 거부, 기존 출력 쌍/충돌/폴더 fallback 유지.
+- `diagnose.ps1` 저장장치 Wear/Temperature 직접 `[int]` 변환을 기존 내부 배포 `telemetry_analysis.ps1`의 독립·범위 제한 정규화 함수로 교체. 잘못된 마모율과 유효한 온도 구분. 합성 PS 회귀·Python 패키지 소스 계약 추가.
+- **GitHub 원격 정적 24/24 PASS**; native PowerShell5.1, Python·Node 전체, Windows 실기기·USB/QR/PDF/WinRE·실 ZIP·현재 CI **미검증**. 증빙 `products/pc-care/tests/evidence/report_persistence_smart_source_static_qa_20261031.json`.
+- 운영 main·Cloudflare·고객 자료·복구/실제 수리/공개 불변. 다음 Windows 11 전체 소스 `RUN_RELEASE_QA.cmd` 및 실제 read-only 보고서 저장 경로 검증.
