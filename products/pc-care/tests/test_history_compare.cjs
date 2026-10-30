@@ -4,7 +4,7 @@ const assert=require("node:assert/strict");
 const {compareReports,validateReport}=require("../ui/history_compare.js");
 function sample(at) {return {schemaVersion:1,product:"AXMART PC CARE",mode:"read-only",generatedAt:at,assessment:"주의 필요",
 issues:[{code:"DISK_SPACE_LOW"}],observations:{eventWindowDays:30,eventCollection:"collected",collectionStatus:{physicalDisks:"collected",events:"collected",volumes:"collected"},
-eventEvidence:[{kind:"bugcheck_record",eventId:1001,timeBasis:"event_recorded_time",recordedUtc:"2026-10-28T01:00:00.0000000Z"}],
+eventEvidence:[{kind:"bugcheck_record",provider:"BugCheck",eventId:1001,timeBasis:"event_recorded_time",recordedUtc:"2026-10-28T01:00:00.0000000Z"}],
 bugchecks:[{time:"2026-10-28T10:00:00.000+09:00",stopCode:"0x0000000A"}],
 unexpectedShutdowns:[],storageEvents:[],volumes:[{drive:"C:",sizeGB:100,remainingGB:20}],
 physicalDisks:[{status:"Healthy"}]}};}
@@ -85,6 +85,8 @@ test("System history counts must match validated normalizer evidence",()=>{
    o=>{o.eventEvidence=[]}, // displayed rows cannot invent events
    o=>{o.eventEvidence=[{}]},
    o=>{o.eventEvidence[0].eventId=41},
+   o=>{delete o.eventEvidence[0].provider},
+   o=>{o.eventEvidence[0].provider="FakeBugCheck"},
    o=>{o.eventEvidence[0].kind="storage_signal"},
    o=>{o.eventEvidence[0].timeBasis="inferred_crash_time"},
    o=>{o.eventEvidence[0].recordedUtc="2026-02-30T01:00:00Z"},
@@ -100,6 +102,21 @@ test("System history counts must match validated normalizer evidence",()=>{
    assert.equal(compareReports(a,report).eventCounts,null);
  }
 });
+test("System event provider must match event type and EventID",()=>{
+ const failures=[
+   {kind:"bugcheck_record",eventId:1001,provider:"PRIVATE-USERNAME"},
+   {kind:"shutdown_signal",eventId:41,provider:"EventLog"},
+   {kind:"shutdown_signal",eventId:6008,provider:"Kernel-Power"},
+   {kind:"storage_signal",eventId:153,provider:"BugCheck"}
+ ];
+ for(const fail of failures){
+   const current={...b,observations:{...b.observations,
+     eventEvidence:[{...b.observations.eventEvidence[0],...fail}]}};
+   assert.equal(compareReports(a,current).eventCounts,null);
+ }
+ const valid={...b,observations:{...b.observations,eventEvidence:[{...b.observations.eventEvidence[0],provider:"Microsoft-Windows-BugCheck"}]}};
+ assert.deepEqual(compareReports(a,valid).eventCounts.after,[1,0,0]);
+});
 test("actual no-match is a genuine zero, missing logs are not",()=>{
  const empty={...b,observations:{...b.observations,
    eventCollection:"no matching events",
@@ -112,8 +129,8 @@ test("actual no-match is a genuine zero, missing logs are not",()=>{
 test("System source type and ID validation still allows real storage and shutdown observations",()=>{
  const newer={...b,observations:{...b.observations,
   eventEvidence:[
-    {kind:"shutdown_signal",eventId:6008,timeBasis:"event_recorded_time",recordedUtc:"2026-10-30T02:00:00.0000000Z"},
-    {kind:"storage_signal",eventId:153,timeBasis:"event_recorded_time",recordedUtc:"2026-10-30T02:00:01.0000000Z"}],
+    {kind:"shutdown_signal",provider:"EventLog",eventId:6008,timeBasis:"event_recorded_time",recordedUtc:"2026-10-30T02:00:00.0000000Z"},
+    {kind:"storage_signal",provider:"disk",eventId:153,timeBasis:"event_recorded_time",recordedUtc:"2026-10-30T02:00:01.0000000Z"}],
   bugchecks:[],unexpectedShutdowns:[{time:"2026-10-30T11:00:00.000+09:00",eventId:6008}],
   storageEvents:[{time:"2026-10-30T11:00:01.000+09:00",eventId:153,source:"disk"}]
  }};
