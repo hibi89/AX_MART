@@ -261,3 +261,9 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - `hibi89/AX_MART@feature/pc-care-usb`: 진단 코어의 `incident_analysis.ps1`에서 실패/무결과 물리 디스크 수집의 잔존 경고 표본을 배제. `collected/truncated` 실제 표본만 분석하고 절단은 불완전 표시. `tests/incident_analysis.tests.ps1` 및 `tests/test_package.py` 경계 회귀 보강.
 - GitHub 코드/파일 원격 재조회 기반 **19/19 정적 계약 PASS**, PS5.1/native Node·Python/실 Windows·USB·QR/A4/ZIP·WinRE·CI는 미실행. 근거 `products/pc-care/tests/evidence/incident_disk_provenance_static_qa_20261031.json`. 상세 10항은 `products/pc-care/HANDOFF.md`.
 - 변경 전 SHA `009ac6b9fa1a81c313aae71b9d85190d4e036d16`, 운영 main/Cloudflare·고객 OS/파일·복구·인증 변경 없음. 다음: Windows 전체 소스 `RUN_RELEASE_QA.cmd` 합성 실행→선택적 read-only 실제 보고서/H08 확인→USB/QR/A4→WinRE 별도 안전 게이트. 최종 SHA는 문서 커밋 후 확인.
+
+## 2026-10-31 KST — CUBE PC CARE 보고서 저장/센서 데이터 인수인계
+- 2026-10-31 최종 v2.0 기준 `hibi89/AX_MART@feature/pc-care-usb`: 보고서 이름의 디렉터리 이탈을 차단하는 `FileBase` 정규식 추가(`report_io.ps1`); 기존 저장 두 파일/충돌 보호 유지. 별도 패키지 모듈 신규 생성 없이 기존 배포 포함 `telemetry_analysis.ps1`에 bounded storage Wear/Temperature 정규화 추가, `diagnose.ps1` 1회 조기 소싱 연결.
+- PS5.1 합성 fixture `report_io.tests.ps1`·`telemetry_analysis.tests.ps1`와 `test_package.py` 소스 계약 보강. **실제 GitHub 파일 원격 정적 검사 24/24 PASS**, native PS5.1/Node/Python/실 Windows·USB·ZIP·QR/PDF·WinRE/CI **미실행**. 증빙 `products/pc-care/tests/evidence/report_persistence_smart_source_static_qa_20261031.json`.
+- 변경 전 복구 SHA `6d25db008c835ccf489940e9a3024f6b86c74ca9`. 운영 `main`/Cloudflare, 고객 파일·OS·복구·키·결제 미수정. 최신 detailed HANDOFF 10항 `products/pc-care/HANDOFF.md`.
+- 다음: Windows `RUN_RELEASE_QA.cmd` native QA→명시적 read-only 실제 진단/JSON·HTML·H08→한글 USB/Edge/QR/A4→WinRE 격리 VM과 출시 안전 승인. 최종 SHA 원격 확인 필수.
