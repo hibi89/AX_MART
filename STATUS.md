@@ -179,3 +179,9 @@
 - `feature/pc-care-usb`: 진단 System 정규화 증거를 검사하지 않고 UI가 41/6008·BugCheck·Storage 건수를 비교하던 오류 수정. 실제 JSON 구조의 합성 통합 `eventEvidence → H08 → 로컬 인쇄 요약` 테스트 5개와 `preflight.py` 등록, 패키지 소스 계약 갱신.
 - 기존 비교 테스트 V8 **28/28 PASS**, 신규 통합 V8 **5/5 PASS**, 정적 **12/12 PASS**. **Native Windows/PowerShell5.1/Node/Python/ZIP/QR/PDF/USB/WinRE 및 신규 CI NOT_RUN**. 증거 `products/pc-care/tests/evidence/h08_system_evidence_integration_qa_20261031.json`.
 - 운영 main·Cloudflare·원본 고객 데이터 불변; 새 릴리스/결제/WinRE 복사 금지. 기존 CI 실패 `41034866482`는 과거 SHA의 job 0 steps로 현재 기능 불량 증거 아님. 다음 실제 Windows E2E 검증이 필수.
+
+## 2026-10-31 KST — PC CARE H08 System provider 검증
+- 기존 System 이벤트 이력 비교가 event ID·종류·UTC는 검증하지만 공급자 이름을 확인하지 않던 오류를 수정. `ui/history_compare.js`가 `event_analysis.ps1`와 동일한 BugCheck/Kernel-Power/EventLog/스토리지 provider 허용 목록을 사용. 누락·불일치는 비교 불가.
+- `tests/test_history_compare.cjs`·`tests/test_history_evidence_integration.cjs`·`tests/test_package.py` 계약 갱신.
+- GitHub 실제 JavaScript/커밋 테스트 V8 어댑터 38/38 통과. 네이티브 Node/Python/Windows PS5.1/실기기·USB·WinRE/QR/PDF·CI는 미검증. 기존 사용자 데이터·운영 main 변경 없음.
+- 이번 작업 전 개발 기준 SHA `b568c942c00ee4cc32e24863e2608c93806df290`. 다음: Windows 전체 checkout `RUN_RELEASE_QA.cmd` → 읽기 전용 결과 저장/비교/인쇄 실제 테스트.
