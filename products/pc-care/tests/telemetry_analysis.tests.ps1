@@ -33,6 +33,8 @@ $updates = @(
     [pscustomobject]@{ Id=20; ProviderName='Microsoft-Windows-WindowsUpdateClient'; RecordId=110; TimeCreated=$time; Message='duplicate entry' },
     [pscustomobject]@{ Id=19; ProviderName='Microsoft-Windows-WindowsUpdateClient'; RecordId=111; TimeCreated=$time.AddMinutes(10); Message='install success' },
     [pscustomobject]@{ Id=20; ProviderName='Other-Provider'; RecordId=112; TimeCreated=$time; Message='false update event' },
+    [pscustomobject]@{ Id=20; ProviderName='Private-WindowsUpdateClient'; RecordId=114; TimeCreated=$time; Message='PRIVATE FAKE UPDATE' },
+    [pscustomobject]@{ Id=19; ProviderName='WindowsUpdateClient'; RecordId=115; TimeCreated=$time; Message='PRIVATE FAKE UPDATE' },
     [pscustomobject]@{ Id=999; ProviderName='Microsoft-Windows-WindowsUpdateClient'; RecordId=113; TimeCreated=$time; Message='unrelated' }
 )
 $evidence = @(ConvertTo-PcCareUpdateEvidence -Events $updates)
