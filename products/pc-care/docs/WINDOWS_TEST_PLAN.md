@@ -67,3 +67,24 @@ The standalone incident_analysis.tests.ps1 fixture is invoked by tests/windows_s
 - Data minimization: no model or raw source messages copied into the generated incident findings.
 
 Windows 11 x64 / PowerShell 5.1 parser and fixture execution must pass before considering these checks verified. This does not replace WinRE/repair safety validation.
+
+## 2026-10-30 P1 battery / Windows Update acceptance matrix (not executed)
+
+Scope: Win32_Battery CIM observation and only the Microsoft-Windows-WindowsUpdateClient System event log with IDs 19 (installation success) and 20 (installation failure). Neither proves hardware health or a crash cause. Based on Microsoft Win32_Battery and Windows Update event documentation.
+
+| Scenario | Expected | Evidence |
+|---|---|---|
+| Desktop with no Win32_Battery instances | battery.status=not_present, batteryCount=0, not an error | Pending Windows 11 |
+| CIM access denied or unsupported | battery.status=unavailable, count null; not mistaken for no battery | Pending isolated VM |
+| Portable device with supported charge data | chargeRemainingPercent 0-100; explicitly current charge, not battery life | Pending Windows laptop |
+| Null, zero, invalid design/full capacity | capacities null, no health percentage fabricated | Synthetic fixture written; runtime pending |
+| Battery serial/device identity from CIM | no DeviceID, Name, serial or raw device output in JSON | Synthetic fixture written; runtime pending |
+| System WindowsUpdateClient ID 19 or 20 | whitelist provider and ID; recorded timestamp, no raw event Message | Synthetic fixture written; runtime pending |
+| WindowsUpdateClient log empty vs denied | status 'no matching events' vs 'unavailable'; never claim an installed update succeeded | Pending Windows VM |
+| 300-record event limit | status 'truncated'; bounded output; incomplete evidence | Pending Windows VM |
+| Update failure alongside BugCheck | independent review finding; chronological/cause relation NOT proven | Synthetic fixture written; runtime pending |
+
+Windows test entrypoint: tests/windows_smoke.ps1 (default runs parser + event/incident/telemetry/report_io fixtures). The explicit -RunReadOnly switch additionally runs the one-day actual Windows diagnostics; it writes only local report files. Do not run repair as part of these tests.
+
+No Windows 10/11, PowerShell 5.1, USB filesystem, OS log permission or actual battery device verification has been performed for this change.
+
