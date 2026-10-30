@@ -196,3 +196,8 @@
 - `diagnose.ps1` 저장장치 Wear/Temperature 직접 `[int]` 변환을 기존 내부 배포 `telemetry_analysis.ps1`의 독립·범위 제한 정규화 함수로 교체. 잘못된 마모율과 유효한 온도 구분. 합성 PS 회귀·Python 패키지 소스 계약 추가.
 - **GitHub 원격 정적 24/24 PASS**; native PowerShell5.1, Python·Node 전체, Windows 실기기·USB/QR/PDF/WinRE·실 ZIP·현재 CI **미검증**. 증빙 `products/pc-care/tests/evidence/report_persistence_smart_source_static_qa_20261031.json`.
 - 운영 main·Cloudflare·고객 자료·복구/실제 수리/공개 불변. 다음 Windows 11 전체 소스 `RUN_RELEASE_QA.cmd` 및 실제 read-only 보고서 저장 경로 검증.
+
+## 2026-10-31 KST — CUBE PC CARE 시간축 수집 완전성 보강
+- `feature/pc-care-usb`: 비정규화된 이벤트를 버린 뒤에도 '정상 수집'·'일치 기록 없음'으로 표시할 수 있는 코어 오류 수정. `recorded_timeline.ps1`은 kind/ID/시각 근거·UTC를 확인하고 거부 건수를 출력; 정상 조회 중 거부 입력은 불완전 처리. `diagnose.ps1` JSON/HTML 및 Windows 스모크/PS fixture/Python 계약에 거부 내역 반영.
+- 원격 정적 계약 **25/25 PASS**. `products/pc-care/tests/evidence/timeline_rejected_evidence_static_qa_20261031.json` 참조. **Native PowerShell5.1·Node/Python 전체·Windows/USB·QR/PDF·ZIP·WinRE·현재 CI NOT_RUN**.
+- 개발 전 SHA `63ca3c8513d921bfa990dbdec813118f2372e9b2`; main/Cloudflare/사용자 파일/복구/자동 수리 무변경. 다음 Windows PS5.1 실제 synthetic QA + 읽기전용 보고서 생성 E2E.
