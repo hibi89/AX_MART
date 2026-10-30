@@ -7,7 +7,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 const test = require("node:test");
 const source = fs.readFileSync(path.join(__dirname, "../ui/qr_ui.js"), "utf8");
-const valid = "AXMART PC CARE\n상태:주의 필요\n신호:저장장치\n원인:미확정";
+const valid = "AXMART PC CARE\n상태:주의 필요\n신호:저장장치\n기록UTC:2026-10-30 03:10\n시각:로그기록/사고시간아님\n원인:미확정\n권고:백업후추가점검";
 
 function setup(text = valid, options = {}) {
   const calls = [];
@@ -129,6 +129,37 @@ test("invalid regeneration clears a QR created for older text", () => {
   assert.equal(ui.target.textContent, "");
   assert.equal(ui.calls.length, 1);
   assert.match(ui.state.textContent, /차단/);
+});
+
+test("untrusted extra lines cannot be encoded as a QR", () => {
+  const ui = setup(valid + "\nPRIVATE-USERNAME=someone");
+  ui.click();
+  assert.equal(ui.calls.length, 0);
+  assert.match(ui.state.textContent, /차단/);
+});
+
+test("arbitrary text inside whitelisted fields is rejected", () => {
+  const ui = setup(valid.replace("신호:저장장치", "신호:개인정보"));
+  ui.click();
+  assert.equal(ui.calls.length, 0);
+});
+
+test("missing time-basis warning is rejected", () => {
+  const ui = setup(valid.replace("시각:로그기록/사고시간아님", "시각:확정"));
+  ui.click();
+  assert.equal(ui.calls.length, 0);
+});
+
+test("known multi-signal payload and omission marker are accepted", () => {
+  const ui = setup(valid.replace("신호:저장장치", "신호:저장장치,업데이트실패 외 2종"));
+  ui.click();
+  assert.equal(ui.calls.length, 1);
+});
+
+test("unknown or malformed event UTC time is rejected", () => {
+  const ui = setup(valid.replace("기록UTC:2026-10-30 03:10", "기록UTC:<private>"));
+  ui.click();
+  assert.equal(ui.calls.length, 0);
 });
 
 test("missing DOM nodes leave QR disabled without a page-load exception", () => {
