@@ -189,7 +189,7 @@ class ReleaseTests(unittest.TestCase):
         first_bytes = archive.read_bytes()
         checksum_file = Path(str(archive) + '.sha256')
         self.assertEqual(checksum_file.read_text(encoding='ascii'),
-                         f'{first_sha}  {archive.name}\\n')
+                         f'{first_sha}  {archive.name}\n')
         archive2, second_sha = release.build_internal(self.root, self.root / 'dist-internal')
         self.assertEqual(archive, archive2)
         self.assertEqual(first_sha, second_sha)
