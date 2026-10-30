@@ -259,6 +259,10 @@ $report = [ordered]@{
     privacy='보고서에는 사용자 이름, 디스크 일련번호, 이벤트 원문을 의도적으로 수집하지 않습니다. 로컬에만 저장됩니다.'
     caution='진단은 제한적인 신호 검사이며 하드웨어 정상 보증 또는 자동 수리 성공 보증이 아닙니다.'
 }
+# Privacy-filtered consultation view intentionally excludes raw details from the full diagnostic JSON.
+. (Join-Path $PSScriptRoot 'consultation_report.ps1')
+$consultationSummary = Get-PcCareConsultationSummary -Report $report
+$report['consultation'] = $consultationSummary
 $jsonText = $report | ConvertTo-Json -Depth 10
 
 $cards = New-Object 'System.Collections.Generic.List[string]'
@@ -350,6 +354,9 @@ $limRows = New-Object 'System.Collections.Generic.List[string]'
 foreach ($l in $report.limitations) { [void]$limRows.Add('<li>'+(Esc $l)+'</li>') }
 if ($limRows.Count -eq 0) { [void]$limRows.Add('<li>보고된 접근 제한이 없습니다. 다만 검사 범위 밖의 문제는 있을 수 있습니다.</li>') }
 $color = if ($assessment -eq '위험 신호') {'#ff6a8a'} elseif ($assessment -eq '주의 필요') {'#f6cb73'} else {'#79e6b9'}
+# Separate, bounded consultation renderer; browser print/PDF uses CSS only.
+. (Join-Path $PSScriptRoot 'consultation_render.ps1')
+$consultationHtml = ConvertTo-PcCareConsultationHtml -Summary $consultationSummary
 # Static local HTML: all dynamic fields encoded, no remote scripts, fonts, or data requests.
 $html = @"
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -366,9 +373,45 @@ h1{font-size:clamp(30px,5vw,54px);letter-spacing:-2px;margin:32px 0 12px}.lead{c
 .issue.danger{border-left:4px solid #ff6a8a}.issue.warn{border-left:4px solid #f6cb73}.issue h3{margin:6px 0}.issue p{color:#c4c0cc;line-height:1.6;font-size:14px}.issue .advice{color:#a5f0d0}
 .tag{font-size:11px;color:#cba4ff;letter-spacing:.1em;text-transform:uppercase}.scroll-table{overflow-x:auto}table{width:100%;border-collapse:collapse}td,th{padding:12px;border-bottom:1px solid #33303a;text-align:left}th{color:#aaa3b8}
 footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-height:1.7;color:#c1b9cf}
+.consult-sheet{border:1px solid #4c4055;background:#181825;padding:24px;border-radius:17px;margin:26px 0}
+.consult-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.consult-mark{font-weight:900;letter-spacing:-.3px}.consult-mark b{color:#b7f2d6}.consult-version{font-size:11px;color:#a99fb7}
+.consult-sheet h2{font-size:26px;margin:18px 0 8px}.consult-disclaimer,.consult-hint{font-size:11px;line-height:1.5;color:#b2a8c0}
+.consult-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:17px 0}.consult-facts>div{padding:11px 13px;border:1px solid #464052;border-radius:9px}
+.consult-facts span{display:block;font-size:11px;color:#b4acc2}.consult-facts strong{display:block;margin-top:4px;font-size:13px}
+.consult-symptom,.consult-group{padding:11px 0;border-top:1px solid #3f374a;overflow-wrap:anywhere}.consult-symptom{font-size:12px}
+.consult-group h3{font-size:15px;margin:3px 0 7px}.consult-group p,.consult-group li{font-size:12px;line-height:1.5}
+.consult-group ul,.consult-group ol{margin:6px 0 2px;padding-left:20px}.consult-group li{margin:3px 0}
+.consult-table{width:100%;table-layout:fixed;border-collapse:collapse}.consult-table th,.consult-table td{border-bottom:1px solid #484051;padding:6px;text-align:left;font-size:11px;overflow-wrap:anywhere}
+.consult-bottom{border-top:1px solid #484051;margin-top:10px;padding-top:10px;font-size:10px;line-height:1.5;color:#b9b1c4}
+.screen-help{font-size:12px;color:#b9b1c4}
+@page{size:A4 portrait;margin:10mm}
+@media print{
+  html,body{background:#fff!important;color:#161616!important;font-family:'Malgun Gothic',Arial,sans-serif!important;color-scheme:light!important}
+  main{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+  main>:not(#consultation-print){display:none!important}
+  #consultation-print{display:block!important;margin:0!important;padding:0!important;background:#fff!important;border:0!important;border-radius:0!important;color:#161616!important;box-shadow:none!important}
+  #consultation-print *{color:#161616!important;background:transparent!important;box-shadow:none!important}
+  #consultation-print h2{font-size:18pt!important;margin:7pt 0 4pt!important}
+  #consultation-print .consult-top{display:flex!important}
+  #consultation-print .consult-mark{font-size:15pt!important}
+  #consultation-print .consult-version,#consultation-print .consult-disclaimer,#consultation-print .consult-hint{font-size:8pt!important}
+  #consultation-print .consult-facts{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:4pt!important;margin:8pt 0!important}
+  #consultation-print .consult-facts>div{border:1px solid #bbb!important;padding:4pt!important}
+  #consultation-print .consult-facts span{font-size:7pt!important}
+  #consultation-print .consult-facts strong{font-size:8pt!important;overflow-wrap:anywhere}
+  #consultation-print .consult-symptom,#consultation-print .consult-group{padding:4pt 0!important;border-color:#ccc!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  #consultation-print .consult-symptom,#consultation-print .consult-group p,#consultation-print .consult-group li{font-size:8.5pt!important;line-height:1.24!important}
+  #consultation-print .consult-group h3{font-size:10pt!important;margin:2pt 0 3pt!important}
+  #consultation-print .consult-group ul,#consultation-print .consult-group ol{margin:2pt 0!important}
+  #consultation-print .consult-group li{margin:1pt 0!important}
+  #consultation-print .consult-table th,#consultation-print .consult-table td{font-size:8pt!important;padding:3pt!important;border-color:#ddd!important}
+  #consultation-print .consult-bottom{font-size:7.5pt!important;line-height:1.3!important;border-color:#ccc!important;padding-top:5pt!important}
+}
 </style></head><body><main><header><div class="brand"><b>AX</b>MART <em>PC CARE</em></div><div class="small">READ-ONLY / v0.1-alpha</div></header>
 <h1>내 PC 건강검진 결과<span style="color:#a977e4">.</span></h1><p class="lead">시스템 로그와 저장장치 상태를 읽어 주요 위험 신호를 점검했습니다. 파일 삭제나 시스템 설정 변경 없이 검사했습니다.</p>
 <div class="status">$(Esc $assessment)</div>
+<p class="screen-help">수리점 제출용 1페이지 요약은 아래에서 확인하세요. 브라우저에서 Ctrl+P → PDF로 저장하면 요약표만 인쇄됩니다. 별도 서버 전송은 없습니다.</p>
+$consultationHtml
 <div class="grid"><div class="tile"><div class="small">블루스크린 관련 기록</div><strong>$(Esc $bugCountLabel)</strong></div><div class="tile"><div class="small">비정상 종료 이벤트</div><strong>$(Esc $shutdownCountLabel)</strong></div><div class="tile"><div class="small">저장장치 오류 이벤트</div><strong>$(Esc $storageCountLabel)</strong></div><div class="tile"><div class="small">발견한 주요 주의사항</div><strong>$($issues.Count)건</strong></div></div>
 <section><h2>진단 결과와 권장 조치</h2>$($cards -join "`n")</section>
 <section><h2>원인 후보와 확인 한계</h2><p class="small">자동 규칙 해설이며 고장 원인 확정, 부품 교체 판정 또는 수리 보증이 아닙니다.</p>$($analysisCards -join "`n")</section>
