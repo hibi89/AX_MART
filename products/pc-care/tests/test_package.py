@@ -140,8 +140,30 @@ class PackageTests(unittest.TestCase):
         self.assertNotIn('-Verb RunAs', diagnose)
         self.assertIn("['collectionStatus']", diagnose)
 
+    def test_incident_explanations_are_local_and_noncausal(self):
+        module = (ROOT/'tools/incident_analysis.ps1').read_text(encoding='utf-8-sig')
+        diagnostic = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        smoke = (ROOT/'tests/windows_smoke.ps1').read_text(encoding='utf-8-sig')
+        allowlist = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        fixture = (ROOT/'tests/incident_analysis.tests.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn('Get-PcCareIncidentAssessment', module)
+        self.assertIn('causeConfirmed = $false', module)
+        self.assertIn('STORAGE_FIRST', module)
+        self.assertIn('SHUTDOWN_REVIEW', module)
+        self.assertIn('BUGCHECK_REVIEW', module)
+        self.assertIn('incident_analysis.ps1', diagnostic)
+        self.assertIn('analysis=$incidentAssessment', diagnostic)
+        self.assertIn('(Esc $finding.title)', diagnostic)
+        self.assertIn('(Esc $finding.interpretation)', diagnostic)
+        self.assertIn('incident_analysis.tests.ps1', smoke)
+        self.assertIn("'tools/incident_analysis.ps1'", allowlist)
+        self.assertIn("'tests/incident_analysis.tests.ps1'", allowlist)
+        self.assertIn('INCIDENT FIXTURE PASS', fixture)
+        for blocked in ['Invoke-RestMethod','Invoke-WebRequest','Start-Process','RestoreHealth','scannow']:
+            self.assertNotIn(blocked, module)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
-        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/report_io.tests.ps1']:
+        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
 
 if __name__ == '__main__':
