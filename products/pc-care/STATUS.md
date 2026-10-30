@@ -163,3 +163,13 @@
 - **남은 기능:** 실제 로컬 QR 인코더/오픈소스 라이선스 검토·스캔 검증, P2 홈 UI/인쇄 1장 실증, Windows/USB/권한/파일 저장 QA, Release B WinRE 파일 복사 및 승인형 수리 안전 검증. 베타·판매·다운로드 여전히 차단.
 - **코드 기준:** feature/pc-care-usb 작업 시작 HEAD 2684cd3b55f9186921e630fe4a672be4c27ad1e6. 최종 문서 반영 후 HEAD 검증 필요.
 
+## 2026-10-30 KST — P2 오프라인 QR 이미지 명시 생성 및 MIT 내장 (최신)
+
+- **변경 배경:** 이전 P2에서는 250바이트 이하 개인정보 최소 공유 텍스트·클릭 미리보기만 코드 구현되어 QR 비트맵이 없었음. R04-R07의 사용자 선택형 로컬 QR 생성 동작을 코드로 추가하되 실기기 스캔 QA 전에는 완료품으로 표기하지 않음.
+- **신규 QR 라이브러리:** `products/pc-care/ui/qrcode.min.js` (davidshimjs/qrcodejs), `ui/QR_CODE_LICENSE.txt` MIT 원문, `ui/qr_ui.js` 자체 오프라인 UI. GitHub 공개 프로젝트의 정식 MIT 라이선스/저작권 고지 보존. QR 로직은 외부 서비스/CDN 네트워크 호출 없이 브라우저 DOM에서 처리. `tools/diagnose.ps1`은 QR 자산을 로컬에서 읽고 전체 MIT 고지를 포함해 생성하는 HTML에 함께 삽입하여 원래 USB가 없어도 HTML만으로 QR 실행 가능하도록 구성. 라이브러리/고지가 없거나 유효성 검사를 통과하지 못하면 기존 로컬 보고서 생성은 계속하고 텍스트-only로 폴백.
+- **명시적 생성:** `tools/share_preview.ps1`에 `-QrSupported` 인자와 '오프라인 QR 이미지 만들기(선택)' 버튼, 상태/이미지 컨테이너 추가. 초기 이미지 비어 있음. 사용자가 `<details>`로 공유 문구를 먼저 확인한 후 버튼 클릭 시 `ui/qr_ui.js`가 UTF-8 바이트 수 250 이하·지정 접두부를 재검증하고 `QRCode`를 실행. 별도 QR 자동 복사/파일 업로드/전송 없음. QR 사진 또는 공유 문구를 가진 제3자는 내용을 읽을 수 있음. HTML 동적 데이터는 계속 HTML encode.
+- **데이터 상태:** `diagnose.ps1`의 JSON `sharePreview`에 `qrImageSupported` capability와 `qrImageGenerated=false`, `payloadStoredInJson=false`만 저장. QR 생성은 사용자 브라우저에서 나중에 이루어지므로 JSON에 QR 이미지/텍스트가 자동 저장되지는 않음. A4 프린트에는 `#consultation-print` 외 UI가 숨겨져 QR 패널은 제외하도록 CSS 유지.
+- **검증/수정:** tests/share_payload.tests.ps1에 QR-enabled/disabled·이미지 생성 전 비어 있음·명시 버튼 fixture 추가. tools/release.py 내부 ZIP ALLOWLIST에 JS 2개 + MIT 라이선스 추가, tests/test_release.py·test_package.py에 의존성·MIT·250바이트/클릭-only·오프라인 보안 정적 검사 확장, tests/windows_smoke.ps1에 JSON capability 검사. GitHub 11개 파일의 cross-file **정적 40/40 조건 충족**; 실제 PS5.1, Windows 브라우저, QR 이미지 생성/한글 디코딩/폰카 스캔·Python unittest·내부 ZIP 실제 빌드·WinRE/QA는 **전부 미실행**.
+- **출시 게이트:** QR 코드가 스마트폰으로 정확히 읽히는지, QR quiet zone/에러 정정/UTF-8 한글, USB 분리된 HTML, 긴 데이터/250바이트, Edge/Chrome·iOS/Android 및 PDF 인쇄를 실제 확인하기 전 Release A 통과·QR 완성·무료/크몽 배포 주장 금지. QR 외 P0/P1 및 Release B 실제 Windows 검증도 계속 대기.
+- **운영/브랜치:** hibi89/AX_MART `feature/pc-care-usb`만 변경, Cloudflare AXMART³ 운영 main `fbb32362455378b85bcdd0b5037d1f338055fb71` 불변. 이번 QR 기능 추가 전 기능 SHA `c5a2251a5edf33d3a9cab94eae97b2913bbd1803`, 최종 HEAD는 문서 커밋 뒤 확인.
+
