@@ -242,3 +242,9 @@
 - `tests/report_io.tests.ps1`: stale partial 및 한쪽 최종 HTML 존재 시 바이트 보존 fixture 추가; `tests/test_package.py` 교차 정적 가드 갱신.
 - Windows 11/PowerShell 5.1 실제 fixture 실행, 동시 실행/전원 강제 중단 실험, 전체 Python suite, USB 경로·QR·PDF·WinRE **미검증**. 실제 런타임 성공 주장 불가.
 - 복구 기준 이전 feature HEAD `9087a3bc3b72c14e3b8730d6f4709b9dbdc50056`. main 및 Cloudflare 다운로드/판매 변경 없음.
+
+## 2026-10-30 KST — P0 단일 실행 보고서 receipt 경합 제거
+- 기존 `tests/windows_smoke.ps1`가 REPORTS/문서 폴더의 '가장 최신 JSON'을 선정하던 방식은 동시 진단이 발생할 때 타 실행의 보고서를 검증할 수 있었다.
+- `tools/diagnose.ps1`에 `-PassThru` (이번 실행 저장 경로만 출력), `-NoOpenReport` (자가검사에서 브라우저 자동 실행 억제) 옵션을 추가, 일반 Windows 실행기는 변경 없음.
+- Windows 스모크는 receipt 정확히 1개, 절대경로·동일 부모·동일 파일 기본명·허용 보고서 폴더·실제 2개 파일 존재를 검사. 타 실행 결과 탐색 제거. `tests/test_package.py` 정적 회귀 추가.
+- 확인 범위: GitHub 소스 정적 대조. PowerShell 5.1 실제 실행·USB/한글 경로·동시 실행·HTML/PDF/QR 동작은 **미검증**. GitHub main/Cloudflare/수리 파일 미변경. 복구기준 커밋 `3da0c5bb236064328e1c506143a48ce9f20dadea`.

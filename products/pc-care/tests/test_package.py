@@ -104,6 +104,22 @@ class PackageTests(unittest.TestCase):
         self.assertIn('[switch]$RunReadOnly', text)
         self.assertNotIn('repair.ps1 -', text)
 
+    def test_read_only_smoke_uses_own_receipt_not_other_run_report(self):
+        diagnostic = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        smoke = (ROOT/'tests/windows_smoke.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn('[switch]$PassThru', diagnostic)
+        self.assertIn('[switch]$NoOpenReport', diagnostic)
+        self.assertIn("Write-Output ([pscustomobject]@{ json=$jsonPath; html=$htmlPath })", diagnostic)
+        self.assertIn('if (-not $NoOpenReport)', diagnostic)
+        self.assertIn('-Days 1 -PassThru -NoOpenReport', smoke)
+        self.assertIn('savedPair.Count -ne 1', smoke)
+        self.assertIn('GetFullPath($jsonFile)', smoke)
+        self.assertIn('Diagnostic receipt points outside allowed local report folders.', smoke)
+        self.assertIn('ChangeExtension($jsonFile', smoke)
+        self.assertNotIn('Get-ChildItem -LiteralPath $dir', smoke)
+        self.assertNotIn('LastWriteTime', smoke)
+        self.assertNotIn('Sort-Object LastWriteTime', smoke)
+
 
     def test_report_has_escaped_disk_and_crash_details(self):
         text = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')

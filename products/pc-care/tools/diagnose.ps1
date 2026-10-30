@@ -1,7 +1,7 @@
 ﻿# AXMART PC CARE v0.1 | Windows PowerShell 5.1 | READ-ONLY DIAGNOSTICS
 # It never schedules tasks, fixes disks, changes services, or sends telemetry.
 [CmdletBinding()]
-param([int]$Days = 30)
+param([int]$Days = 30, [switch]$PassThru, [switch]$NoOpenReport)
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 if ($Days -lt 1 -or $Days -gt 90) { throw 'Days must be between 1 and 90.' }
@@ -501,5 +501,12 @@ $htmlPath = $savedFiles.html
 Write-Host ('Assessment: ' + $assessment) -ForegroundColor Green
 Write-Host ('Saved JSON : ' + $jsonPath)
 Write-Host ('Saved report: ' + $htmlPath)
-try { Start-Process -FilePath $htmlPath -ErrorAction Stop | Out-Null }
-catch { Write-Host 'Report saved. Open the HTML file manually.' }
+# Explicit test-only receipt lets Windows smoke validate THIS exact report pair.
+# The normal double-click experience remains unchanged and opens local HTML.
+if ($PassThru) {
+    Write-Output ([pscustomobject]@{ json=$jsonPath; html=$htmlPath })
+}
+if (-not $NoOpenReport) {
+    try { Start-Process -FilePath $htmlPath -ErrorAction Stop | Out-Null }
+    catch { Write-Host 'Report saved. Open the HTML file manually.' }
+}

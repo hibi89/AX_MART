@@ -251,3 +251,10 @@ Pending manual tests:
 - New report_io.tests.ps1 synthetic cases: stale partial file and one-sided existing HTML remain unchanged when collisions are rejected; existing normal and blocked destination fallback fixtures remain. No customer log or device data used.
 - Static checks in test_package.py assert exclusive create and no-overwrite moves. Run Windows PowerShell 5.1 tests/windows_smoke.ps1 for fixture runtime before interpreting this as validated. Test in separate user-owned scratch directory, not real customer REPORTS.
 - Concurrent-process stress and crash/power-loss injection are still NOT verified. The pair is rollback-on-error, not a single filesystem transaction; abrupt power loss can leave one file and must be reported as partial, never 'success'.
+
+## 2026-10-30: P0 deterministic read-only receipt (Windows validation pending)
+
+- Root cause: old tests/windows_smoke.ps1 scanned REPORTS/Documents by LastWriteTime to find the newest JSON. Concurrent read-only diagnostics could cause a false PASS based on another invocation's report.
+- New tools/diagnose.ps1 optional -PassThru emits exactly one local JSON/HTML path receipt after successful Save-PcCareReportPair, -NoOpenReport disables the browser launch in smoke mode. Default RUN_HEALTH_CHECK.cmd still opens the saved local HTML as before.
+- windows_smoke.ps1 -RunReadOnly now verifies the exact returned pair, rooted paths, same parent, versioned basename, and destination folder allowlist before parsing JSON/HTML. It does not enumerate recent reports. It never starts repair or automatically uploads report contents.
+- Static regression added test_read_only_smoke_uses_own_receipt_not_other_run_report. Real Windows PowerShell5.1 invocation, concurrent diagnostic processes and USB path edge-cases remain UNVERIFIED until performed.

@@ -112,3 +112,7 @@ QR 이미지 생성 전 UTC 기록 시각을 **정규식 + 실제 달력 날짜*
 - `tests/qr_browser_smoke.py`를 보강해 오프라인 **한글 파일명 `file://` HTML**에서 QR을 렌더링하고, HTTP(S) 요청을 차단·집계하며, 브라우저 JavaScript 오류를 검사하고, OpenCV로 디코딩하도록 했다. 실행은 `python tests/qr_browser_smoke.py --chromium <실행파일경로>` (개발 전용 의존성 필요).
 - 이 브라우저/실제 이미지 스캔 테스트는 아직 **미실행**이며, Windows/Edge/휴대전화/USB와 별도의 검증을 요구한다. 실제 사용자를 위한 ZIP 배포·크몽 상품 등록은 검증 전 금지한다.
 
+
+## 개발자 검증 옵션 (일반 실행에는 불필요)
+
+`tools/diagnose.ps1 -Days 1 -PassThru -NoOpenReport` 는 정상적인 로컬 JSON·HTML 저장에 성공한 경우 그 실행에서 생성한 정확한 파일 경로 한 쌍만 PowerShell 파이프라인으로 반환하고 브라우저 자동 열기를 생략한다. `tests/windows_smoke.ps1 -RunReadOnly` 가 이를 사용해 다른 검사와 시간상 겹쳐도 다른 보고서를 성공으로 오인하지 않도록 설계했다. **Windows 실제 동작은 아직 검증 전이다.** 기본 `RUN_HEALTH_CHECK.cmd` 동작은 유지한다.

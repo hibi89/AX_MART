@@ -285,3 +285,15 @@
 8. **원본/백업/보안:** 기존 보고서·QR·진단 원본 및 실제 개인정보 미변경. Git 이전 SHA로 제품 코드 복원 가능. 시스템 변경/수리 명령/외부 통신 추가 없음.
 9. **다음 작업:** 독립 Windows11에서 `RUN_SELF_TEST.cmd`로 report_io fixture + 생성 보고서 검증 → 읽기 전용/권한 거부/동시 실행 실증 → QR/PDF/USB/WinRE 별도 안전 게이트.
 10. **갱신:** 2026-10-30 KST. 정적 계약 확인만, 브랜치 HEAD는 새 커밋 적용 후 재조회.
+
+## [최신] 2026-10-30 KST — 자가검사 결과 일치 보강
+1. 목표: Windows 자가검사가 다른 프로세스의 보고서를 오인하는 경쟁 상태 차단. PowerShell 5.1/CMD 오프라인.
+2. 변경: `diagnose.ps1` 진단 완료시 선택적 `-PassThru` 경로 receipt 및 `-NoOpenReport` 추가. `windows_smoke.ps1`에서 파일 시간 스캔 삭제, 실제 반환한 JSON/HTML 페어 경로/이름/위치/존재 검증. 기존 사용자 실행기 기본 동작과 수리 코드는 보존.
+3. 테스트: 파라미터/스모크/정적 테스트 소스 교차 확인만. 실제 PowerShell5.1, Windows11, Python 전체 suite/ZIP, 실기기 QR·A4·USB·WinRE **미실행**.
+4. 상태: 코드·테스트 소스 반영 대상, 기능 검증 대기. 릴리스 및 공개 다운로드 차단 유지.
+5. 오류: 이전 최신 파일 LastWriteTime 탐색은 동시 실행의 타 결과를 수용할 수 있음. 정확한 경로 receipt로 해결 시도, Windows 환경 실제 경쟁 테스트 필요.
+6. 저장소: hibi89/AX_MART `feature/pc-care-usb`; 작업 전 SHA `3da0c5bb236064328e1c506143a48ce9f20dadea`; 대상 `products/pc-care/tools/diagnose.ps1`, `tests/windows_smoke.ps1`, `tests/test_package.py`.
+7. 배포: Cloudflare https://ax-mart.pages.dev/ 운영 main 수정 없음. 제품 ZIP/판매도 변경하지 않음.
+8. 보안: 고객 실데이터·보고서 업로드 없음. receipt는 테스트 함수로만 반환하며 일반 보고서 로컬 저장 유지. 기존 SHA 복구 가능.
+9. 다음: Windows 11 PowerShell5.1 파서·fixtures·실제 read-only 출력과 USB 한글/공백 경로 테스트→오프라인 QR/PDF→WinRE 격리 승인.
+10. 갱신: 2026-10-30 KST. GitHub 원격 소스 정적 검토 및 새 커밋 반영 후 HEAD 재확인.
