@@ -88,3 +88,23 @@ Windows test entrypoint: tests/windows_smoke.ps1 (default runs parser + event/in
 
 No Windows 10/11, PowerShell 5.1, USB filesystem, OS log permission or actual battery device verification has been performed for this change.
 
+## P1 driver status + recorded-time timeline acceptance (2026-10-30, unexecuted)
+
+Scope: Win32_PnPEntity.ConfigManagerErrorCode, optional whitelisted PNPClass category; recorded System / WindowsUpdateClient events. Official background: https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-pnpentity and https://support.microsoft.com/en-us/windows/hardware/drivers/error-codes-in-device-manager-in-windows.
+
+| Fixture / Windows condition | Required result | Run status |
+|---|---|---|
+| CIM device query fails or access denied | unavailable; never claim zero faults | Not run |
+| No matching nonzero PnP codes | no matching devices, scoped only | Not run |
+| Code 22 intentionally disabled | device_disabled, not active driver failure | Synthetic fixture written, not run |
+| Code 28 / 10 | missing-driver / cannot-start records only; not root cause | Synthetic fixture written, not run |
+| Raw Name/DeviceID/SerialNumber on sample | excluded from JSON and HTML; class category allowlisted | Synthetic fixture written, not run |
+| More than display sample cap | truncated and no false completeness claim | Synthetic fixture written, not run |
+| Equivalent timestamps with UTC / +09:00 | sorted/grouped using UTC | Synthetic fixture written, not run |
+| BugCheck, update failure and shutdown records near in time | recorded-only proximity, never causal claim | Synthetic fixture written, not run |
+| Distant records (>15 minutes from first of window) | separate recording windows | Synthetic fixture written, not run |
+| More than 80 accepted event records | only latest 80, timeline.status truncated | Synthetic fixture written, not run |
+| Invalid timestamps and unknown event kinds | ignored, no raw messages/paths in timeline | Synthetic fixture written, not run |
+
+Windows entrypoint: PowerShell 5.1 `tests/windows_smoke.ps1` for parser+synthetic fixtures. `RUN_SELF_TEST.cmd` additionally executes read-only diagnostics and creates local JSON/HTML. Never run repair functions as part of read-only verification. No current Windows runtime result exists.
+
