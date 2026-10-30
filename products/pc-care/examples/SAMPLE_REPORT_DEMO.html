@@ -1,0 +1,23 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AXMART PC CARE · 예시 진단 보고서</title>
+<style>
+:root{font-family:system-ui,'Malgun Gothic',sans-serif;background:#0b0b13;color:#f5f2ff;color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 85% 0%,#2a163e 0,#0b0b13 46%);min-height:100vh}main{max-width:1100px;margin:auto;padding:38px 28px 70px}
+header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #312b3a;padding:0 0 24px}
+.brand{font-size:22px;font-weight:900;letter-spacing:-.04em}.brand b{color:#c98dff}.brand em{font-style:normal;font-size:12px;letter-spacing:.07em;color:#8bffcb}
+.demo{background:#522c14;border:1px solid #ffb871;color:#ffdbaf;padding:9px 14px;border-radius:100px;font-size:12px;font-weight:800}
+h1{font-size:clamp(34px,5vw,60px);line-height:1.16;letter-spacing:-.05em;margin:46px 0 16px}.grad{background:linear-gradient(90deg,#c28aff,#7bdab5);color:transparent;background-clip:text}
+.subtitle{font-size:15px;max-width:700px;line-height:1.8;color:#b3acbf}.status{display:inline-flex;color:#ffc377;border:1px solid #936345;border-radius:100px;padding:10px 18px;margin:24px 0;font-weight:800;background:#322218}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:10px 0 42px}
+.tile,section{border:1px solid #333044;background:#171621;border-radius:18px;padding:24px}
+.tile .label{color:#aca4b8;font-size:13px}.tile strong{display:block;font-size:35px;letter-spacing:-.04em;margin-top:10px}.tile .hint{font-size:12px;color:#858096;margin-top:5px}
+section{margin-top:18px}h2{font-size:22px;margin:0 0 24px}.issue{border:1px solid #3c3347;background:#211c2a;border-radius:13px;padding:20px 22px;margin:12px 0;border-left:4px solid #f3be69}.issue h3{font-size:17px;margin:8px 0}.issue p{font-size:14px;color:#bfb8cb;line-height:1.7}.issue .advice{color:#a7edc7}.tag{font-size:11px;font-weight:800;letter-spacing:.06em;color:#d7b1ff}
+table{width:100%;border-collapse:collapse;text-align:left}td,th{padding:13px;border-bottom:1px solid #342f3a}th{color:#aaa4b6;font-size:13px}td{font-size:14px}footer{font-size:12px;color:#9993a4;line-height:1.8;margin-top:27px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}main{padding:25px 17px}.tile{padding:17px}.tile strong{font-size:28px}}
+</style></head><body><main><header><div class="brand"><b>AX</b>MART <em>PC CARE</em></div><div class="demo">예시 보고서 · 실제 진단 아님</div></header>
+<h1>내 PC 건강검진 결과<span class="grad">.</span></h1><div class="subtitle">USB에서 실행하면 Windows의 최근 오류와 저장장치 상태를 점검하고 위험 신호를 한눈에 정리합니다.<br>이 페이지의 수치는 제품 설명을 위해 만든 <strong>가상의 예시</strong>입니다.</div>
+<div class="status">● 주의 필요 (예시)</div><div class="grid"><div class="tile"><div class="label">블루스크린 기록</div><strong>1건</strong><div class="hint">최근 30일 · 예시</div></div><div class="tile"><div class="label">비정상 종료 이벤트</div><strong>2건</strong><div class="hint">중복 가능 · 예시</div></div><div class="tile"><div class="label">저장장치 오류 이벤트</div><strong>0건</strong><div class="hint">이벤트 기록 기준 · 예시</div></div><div class="tile"><div class="label">주의사항</div><strong>2건</strong><div class="hint">자동 조치 없음 · 예시</div></div></div>
+<section><h2>검사 결과와 권장 조치</h2><div class="issue"><div class="tag">주의 · BLUE SCREEN</div><h3>최근 블루스크린 기록 발견</h3><p>Windows 시스템 이벤트에서 BugCheck 관련 기록이 감지된 예시입니다. 정전·전원 장애와 구별해 표시합니다.</p><p class="advice">권장: STOP 코드와 드라이버·Windows 업데이트 변경 이력을 점검하세요.</p></div><div class="issue"><div class="tag">주의 · DISK SPACE</div><h3>C: 드라이브 여유 공간 부족</h3><p>저장 공간이 10% 이하로 감소한 상황을 가정한 예시입니다.</p><p class="advice">권장: 파일을 백업하고 불필요한 데이터를 직접 정리하세요. 프로그램이 자동 삭제하지 않습니다.</p></div></section>
+<section><h2>드라이브 여유 공간</h2><table><thead><tr><th>드라이브</th><th>남은 공간</th><th>남은 비율</th></tr></thead><tbody><tr><td>C:</td><td>18 GB</td><td>10%</td></tr><tr><td>D:</td><td>230 GB</td><td>42%</td></tr></tbody></table></section>
+<section><h2>검사 한계</h2><p class="subtitle">이 도구는 하드웨어 물리 고장을 수리하거나 모든 오류를 찾을 수 없습니다. 디스크 수명 및 RAM 이상은 별도 전문 검사로 확인해야 합니다. 실제 진단 보고서가 생성되기 전에는 판매·수리 성공을 보장하지 않습니다.</p></section>
+<footer>AXMART PC CARE v0.1-alpha · PRODUCT UI MOCK DATA ONLY · 서버 전송 없음 · 모든 예시 수치는 실제 PC 상태를 뜻하지 않습니다.</footer>
+</main></body></html>

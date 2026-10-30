@@ -1,0 +1,38 @@
+# AXMART PC CARE v0.1-alpha — USB 진단·복구 보조 도구
+
+**상태: 초기 시험용, 판매 불가. 실제 Windows PC에서 실행 검증 전.**
+
+## 구성
+
+| 파일 | 실행 위치 | 기능 | 시스템 수정 |
+|---|---|---|---|
+| `RUN_HEALTH_CHECK.cmd` | 정상 부팅한 Windows 10/11 | OS·저장장치 여유 공간·일부 저장장치 상태·최근 30일 BugCheck(1001)·예기치 않은 종료(41/6008)·스토리지 이벤트 점검, HTML/JSON 보고서 | 없음 (보고서 파일만 생성) |
+| `RUN_SAFE_REPAIR.cmd` | 정상 부팅한 Windows, 관리자 실행 | 백업/승인 확인 후 DISM RestoreHealth + SFC Scannow | **있음** |
+| `recovery/WINRE_READ_ONLY.cmd` | Windows RE 명령 프롬프트 | 설치 Windows 후보·BitLocker 보호 상태·부트 항목 확인, 로컬 텍스트 로그 | 없음 (보고서 파일만 생성) |
+
+## 사용
+
+1. USB 또는 일반 폴더에 이 전체 폴더를 **압축 해제**한다. 원래 폴더 구조를 유지한다.
+2. Windows가 시작되면 `RUN_HEALTH_CHECK.cmd`를 더블클릭한다. 완료 후 `REPORTS`의 `.html`을 연다. 관리자 권한이 없으면 일부 데이터가 누락될 수 있다.
+3. 보고서에 이상이 나왔다고 바로 수리하지 않는다. 중요 파일은 먼저 별도 드라이브에 백업한다.
+4. Microsoft 시스템 파일 복구가 필요하다고 판단될 때만, 백업한 후 `RUN_SAFE_REPAIR.cmd`를 **관리자 권한으로 실행**한다. 확인 문구를 직접 입력해야 수리한다.
+5. Windows가 부팅되지 않으면 [Microsoft 정식 Windows 복구 미디어](https://support.microsoft.com/windows/create-installation-media-for-windows)로 Windows RE에 진입한다. 명령 프롬프트에서 USB 드라이브 문자를 확인하고 `E:\AXMART_PC_CARE_USB_v0.1\recovery\WINRE_READ_ONLY.cmd`처럼 실행한다. (예시 E:는 실제 USB 문자로 바꾼다.)
+
+> **중요:** 이 ZIP 자체는 부팅용 USB 이미지가 아니다. Microsoft의 Windows 설치/복구 USB를 별도 준비해야 한다. 자체 WinPE 이미지의 번들·상용 재배포는 별도 권리 확인 대상이다.
+
+## 개인 정보
+
+서버 없음, 계정 없음, 외부 AI API 없음, 자동 업로드 없음. 사용자 이름·디스크 시리얼·이벤트 원문은 진단 JSON에 의도적으로 저장하지 않는다. 복구 모드의 `bcdedit` 출력은 환경 식별 정보를 포함할 수 있으므로 **REPORTS 공유 전 검토**한다.
+
+## 한계
+
+- '특이사항 없음'은 모든 부품의 정상·무고장 보증이 아니다. BugCheck 정보는 이벤트 로그가 삭제되었거나 접근 권한이 없으면 확인할 수 없다.
+- BSOD가 계속되면 하드웨어, 온도, 드라이버, SSD, RAM 등의 추가 테스트가 필요하다.
+- EFI/BCD 수정, 파일시스템 쓰기 복구, 파티션 수정, Windows 초기화는 자동화하지 않는다.
+- 정식 판매용 기능·품질/지원 약관·Win10/Win11 실기기 검증·코드 서명은 미완료.
+
+## 개발자 검증
+
+`python3 tests/test_package.py` 실행. 이 테스트는 정적 패키지 구성과 위험 명령 미포함 여부만 점검한다. Windows 실행 성공을 증명하지 않는다.
+
+상품 가칭: **AXMART PC CARE USB**. 예상 소비자가 **₩5,000**, 실제 상품 판매·결제 연결 전.
