@@ -237,8 +237,13 @@ if ($activePnPErrors.Count -gt 0) {
 . (Join-Path $PSScriptRoot 'recorded_timeline.ps1')
 $recordedTimeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updateEvidence -MaxEntries 80 -WindowMinutes 15 -SystemCollectionStatus $eventResult.status -UpdateCollectionStatus $updateResult.status
 $observations['recordedTimeline'] = $recordedTimeline
-if ($recordedTimeline.status -eq 'truncated') {
-    [void]$limits.Add('시간축 시각화는 최신 기록 80건만 표시합니다. 오래된 기록은 누락될 수 있습니다.')
+if ($recordedTimeline.acceptedCount -gt 80) {
+    [void]$limits.Add('시간축은 최근 기록 80개로 제한됩니다. 이전 관측 기록은 목록에서 제외됩니다.')
+}
+if ($recordedTimeline.status -eq 'truncated' -and $recordedTimeline.acceptedCount -le 80) {
+    [void]$limits.Add('일부 원본 이벤트 로그 수집 상한에 도달했습니다. 시간축이 전체 기록을 대표하지 않습니다.')
+} elseif ($recordedTimeline.status -in @('incomplete','unavailable')) {
+    [void]$limits.Add('시간축 원본 로그 일부 또는 전체를 조회하지 못했습니다. 표시되지 않은 기록이 있을 수 있습니다.')
 }
 
 # Optional indication; third-party AV users must not be labeled unprotected.
@@ -392,12 +397,27 @@ if ($pnpRows.Count -eq 0) {
     [void]$pnpRows.Add(('<tr><td colspan="3">{0}</td></tr>' -f (Esc $pnpEmptyLabel)))
 }
 $timelineRows = New-Object 'System.Collections.Generic.List[string]'
+$proximityLabels = @{
+    bugcheck_storage_proximity='BugCheck·저장장치 근접 기록'
+    shutdown_storage_proximity='비정상 종료·저장장치 근접 기록'
+    bugcheck_update_proximity='BugCheck·업데이트 실패 근접 기록'
+}
 foreach ($window in @($recordedTimeline.windows | Select-Object -Last 30)) {
     $codes = @($window.kinds) -join ', '
-    [void]$timelineRows.Add(('<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>' -f (Esc $window.firstRecordedUtc),(Esc $window.evidenceCount),(Esc $codes)))
+    $coLabels = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($code in @($window.coObserved)) {
+        if ($proximityLabels.ContainsKey([string]$code)) {
+            [void]$coLabels.Add([string]$proximityLabels[[string]$code])
+        }
+    }
+    $coText = if ($coLabels.Count -gt 0) { $coLabels -join ', ' } else { '근접 신호 조합 없음' }
+    [void]$timelineRows.Add(('<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td></tr>' -f (Esc $window.firstRecordedUtc),(Esc $window.evidenceCount),(Esc $codes),(Esc $coText)))
 }
 if ($timelineRows.Count -eq 0) {
-    [void]$timelineRows.Add('<tr><td colspan="3">표시할 이벤트 기록 시각이 없습니다. 조회 실패와 구별해 확인하세요.</td></tr>')
+    $timelineEmpty = if ($recordedTimeline.status -eq 'unavailable') { '이벤트 로그 조회 불가(정상 또는 오류 없음이 아님)' }
+                     elseif ($recordedTimeline.status -eq 'incomplete') { '수집 불완전: 표시할 시간축 기록 없음' }
+                     else { '이번 수집 범위에 표시할 기록 없음(정상 보증 아님)' }
+    [void]$timelineRows.Add(('<tr><td colspan="4">{0}</td></tr>' -f (Esc $timelineEmpty)))
 }
 $limRows = New-Object 'System.Collections.Generic.List[string]'
 foreach ($l in $report.limitations) { [void]$limRows.Add('<li>'+(Esc $l)+'</li>') }
@@ -491,7 +511,7 @@ $sharePreviewHtml
 <section><h2>배터리 정보</h2><p class="small">$(Esc $batteryNote). 현재 충전량은 배터리 수명이나 건강도가 아닙니다. 용량 데이터는 기기/Windows 지원 여부에 따라 누락될 수 있습니다.</p><div class="scroll-table"><table><thead><tr><th>현재 충전량</th><th>설계 용량</th><th>완충 용량</th></tr></thead><tbody>$($batteryRows -join [Environment]::NewLine)</tbody></table></div></section>
 <section id="update-records"><h2>Windows 업데이트 설치 기록</h2><p class="small">System WindowsUpdateClient 이벤트 19/20에 한정합니다. 기록 시각은 설치 작업의 기록 시각이며 블루스크린 발생 시각·원인이 아닙니다. $(Esc $updateLabel).</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>관측 상태</th></tr></thead><tbody>$($updateRows -join [Environment]::NewLine)</tbody></table></div></section>
 <section id="driver-codes"><h2>장치 구성 코드</h2><p class="small">Windows PnP Configuration Manager 코드 중 0이 아닌 값만 조회합니다. 코드 22 비활성화는 의도적일 수 있습니다. 장치 고장·드라이버 문제 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>범주</th><th>코드</th><th>관측 해석</th></tr></thead><tbody>$($pnpRows -join [Environment]::NewLine)</tbody></table></div></section>
-<section id="incident-timeline"><h2>사건 기록 시간축</h2><p class="small">최신 이벤트 80건의 기록 시각 기준 15분 내 관측을 묶었습니다. 실제 충돌 시각·사건 횟수·업데이트 인과관계를 보증하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>시작 기록 UTC</th><th>기록 수</th><th>사건 분류</th></tr></thead><tbody>$($timelineRows -join [Environment]::NewLine)</tbody></table></div></section>
+<section id="incident-timeline"><h2>사건 기록 시간축</h2><p class="small">원본 수집 상태: $(Esc $recordedTimeline.status). 이벤트 기록 시각을 기준으로 최대 80건을 15분 단위로 묶었습니다. 근접 신호는 같은 시간 창에 기록됐다는 뜻일 뿐, 실제 충돌 시각·사건 횟수·인과관계를 입증하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>시작 기록 UTC</th><th>기록 수</th><th>사건 분류</th><th>근접 신호(원인 확정 아님)</th></tr></thead><tbody>$($timelineRows -join [Environment]::NewLine)</tbody></table></div></section>
 <section><h2>최근 블루스크린 상세</h2><p class="small">Windows System 로그 중 BugCheck 관련 기록 최대 15건입니다. 표의 시각은 이벤트가 기록된 시간이며 실제 충돌 시각이 아닐 수 있습니다. STOP 코드는 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>STOP 코드(추출값)</th></tr></thead><tbody>$($crashRows -join "`n")</tbody></table></div></section>
 <section id="limitations"><h2>검사 한계</h2><ul>$($limRows -join "`n")</ul><p class="small">Windows $(Esc $report.observations.windows.name) · 검사 기간: $Days 일 · 생성 $(Esc $report.generatedAt)</p></section>
 <footer>AXMART PC CARE v0.1 테스트용 제품. 하드웨어 자체 검사, 메모리 덤프 분석, 악성코드 전수 검사, 수리 성공 보증은 제공하지 않습니다. BitLocker 복구키는 절대 입력하거나 이 도구에 저장하지 마세요.<br>결과는 이 기기에만 저장하며 인터넷으로 전송하지 않습니다. 판매 준비 전 실제 Windows 환경 검증이 필요합니다.</footer></main>$qrInlineScripts</body></html>
