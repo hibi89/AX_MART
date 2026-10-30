@@ -6,6 +6,7 @@ function Get-PcCareIncidentAssessment {
         [object[]]$EventEvidence = @(),
         [object[]]$DiskObservations = @(),
         [object[]]$UpdateEvidence = @(),
+        [object]$PnPSummary = $null,
         [ValidateSet('collected','no matching events','truncated','unavailable')]
         [string]$UpdateCollectionStatus = 'no matching events',
         [ValidateSet('collected','no matching events','truncated','unavailable')]
@@ -19,6 +20,14 @@ function Get-PcCareIncidentAssessment {
     $updateFailures = @($UpdateEvidence | Where-Object { $null -ne $_ -and $_.kind -eq 'update_installation_failure_record' })
     $diskWarnings = @($allDisks | Where-Object { $_.status -in @('Warning','Unhealthy') })
     $unknownDisks = @($allDisks | Where-Object { $_.status -notin @('Healthy','Warning','Unhealthy') })
+    $pnpSamples = @()
+    $pnpStatus = 'unavailable'
+    if ($null -ne $PnPSummary) {
+        $pnpSamples = @($PnPSummary.samples | Where-Object { $null -ne $_ })
+        $pnpStatus = [string]$PnPSummary.status
+    }
+    $pnpActiveIssues = @($pnpSamples | Where-Object { $_.configurationCode -gt 0 -and $_.configurationCode -ne 22 })
+    $pnpDisabled = @($pnpSamples | Where-Object { $_.configurationCode -eq 22 })
     $findings = New-Object 'System.Collections.Generic.List[object]'
     $caveats = New-Object 'System.Collections.Generic.List[string]'
     $incomplete = $EventCollectionStatus -in @('truncated','unavailable')
@@ -33,6 +42,10 @@ function Get-PcCareIncidentAssessment {
     } elseif ($UpdateCollectionStatus -eq 'truncated') {
         $incomplete = $true
         [void]$caveats.Add('Windows 업데이트 설치 기록 조회 상한 도달: 일부 이력이 빠졌을 수 있습니다.')
+    }
+    if ($pnpStatus -in @('truncated','unavailable')) {
+        $incomplete = $true
+        [void]$caveats.Add('PnP 장치 구성 코드는 일부만 수집되었거나 조회할 수 없습니다. 장치가 정상이라는 결론은 내릴 수 없습니다.')
     }
     if ($allDisks.Count -eq 0 -or $unknownDisks.Count -gt 0) {
         $incomplete = $true
@@ -62,6 +75,19 @@ function Get-PcCareIncidentAssessment {
             interpretation = 'BugCheck 관련 공급자의 1001번 기록이 있습니다. 기록 시각은 실제 충돌 시각과 다를 수 있습니다.'
             alternative = '드라이버, 메모리, 저장장치, 전원 등 여러 원인 가능성을 배제하지 못합니다.'
             nextAction = 'STOP 코드와 최근 변경 사항을 함께 검토하고 동일 증상이 재현되는지 확인하세요.'
+            causeConfirmed = $false
+        })
+    }
+    if ($pnpActiveIssues.Count -gt 0) {
+        [void]$findings.Add([ordered]@{
+            code = 'PNP_CONFIG_REVIEW'
+            priority = 'medium'
+            evidenceLevel = 'current_device_state'
+            evidenceType = 'pnp_configuration_code'
+            title = '장치 구성 상태 추가 검토'
+            interpretation = 'Windows 장치 관리자에서 0이 아닌 장치 구성 코드가 관측되었습니다. 시각 정보가 없는 현재 상태입니다.'
+            alternative = '의도적 사용 중지, 미설치·손상된 드라이버, 장치 구성 문제 등 서로 다른 가능성이 있습니다.'
+            nextAction = '장치 관리자에서 실제 코드와 사용자 변경 이력을 직접 확인하세요. 무인 드라이버 업데이트·제거는 수행하지 않습니다.'
             causeConfirmed = $false
         })
     }
@@ -112,6 +138,8 @@ function Get-PcCareIncidentAssessment {
             storageSignals = [int]$storageSignals.Count
             storageWarnings = [int]$diskWarnings.Count
             updateFailureRecords = [int]$updateFailures.Count
+            pnpIssueSamples = [int]$pnpActiveIssues.Count
+            pnpDisabledSamples = [int]$pnpDisabled.Count
         }
         findings = @($findings.ToArray())
         caveats = @($caveats.ToArray())
