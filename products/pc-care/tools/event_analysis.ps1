@@ -88,3 +88,35 @@ function Group-PcCareShutdownSignals {
         }
     }
 }
+
+# Query wrapper is injectable so access-denied/empty/cap paths can be fixture-tested.
+function Invoke-PcCareEventQuery {
+    [CmdletBinding()]
+    param([scriptblock]$Query, [int]$MaxEvents = 1500)
+    if ($MaxEvents -lt 1) { throw 'MaxEvents must be positive.' }
+    $items = @()
+    $status = 'unavailable'
+    try {
+        $items = @(& $Query | Where-Object { $null -ne $_ })
+        if ($items.Count -ge $MaxEvents) {
+            $status = 'truncated'
+        } elseif ($items.Count -eq 0) {
+            $status = 'no matching events'
+        } else {
+            $status = 'collected'
+        }
+    } catch {
+        if ($_.FullyQualifiedErrorId -match 'NoMatchingEventsFound' -or $_.Exception.Message -match 'No events were found|조건에 맞는 이벤트') {
+            $status = 'no matching events'
+        } else {
+            $status = 'unavailable'
+        }
+        $items = @()
+    }
+    [pscustomobject]@{
+        events = @($items)
+        status = $status
+        returnedCount = [int]$items.Count
+        maxEvents = $MaxEvents
+    }
+}
