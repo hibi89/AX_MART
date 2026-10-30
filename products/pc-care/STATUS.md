@@ -393,3 +393,11 @@
 - `tools/diagnose.ps1`의 결과 JSON/오프라인 HTML에 거부 건수 표시, 정규화 문제를 로그 조회 권한 실패로 오인하지 않도록 제한 문구 분리. `tests/driver_timeline.tests.ps1` 정상/누락/위장 timeBasis 회귀, `tests/windows_smoke.ps1` saved-report 계약, `tests/test_package.py` 정적 계약 갱신.
 - GitHub 실제 소스 재조회 정적 **25/25 PASS**, 근거 `tests/evidence/timeline_rejected_evidence_static_qa_20261031.json`. **PowerShell5.1 실제 실행·Windows/USB/Node·Python 전체/QR/A4·WinRE/내부 ZIP·신규 CI 미실행**. 기능 검증 전 출시 금지.
 - 작업 전 HEAD `63ca3c8513d921bfa990dbdec813118f2372e9b2`; 기존 `main`/Cloudflare 및 사용자 원본·OS·수리/복구·공개 배포 무변경. 다음: Windows 전체 `RUN_RELEASE_QA.cmd`의 PS5.1 native fixture→명시적 실제 read-only 보고서 저장→H08/QR/A4/USB 순서.
+
+## 2026-10-31 KST — P0 네이티브 QA 영수증 및 Windows Update 공급자 검증
+- 개발용 `RUN_RELEASE_QA.cmd` 1회 실행 시 `QA_RESULTS/pc-care-qa-*.json`을 로컬에 별도 생성. `tools/preflight.py`는 단계명 허용 목록, 상태·테스트 수·미검증 범위·UTC 시각만 저장하고 원시 로그/사용자 경로/장치 정보·비밀은 직렬화하지 않음. 생성은 exclusive/no-overwrite, 심볼릭 링크 폴더 거부, 실패 시 완료 판정 금지. `.gitignore`와 내부 ZIP allowlist 분리 유지.
+- `tools/telemetry_analysis.ps1`의 Windows Update ID 19/20 provider 검사에서 이름 끝만 비슷한 위장 공급자를 허용하던 문제 수정: `Microsoft-Windows-WindowsUpdateClient`만 채택. 정상 이벤트 ID·dedup 유지하고 비정상 공급자 PS fixture 추가.
+- `tests/test_preflight.py`에 QA 영수증 보안·중복·상태 불일치·심볼릭링크 fixture, `tests/test_package.py` 계약 추가. 수동 디스패치 `.github/workflows/pc-care-windows-synthetic.yml`의 Node 명령에 최신 `test_history_evidence_integration.cjs` 통합.
+- 원격 GitHub 소스/연결 정적 계약 **26/26 PASS**. 동일 영수증 helper 수동 복사 격리 로컬 Python 3.13 스모크 **6/6 PASS**(GitHub 전체 native 테스트 아님). 증거 `tests/evidence/native_qa_receipt_update_provider_static_20261031.json`.
+- 전 개발 SHA `f604d2f4902dec82e3e58a0166f2dc94faa0e5ce`. **Windows PS5.1, 전체 Python/Node, 내부 ZIP, 실기기 진단/USB·QR/A4·WinRE·최신 CI 미실행**. 운영 main/Cloudflare/고객 파일·권한·복구·외부 데이터 전송 무변경.
+- 다음: Windows 전체 checkout `RUN_RELEASE_QA.cmd` 1회 실행하여 로컬 `QA_RESULTS`의 영수증 확인 → 실제 read-only 보고서 저장·H08→USB 한글/QR/A4→WinRE 안전 격리 검증. 영수증 PASS 자체가 제품 출시 승인은 아님.
