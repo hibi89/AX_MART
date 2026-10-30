@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "verifiedAtKST": "2026-10-31",
+  "project": "AXMART PC CARE",
+  "repo": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "sourceCommit": "728e5d96b36cc29e29c0057c0af758bc3da32dda",
+  "scope": "Native Python exact-Git-blob test of release.py/test_release.py/preflight.py/test_preflight.py plus remote allowlist and BOM",
+  "nativeRuntime": {
+    "language": "Python",
+    "version": "3.13.5",
+    "platform": "Linux",
+    "command": "cd /mnt/data/axmart_fullqa && python -m unittest discover -s tests -p 'test_*.py' -v",
+    "testCases": 16,
+    "passed": 16,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "packageReleaseTests": 12,
+    "developerPreflightTests": 4,
+    "details": [
+      "Deterministic internal ZIP binary and sha256",
+      "Internal ZIP manifest, exact member names and exclusion of REPORTS customer data",
+      "Reject missing PS5.1 UTF-8 BOM and missing package files",
+      "Reject oversized decompression, corrupted sidecar, oversized manifest and symlinked parent",
+      "Require sidecar on external verify CLI",
+      "Fail-closed preflight tests for incomplete source and failed subprocess"
+    ]
+  },
+  "verifiedGitBlobs": {
+    "products/pc-care/tools/release.py": "0c6de6cebc61ce82565e2d33bd28f6e3e4f68976",
+    "products/pc-care/tests/test_release.py": "1937eadbb52c6098800943ffb2401875c552a911",
+    "products/pc-care/tools/preflight.py": "278c7ca86d7057f44fceee4170a759099c6bf532",
+    "products/pc-care/tests/test_preflight.py": "b22cf0775a17e5d0e7d91532176953a771680d"
+  },
+  "realRepoSourceInventory": {
+    "sourceCommit": "728e5d96b36cc29e29c0057c0af758bc3da32dda",
+    "packagerAllowlistEntries": 37,
+    "missing": 0,
+    "nonBlob": 0,
+    "over5mb": 0,
+    "empty": 0,
+    "totalSourceBlobBytes": 235361,
+    "allPS51UTF8BOM": {
+      "tested": 20,
+      "passed": 20,
+      "failed": 0
+    },
+    "gitTreeTruncated": false
+  },
+  "limitations": [
+    "Actual full real-product internal ZIP not assembled (private repository not mountable via git clone; synthetic package fixtures used)",
+    "Native Windows PowerShell 5.1 / WinRE / USB / browser / QR / PDF unverified",
+    "Current GitHub Actions not dispatched due runner/permission limitations",
+    "No production commit or public release"
+  ],
+  "impact": "Removes unverified status of native Python release/preflight unit tests and confirms on-branch package source existence/encoding; DOES NOT prove actual Windows product functionality."
+}

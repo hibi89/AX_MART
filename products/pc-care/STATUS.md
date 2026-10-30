@@ -320,3 +320,9 @@
 - 기존 대문자 정규식은 임의 식별값 `USER_SECRET_1234`도 경고로 출력할 수 있었다. 비교·PDF 인쇄 각각 정확한 8개 `Add-Issue` 코드만 허용, 보고서의 알 수 없는 코드·누락 항목은 ‘비교 불가’로 처리. 실제 경고의 ‘없음’ 오판과 개인정보 노출을 방지.
 - 로컬 Native Node22 45 PASS, V8 54 PASS, collector/JS/print 정적 계약 8 PASS. `tests/test_history_issue_allowlist.cjs` 신규 8개, `tests/test_history_print.cjs` 기대값 정정. CI·preflight·`tests/test_package.py` 등록, QA `tests/evidence/h08_issue_allowlist_qa_20261031.json`.
 - 기존 기능·Release B 복사 차단 유지. 전체 Python/ZIP·Windows 11/Edge·QR/PDF·WinRE/CI/판매 공개 **미검증/미승인**. 이전 SHA `6db12369123a2902e55aad84809ee6ab5dc0c94d`.
+
+## 2026-10-31 KST — AXMART PC CARE native Python packaging validation
+- GitHub feature baseline 728e5d96b36cc29e29c0057c0af758bc3da32dda. Four Git-blob-identical sources: tools/release.py, tests/test_release.py, tools/preflight.py, tests/test_preflight.py. Executed Python 3.13.5 unittest discover natively on Linux: **16 PASS, 0 FAIL, 0 SKIP** (12 release, 4 preflight).
+- The actual remote repository tree has all 37 package allowlist members (none missing, empty or above 5MB; total 235361 bytes). All 20 PowerShell files in the allowlist have valid UTF-8 BOM.
+- Synthetic source fixture used to create and verify ZIP, not a full original production ZIP build. Full repo Python/Node, Windows 11/PS5.1, Edge file://, USB, QR, A4, WinRE, CI and Production remain **UNVERIFIED**. No customer files or repair commands accessed.
+- Evidence: products/pc-care/tests/evidence/native_package_preflight_qa_20261031.json. No changes to public main/Cloudflare; WinRE backup copying remains blocked.

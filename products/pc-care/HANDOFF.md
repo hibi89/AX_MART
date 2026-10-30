@@ -457,3 +457,21 @@
 8. 원본/복구·안전: 사용자 JSON/로그 원본 불변, BitLocker/WinRE/시스템 변경 없음, Git 이전 SHA 복구. Release B 물리 분리 불확실성으로 복사 코드 차단·미배포 유지.
 9. 다음 우선순위/완료 기준: 전체 Python/ZIP 실제 생성→Windows PS5.1 합성 QA→Edge USB 한글 경로/A4 PDF/QR 실스캔→WinRE VM 물리 디스크 분리 검증→사용자 승인 전 출시 금지.
 10. 갱신 일시/범위: 2026-10-31 KST, 소스 SHA/Node/V8 정적 계약 확인, CI/Windows/Production 미검증. GitHub 최종 SHA는 커밋 푸시 후 검증.
+
+## 2026-10-31 KST — AXMART PC CARE native Python packaging validation
+- GitHub feature baseline 728e5d96b36cc29e29c0057c0af758bc3da32dda. Four Git-blob-identical sources: tools/release.py, tests/test_release.py, tools/preflight.py, tests/test_preflight.py. Executed Python 3.13.5 unittest discover natively on Linux: **16 PASS, 0 FAIL, 0 SKIP** (12 release, 4 preflight).
+- The actual remote repository tree has all 37 package allowlist members (none missing, empty or above 5MB; total 235361 bytes). All 20 PowerShell files in the allowlist have valid UTF-8 BOM.
+- Synthetic source fixture used to create and verify ZIP, not a full original production ZIP build. Full repo Python/Node, Windows 11/PS5.1, Edge file://, USB, QR, A4, WinRE, CI and Production remain **UNVERIFIED**. No customer files or repair commands accessed.
+- Evidence: products/pc-care/tests/evidence/native_package_preflight_qa_20261031.json. No changes to public main/Cloudflare; WinRE backup copying remains blocked.
+
+## [2026-10-31 KST] Native packaging QA handoff (10 requirements)
+1. Goal/technology: Validate Release A internal-only ZIP packaging with actual Python 3.13.5 rather than synthetic JS simulation.
+2. Done/why: Retrieved four source files from GitHub branch at exact Git blob SHA, rebuilt sources byte for byte, ran native unit suites. Product code left intact.
+3. Tests: python -m unittest discover -s tests -p 'test_*.py' -v => 16 PASS, 0 FAIL, 0 SKIP. GitHub tree 37/37 ZIP allowlist present, 20/20 PowerShell UTF-8 BOM.
+4. Status: Unit-test verified; full actual-source ZIP and native Windows workflow remain pending.
+5. Failure/alternative: git clone blocked by DNS; used GitHub connector per-file retrieval, Git blob verification, local native Python. Do not rerun old failed Actions 41034866482 without environment fix.
+6. Repo/branch/SHA: hibi89/AX_MART, feature/pc-care-usb, source benchmark 728e5d96b36cc29e29c0057c0af758bc3da32dda. Evidence at products/pc-care/tests/evidence/native_package_preflight_qa_20261031.json.
+7. Production/runtime: https://ax-mart.pages.dev/ main fbb32362455378b85bcdd0b5037d1f338055fb71 unchanged. Linux Python 3.13.5 unit QA only.
+8. Preservation: No user REPORTS, system settings, BitLocker, repair/WinRE, secrets, public deployment or billing modified; previous feature commit is rollback source.
+9. Next: Actual full repository Python/Node and ZIP build/verify in available PC/runner, then Windows PS5.1 + USB/Edge/QR/A4 validation; Release B physical disk identity and WinRE VM needed before any real copy or release.
+10. Checked at 2026-10-31 KST: 16 native unit tests + source inventory/BOM checks verified, all real Windows/production checks unverified; confirm updated SHA after push.

@@ -137,3 +137,9 @@
 - `feature/pc-care-usb` 기준 SHA `6db12369123a2902e55aad84809ee6ab5dc0c94d`에서 코드형식만 대문자인 사용자 입력값을 경고 코드로 노출할 위험 수정. `ui/history_compare.js`와 `ui/history_print.js`는 실제 diagnose.ps1의 8개 경고코드만 인식하며, 나머지 JSON 경고는 **비교 불가** 처리(잘못된 '없음' 판단 방지). 기존 화면·오프라인 A4 출력 기능 보존.
 - Git Blob 일치 실제 Linux Node v22.16.0 H08 **45/45 PASS**, GitHub 원본 V8 합성 인쇄 포함 **54/54 PASS**, 진단기·JS·인쇄·CI whitelist 계약 8/8 PASS. Windows/WinRE·Python 전체·실제 ZIP·CI·Production 미검증. CI에 새 8건 테스트 등록.
 - Release B 원본/대상 물리 디스크 분리 증명 부재로 WinRE 실제 복사는 계속 차단. GitHub main `fbb32362455378b85bcdd0b5037d1f338055fb71`·Cloudflare 변경 금지. QA `products/pc-care/tests/evidence/h08_issue_allowlist_qa_20261031.json`.
+
+## 2026-10-31 KST — AXMART PC CARE native Python packaging validation
+- GitHub feature baseline 728e5d96b36cc29e29c0057c0af758bc3da32dda. Four Git-blob-identical sources: tools/release.py, tests/test_release.py, tools/preflight.py, tests/test_preflight.py. Executed Python 3.13.5 unittest discover natively on Linux: **16 PASS, 0 FAIL, 0 SKIP** (12 release, 4 preflight).
+- The actual remote repository tree has all 37 package allowlist members (none missing, empty or above 5MB; total 235361 bytes). All 20 PowerShell files in the allowlist have valid UTF-8 BOM.
+- Synthetic source fixture used to create and verify ZIP, not a full original production ZIP build. Full repo Python/Node, Windows 11/PS5.1, Edge file://, USB, QR, A4, WinRE, CI and Production remain **UNVERIFIED**. No customer files or repair commands accessed.
+- Evidence: products/pc-care/tests/evidence/native_package_preflight_qa_20261031.json. No changes to public main/Cloudflare; WinRE backup copying remains blocked.
