@@ -36,3 +36,11 @@
 `python3 tests/test_package.py` 실행. 이 테스트는 정적 패키지 구성과 위험 명령 미포함 여부만 점검한다. Windows 실행 성공을 증명하지 않는다.
 
 상품 가칭: **AXMART PC CARE USB**. 예상 소비자가 **₩5,000**, 실제 상품 판매·결제 연결 전.
+
+## 내부 검증용 패키지 (배포 금지)
+- `python3 tests/test_package.py` — 제품의 정적 안전성/구조 검사. 실제 Windows 작동을 증명하지 않음.
+- `python3 tests/test_release.py` — 내부 ZIP 생성 알고리즘/해시/기밀 보고서 미포함 테스트 (6개).
+- `python3 tools/release.py --internal-testing` — `dist-internal/`에 **INTERNAL_TEST_ONLY** ZIP 및 SHA256 파일 생성. 외부 업로드·배포 없음.
+- `python3 tools/release.py --verify dist-internal/AXMART_PC_CARE_USB_v0.1-alpha_INTERNAL_TEST_ONLY.zip` — 허용 파일 목록·내부 SHA256·ZIP 무결성 재확인.
+- ZIP은 내부 개발·Windows 검증용으로만 사용한다. 사용자 파일/이벤트 로그는 패키지에 포함하지 않는다.
+- 실제 Windows 검사: 관리자 아닌 PowerShell 5.1에서 `powershell.exe -NoProfile -File tests/windows_smoke.ps1` (문법만), `-RunReadOnly` 추가 시 진단 실행. 디스크 수리는 실행하지 않는다.

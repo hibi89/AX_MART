@@ -38,3 +38,9 @@
 - 범위: `tools/diagnose.ps1` HTML 장치 건강 상태, 드라이버 지원 시 마모율/온도, BugCheck 시각·STOP 코드 표시. 미지원/로그 실패를 정상으로 보이지 않게 함. 보고서 입력은 HTML encoding 유지.
 - 파일 변경 전 SHA: `9177ffd8822eb4ac64f3bb9702a7757529c23ab9`; `tests/test_package.py` 계약 정적 검사가 추가됨.
 - 코드만 보강, Windows/WinRE 실제 실행·품질은 미검증. 웹 main/Cloudflare 무변경.
+
+## 2026-10-30 KST — 시험 ZIP 파이프라인
+- 목적: 외부로 사용자 보고서가 혼입되는 배포 사고 방지. 구현: `tools/release.py` ALLOWLIST 9개, manifest+sidecar SHA256, 결정적 zip, 비정상 BOM/심볼릭링크/대용량 거부.
+- 검증: `tests/test_release.py` 임시 fixture 기반 6/6 PASS (Linux Python). Windows 실동작·실제품 ZIP·WinRE 검증은 미확인. 판매/공개는 여전히 금지.
+- 변경 전 GitHub 소스 기준 `5a0eb2d904c7877a149f04c3f99084ee2a1ed0e3`, `feature/pc-care-usb`. 기능·버전은 v0.1-alpha 유지, Cloudflare main 미변경.
+- 다음 작업: 실제 Windows PS5.1 진단 읽기/보고서·WinRE 테스트와 별도의 복구 VM 시나리오 통과. 검증된 SHA256 산출물만 무료 베타 후보.

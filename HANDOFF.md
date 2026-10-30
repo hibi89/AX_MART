@@ -45,3 +45,8 @@
 - GitHub: `hibi89/AX_MART` / `feature/pc-care-usb`. 변경 전 `4d48eb5f3078e1442410205923f89fc5b4a77207` (복구 기준). `main`/Cloudflare 사이트는 변경하지 않음.
 - 제품: PowerShell 5.1 BOM 보정, 로그 조회 실패·절단 수 표시 개선, 디스크 상태 불확실 시 승인형 수리 차단, WinRE 로그 안전 개선, Windows 실행 검증 스크립트·매트릭스 추가.
 - 로컬 Windows/VM/WinRE 및 실제 Production 재검증은 미완료. 판매/다운로드/자동 복구 해제 조건 불충족. 세부 10항: `products/pc-care/HANDOFF.md`.
+
+## 2026-10-30 KST — USB ZIP 개발 최신화
+- `hibi89/AX_MART` / `feature/pc-care-usb`, 이전 SHA `5a0eb2d904c7877a149f04c3f99084ee2a1ed0e3`, 소스 `products/pc-care/`.
+- 내부 시험 패키징 도구 `tools/release.py` 및 `tests/test_release.py` 추가. REPORTS 자동 제외 및 무결성 검사, Linux fixture 6/6 PASS.
+- Windows 10/11/WinRE·수리 실증 미검증, Cloudflare main과 배포 파일 미수정. 다음은 Windows 실기기/VM 확인 후 출시에 대한 별도 판단.

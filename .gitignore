@@ -5,3 +5,8 @@ node_modules/
 .env.*
 !.env.example
 .DS_Store
+
+# PC CARE private diagnostic reports and test packages (never commit user reports)
+products/pc-care/REPORTS/*
+!products/pc-care/REPORTS/README.txt
+products/pc-care/dist-internal/

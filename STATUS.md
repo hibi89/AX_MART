@@ -45,3 +45,7 @@
 ## 2026-10-30 15:35 KST — PC CARE USB 작업 브랜치
 - USB 소스 작업: `feature/pc-care-usb`; 기존 `main` Cloudflare 사이트 수정 없음. PowerShell BOM/이벤트 표시/복구 안전 차단/WinRE 로그 및 테스트 스크립트 보강.
 - 제품 세부 근거: `products/pc-care/STATUS.md`, `products/pc-care/HANDOFF.md`; 실제 Windows 검증 전 공개 다운로드·유료 판매 계속 금지.
+
+## 2026-10-30 KST — 제품 브랜치 시험 ZIP 작업
+- `feature/pc-care-usb`: 내부 시험 ZIP 제작·검증 파이프라인 및 실제 보고서 세부항목 개선. 제품의 GitHub 소스만 변경.
+- `main` Cloudflare 무료 다운로드/유료 결제는 계속 비활성. Windows 실기기 검증 전 상품 공개 금지.
