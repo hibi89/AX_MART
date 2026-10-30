@@ -70,6 +70,32 @@ def classify_qa_status(stages: list[dict]) -> str:
     return 'pass'
 
 
+def classify_full_qa_stages(stages: list[dict]) -> str:
+    """All four independent QA gates must be reported exactly once."""
+    if len(stages) != 4:
+        return 'fail'
+    slots = set()
+    for stage in stages:
+        name = stage.get('name')
+        if name == 'python-tests':
+            slot = 'python'
+        elif name == 'node-tests' or (
+            isinstance(name, str) and
+            name in {'node-syntax:' + script for script in JS_SCRIPTS}
+        ):
+            slot = 'node'
+        elif name in ('internal-zip', 'internal-zip-build', 'internal-zip-verify'):
+            slot = 'zip'
+        elif name == 'windows-powershell-51-synthetic':
+            slot = 'windows'
+        else:
+            return 'fail'
+        if slot in slots:
+            return 'fail'
+        slots.add(slot)
+    return classify_qa_status(stages) if slots == {'python', 'node', 'zip', 'windows'} else 'fail'
+
+
 def run_qa(root: Path, *, windows_synthetic: bool | None = None) -> dict:
     """Run independent QA stages concurrently; never regard a skip as a pass."""
     root = root.resolve()
@@ -143,7 +169,7 @@ def run_qa(root: Path, *, windows_synthetic: bool | None = None) -> dict:
     else:
         stages.append(dict(name='windows-powershell-51-synthetic',status='not-run',
                            output='Non-Windows host: Windows test not executed'))
-    status = classify_qa_status(stages)
+    status = classify_full_qa_stages(stages)
     return dict(status=status,stages=stages,not_verified=NOT_VERIFIED,
                 warning='PASS covers synthetic/source QA only, NOT actual Windows/WinRE operation')
 
@@ -152,7 +178,7 @@ def safe_qa_receipt(result: dict) -> dict:
     """Shareable synthetic-QA receipt: no logs, paths, commands, or user data."""
     allowed = {'pass', 'fail', 'blocked', 'partial', 'not-run'}
     status = result.get('status')
-    if status not in allowed or status != classify_qa_status(result.get('stages', [])):
+    if status not in allowed or status != classify_full_qa_stages(result.get('stages', [])):
         status = 'fail'
     stages = []
     expected_names = {'python-tests', 'node-tests', 'internal-zip', 'internal-zip-build',
