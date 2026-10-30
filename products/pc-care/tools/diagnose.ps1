@@ -170,6 +170,9 @@ if ($null -ne $defender) {
 } else { $observations['defender'] = @{ available=$false; antivirusEnabled=$null; realtime=$null } }
 
 $observations['collectionStatus'] = $collectionStatus
+# Local evidence rules do not make a hardware diagnosis or confirm causality.
+. (Join-Path $PSScriptRoot 'incident_analysis.ps1')
+$incidentAssessment = Get-PcCareIncidentAssessment -EventEvidence $evidence -DiskObservations @($diskData.ToArray()) -EventCollectionStatus $eventResult.status
 
 $assessment = if (@($issues | Where-Object {$_.severity -eq 'high'}).Count -gt 0) { '위험 신호' }
               elseif (@($issues | Where-Object {$_.severity -eq 'medium'}).Count -gt 0) { '주의 필요' }
@@ -179,6 +182,7 @@ $report = [ordered]@{
     product='AXMART PC CARE'; version='0.1.0-alpha'; mode='read-only'
     generatedAt=(Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz')
     assessment=$assessment; observations=$observations
+    analysis=$incidentAssessment
     issues=@($issues.ToArray()); limitations=@($limits.ToArray())
     privacy='보고서에는 사용자 이름, 디스크 일련번호, 이벤트 원문을 의도적으로 수집하지 않습니다. 로컬에만 저장됩니다.'
     caution='진단은 제한적인 신호 검사이며 하드웨어 정상 보증 또는 자동 수리 성공 보증이 아닙니다.'
@@ -191,6 +195,16 @@ foreach ($i in $report.issues) {
     [void]$cards.Add(('<article class="issue {0}"><div class="tag">{1}</div><h3>{2}</h3><p>{3}</p><p class="advice">권장: {4}</p></article>' -f $tone, (Esc $i.severity), (Esc $i.title), (Esc $i.explanation), (Esc $i.recommendation)))
 }
 if ($cards.Count -eq 0) { [void]$cards.Add('<article class="issue"><h3>이번 검사 범위에서 명확한 위험 이벤트를 찾지 못했습니다.</h3><p>모든 하드웨어가 정상임을 보장하는 결과는 아닙니다.</p></article>') }
+$analysisCards = New-Object 'System.Collections.Generic.List[string]'
+foreach ($finding in $report.analysis.findings) {
+    [void]$analysisCards.Add(('<article class="issue"><div class="tag">{0}</div><h3>{1}</h3><p>{2}</p><p>다른 가능성: {3}</p><p class="advice">다음 단계: {4}</p></article>' -f (Esc $finding.evidenceLevel),(Esc $finding.title),(Esc $finding.interpretation),(Esc $finding.alternative),(Esc $finding.nextAction)))
+}
+if ($analysisCards.Count -eq 0) {
+    [void]$analysisCards.Add('<p>현재 증거에서 특정 원인을 결론 내릴 수 없습니다. 정보 부재를 정상으로 해석하지 마세요.</p>')
+}
+foreach ($caveat in $report.analysis.caveats) {
+    [void]$analysisCards.Add(('<p class="small">제한사항: {0}</p>' -f (Esc $caveat)))
+}
 $rows = New-Object 'System.Collections.Generic.List[string]'
 foreach ($v in $report.observations.volumes) {
     [void]$rows.Add(('<tr><td>{0}</td><td>{1}GB</td><td>{2}%</td></tr>' -f (Esc $v.drive), (Esc $v.remainingGB), (Esc $v.freePercent)))
@@ -240,6 +254,7 @@ footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-heig
 <div class="status">$(Esc $assessment)</div>
 <div class="grid"><div class="tile"><div class="small">블루스크린 관련 기록</div><strong>$(Esc $bugCountLabel)</strong></div><div class="tile"><div class="small">비정상 종료 이벤트</div><strong>$(Esc $shutdownCountLabel)</strong></div><div class="tile"><div class="small">저장장치 오류 이벤트</div><strong>$(Esc $storageCountLabel)</strong></div><div class="tile"><div class="small">발견한 주요 주의사항</div><strong>$($issues.Count)건</strong></div></div>
 <section><h2>진단 결과와 권장 조치</h2>$($cards -join "`n")</section>
+<section><h2>원인 후보와 확인 한계</h2><p class="small">자동 규칙 해설이며 고장 원인 확정, 부품 교체 판정 또는 수리 보증이 아닙니다.</p>$($analysisCards -join "`n")</section>
 <section><h2>드라이브 공간</h2><div class="scroll-table"><table><thead><tr><th>드라이브</th><th>여유 공간</th><th>여유 비율</th></tr></thead><tbody>$($rows -join "`n")</tbody></table></div></section>
 <section><h2>물리 저장장치 상태</h2><p class="small">Windows에서 제공한 상태 신호이며 실제 SSD/HDD 수명 또는 정상 작동을 보증하지 않습니다. 마모율/온도는 드라이버 지원 기기에서만 표시됩니다.</p><div class="scroll-table"><table><thead><tr><th>장치</th><th>상태 신호</th><th>마모율</th><th>온도</th></tr></thead><tbody>$($diskRows -join "`n")</tbody></table></div></section>
 <section><h2>최근 블루스크린 상세</h2><p class="small">Windows System 로그 중 BugCheck 관련 기록 최대 15건입니다. 표의 시각은 이벤트가 기록된 시간이며 실제 충돌 시각이 아닐 수 있습니다. STOP 코드는 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>STOP 코드(추출값)</th></tr></thead><tbody>$($crashRows -join "`n")</tbody></table></div></section>
