@@ -60,6 +60,57 @@ class PreflightTests(unittest.TestCase):
         with patch.object(preflight,'run_qa',return_value=result):
             self.assertEqual(preflight.main(['--root',str(MODULE_PATH.parent)]),2)
 
+    def test_sanitized_qa_receipt_contains_only_known_metadata(self):
+        from json import loads
+        raw={'status':'partial','stages':[
+            {'name':'python-tests','status':'pass','tests':77,
+             'output':'PRIVATE USER\\\\HOST event log and C:\\\\Users\\\\Private'},
+            {'name':'private-stolen-username','status':'pass','tests':True,
+             'output':'PRIVATE-SECRET'},
+            {'name':'windows-powershell-51-synthetic','status':'not-run',
+             'output':'PRIVATE-SECRET'}
+        ],'warning':'PRIVATE-SECRET'}
+        with TemporaryDirectory() as tmp:
+            dest=Path(tmp)/'QA_RESULTS'
+            first=preflight.write_qa_receipt(raw,dest)
+            second=preflight.write_qa_receipt(raw,dest)
+            self.assertNotEqual(first,second)
+            self.assertTrue(first.is_file())
+            self.assertTrue(second.is_file())
+            text=first.read_text(encoding='utf-8')
+            self.assertNotIn('PRIVATE',text)
+            self.assertNotIn('C:\\\\Users',text)
+            self.assertNotIn('output',text)
+            self.assertNotIn('warning',text)
+            self.assertEqual(loads(text)['status'],'partial')
+            self.assertEqual(loads(text)['stages'][0]['tests'],77)
+            self.assertEqual(loads(text)['stages'][1]['name'],'unknown')
+            self.assertNotIn('tests',loads(text)['stages'][1])
+            self.assertEqual(loads(text)['scope'],'synthetic_only_no_live_diagnosis')
+
+    def test_receipt_fails_closed_on_status_mismatch_and_unsupported_states(self):
+        result={'status':'pass','stages':[
+            {'name':'node-tests','status':'fail','tests':1},
+            {'name':'other:private','status':'unrecognized'}
+        ]}
+        safe=preflight.safe_qa_receipt(result)
+        self.assertEqual(safe['status'],'fail')
+        self.assertEqual(safe['stages'][1],{'name':'unknown','status':'fail'})
+        self.assertIn('WinRE',str(safe['unverified']))
+
+    def test_receipt_refuses_symlink_directory(self):
+        with TemporaryDirectory() as tmp:
+            source=Path(tmp)/'real'
+            source.mkdir()
+            link=Path(tmp)/'alias'
+            try:
+                link.symlink_to(source,target_is_directory=True)
+            except (OSError,NotImplementedError):
+                self.skipTest('Symlink creation unavailable')
+            with self.assertRaisesRegex(ValueError,'symlink'):
+                preflight.write_qa_receipt({'status':'pass','stages':[{'name':'node-tests','status':'pass'}]},link)
+            self.assertEqual(list(source.iterdir()),[])
+
     def test_command_reports_failure_and_bounds_output(self):
         with TemporaryDirectory() as tmp:
             cmd=preflight.command('negative',[sys.executable,'-c',
