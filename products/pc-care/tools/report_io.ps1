@@ -2,6 +2,15 @@
 # Never delete pre-existing files or write to Windows system configuration.
 # Reject known cloud-sync folders, network paths and directory reparse ancestors.
 # This cannot detect every third-party sync client; only private local directories are candidates.
+
+# Mapping a network share to X: must not bypass the UNC and cloud-sync checks.
+function Test-PcCareLocalDriveType {
+    [CmdletBinding()]
+    param([System.IO.DriveType]$DriveType)
+    return ($DriveType -eq [System.IO.DriveType]::Fixed -or
+            $DriveType -eq [System.IO.DriveType]::Removable)
+}
+
 function Test-PcCarePrivateReportFolder {
     [CmdletBinding()]
     param([string]$Folder)
@@ -9,6 +18,10 @@ function Test-PcCarePrivateReportFolder {
     try {
         $full = [System.IO.Path]::GetFullPath($Folder).TrimEnd([char[]]@('\','/'))
         if ($full.StartsWith('\\', [System.StringComparison]::Ordinal)) { return $false }
+        $driveRoot = [System.IO.Path]::GetPathRoot($full)
+        if ([string]::IsNullOrWhiteSpace($driveRoot)) { return $false }
+        $drive = [System.IO.DriveInfo]::new($driveRoot)
+        if (-not (Test-PcCareLocalDriveType -DriveType $drive.DriveType)) { return $false }
         # Standard Windows cloud-sync folder names, including OneDrive - Organization.
         if ($full -match '(?i)(?:^|[\\/])(?:OneDrive(?: - [^\\/]+)?|Dropbox|Google Drive|GoogleDrive|iCloudDrive|Box Sync|BoxDrive)(?:[\\/]|$)') { return $false }
         foreach ($name in @('OneDrive','OneDriveCommercial','OneDriveConsumer','Dropbox','GoogleDrive','iCloudDrive')) {

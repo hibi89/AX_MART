@@ -346,3 +346,9 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 ### 2026-10-31 KST — CUBE 로컬 보고서 정책 QA 코드 순서 수정
 - 직전 `6ae76d72c79691bfa70a899f1ae47c19e5ee76f7`의 `test_package.py`에서 `report_fixture`를 할당하기 전에 새 `assertIn`이 사용하는 순서 문제를 발견. 테스트 호출 시 `UnboundLocalError` 발생 가능. 해당 fixture 파일 읽기 할당을 최초 사용 앞에 이동하고 중복 할당 제거. 실행 중인 OS/사용자 원본 데이터·저장 경로 소스 변경 없음.
 - 실제 소스에서 `assignment index < first assertion index`, 할당 1회 확인; 정적 3/3 PASS. 기존 검증 표기 정정: **직전 10/10은 원본 코드 계약의 표면 검사이며 전체 Python unittest 통과 증거가 아님.** 네이티브 Python/WinPS5.1/CI·실 OneDrive·USB **미실행**, RELEASE HOLD. `feature/pc-care-usb`만 변경, `main`/Production 유지.
+
+### 2026-10-31 KST — CUBE REPORTS 네트워크 매핑 드라이브 차단 추가
+- 이전 `Test-PcCarePrivateReportFolder`은 UNC(`\\server\share`)는 거부하지만 `X:\REPORTS`처럼 **매핑된 네트워크 드라이브**는 UNC 접두사가 없어 저장이 허용되는 결함 발견. 동기화/외부 데이터 전송 없는 기본 정책과 충돌.
+- 파일 시스템의 실제 `[IO.DriveInfo].DriveType` 확인: `Fixed` 또는 `Removable`만 허용, `Network`/알 수 없는·광학 드라이브는 거부. 이름/환경변수/조상 reparse 검사는 그대로 유지. USB(제거식) 진단·LocalApplicationData(고정식) fallback은 보존.
+- `tests/report_io.tests.ps1`에 DriveType 상태별 5건+로컬 경로 허용 회귀, `test_package.py` 원본 계약 추가. **소스 정적 12/12 PASS**, PowerShell5.1 네이티브·Windows·네트워크 매핑·USB·Python 전체·ZIP/CI **NOT_RUN/UNVERIFIED**. 보고서·사용자 데이터·OS/권한/판매/배포에 실제 변경 없음.
+- baseline `bee6b09382fa960171a821f3c3e5ed7f08795f2a`, `feature/pc-care-usb` 한정. `main`/Cloudflare 유지, 출시 HOLD. Windows `RUN_RELEASE_QA.cmd` 우선, 정상 fixed/removable·mapped network·OneDrive/Junction E2E 테스트 후 공개 판단.

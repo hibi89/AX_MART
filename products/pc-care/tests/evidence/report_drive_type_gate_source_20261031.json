@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "baselineSha": "bee6b09382fa960171a821f3c3e5ed7f08795f2a",
+  "sourceStaticChecks": [
+    {
+      "name": "source BOM",
+      "passed": true
+    },
+    {
+      "name": "fixture BOM",
+      "passed": true
+    },
+    {
+      "name": "guard inserted",
+      "passed": true
+    },
+    {
+      "name": "type enumeration",
+      "passed": true
+    },
+    {
+      "name": "DriveInfo source",
+      "passed": true
+    },
+    {
+      "name": "drive guard executes before cloud path and FS write",
+      "passed": true
+    },
+    {
+      "name": "network rejection tests",
+      "passed": true
+    },
+    {
+      "name": "removable preservation test",
+      "passed": true
+    },
+    {
+      "name": "pre-existing atomic CreateNew",
+      "passed": true
+    },
+    {
+      "name": "cloud guard retained",
+      "passed": true
+    },
+    {
+      "name": "source contract exists",
+      "passed": true
+    },
+    {
+      "name": "path documentation",
+      "passed": true
+    }
+  ],
+  "staticPass": 12,
+  "staticFail": 0,
+  "nativeWindowsPowerShell51": "NOT_RUN",
+  "nativePythonNode": "NOT_RUN",
+  "mappedNetworkMount": "NOT_RUN",
+  "actualUsb": "NOT_RUN",
+  "previousRunner": "FAILED_INFRASTRUCTURE",
+  "production": "UNCHANGED",
+  "release": "HOLD"
+}

@@ -20,7 +20,7 @@
 ## 사용
 
 1. USB 또는 일반 폴더에 이 전체 폴더를 **압축 해제**한다. 원래 폴더 구조를 유지한다.
-2. Windows가 시작되면 `RUN_HEALTH_CHECK.cmd`를 더블클릭한다. 완료 후 출력된 저장 경로의 `.html`을 연다. USB가 읽기 전용이거나 프로그램/문서 폴더가 OneDrive 등 동기화 위치이면 `%LOCALAPPDATA%\AXMART-PC-CARE-Reports` 등 검증된 로컬 폴더로 저장을 시도한다. 보고서는 민감할 수 있으므로 동기화 폴더로 옮기지 않는다. 관리자 권한이 없으면 일부 데이터가 누락될 수 있다.
+2. Windows가 시작되면 `RUN_HEALTH_CHECK.cmd`를 더블클릭한다. 완료 후 출력된 저장 경로의 `.html`을 연다. USB가 읽기 전용이거나 프로그램/문서 폴더가 OneDrive 등 동기화 위치이면 `%LOCALAPPDATA%\AXMART-PC-CARE-Reports` 등 검증된 로컬 폴더로 저장을 시도한다. 보고서는 민감할 수 있으므로 동기화 폴더로 옮기지 않는다. UNC뿐 아니라 드라이브 문자로 연결한 네트워크 공유 폴더에도 자동 저장하지 않는다. 관리자 권한이 없으면 일부 데이터가 누락될 수 있다.
 3. 보고서에 이상이 나왔다고 바로 수리하지 않는다. 중요 파일은 먼저 별도 드라이브에 백업한다.
 4. Microsoft 시스템 파일 복구가 필요하다고 판단될 때만, 백업한 후 `RUN_SAFE_REPAIR.cmd`를 **관리자 권한으로 실행**한다. 확인 문구를 직접 입력해야 수리한다.
 5. Windows가 부팅되지 않으면 [Microsoft 정식 Windows 복구 미디어](https://support.microsoft.com/windows/create-installation-media-for-windows)로 Windows RE에 진입한다. 명령 프롬프트에서 USB 드라이브 문자를 확인하고 `E:\AXMART_PC_CARE_USB_v0.1\recovery\WINRE_READ_ONLY.cmd`처럼 실행한다. (예시 E:는 실제 USB 문자로 바꾼다.)

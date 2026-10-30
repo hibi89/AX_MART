@@ -8,6 +8,14 @@ function Assert-Report([bool]$Condition, [string]$Reason) {
 $sandbox = Join-Path ([System.IO.Path]::GetTempPath()) ('axmart-pc-care-fixture-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $sandbox -ErrorAction Stop | Out-Null
 try {
+
+    # Network-mapped drive letters do not start with UNC, so gate the actual DriveType.
+    Assert-Report (-not (Test-PcCareLocalDriveType -DriveType ([System.IO.DriveType]::Network))) 'Mapped network shares must not count as private drives'
+    Assert-Report (-not (Test-PcCareLocalDriveType -DriveType ([System.IO.DriveType]::NoRootDirectory))) 'Unresolved drive types are blocked'
+    Assert-Report (-not (Test-PcCareLocalDriveType -DriveType ([System.IO.DriveType]::CDRom))) 'Read-only optical drives are not report destinations'
+    Assert-Report (Test-PcCareLocalDriveType -DriveType ([System.IO.DriveType]::Fixed)) 'Fixed local drive remains an allowed type'
+    Assert-Report (Test-PcCareLocalDriveType -DriveType ([System.IO.DriveType]::Removable)) 'USB removable drive remains an allowed type'
+    Assert-Report (Test-PcCarePrivateReportFolder -Folder $normal) 'Local synthetic sandbox is accepted'
     # No arbitrary path from FileBase may escape the nominated report directory.
     $normal = Join-Path $sandbox 'normal'
     foreach ($badBase in @('../escaped', '..\escaped', '/absolute', 'C:\outside', '.hidden', 'nested/name', '', ('x' * 81))) {
