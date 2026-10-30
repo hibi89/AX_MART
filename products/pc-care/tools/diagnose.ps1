@@ -87,14 +87,18 @@ $diskData = New-Object 'System.Collections.Generic.List[object]'
 foreach ($disk in $disks) {
     if ($null -eq $disk) { continue }
     $state = [string]$disk.HealthStatus
-    $item = [ordered]@{ model=[string]$disk.FriendlyName; status=$state; operationalStatus=([string]($disk.OperationalStatus -join ',')); wearPercent=$null; temperatureC=$null }
+    $item = [ordered]@{ model=[string]$disk.FriendlyName; status=$state; operationalStatus=([string]($disk.OperationalStatus -join ',')); reliabilityStatus='unavailable'; wearPercent=$null; temperatureC=$null }
     try {
         $counter = $disk | Get-StorageReliabilityCounter -ErrorAction Stop
         if ($null -ne $counter) {
+            $item.reliabilityStatus = 'collected'
             if ($null -ne $counter.Wear -and $counter.Wear -ne 0) { $item.wearPercent=[int]$counter.Wear }
             if ($null -ne $counter.Temperature -and $counter.Temperature -ne 0) { $item.temperatureC=[int]$counter.Temperature }
-        }
-    } catch { } # Optional device-dependent data, do not claim pass.
+        } else { $item.reliabilityStatus = 'empty' }
+    } catch {
+        # Optional device-dependent telemetry; an unsupported API is not proof of health.
+        $item.reliabilityStatus = 'unavailable'
+    }
     [void]$diskData.Add($item)
     if ($state -in @('Warning','Unhealthy')) {
         Add-Issue 'high' 'DISK_HEALTH' '저장장치 상태 경고' ("{0}: {1}" -f $disk.FriendlyName,$state) '디스크 수리를 시도하기 전에 데이터를 다른 저장장치에 백업하고 저장장치 점검을 받으세요.'
