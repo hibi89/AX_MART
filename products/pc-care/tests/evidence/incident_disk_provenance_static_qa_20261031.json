@@ -1,0 +1,29 @@
+{
+  "date_kst": "2026-10-31",
+  "repo": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "pre_change_head": "009ac6b9fa1a81c313aae71b9d85190d4e036d16",
+  "defect": "Get-PcCareIncidentAssessment accepted DiskObservations warnings even when DiskCollectionStatus was unavailable or empty, though other evidence streams rejected stale samples.",
+  "correction": "DiskObservations are used only when DiskCollectionStatus is collected or truncated; unavailable and empty exclude stale rows. Retain observed warnings from truncated samples with incomplete coverage.",
+  "files": {
+    "tools/incident_analysis.ps1": "3deef958da7d706803fbedd76da40f340a760438",
+    "tests/incident_analysis.tests.ps1": "625c0695b929e00e715feeda18cbcca861a0909f",
+    "tests/test_package.py": "2d816afff930834a3f392c057fbd11905a431788"
+  },
+  "verification": {
+    "github_blob_readback": true,
+    "source_contracts": {
+      "passed": 19,
+      "failed": 0
+    },
+    "powerShell51_native": "NOT_RUN",
+    "python_native": "NOT_RUN",
+    "node_native": "NOT_RUN",
+    "windows_real": "NOT_RUN",
+    "CI_current_head": "NOT_RUN",
+    "zip_real": "NOT_RUN",
+    "real_USB_QR_PDF_WinRE": "NOT_RUN"
+  },
+  "deployment": "NOT_APPLICABLE. No main, Cloudflare, Windows configuration, user data, repair or recovery modifications.",
+  "next": "Execute Windows 11 PS5.1 windows_smoke.ps1 synthetic first, then separately authorized read-only real diagnostics and JSON/HTML comparison; verify USB/QR/A4; WinRE backup remains blocked."
+}
