@@ -1,10 +1,8 @@
 name: PC CARE synthetic Windows QA
+# Explicit dispatch only: first branch push failed before a runner was allocated.
+# This is an infrastructure/billing/runner availability blocker, NOT a test pass.
+# Avoid automatic retries on every feature commit until CI runner availability is fixed.
 on:
-  push:
-    branches: [feature/pc-care-usb]
-    paths:
-      - '.github/workflows/pc-care-windows-synthetic.yml'
-      - 'products/pc-care/**'
   workflow_dispatch:
 
 permissions:
