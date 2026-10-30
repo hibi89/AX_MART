@@ -434,6 +434,15 @@ footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-heig
 .qr-holder{display:inline-block;background:#fff;padding:24px;border-radius:10px;margin-top:8px;max-width:100%}
 .qr-holder:empty{display:none}.qr-holder img,.qr-holder canvas,.qr-holder svg{display:block;max-width:100%;height:auto}
 .qr-generate{margin:10px 8px 8px 0}
+/* Local-only report navigation: no JS, network, cookies or tracking. */
+.skip-link{position:absolute;left:-9999px;top:auto}
+.skip-link:focus{left:16px;top:16px;z-index:99;background:#231e30;color:#fff;padding:12px;border-radius:8px}
+.quicknav{position:sticky;top:0;z-index:6;display:flex;flex-wrap:wrap;gap:7px;padding:12px;margin:12px 0 26px;border:1px solid #453553;border-radius:14px;background:#171320}
+.quicknav a{padding:8px 10px;border-radius:9px;color:#e0c9fb;text-decoration:none;font-size:12px;font-weight:650}
+.quicknav a:hover,.quicknav a:focus-visible{outline:2px solid #b8efcb;outline-offset:2px;color:#fff;background:#463256}
+section[id]{scroll-margin-top:98px}
+@media(max-width:650px){main{padding:20px 12px 48px}header{gap:10px}.quicknav{position:static;padding:9px;gap:5px}.quicknav a{font-size:11px;padding:8px}.consult-facts{grid-template-columns:1fr}}
+
 @page{size:A4 portrait;margin:10mm}
 @media print{
   html,body{background:#fff!important;color:#161616!important;font-family:'Malgun Gothic',Arial,sans-serif!important;color-scheme:light!important}
@@ -458,22 +467,24 @@ footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-heig
   #consultation-print .consult-bottom{font-size:7.5pt!important;line-height:1.3!important;border-color:#ccc!important;padding-top:5pt!important}
 }
 </style></head><body><main><header><div class="brand"><b>AX</b>MART <em>PC CARE</em></div><div class="small">READ-ONLY / v0.1-alpha</div></header>
+<a class="skip-link" href="#consultation-print">수리 상담표로 바로가기</a>
 <h1>내 PC 건강검진 결과<span style="color:#a977e4">.</span></h1><p class="lead">시스템 로그와 저장장치 상태를 읽어 주요 위험 신호를 점검했습니다. 파일 삭제나 시스템 설정 변경 없이 검사했습니다.</p>
 <div class="status">$(Esc $assessment)</div>
+<nav class="quicknav" aria-label="진단 보고서 바로가기"><a href="#consultation-print">수리 상담표</a><a href="#incident-analysis">원인 해설</a><a href="#storage-health">저장장치</a><a href="#update-records">업데이트</a><a href="#driver-codes">장치 상태</a><a href="#incident-timeline">기록 시간축</a><a href="#limitations">검사 한계</a></nav>
 <p class="screen-help">수리점 제출용 1페이지 요약은 아래에서 확인하세요. 브라우저에서 Ctrl+P → PDF로 저장하면 요약표만 인쇄됩니다. 별도 서버 전송은 없습니다.</p>
 $consultationHtml
 $sharePreviewHtml
 <div class="grid"><div class="tile"><div class="small">블루스크린 관련 기록</div><strong>$(Esc $bugCountLabel)</strong></div><div class="tile"><div class="small">비정상 종료 이벤트</div><strong>$(Esc $shutdownCountLabel)</strong></div><div class="tile"><div class="small">저장장치 오류 이벤트</div><strong>$(Esc $storageCountLabel)</strong></div><div class="tile"><div class="small">발견한 주요 주의사항</div><strong>$($issues.Count)건</strong></div></div>
 <section><h2>진단 결과와 권장 조치</h2>$($cards -join "`n")</section>
-<section><h2>원인 후보와 확인 한계</h2><p class="small">자동 규칙 해설이며 고장 원인 확정, 부품 교체 판정 또는 수리 보증이 아닙니다.</p>$($analysisCards -join "`n")</section>
+<section id="incident-analysis"><h2>원인 후보와 확인 한계</h2><p class="small">자동 규칙 해설이며 고장 원인 확정, 부품 교체 판정 또는 수리 보증이 아닙니다.</p>$($analysisCards -join "`n")</section>
 <section><h2>드라이브 공간</h2><div class="scroll-table"><table><thead><tr><th>드라이브</th><th>여유 공간</th><th>여유 비율</th></tr></thead><tbody>$($rows -join "`n")</tbody></table></div></section>
-<section><h2>물리 저장장치 상태</h2><p class="small">Windows에서 제공한 상태 신호이며 실제 SSD/HDD 수명 또는 정상 작동을 보증하지 않습니다. 마모율/온도는 드라이버 지원 기기에서만 표시됩니다.</p><div class="scroll-table"><table><thead><tr><th>장치</th><th>상태 신호</th><th>마모율</th><th>온도</th></tr></thead><tbody>$($diskRows -join "`n")</tbody></table></div></section>
+<section id="storage-health"><h2>물리 저장장치 상태</h2><p class="small">Windows에서 제공한 상태 신호이며 실제 SSD/HDD 수명 또는 정상 작동을 보증하지 않습니다. 마모율/온도는 드라이버 지원 기기에서만 표시됩니다.</p><div class="scroll-table"><table><thead><tr><th>장치</th><th>상태 신호</th><th>마모율</th><th>온도</th></tr></thead><tbody>$($diskRows -join "`n")</tbody></table></div></section>
 <section><h2>배터리 정보</h2><p class="small">$(Esc $batteryNote). 현재 충전량은 배터리 수명이나 건강도가 아닙니다. 용량 데이터는 기기/Windows 지원 여부에 따라 누락될 수 있습니다.</p><div class="scroll-table"><table><thead><tr><th>현재 충전량</th><th>설계 용량</th><th>완충 용량</th></tr></thead><tbody>$($batteryRows -join [Environment]::NewLine)</tbody></table></div></section>
-<section><h2>Windows 업데이트 설치 기록</h2><p class="small">System WindowsUpdateClient 이벤트 19/20에 한정합니다. 기록 시각은 설치 작업의 기록 시각이며 블루스크린 발생 시각·원인이 아닙니다. $(Esc $updateLabel).</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>관측 상태</th></tr></thead><tbody>$($updateRows -join [Environment]::NewLine)</tbody></table></div></section>
-<section><h2>장치 구성 코드</h2><p class="small">Windows PnP Configuration Manager 코드 중 0이 아닌 값만 조회합니다. 코드 22 비활성화는 의도적일 수 있습니다. 장치 고장·드라이버 문제 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>범주</th><th>코드</th><th>관측 해석</th></tr></thead><tbody>$($pnpRows -join [Environment]::NewLine)</tbody></table></div></section>
-<section><h2>사건 기록 시간축</h2><p class="small">최신 이벤트 80건의 기록 시각 기준 15분 내 관측을 묶었습니다. 실제 충돌 시각·사건 횟수·업데이트 인과관계를 보증하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>시작 기록 UTC</th><th>기록 수</th><th>사건 분류</th></tr></thead><tbody>$($timelineRows -join [Environment]::NewLine)</tbody></table></div></section>
+<section id="update-records"><h2>Windows 업데이트 설치 기록</h2><p class="small">System WindowsUpdateClient 이벤트 19/20에 한정합니다. 기록 시각은 설치 작업의 기록 시각이며 블루스크린 발생 시각·원인이 아닙니다. $(Esc $updateLabel).</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>관측 상태</th></tr></thead><tbody>$($updateRows -join [Environment]::NewLine)</tbody></table></div></section>
+<section id="driver-codes"><h2>장치 구성 코드</h2><p class="small">Windows PnP Configuration Manager 코드 중 0이 아닌 값만 조회합니다. 코드 22 비활성화는 의도적일 수 있습니다. 장치 고장·드라이버 문제 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>범주</th><th>코드</th><th>관측 해석</th></tr></thead><tbody>$($pnpRows -join [Environment]::NewLine)</tbody></table></div></section>
+<section id="incident-timeline"><h2>사건 기록 시간축</h2><p class="small">최신 이벤트 80건의 기록 시각 기준 15분 내 관측을 묶었습니다. 실제 충돌 시각·사건 횟수·업데이트 인과관계를 보증하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>시작 기록 UTC</th><th>기록 수</th><th>사건 분류</th></tr></thead><tbody>$($timelineRows -join [Environment]::NewLine)</tbody></table></div></section>
 <section><h2>최근 블루스크린 상세</h2><p class="small">Windows System 로그 중 BugCheck 관련 기록 최대 15건입니다. 표의 시각은 이벤트가 기록된 시간이며 실제 충돌 시각이 아닐 수 있습니다. STOP 코드는 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>STOP 코드(추출값)</th></tr></thead><tbody>$($crashRows -join "`n")</tbody></table></div></section>
-<section><h2>검사 한계</h2><ul>$($limRows -join "`n")</ul><p class="small">Windows $(Esc $report.observations.windows.name) · 검사 기간: $Days 일 · 생성 $(Esc $report.generatedAt)</p></section>
+<section id="limitations"><h2>검사 한계</h2><ul>$($limRows -join "`n")</ul><p class="small">Windows $(Esc $report.observations.windows.name) · 검사 기간: $Days 일 · 생성 $(Esc $report.generatedAt)</p></section>
 <footer>AXMART PC CARE v0.1 테스트용 제품. 하드웨어 자체 검사, 메모리 덤프 분석, 악성코드 전수 검사, 수리 성공 보증은 제공하지 않습니다. BitLocker 복구키는 절대 입력하거나 이 도구에 저장하지 마세요.<br>결과는 이 기기에만 저장하며 인터넷으로 전송하지 않습니다. 판매 준비 전 실제 Windows 환경 검증이 필요합니다.</footer></main>$qrInlineScripts</body></html>
 "@
 # Do not report success until both outputs are safely persisted.
