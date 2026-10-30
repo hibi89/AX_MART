@@ -55,35 +55,31 @@ if ($null -ne $os) {
 }
 else { $observations['windows'] = @{ name='확인 불가'; version=''; build=''; bootTime='' } }
 
+# Read-only normalization helpers are packaged with the diagnostics.
+. (Join-Path $PSScriptRoot 'telemetry_analysis.ps1')
 # Logical volume free space; do not collect absolute file paths or filenames.
 $volumes = @(Safe-Collect { @(Get-CimInstance -ClassName Win32_LogicalDisk -Filter 'DriveType=3' -ErrorAction Stop) } '디스크 여유 공간' 'volumes')
 $volData = New-Object 'System.Collections.Generic.List[object]'
 foreach ($v in $volumes) {
     if ($null -eq $v) { continue }
-    if ($null -eq $v.DeviceID -or $null -eq $v.Size -or $null -eq $v.FreeSpace) {
-        [void]$limits.Add('드라이브: 일부 용량 데이터가 제공되지 않아 해당 볼륨을 평가하지 않았습니다.')
+    $sample = ConvertTo-PcCareVolumeSample -Volume $v
+    if ($null -eq $sample) {
+        [void]$limits.Add('드라이브: 문자/용량 정보가 유효하지 않아 해당 볼륨을 평가하지 않았습니다.')
         continue
     }
-    $remaining = [double]$v.FreeSpace
-    $capacity = [double]$v.Size
-    if ($capacity -le 0 -or $remaining -lt 0 -or $remaining -gt $capacity) {
-        [void]$limits.Add('드라이브: 유효하지 않은 용량 값이 있어 해당 볼륨을 평가하지 않았습니다.')
-        continue
-    }
-    $pct = [math]::Round(($remaining / $capacity) * 100, 1)
-    $gb = [math]::Round($remaining / 1GB, 1)
-    [void]$volData.Add(@{ drive=[string]$v.DeviceID; remainingGB=$gb; freePercent=$pct; sizeGB=[math]::Round($capacity / 1GB,1) })
-    if ($capacity -ge 20GB -and ($pct -lt 5 -or $gb -lt 5)) {
-        Add-Issue 'high' 'DISK_SPACE_CRITICAL' ("{0} 드라이브 공간 부족" -f $v.DeviceID) ("남은 공간 {0}GB ({1}%)" -f $gb,$pct) '중요 파일 백업 후 불필요한 파일을 직접 정리하세요. 자동 삭제는 하지 않습니다.'
-    } elseif ($capacity -ge 20GB -and $pct -lt 15) {
-        Add-Issue 'medium' 'DISK_SPACE_LOW' ("{0} 드라이브 여유 공간 부족" -f $v.DeviceID) ("남은 공간 {0}GB ({1}%)" -f $gb,$pct) '용량 변화를 확인하고 개인 파일을 백업하세요.'
+    $pct = $sample.freePercent
+    $gb = $sample.remainingGB
+    [void]$volData.Add(@{ drive=$sample.drive; remainingGB=$gb; freePercent=$pct; sizeGB=$sample.sizeGB })
+    if ($sample.capacityBytes -ge 20GB -and ($pct -lt 5 -or $gb -lt 5)) {
+        Add-Issue 'high' 'DISK_SPACE_CRITICAL' ("{0} 드라이브 공간 부족" -f $sample.drive) ("남은 공간 {0}GB ({1}%)" -f $gb,$pct) '중요 파일 백업 후 불필요한 파일을 직접 정리하세요. 자동 삭제는 하지 않습니다.'
+    } elseif ($sample.capacityBytes -ge 20GB -and $pct -lt 15) {
+        Add-Issue 'medium' 'DISK_SPACE_LOW' ("{0} 드라이브 여유 공간 부족" -f $sample.drive) ("남은 공간 {0}GB ({1}%)" -f $gb,$pct) '용량 변화를 확인하고 개인 파일을 백업하세요.'
     }
 }
 $observations['volumes'] = @($volData.ToArray())
 
 # Storage provider may not expose NVMe SMART. Unknown is not Healthy.
-# Load the already packaged pure telemetry helpers before using disk metrics.
-. (Join-Path $PSScriptRoot 'telemetry_analysis.ps1')
+# The shared telemetry helpers were loaded once before volume normalization.
 $disks = @(Safe-Collect { @(Get-PhysicalDisk -ErrorAction Stop) } '저장장치 건강 상태' 'physicalDisks')
 $diskData = New-Object 'System.Collections.Generic.List[object]'
 foreach ($disk in $disks) {
