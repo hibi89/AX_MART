@@ -250,3 +250,9 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - 검증: GitHub 소스의 기존 V8 두 테스트 스위트 28 PASS, 신규 통합 V8 5 PASS, 원격 정적 12 PASS. Native Node/Python/PS5.1/실기기/USB/QR/A4/WinRE/ZIP/CI 미실행. 예전 CI failure(run `41034866482`, 과거 SHA, job 0 steps)는 현 SHA와 무관하므로 오류 범위 구분.
 - 저장소 `hibi89/AX_MART` 브랜치 `feature/pc-care-usb`, 변경 전 복구 SHA `a7843dd4983959d8e4d19d4ee85d567a82982c6a`. 운영 main/Cloudflare 및 고객 보고서·Windows 설정/수리/복구/배포 미변경. 증거 `products/pc-care/tests/evidence/h08_system_evidence_integration_qa_20261031.json`.
 - 차순위: 실제 Windows 전체 소스 `RUN_RELEASE_QA.cmd`→read-only 보고서/반복비교/Edge file://→USB/QR/PDF→WinRE 격리 VM 및 위험 승인. 마지막 검증 SHA는 별도 GitHub에서 확인.
+
+## 2026-10-31 KST — AXMART CUBE 다음 채팅 인수인계 (최신)
+- `hibi89/AX_MART@feature/pc-care-usb`: Release A H08 오프라인 비교에서 정규화된 System 이벤트의 provider-kind-ID-UTC/수집 상태를 함께 검증하도록 수정. 위장 provider/누락 시 비교 불가. 허위 이벤트를 차단하면서 정식 Windows provider를 허용함. 변경: `products/pc-care/ui/history_compare.js`, `tests/test_history_compare.cjs`, `tests/test_history_evidence_integration.cjs`, `tests/test_package.py`.
+- 직전 미반영 사항도 확인: H08 볼륨 조회 실패·중복 드라이브 보수 처리, `tools/preflight.py` 비Windows native QA 미실행 `partial`/exit2, 손상 가능 센서 패키징 변경은 신규 fast-forward 롤백 SHA `2112c95c11edfbaa1584e16f0c881a2848017c9e`로 복원.
+- 최신 코드의 GitHub 실소스 + 커밋된 JS 테스트 3개 스위트 **V8 38 PASS / FAIL 0**. 네이티브 Windows PS5.1/Node/Python/USB/QR/PDF/WinRE/실 ZIP/신규 CI 아직 미검증. 이전 Actions 실패(run 41034866482)는 다른 SHA, runner 미배정.
+- 기존 `main`/Cloudflare 운영·개인 데이터·권한·복구·구매 흐름 불변. 개발 전 기준 `b568c942c00ee4cc32e24863e2608c93806df290`. 다음은 전체 Windows checkout `products/pc-care/RUN_RELEASE_QA.cmd`→실 read-only 생성 JSON/HTML→H08/Edge/USB/QR/A4, 그 후 WinRE 안전 검증. 제품 100%/배포 완료 주장 금지.
