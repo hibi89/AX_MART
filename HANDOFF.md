@@ -370,3 +370,9 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - **구현:** `ui/history_compare.js`에서 신규 경고 8종의 **실제 수집 증거**를 검증하여 없으면 `added`에서 제외, 불완전 경고에 대한 주의 문구. System 이벤트는 collection 상태와 정상화된 provider/kind/EventID/UTC, Windows Update는 검증된 19/20 이벤트와 합계, PnP는 1~55 유효 구성 코드와 일치 수집 상태, 물리 디스크는 최신 Warning/Unhealthy 관측, 볼륨은 유효 드라이브·수치·경고 임계치를 확인. 일부 볼륨만 유효하게 수집된 `incomplete` 상황에서도 **관측된 위험 신호**는 보존하고 실패한 `unavailable` 수집을 증거로 사용하지 않음.
 - **검증:** 공식 Node 테스트 4개 파일을 V8에서 Node:test/assert 호환 shim으로 실제 JavaScript 실행 **61/61 PASS**. 신규 회귀 4건, 과거 fixture의 증거 불일치(C: 정상 여유에 CRITICAL 임의 주장) 교정. Python 패키지 정적 계약 추가. 자체 소스 검증 8/8. **Node native/PowerShell5.1/Windows·USB·실브라우저·QR·A4·ZIP·CI 미실행**, 릴리스 HOLD.
 - **운영:** 수정 브랜치 `feature/pc-care-usb` 한정, `main`/Cloudflare 운영·원본 보고서·유저 PC 미변경. 로컬 파일/개인정보 전송·설정·복구·결제 없음. 합성 결과를 실제 Windows 합격으로 표시하지 않음. 다음 단계 Windows native `RUN_RELEASE_QA.cmd` → 읽기 전용 실진단 및 H08(실 보고서) → QR·A4·USB 검증.
+
+## 2026-10-31 KST — CUBE 저장장치 식별 가능 이름 제거
+- `diagnose.ps1`는 `Get-PhysicalDisk.FriendlyName`을 진단 JSON 모델, HTML 및 위험/한계 문구에 그대로 기록. 사용자 지정 디스크명이 포함된 경우 식별 정보 노출 위험 확인. 원본 파일/실제 디스크 수정 없음.
+- `telemetry_analysis.ps1`의 `ConvertTo-PcCarePrivateDiskObservation`: 장치 이름 대신 이번 검사에서만 유효한 `물리 저장장치 N`, HealthStatus 네 종류 및 OperationalStatus 예상 상태만 allowlist. SMART 마모/온도·건강 경고 우선순위 및 JSON 구조 유지. 검사 간 번호가 같은 물리디스크를 보증하지 않는다고 문서화.
+- `telemetry_analysis.tests.ps1` 합성 개인정보·복수 디스크·미확인 상태 회귀, `windows_smoke.ps1` 생성 JSON 안전 레이블 검사, `test_package.py` 코드 계약. **정적 소스 14/14 PASS**. WinPS5.1/Windows/정식 Python·Node/USB·QR·A4·WinRE/CI는 **NOT_RUN/UNVERIFIED**, 출시 HOLD. 증빙 `products/pc-care/tests/evidence/private_disk_observation_20261031.json`.
+- 경합 대응: 처음 기준 SHA `bbe1207`에서 푸시 전 HEAD가 `6e85e521ddfe6489e5ff9ddcfccae6d82213cd09`로 변경되어 선행 작업 중단 후 새로운 HEAD에서 재적용. 타 작업 H08 변경 보존. `main`/Cloudflare Production, 데이터·설정·권한·배포 불변.

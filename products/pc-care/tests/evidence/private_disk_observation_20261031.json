@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-31",
+  "baselineSha": "6e85e521ddfe6489e5ff9ddcfccae6d82213cd09",
+  "staticChecks": [
+    {
+      "name": "bom",
+      "passed": true
+    },
+    {
+      "name": "normalizer",
+      "passed": true
+    },
+    {
+      "name": "source no friendly name",
+      "passed": true
+    },
+    {
+      "name": "ordinal invocation",
+      "passed": true
+    },
+    {
+      "name": "health allowlist",
+      "passed": true
+    },
+    {
+      "name": "bounded operational status",
+      "passed": true
+    },
+    {
+      "name": "smart remains",
+      "passed": true
+    },
+    {
+      "name": "schema preserved",
+      "passed": true
+    },
+    {
+      "name": "warning ordinal",
+      "passed": true
+    },
+    {
+      "name": "unknown ordinal",
+      "passed": true
+    },
+    {
+      "name": "synthetic fixtures",
+      "passed": true
+    },
+    {
+      "name": "windows smoke",
+      "passed": true
+    },
+    {
+      "name": "python source contract",
+      "passed": true
+    },
+    {
+      "name": "read-only helper",
+      "passed": true
+    }
+  ],
+  "staticPassed": 14,
+  "staticFailed": 0,
+  "powershellFixture": "NOT_RUN",
+  "realWindows": "UNVERIFIED",
+  "pythonNode": "NOT_RUN",
+  "usbQrA4Winre": "NOT_RUN",
+  "ci": "NOT_RUN",
+  "release": "HOLD"
+}

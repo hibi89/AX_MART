@@ -56,6 +56,18 @@ $json = Get-Content -LiteralPath $jsonFile -Raw -Encoding UTF8 | ConvertFrom-Jso
 if ($json.schemaVersion -ne 1 -or $json.mode -ne 'read-only' -or $json.version -notmatch 'alpha' -or $null -eq $json.observations.eventCollection -or $null -eq $json.observations.collectionStatus -or $null -eq $json.analysis -or $null -eq $json.observations.battery -or $null -eq $json.observations.windowsUpdate -or $null -eq $json.observations.driverDevices -or $null -eq $json.observations.recordedTimeline -or $null -eq $json.consultation -or $null -eq $json.sharePreview -or $null -eq $json.sharePreview.qrImageSupported) {
     throw 'Diagnostic output schema mismatch.'
 }
+# The diagnostic JSON uses only per-run disk ordinals and bounded health names.
+$diskIndex = 0
+foreach ($device in @($json.observations.physicalDisks)) {
+    $diskIndex++
+    if ([string]$device.model -cne ('물리 저장장치 {0}' -f $diskIndex)) {
+        throw 'Saved disk observation contains a raw or unexpected device label.'
+    }
+    if ([string]$device.status -notin @('Healthy','Warning','Unhealthy','Unknown')) {
+        throw 'Saved disk observation has an untrusted health status.'
+    }
+}
+Write-Host 'DISK PRIVACY CONTRACT PASS: per-run ordinals and bounded health states.' -ForegroundColor Green
 # Validate the end-to-end timeline evidence contract in THIS run's local report.
 $timeReport = $json.observations.recordedTimeline
 if ($null -eq $timeReport -or $timeReport.status -notin @('collected','no matching events','truncated','incomplete','unavailable') -or

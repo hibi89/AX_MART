@@ -95,6 +95,36 @@ function ConvertTo-PcCareUpdateEvidence {
 
 # Device-dependent counters do not establish SSD remaining life or hardware health.
 # Keep raw device data out of reports; invalid/sentinel values become unknown.
+
+# Never serialize device-provided friendly names, serials or arbitrary status text.
+# The ordinal is valid only during this scan, not a physical identifier across runs.
+function ConvertTo-PcCarePrivateDiskObservation {
+    [CmdletBinding()]
+    param([Parameter(Mandatory=$true)][object]$Disk,
+          [ValidateRange(1,65535)][int]$Ordinal)
+    $health = [string]$Disk.HealthStatus
+    if ($health -notin @('Healthy','Warning','Unhealthy','Unknown')) { $health = 'Unknown' }
+    $allowOps = @('OK','Degraded','Error','Unknown','Lost Communication',
+                  'Predictive Failure','No Contact','Stressed','Starting','Stopping',
+                  'Stopped','In Service')
+    $safeOps = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($value in @($Disk.OperationalStatus)) {
+        $op = [string]$value
+        if ($op -in $allowOps -and -not $safeOps.Contains($op)) {
+            [void]$safeOps.Add($op)
+        }
+    }
+    $operational = if ($safeOps.Count -gt 0) { $safeOps -join ',' } else { 'unavailable' }
+    return [ordered]@{
+        model = ('물리 저장장치 {0}' -f $Ordinal)
+        status = $health
+        operationalStatus = $operational
+        reliabilityStatus = 'unavailable'
+        wearPercent = $null
+        temperatureC = $null
+    }
+}
+
 function ConvertTo-PcCareStorageMetrics {
     [CmdletBinding()]
     param([object]$Counter)

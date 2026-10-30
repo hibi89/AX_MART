@@ -44,6 +44,29 @@ Assert-Telemetry (@($evidence | Where-Object { $_.kind -eq 'update_installation_
 Assert-Telemetry (@($evidence | Where-Object { $_.kind -eq 'update_installation_success_record' }).Count -eq 1) 'Event 19 is installation success record'
 Assert-Telemetry ($evidence[0].timeBasis -eq 'event_recorded_time') 'No inferred update date'
 Assert-Telemetry (($evidence | ConvertTo-Json -Depth 6) -notmatch 'PRIVATE UPDATE NAME') 'Raw update messages must never be serialized'
+
+# Synthetic disk names must never appear in private reports.
+$fakeDisk = [pscustomobject]@{
+    FriendlyName='PRIVATE-OWNER-SERIAL-1234'
+    SerialNumber='PRIVATE-SERIAL'
+    UniqueId='PRIVATE-UNIQUE'
+    HealthStatus='Warning'
+    OperationalStatus=@('OK','PRIVATE-COMPUTER-ALIAS')
+}
+$privateDisk = ConvertTo-PcCarePrivateDiskObservation -Disk $fakeDisk -Ordinal 1
+Assert-Telemetry ($privateDisk.model -eq '물리 저장장치 1' -and $privateDisk.status -eq 'Warning') 'Private disk observation retains health without device identity'
+Assert-Telemetry ($privateDisk.operationalStatus -eq 'OK') 'Only recognized disk operational states may be recorded'
+Assert-Telemetry (($privateDisk | ConvertTo-Json -Depth 5) -notmatch 'PRIVATE|SERIAL|UNIQUE|OWNER') 'Raw device identity must never appear in report observation'
+$privateDisk2 = ConvertTo-PcCarePrivateDiskObservation -Disk ([pscustomobject]@{
+    FriendlyName='SECOND-PRIVATE-NAME'; HealthStatus='Unhealthy'; OperationalStatus=@('Degraded','Lost Communication')
+}) -Ordinal 2
+Assert-Telemetry ($privateDisk2.model -eq '물리 저장장치 2' -and $privateDisk2.status -eq 'Unhealthy') 'Second disk remains distinct without raw names'
+Assert-Telemetry ($privateDisk2.operationalStatus -eq 'Degraded,Lost Communication') 'Legitimate operational warnings remain visible'
+$unknownDisk = ConvertTo-PcCarePrivateDiskObservation -Disk ([pscustomobject]@{
+    FriendlyName='PRIVATE-NAME'; HealthStatus='PRIVATE-HEALTH'; OperationalStatus='PRIVATE-OP'
+}) -Ordinal 3
+Assert-Telemetry ($unknownDisk.status -eq 'Unknown' -and $unknownDisk.operationalStatus -eq 'unavailable') 'Untrusted storage strings cannot masquerade as health'
+Assert-Telemetry (($unknownDisk | ConvertTo-Json -Depth 5) -notmatch 'PRIVATE') 'Untrusted storage text does not escape to JSON'
 # Pure SMART fixture: no Get-PhysicalDisk or OS query is executed here.
 $validStorage = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear=18; Temperature=43; SerialNumber='PRIVATE-UNIT' })
 Assert-Telemetry ($validStorage.wearPercent -eq 18 -and $validStorage.temperatureC -eq 43) 'Valid bounded device readings'

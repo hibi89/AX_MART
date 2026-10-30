@@ -92,8 +92,8 @@ $disks = @(Safe-Collect { @(Get-PhysicalDisk -ErrorAction Stop) } '저장장치 
 $diskData = New-Object 'System.Collections.Generic.List[object]'
 foreach ($disk in $disks) {
     if ($null -eq $disk) { continue }
-    $state = [string]$disk.HealthStatus
-    $item = [ordered]@{ model=[string]$disk.FriendlyName; status=$state; operationalStatus=([string]($disk.OperationalStatus -join ',')); reliabilityStatus='unavailable'; wearPercent=$null; temperatureC=$null }
+    $item = ConvertTo-PcCarePrivateDiskObservation -Disk $disk -Ordinal ($diskData.Count + 1)
+    $state = [string]$item.status
     try {
         $counter = $disk | Get-StorageReliabilityCounter -ErrorAction Stop
         if ($null -ne $counter) {
@@ -108,9 +108,9 @@ foreach ($disk in $disks) {
     }
     [void]$diskData.Add($item)
     if ($state -in @('Warning','Unhealthy')) {
-        Add-Issue 'high' 'DISK_HEALTH' '저장장치 상태 경고' ("{0}: {1}" -f $disk.FriendlyName,$state) '디스크 수리를 시도하기 전에 데이터를 다른 저장장치에 백업하고 저장장치 점검을 받으세요.'
+        Add-Issue 'high' 'DISK_HEALTH' '저장장치 상태 경고' ("{0}: {1}" -f $item.model,$state) '디스크 수리를 시도하기 전에 데이터를 다른 저장장치에 백업하고 저장장치 점검을 받으세요.'
     } elseif ($state -ne 'Healthy') {
-        [void]$limits.Add(('저장장치 {0}: 상태 확인 불가/미지원 ({1})' -f $disk.FriendlyName,$state))
+        [void]$limits.Add(('{0}: 상태 확인 불가/미지원 ({1})' -f $item.model,$state))
     }
 }
 if ($diskData.Count -eq 0) { [void]$limits.Add('장치별 SMART/저장장치 상태를 확인하지 못했습니다.') }
