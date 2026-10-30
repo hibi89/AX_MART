@@ -387,3 +387,9 @@
 - `tests/report_io.tests.ps1` 경로 이탈/과도한 파일명 거부, `tests/telemetry_analysis.tests.ps1` 비정상·민감값·상한·독립 센서 테스트 및 `tests/test_package.py` 계약 보강.
 - 원격 소스·기존 ZIP allowlist/스모크 연결의 정적 검사 **24/24 PASS**. 증거 `tests/evidence/report_persistence_smart_source_static_qa_20261031.json`. Native Windows PowerShell 5.1 / Python·Node 전체 / 실제 ZIP / Windows·USB·QR·A4·WinRE·신규 CI **NOT_RUN**.
 - 이전 개발 HEAD `6d25db008c835ccf489940e9a3024f6b86c74ca9`. 운영 main·Cloudflare·사용자 파일·WinRE 실제 복사·수리·공개 다운로드 무변경. 다음 `RUN_RELEASE_QA.cmd` Windows 실행 및 JSON/HTML 경로/센서/이력 실제 확인.
+
+## 2026-10-31 KST — 시간축 정규화 거부 기록 출처/완전성 처리
+- P0 코드: `tools/recorded_timeline.ps1`가 잘못된 이벤트 kind/ID/UTC/timeBasis를 제외하고도 기록을 모두 검증한 것처럼 `coverageComplete=true` 또는 `no matching events`로 판정할 수 있었음. 잘못된 입력을 `rejectedCount`에 누적, 완전성 false, 수집 불완전 상태로 분리(상한·원본 수집 실패 상태는 우선 보존). 실제 정상 기록은 기존 UTC 근접 관측 및 원인 미확정 설명 그대로 유지.
+- `tools/diagnose.ps1`의 결과 JSON/오프라인 HTML에 거부 건수 표시, 정규화 문제를 로그 조회 권한 실패로 오인하지 않도록 제한 문구 분리. `tests/driver_timeline.tests.ps1` 정상/누락/위장 timeBasis 회귀, `tests/windows_smoke.ps1` saved-report 계약, `tests/test_package.py` 정적 계약 갱신.
+- GitHub 실제 소스 재조회 정적 **25/25 PASS**, 근거 `tests/evidence/timeline_rejected_evidence_static_qa_20261031.json`. **PowerShell5.1 실제 실행·Windows/USB/Node·Python 전체/QR/A4·WinRE/내부 ZIP·신규 CI 미실행**. 기능 검증 전 출시 금지.
+- 작업 전 HEAD `63ca3c8513d921bfa990dbdec813118f2372e9b2`; 기존 `main`/Cloudflare 및 사용자 원본·OS·수리/복구·공개 배포 무변경. 다음: Windows 전체 `RUN_RELEASE_QA.cmd`의 PS5.1 native fixture→명시적 실제 read-only 보고서 저장→H08/QR/A4/USB 순서.
