@@ -3,15 +3,40 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' file:; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; form-action 'none'; object-src 'none'; base-uri 'none'">
 <title>AXMART PC CARE | 반복 검사 비교</title>
 <style>
-:root{color-scheme:dark;background:#111722;color:#ecf2fa;font:16px/1.55 system-ui,'Malgun Gothic',sans-serif}
-*{box-sizing:border-box}main{max-width:850px;margin:36px auto;padding:22px}
-h1{font-size:clamp(1.5rem,4vw,2.3rem)}h2{font-size:1.12rem}
-p,li,small{color:#bac6d8}.panel{background:#1b2532;border:1px solid #334459;padding:22px;border-radius:14px;margin:18px 0}
+:root{color-scheme:dark;--bg:#0b0e19;--panel:#15192b;--line:#37405e;--mint:#6af3c9;--muted:#aebbd2;background:var(--bg);color:#f1f3ff;font:16px/1.58 system-ui,'Malgun Gothic',sans-serif}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% 0%,#35224e 0%,transparent 40%),radial-gradient(ellipse at 12% 34%,#123638 0%,transparent 42%),var(--bg)}
+main{max-width:940px;margin:0 auto;padding:30px 22px 56px}
+header{padding:27px 0 20px;border-bottom:1px solid var(--line)}
+header small{color:var(--mint);font-weight:700;letter-spacing:.12em}
+header h1{font-size:clamp(1.7rem,4vw,2.7rem);line-height:1.22;margin:.55rem 0}
+h2{font-size:1.18rem;color:#fff;margin-top:0}p,li,small{color:var(--muted)}
+.panel{background:linear-gradient(145deg,#1b2036,#101626);border:1px solid var(--line);padding:24px;border-radius:17px;margin:20px 0;box-shadow:0 12px 34px #0002}
+.panel:focus-within{border-color:#688981}
 label{display:block;font-weight:650;margin:14px 0 6px}
-input[type=file]{display:block;width:100%;padding:12px;border:1px dashed #718399;border-radius:8px;color:#dceaf6}
-button{border:0;border-radius:9px;background:#55c5b5;color:#09201e;font-size:1rem;font-weight:700;padding:12px 20px;margin:20px 0 10px;cursor:pointer}
-button:disabled{opacity:.5}.selectors{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}select{width:100%;padding:12px;border:1px solid #718399;border-radius:8px;background:#111722;color:#ecf2fa}select:disabled{opacity:.5}pre{overflow-wrap:anywhere;white-space:pre-wrap;font:inherit;color:#eaf5ff}
-</style><script src="./history_signals.js" defer></script><script src="./history_compare.js" defer></script></head>
+input[type=file]{display:block;width:100%;padding:13px;border:1px dashed #6d7d9b;border-radius:9px;color:#e1eaf6;background:#101625}
+input[type=file]:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid #90f8de;outline-offset:3px}
+button{border:0;border-radius:9px;background:var(--mint);color:#081f1c;font-size:1rem;font-weight:750;padding:12px 20px;cursor:pointer}
+button.secondary{background:#2b324a;border:1px solid #71829b;color:#f2f5ff}
+button:disabled,select:disabled{opacity:.46;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:19px 0 10px}
+.selectors{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+select{width:100%;padding:12px;border:1px solid #718399;border-radius:8px;background:#101625;color:#ecf2fa}
+pre{overflow-wrap:anywhere;white-space:pre-wrap;font:inherit;font-size:.96rem;color:#eaf5ff;margin:10px 0}
+#output{border-left:3px solid var(--mint);padding:10px 14px;background:#0c1322;border-radius:0 8px 8px 0}
+.detail{font-size:.9rem}.print-only{display:none}
+@page{size:A4 portrait;margin:13mm}
+@media print{
+ :root{color-scheme:light;background:#fff;color:#111}
+ html,body{margin:0!important;padding:0!important;background:#fff!important;color:#111!important}
+ main{max-width:none;padding:0;margin:0}
+ main>:not(#print-sheet){display:none!important}
+ #print-sheet{display:block!important;position:static!important;width:100%;color:#111;background:#fff;border:0;padding:0;box-shadow:none}
+ #print-sheet h2{font-size:15pt;color:#111;letter-spacing:0}
+ #print-sheet p{color:#333;font-size:9pt}
+ #history-print-text{font-family:'Malgun Gothic',Arial,sans-serif;color:#111;font-size:9pt;line-height:1.37;white-space:pre-wrap;overflow-wrap:anywhere;margin:10pt 0}
+}
+@media(max-width:560px){main{padding:18px 14px 40px}.panel{padding:19px}button{width:100%}.actions{display:block}.actions button+button{margin-top:10px}}
+</style><script src="./history_signals.js" defer></script><script src="./history_print.js" defer></script><script src="./history_compare.js" defer></script></head>
 <body><main><header><small>AXMART³ · PC CARE · Release A 시험용</small><h1>반복 검사 결과 비교</h1></header>
 <p>같은 PC에서 생성한 읽기 전용 진단 JSON 두 개를 사용자가 직접 선택합니다. 파일은 이 브라우저의 메모리에서만 처리하며 서버로 보내거나 보관하지 않습니다.</p>
 <section class="panel"><h2>여러 검사 이력 한 번에 선택</h2>
@@ -24,10 +49,17 @@ button:disabled{opacity:.5}.selectors{display:grid;grid-template-columns:repeat(
 <section class="panel"><h2>로컬 JSON 두 개 선택</h2>
 <label for="previous-json">1. 이전 진단 보고서</label><input id="previous-json" type="file" accept=".json,application/json">
 <label for="current-json">2. 최신 진단 보고서</label><input id="current-json" type="file" accept=".json,application/json">
-<button id="compare" type="button">결과 비교</button><p><small>파일당 최대 2MB · 다른 PC의 기록은 비교하지 마세요.</small></p></section>
+<div class="actions"><button id="compare" type="button">결과 비교</button>
+<button id="print-history" class="secondary" type="button" disabled>비교 요약 인쇄 / PDF 저장</button></div>
+<p><small>파일당 최대 2MB · 다른 PC의 기록은 비교하지 마세요. 인쇄 버튼은 유효한 비교 이후에만 활성화됩니다.</small></p></section>
 <section class="panel" aria-label="비교 결과"><h2>비교 결과</h2><pre id="output" role="status" aria-live="polite">파일을 선택한 후 비교 버튼을 누르세요.</pre></section>
 <section class="panel"><h2>개인정보·안전</h2>
 <p>선택한 JSON에는 기기 정보가 있을 수 있습니다. 비교 화면은 안전한 경고 코드와 요약 통계만 표시합니다. 별도의 계정·서버·외부 통신이 없습니다.</p>
 <p>과거 보고서를 지우려면 Windows 파일 탐색기에서 해당 파일을 직접 확인하여 삭제하세요. 이 도구는 파일을 수정하거나 삭제하지 않습니다.</p>
 <p>경고가 최신 보고서에서 보이지 않는 것은 고장 해결의 증거가 아닙니다. 저장장치와 PC 동일성도 이 기능으로 확인할 수 없습니다.</p>
+</section>
+<section id="print-sheet" class="print-only" aria-label="인쇄용 반복 진단 비교 요약">
+<h2>AXMART PC CARE · 반복 검사 비교</h2>
+<pre id="history-print-text"></pre>
+<p>주의: 본 자료는 관측 기록 비교이며 공식 인증서·부품 교체 판단·수리 완료 증명이 아닙니다.</p>
 </section></main></body></html>

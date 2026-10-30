@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "project": "AXMART PC CARE",
+  "component": "Release A H08 offline compare A4 print summary",
+  "dateKST": "2026-10-30",
+  "repo": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "parent": "2a4a6bef056f9ffb1ba14b10a218d802cb98d9eb",
+  "features": [
+    "Explicit click to open native browser print dialog after successful local JSON comparison",
+    "Separate A4 print-only DOM; hide user input, JSON selectors and screen output",
+    "Bounded sanitized event, warning and device metrics; no filenames, paths, serials or raw messages",
+    "Invalidate printable summary on selection/recomparison or parse error",
+    "Pure offline JS; no network, filesystem writes or admin elevation"
+  ],
+  "executed": [
+    {
+      "kind": "V8 integration",
+      "checks": 6,
+      "passed": 6,
+      "failed": 0,
+      "context": "mock document, async file selection, explicit print callback; not a real browser"
+    },
+    {
+      "kind": "V8 test scenarios",
+      "source": "tests/test_history_print.cjs",
+      "tests": 9,
+      "passed": 9,
+      "failed": 0,
+      "context": "Node test/VM/file API adapters; not native Node command"
+    }
+  ],
+  "verifiedBlobs": {
+    "ui/history_print.js": "6bf7724d24931a69f822ae9e47b863388a214272",
+    "ui/history_compare.js": "5cbf57d80cc18f02bf1be778f9fb391a77764c66",
+    "ui/history_compare.html": "eec7af2857cd231baed8019f84f8c1a477fe0829",
+    "tests/test_history_print.cjs": "85a43422b2d7ba3fd1cc3efc42029ef4f5bb4339"
+  },
+  "notVerified": [
+    "Existing 37 H08 Node tests after this patch not rerun",
+    "Native Node.js command for new 9 tests not run",
+    "Python full suite and internal ZIP not run",
+    "Actual Windows Edge/Chrome print dialog/A4 page count/PDF output",
+    "Windows11/USB/WinRE/QR actual hardware",
+    "Production main deployed/runtime"
+  ],
+  "ci": "Registered Node print tests in workflow; known runner/dispatch blocker; no CI invoked.",
+  "deployment": "Feature branch only; no public distribution and no main/Cloudflare modification"
+}

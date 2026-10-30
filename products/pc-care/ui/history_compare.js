@@ -68,7 +68,19 @@ function compareReports(oldReport,newReport){
     const curr = document.getElementById("current-json");
     const button = document.getElementById("compare");
     const output = document.getElementById("output");
+    const printButton = document.getElementById("print-history");
+    const printText = document.getElementById("history-print-text");
     if (!prev || !curr || !button || !output) return;
+    function resetPrint() {
+      if (printButton) printButton.disabled = true;
+      if (printText) printText.textContent = "";
+    }
+    if (printButton) {
+      printButton.addEventListener("click",()=>{
+        if (printButton.disabled || !printText || !printText.textContent) return;
+        if (typeof root.print === "function") root.print(); // Explicit user click only.
+      });
+    }
     let selectionRevision = 0; // Invalidate an in-flight comparison when a selected file changes.
     const batch = document.getElementById("history-batch");
     const historyPrevious = document.getElementById("history-previous");
@@ -94,6 +106,7 @@ function compareReports(oldReport,newReport){
       };
       batch.addEventListener("change", async () => {
         const revision = ++selectionRevision;
+        resetPrint();
         clearHistory();
         output.textContent = "이력 파일이 변경되어 이전 비교 내용을 지웠습니다.";
         const files = Array.from(batch.files || []);
@@ -136,11 +149,13 @@ function compareReports(oldReport,newReport){
       });
       [historyPrevious,historyCurrent].forEach(select=>select.addEventListener("change",()=>{
         selectionRevision++;
+        resetPrint();
         output.textContent = "비교 대상으로 선택한 검사 결과가 변경되었습니다.";
       }));
     }
     button.addEventListener("click", async () => {
       const requestRevision = selectionRevision;
+      resetPrint();
       button.disabled = true;
       output.textContent = "기기 내부에서 보고서를 읽고 있습니다.";
       try {
@@ -178,6 +193,11 @@ function compareReports(oldReport,newReport){
         } else lines.push("추가 관측값: 로컬 확장 모듈 미사용");
         lines.push("", "검사 한계:", ...result.caution.map(s => "- "+s));
         output.textContent = lines.join("\n");
+        if (printButton && printText && root.PcCareHistoryPrint &&
+            typeof root.PcCareHistoryPrint.buildHistoryPrint === "function") {
+          printText.textContent = root.PcCareHistoryPrint.buildHistoryPrint(result);
+          printButton.disabled = false;
+        }
       } catch (err) {
         if (requestRevision === selectionRevision) output.textContent = "비교 불가: " + (err instanceof SyntaxError ? "올바른 JSON 파일이 아닙니다." : err.message);
       }
@@ -185,6 +205,7 @@ function compareReports(oldReport,newReport){
     });
     [prev,curr].forEach(input=>input.addEventListener("change",()=>{
       selectionRevision++;
+      resetPrint();
       selectedHistory = null; // Explicit manual file selection overrides a prior batch.
       if (historyPrevious && historyCurrent) {historyPrevious.disabled=true; historyCurrent.disabled=true;}
       if (historyStatus) historyStatus.textContent="개별 JSON 선택으로 전환했습니다. 이력 일괄 선택을 다시 사용하려면 파일을 재선택하세요.";

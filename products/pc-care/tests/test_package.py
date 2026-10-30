@@ -89,6 +89,16 @@ class PackageTests(unittest.TestCase):
         self.assertIn("'ui/history_compare.html'", packager)
         self.assertIn("'ui/history_compare.js'", packager)
         self.assertIn("'ui/history_signals.js'", packager)
+        self.assertIn("'ui/history_print.js'", packager)
+        self.assertIn('id="print-history"', html)
+        self.assertIn('id="history-print-text"', html)
+        self.assertIn('src="./history_print.js"', html)
+        self.assertIn('@page{size:A4 portrait', html)
+        self.assertIn('main>:not(#print-sheet)', html)
+        self.assertIn('function resetPrint()', js)
+        self.assertIn('printButton.disabled = false', js)
+        self.assertIn('tests/test_history_print.cjs', workflow)
+        self.assertIn('tests/test_history_print.cjs', (ROOT/'tools/preflight.py').read_text(encoding='utf-8'))
 
     def test_internal_qa_runner_is_not_in_customer_zip(self):
         qa = ROOT/'tools/preflight.py'

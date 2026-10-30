@@ -156,3 +156,10 @@ QR 이미지 생성 전 UTC 기록 시각을 **정규식 + 실제 달력 날짜*
 - ZIP은 일시 폴더에서만 생성하고 검증한 뒤 제거한다. 고객 제품용 ZIP 허용목록에는 `tools/preflight.py`와 `tests/test_preflight.py`가 들어가지 않는다. 무료/유료 배포·사용자 파일 삭제·진단·수리 실행 기능이 없다.
 - Windows에서는 별도로 기본 PowerShell 5.1 구문/합성 검사만 실행한다(`-RunReadOnly` 미사용). 비-Windows에서는 `not-run`으로 기록한다. **Windows 실기기 진단, USB, Edge, QR 실스캔, A4/PDF, WinRE/복구는 이 도구가 통과해도 미검증**이다.
 - Linux Python 3.13.5 `python -m unittest tests.test_preflight -v` **4/4 PASS**, `python -m py_compile tools/preflight.py tests/test_preflight.py` PASS. **현재 환경에서 전체 저장소 테스트 및 실제 ZIP 생성은 미실행**이다. Windows CI 워크플로에는 별도 내부 ZIP 생성+재검증 단계만 추가했으며, 실행 도구·러너 제한으로 CI 자체는 새로 돌리지 못했다.
+
+## H08 인쇄/PDF용 개인정보 최소 요약 (2026-10-30 개발)
+
+- 반복 검사 화면에서 두 JSON을 유효하게 비교하면 **비교 요약 인쇄 / PDF 저장** 버튼이 활성화된다. 버튼을 누르면 브라우저 표준 인쇄창이 열리며 Windows에서는 사용자가 **PDF로 저장**을 직접 선택할 수 있다. 자동 PDF 저장·인쇄·업로드 없음.
+- A4 인쇄 CSS는 업로드 입력창·파일 선택 목록·원본 JSON을 숨기고 인쇄 전용 요약만 표시한다. 진단 상태·시각·허용된 경고 코드·이벤트/스토리지/업데이트/장치 구성 관측값과 해석 한계를 넣으며 파일명·경로·시리얼·원본 이벤트 메시지·자유 텍스트는 포함하지 않는다.
+- 잘못된 JSON, 파일 변경, 비교 대상 변경, 재비교 시작 중에는 인쇄가 비활성화되고 이전 인쇄 요약을 즉시 비운다. 인쇄 기능은 오프라인 정적 HTML/JS `ui/history_print.js`에서만 작동하며 서버 호출·운영체제 권한을 사용하지 않는다.
+- 개발용 V8 합성 실행: 인쇄 버튼 활성화·무효화 통합 6항목 PASS, 신규 `tests/test_history_print.cjs` 9개 시나리오 V8 어댑터 실행 **9/9 PASS**. GitHub Action 및 기존 `tools/preflight.py` Node 검사 목록에 포함. **실제 Windows Edge/Chrome 인쇄 미리보기 및 출력 PDF 1페이지 여부는 미검증**, 공식 상담 보고서 기능과 구별할 것. 원본 보고서·배포 main 미변경.

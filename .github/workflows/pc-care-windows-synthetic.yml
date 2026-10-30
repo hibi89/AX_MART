@@ -37,7 +37,7 @@ jobs:
       - name: Run isolated QR UI Node tests (mock DOM, no real browser)
         shell: pwsh
         run: |
-          & node --test tests/test_qr_ui.cjs tests/test_qr_vendor.cjs tests/test_history_compare.cjs tests/test_history_dom.cjs tests/test_history_signals.cjs tests/test_history_batch.cjs
+          & node --test tests/test_qr_ui.cjs tests/test_qr_vendor.cjs tests/test_history_compare.cjs tests/test_history_dom.cjs tests/test_history_signals.cjs tests/test_history_batch.cjs tests/test_history_print.cjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify actual internal-only QA ZIP
         shell: pwsh

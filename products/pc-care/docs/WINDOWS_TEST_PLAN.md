@@ -297,3 +297,8 @@ Pending manual tests:
 - Local file chooser accepts 2–25 explicit JSONs (each at most 2 MB, total at most 12 MB); no automatic file enumeration, network or file deletion. Sorted by validated PowerShell timestamp UTC, not by potentially private filename.
 - Display only enumerated timestamps and strict Korean assessment allowlist; refuse whole batch on malformed JSON, invalid timestamp, oversized or unsupported schema. Select earlier/later from ordered dropdown; choosing old and new as same record must fail. Explicit manual file selection cancels batch mode.
 - Node22 full synthetic `node --test tests/test_history_*.cjs`: **37 PASS / 0 FAIL**, including eight new DOM-mode and race tests. Real Windows Edge/Chrome file://, USB Unicode paths, full Python/ZIP, QR/PDF and WinRE acceptance **UNVERIFIED**; publication remains blocked.
+
+## H08 printable offline comparison (2026-10-30)
+- After a valid comparison, only explicit click on Print / Save PDF invokes the native print dialog. Selection change, batch change, new compare or invalid JSON immediately disables and clears printable data.
+- `ui/history_print.js` uses a fixed, bounded summary: timestamps, allowlisted assessment, warning codes, counts/unknowns and caveats; omits selected filenames, serials and raw logs. CSS A4 portrait hides all input panels in print media. No remote dependencies or automatic write.
+- Verified V8 with mock DOM print call 6/6, synthetic `tests/test_history_print.cjs` through a V8 Node API adapter 9/9. **Actual browser Print/PDF, page count, full native Node/Python/ZIP and Windows/USB/WinRE/QR remain unverified.**

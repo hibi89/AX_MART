@@ -129,3 +129,11 @@
 - 보존: 고객 보고서·수리·WinRE 및 공개 배포 불변, QA 실행기 제품 ZIP 제외.
 - 다음: 전체 소스 있는 PC에서 통합 QA 후 Windows/USB/QR/A4/WinRE 테스트 및 출시 승인.
 - 2026-10-30 KST 기준 범위: 로컬 QA 전용 테스트만 확인, 나머지 미검증.
+
+## 2026-10-30 — AXMART CUBE H08 인쇄 지원 인계
+- 목적/기술: PC CARE Release A 반복 진단 비교 결과를 오프라인 브라우저 A4 인쇄/PDF로 전달. 기존 보고서·복구 원칙은 변경하지 않음.
+- 구현: `ui/history_print.js` 순수 요약기, `ui/history_compare.html/js` 인쇄 버튼(성공한 비교에서만 활성), 인쇄 전용 DOM/CSS, 파일 변경 즉시 초기화. 파일명·경로·시리얼·원본 이벤트 제외. `tools/release.py` ZIP allowlist, `tools/preflight.py`/Windows CI Node 테스트, README·정적 테스트 갱신.
+- 실제 검증: GitHub 원본 V8 통합 6/6 PASS, 신규 `tests/test_history_print.cjs`의 9개 회귀 시나리오 V8 어댑터 9/9 PASS; 기존 Node 37개/네이티브 Node·전체 Python·ZIP·CI **이번 턴 미실행**. QA 증빙 `tests/evidence/history_print_qa_20261030.json`.
+- 상태/오류: 인쇄 내용 보안/명시적 승인 동작 확인, Windows 실제 프린트/A4 PDF 1페이지 검증 전. 이전 CI 41034866482 러너 실패, 신규 dispatch 미지원·재시도 반복 금지.
+- 코드 저장소: `hibi89/AX_MART`, `feature/pc-care-usb`, 복구 기준 `2a4a6bef056f9ffb1ba14b10a218d802cb98d9eb`. Cloudflare `https://ax-mart.pages.dev/`와 운영 main 변경 없음. 개인정보 파일·수리/WinRE/권한 변경 없음.
+- 다음: 실제 Windows 11 표준권한 2회 JSON→Edge USB/file:// 비교→인쇄 PDF 페이지·한글 렌더링→QR 실스캔/WinRE VM→정식 공개 별도 승인. 갱신 2026-10-30 KST, 검증 범위 V8·Git blob, Production 미적용.

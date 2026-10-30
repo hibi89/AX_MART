@@ -296,3 +296,7 @@
 - `tests/test_preflight.py` 4/4 PASS (Linux Python 3.13.5), Python 구문 PASS. `test_package.py`·`test_release.py` 정적 안전 회귀와 Windows CI 내부 ZIP 검증 단계 추가.
 - 이번 턴 전체 저장소 Python/Node suite와 실제 ZIP 빌드, Windows/Edge/USB/QR/PDF/WinRE/CI는 **미실행**. 공개 배포 불가 유지.
 - 이전 HEAD `de5da50f851bfd18b75e9e78fa8b7dceef380f3d`; 운영 main/Cloudflare 불변. 증빙 `tests/evidence/preflight_orchestrator_qa_20261030.json`.
+
+## 2026-10-30 — H08 A4 요약 인쇄·PDF 버튼
+- 비교 성공한 시점에만 `print-history` 활성. 사용자가 직접 누르면 표준 브라우저 인쇄 대화상자를 표시하며 PDF 저장은 사용자 선택. `history_print.js` 안전 상태·관측 이벤트·경고 코드·한계만 선택, 원본 JSON 파일명/경로/시리얼/메시지·파일 선택 패널은 인쇄하지 않음. 파일/비교 대상 변경과 오류 시 이전 인쇄 자료 초기화.
+- 신규 V8 DOM 통합 6/6, `test_history_print.cjs` 9/9 V8 어댑터 PASS, 원격 Blob readback. 테스트·내부 ZIP allowlist·개발 preflight/수동 Windows CI 등록. 네이티브 Node 전체 회귀, 실제 Windows A4 PDF·USB·QR/WinRE **미검증**, 사용자 배포 차단. 이전 SHA `2a4a6bef056f9ffb1ba14b10a218d802cb98d9eb`. QA `tests/evidence/history_print_qa_20261030.json`.

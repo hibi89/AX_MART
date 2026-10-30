@@ -397,3 +397,15 @@
 8. 보존: 원본 보고서·수리 코드 수정 없음. 내부 ZIP은 임시 생성 후 폐기.
 9. 다음: `python tools/preflight.py` 전체 환경 실증, Windows 현장 테스트 후 별도 출시 승인.
 10. 확인: 2026-10-30 KST, 테스트 4건 및 Git Blob 동일성만 검증. 전체 빌드·CI·Production 미검증.
+
+## [최신] 2026-10-30 — Release A H08 A4 비교 요약 인쇄 인수인계
+1. 목표·기술: Windows/USB 오프라인 HTML 비교 결과를 A4 또는 사용자가 저장하는 PDF로 전달; 기존 FINAL_SPEC_V2 규칙과 원본 데이터 보존.
+2. 구현: `ui/history_print.js`(안전한 고정 출력·경고코드 6개 제한), `ui/history_compare.js/html` 인쇄 버튼 및 별도 인쇄 전용 섹션. valid 비교 후만 활성, 비교 시작/JSON 선택 변경/실패 시 즉시 무효화, 자동 저장·전송 금지.
+3. 검증: V8 순수+가상DOM 통합 6/6 PASS, 9개 신규 Node 회귀 시나리오를 V8 Node API adapter로 실행해 9/9 PASS. Git Blob readback 확인. `tests/evidence/history_print_qa_20261030.json` 참고. 기존 네이티브 Node 37개, 새 네이티브 Node 9개, Python/ZIP/Windows CI 미실행.
+4. 상태: H08 비교 인쇄 코드 완료, Windows A4 페이지·PDF 한글 렌더링/Print API는 실제 브라우저 검증 대기. 제품 전체 미완료·판매/무료 공개 보류.
+5. 장애·대안: 이전 Chromium는 환경 관리자 정책 `ERR_BLOCKED_BY_ADMINISTRATOR`; 반복 우회 금지. CI run 41034866482 실패·step 없음, 신규 dispatch 미지원. Windows 사용자 환경 또는 가용 Windows runner로 실제 QA.
+6. Repo/branch/SHA: `hibi89/AX_MART`, `feature/pc-care-usb`, 이전 SHA `2a4a6bef056f9ffb1ba14b10a218d802cb98d9eb`. 주요 파일 `products/pc-care/ui/history_print.js`, `tests/test_history_print.cjs`, 기존 HTML/JS, release/CI/preflight/tests.
+7. Production: `https://ax-mart.pages.dev/` main 변경 없이 미적용. Windows `START_PC_CARE.cmd` 메뉴 5→로컬 HTML→JSON 비교→사용자 인쇄.
+8. 원본/백업/보안: 변경 전 SHA 복원 가능; 사용자 REPORTS·BitLocker·수리·WinRE 코드/실제 데이터 미변경, 강제 push 없음.
+9. 다음 작업: 기존 37+9 Node 테스트를 한 번에 실행 후 Windows 실제 `file://`, USB 한글 경로, 인쇄 PDF 1페이지, QR 카메라, WinRE VM 안전성 체크. 완료/출시는 승인 후.
+10. 시점/범위: 2026-10-30 KST, Git blob과 V8 합성 15 checks only, 네이티브 실행/실사용·Production 미검증.

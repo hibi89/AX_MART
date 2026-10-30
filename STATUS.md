@@ -113,3 +113,7 @@
 - `feature/pc-care-usb` 기준 SHA `de5da50f851bfd18b75e9e78fa8b7dceef380f3d`. `tools/preflight.py`로 Python/Node/임시 ZIP 검증 병렬화, Windows CI에 내부 ZIP 확인 단계 추가. 고객 ZIP에는 개발 QA 제외.
 - Linux 전용 테스트 `python -m unittest tests.test_preflight -v` **4 PASS, 0 FAIL**, Python 구문 PASS. 전체 원본 Python/Node/ZIP·CI·Windows 실장치 미실행·미검증.
 - 운영 main/Cloudflare 및 기존 제품 기능 불변. 공개·판매 승인 보류. 상세 `products/pc-care/HANDOFF.md`.
+
+## 2026-10-30 — PC CARE H08 비교 요약 A4/PDF 인쇄 지원
+- `feature/pc-care-usb`(기준 `2a4a6bef056f9ffb1ba14b10a218d802cb98d9eb`) 사용자 화면에 유효한 비교 후만 활성화되는 명시적 인쇄/PDF 버튼과 개인정보 최소 A4 인쇄 요약 구현. 기존 2파일·25파일 비교 기능 유지, 인쇄용 스크립트 ZIP 포함/Node CI·QA 등록.
+- V8 통합 6/6, 신규 9개 시나리오 V8 실행 9/9 PASS (Node API adapter, Native Node 미실행). 실제 Windows Edge/Chrome PDF 페이지 수, 이전 37개 Node 전체 회귀, Python/ZIP/CI 및 USB·WinRE·QR 실기기 **미검증**. 운영 main/Cloudflare 변경 없음; 판매·공개 금지 유지.
