@@ -123,6 +123,16 @@ class PackageTests(unittest.TestCase):
         self.assertNotIn('Invoke-RestMethod', normalizer)
         self.assertNotIn('Invoke-WebRequest', normalizer)
 
+    def test_privilege_and_storage_support_are_explicit(self):
+        diagnose = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("requestedElevation=$false", diagnose)
+        self.assertIn("$observations['privilege']", diagnose)
+        self.assertIn("reliabilityStatus='unavailable'", diagnose)
+        self.assertIn("$item.reliabilityStatus = 'collected'", diagnose)
+        self.assertIn("$item.reliabilityStatus = 'empty'", diagnose)
+        self.assertNotIn('-Verb RunAs', diagnose)
+        self.assertIn("['collectionStatus']", diagnose)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
         for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tests/event_analysis.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
