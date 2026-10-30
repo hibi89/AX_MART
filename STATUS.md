@@ -76,3 +76,7 @@
 ## 2026-10-30 KST — PC CARE feature 자가검사 경로 결정성 보강
 - `feature/pc-care-usb`: 진단 완료 파일 receipt를 직접 사용하도록 Windows 자가검사 변경. 기존 가장 최근 파일 추정 방식 제거, 정적 테스트 추가. 상세 제품 STATUS/HANDOFF 참고.
 - 기준 변경 전 SHA `3da0c5bb236064328e1c506143a48ce9f20dadea`, main/Cloudflare/결제/상품 다운로드 불변. 실제 Windows PowerShell5.1·USB/WinRE 및 QR/A4 검증 대기.
+
+## 2026-10-30 KST — 자가검사 receipt 블록 구문 복구
+- 이전 2c83634 커밋의 windows_smoke.ps1에 중복된 JSON 검사와 잘린 정규식 문장이 발견되어 정상 실행을 방해할 위험이 있었다. 해당 블록을 단일 유효 구조로 교체, [.]json filename 매칭 및 경로/파일 검증 보강, 정적 테스트 동기화.
+- 실제 Windows PowerShell 5.1 실행·VM/USB/WinRE/QR/A4 검증 여전히 대기. 2c83634 이전 소스 기준 복구 가능. 운영 main/Cloudflare 미변경.

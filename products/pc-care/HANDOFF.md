@@ -297,3 +297,7 @@
 8. 보안: 고객 실데이터·보고서 업로드 없음. receipt는 테스트 함수로만 반환하며 일반 보고서 로컬 저장 유지. 기존 SHA 복구 가능.
 9. 다음: Windows 11 PowerShell5.1 파서·fixtures·실제 read-only 출력과 USB 한글/공백 경로 테스트→오프라인 QR/PDF→WinRE 격리 승인.
 10. 갱신: 2026-10-30 KST. GitHub 원격 소스 정적 검토 및 새 커밋 반영 후 HEAD 재확인.
+
+## 2026-10-30 KST — 자가검사 receipt 블록 구문 복구
+- 이전 2c83634 커밋의 windows_smoke.ps1에 중복된 JSON 검사와 잘린 정규식 문장이 발견되어 정상 실행을 방해할 위험이 있었다. 해당 블록을 단일 유효 구조로 교체, [.]json filename 매칭 및 경로/파일 검증 보강, 정적 테스트 동기화.
+- 실제 Windows PowerShell 5.1 실행·VM/USB/WinRE/QR/A4 검증 여전히 대기. 2c83634 이전 소스 기준 복구 가능. 운영 main/Cloudflare 미변경.

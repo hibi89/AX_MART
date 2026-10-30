@@ -248,3 +248,7 @@
 - `tools/diagnose.ps1`에 `-PassThru` (이번 실행 저장 경로만 출력), `-NoOpenReport` (자가검사에서 브라우저 자동 실행 억제) 옵션을 추가, 일반 Windows 실행기는 변경 없음.
 - Windows 스모크는 receipt 정확히 1개, 절대경로·동일 부모·동일 파일 기본명·허용 보고서 폴더·실제 2개 파일 존재를 검사. 타 실행 결과 탐색 제거. `tests/test_package.py` 정적 회귀 추가.
 - 확인 범위: GitHub 소스 정적 대조. PowerShell 5.1 실제 실행·USB/한글 경로·동시 실행·HTML/PDF/QR 동작은 **미검증**. GitHub main/Cloudflare/수리 파일 미변경. 복구기준 커밋 `3da0c5bb236064328e1c506143a48ce9f20dadea`.
+
+## 2026-10-30 KST — 자가검사 receipt 블록 구문 복구
+- 이전 2c83634 커밋의 windows_smoke.ps1에 중복된 JSON 검사와 잘린 정규식 문장이 발견되어 정상 실행을 방해할 위험이 있었다. 해당 블록을 단일 유효 구조로 교체, [.]json filename 매칭 및 경로/파일 검증 보강, 정적 테스트 동기화.
+- 실제 Windows PowerShell 5.1 실행·VM/USB/WinRE/QR/A4 검증 여전히 대기. 2c83634 이전 소스 기준 복구 가능. 운영 main/Cloudflare 미변경.

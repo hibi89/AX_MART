@@ -80,3 +80,7 @@
 ## 2026-10-30 KST — PC CARE 자가검사 실제 저장 경로 receipt 인계
 - feature 브랜치 `feature/pc-care-usb`, 변경 전 SHA `3da0c5bb236064328e1c506143a48ce9f20dadea`. `tools/diagnose.ps1`는 `-PassThru/-NoOpenReport`을, `tests/windows_smoke.ps1`는 반환된 파일 경로 직접 검증을 사용. 타 실행 최신 리포트를 오인하는 경합 완화.
 - 일반 실행기, 기존 JSON/HTML 내용, 관리자 수리, 사이트 운영 main 소스 변경 없음. 정적 회귀 소스 갱신, 실제 Windows·동시성·QR·PDF/WinRE와 전체 CI **미검증**. 무료 공개/판매 계속 차단.
+
+## 2026-10-30 KST — 자가검사 receipt 블록 구문 복구
+- 이전 2c83634 커밋의 windows_smoke.ps1에 중복된 JSON 검사와 잘린 정규식 문장이 발견되어 정상 실행을 방해할 위험이 있었다. 해당 블록을 단일 유효 구조로 교체, [.]json filename 매칭 및 경로/파일 검증 보강, 정적 테스트 동기화.
+- 실제 Windows PowerShell 5.1 실행·VM/USB/WinRE/QR/A4 검증 여전히 대기. 2c83634 이전 소스 기준 복구 가능. 운영 main/Cloudflare 미변경.
