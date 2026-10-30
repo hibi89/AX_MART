@@ -227,3 +227,8 @@
 - `feature/pc-care-usb`: Windows 디스크 여유 공간 조회의 `NaN`·무한대·변환 오류/비정상 드라이브 문자 때문에 전체 진단이 중단되거나 부정확한 보고서가 생성될 수 있는 문제 수정. 기존 배포 `telemetry_analysis.ps1` 순수 helper에서 값을 검증, 잘못된 항목만 제외.
 - 수집 일부 제외 시 `collectionStatus.volumes=incomplete`·`volumeRejectedCount`로 명시해 H08가 수집 불완전 데이터를 비교하지 않도록 연결. 합성 PS fixture와 Python 소스 계약 추가. GitHub 정적 23/23 PASS, **변경 코드 PS5.1 native·전체 Python/Node/실 ZIP·Windows/USB·QR/A4/WinRE/CI NOT_RUN**. 증거 `products/pc-care/tests/evidence/volume_metric_failclosed_source_qa_20261031.json`.
 - 운영 main/Cloudflare, 사용자 원본 파일·OS·실수리/배포 불변. 다음 Windows 개발 체크아웃 `RUN_RELEASE_QA.cmd`→실제 읽기전용 진단 보고서 E2E.
+
+## 2026-10-31 KST — AXMART CUBE PC CARE H08 경고 허위 미관찰 차단
+- `feature/pc-care-usb`: 신규 드라이브 수집 `incomplete`이거나 `volumeRejectedCount`가 잘못됐는데도 과거 `DISK_SPACE_LOW/CRITICAL`을 `missing`으로 비교하던 H08 결함 수정. 신규 관측 경고와 다른 경고 비교는 유지. 공식 JS 회귀 4건 등록.
+- GitHub 원본 코드 V8 호환 시험 공식 **26/26 PASS**+별도 17/17(중복), 원격 정적 16/16. **실제 Node test runner/Windows PS5.1/전체 제품 ZIP·브라우저·USB/QR/A4·WinRE·현 CI 미검증**. `products/pc-care/tests/evidence/h08_volume_warning_provenance_v8_20261031.json`.
+- 운영 main/Cloudflare·사용자 파일/OS·수리/출시 불변. 다음 실제 Windows `RUN_RELEASE_QA.cmd` 및 read-only 보고서/H08 수용 시험.
