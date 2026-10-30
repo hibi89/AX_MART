@@ -222,3 +222,8 @@
 - `feature/pc-care-usb`: 원격 Git blob SHA까지 맞춰 복원한 `products/pc-care/tools/release.py` + `tests/test_release.py`를 실제 Python 3.13.5로 실행. 공식 unittest **15/15 PASS**, 별도 합성 ZIP 안전 시험 **14/14 PASS**(중복 항목 존재). `products/pc-care/tests/evidence/release_actual_python_native_20261031.json`.
 - 실제 제품 파일 ZIP·전체 repo Python/Node·Windows PS5.1/실기기·USB/QR/A4·WinRE·CI는 여전히 **미검증**. 이번엔 코드 수정을 필요로 하는 오류가 발견되지 않아 증빙 및 상태만 갱신. main/Cloudflare/사용자 원본/OS·수리·출시 불변.
 - 다음 P0: 실제 제품 전체 체크아웃 Windows `RUN_RELEASE_QA.cmd` 및 생성 결과 `QA_RESULTS` 확인.
+
+## 2026-10-31 KST — AXMART CUBE 논리 드라이브 데이터 실패 격리
+- `feature/pc-care-usb`: Windows 디스크 여유 공간 조회의 `NaN`·무한대·변환 오류/비정상 드라이브 문자 때문에 전체 진단이 중단되거나 부정확한 보고서가 생성될 수 있는 문제 수정. 기존 배포 `telemetry_analysis.ps1` 순수 helper에서 값을 검증, 잘못된 항목만 제외.
+- 수집 일부 제외 시 `collectionStatus.volumes=incomplete`·`volumeRejectedCount`로 명시해 H08가 수집 불완전 데이터를 비교하지 않도록 연결. 합성 PS fixture와 Python 소스 계약 추가. GitHub 정적 23/23 PASS, **변경 코드 PS5.1 native·전체 Python/Node/실 ZIP·Windows/USB·QR/A4/WinRE/CI NOT_RUN**. 증거 `products/pc-care/tests/evidence/volume_metric_failclosed_source_qa_20261031.json`.
+- 운영 main/Cloudflare, 사용자 원본 파일·OS·실수리/배포 불변. 다음 Windows 개발 체크아웃 `RUN_RELEASE_QA.cmd`→실제 읽기전용 진단 보고서 E2E.
