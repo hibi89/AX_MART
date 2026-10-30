@@ -102,3 +102,11 @@
 - Improved `tools/diagnose.ps1` with keyboard skip link, ARIA quicknav, 7 in-page sections and responsive CSS. Existing print CSS hides all but A4 consultation; consent-gated QR unchanged. `tests/test_package.py` checks anchors across both diagnose + consultation renderer. Remote source static assertions **9/9** conditions, not runtime PASS.
 - Next ㄱ: fix runner availability/billing/permissions if possible, otherwise push independent quality improvements and provide Windows self-test entrypoint. Run PS5.1 fixture + Python tests and scan actual QR/print A4 before release. Never treat unassigned CI job as product test result. No download/payment publication.
 
+## 2026-10-30 KST — Trusted CMD launcher and Node QR runtime checkpoint
+
+- Branch `hibi89/AX_MART feature/pc-care-usb` only. Protect AXMART³ Cloudflare production main. No public ZIP/paid listing.
+- Three CMD entrypoints `products/pc-care/RUN_HEALTH_CHECK.cmd`, `RUN_SELF_TEST.cmd`, `RUN_SAFE_REPAIR.cmd` switched from PATH `powershell.exe` to quoted absolute Windows PowerShell 5.1 `%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe` and fail-closed on absence. Prevent accidental USB-directory binary search; repair approval gates unchanged.
+- Local copied `ui/qr_ui.js` source matched GitHub by FNV32 **3087562328**; real Node v22.16.0 VM mock DOM tests **6/6 PASS** and `node --check` PASS. This does NOT prove browser QR render or phone scan. New `tests/test_qr_ui.cjs` with 10 built-in test cases committed, but not yet executed in CI. `tests/windows_smoke.ps1 -RunReadOnly` now verifies saved HTML/JSON privacy, A4, offline QR scripts/attribution; `tests/test_package.py` tests CMD safety.
+- GitHub Action 41034866482 failed before runner assigned; workflow remains manual-only with Node QA step. Source checks **21/21**; actual Windows CMD/PowerShell, GitHub runner, Python full suite/ZIP, browser/A4/phone QR, WinRE still unverified. See STATUS.md, HANDOFF.md and docs/WINDOWS_TEST_PLAN.md.
+- Next ㄱ: prioritize real Windows standard-user validation and issue fixes. Do not automatically run repair, overwrite reports, or publish free/paid downloads. Windows testing can be done from internal ZIP via RUN_SELF_TEST.cmd with no repair, but carefully review local logs before sharing.
+
