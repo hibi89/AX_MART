@@ -433,3 +433,15 @@
 8. 원본/백업/인증/수정금지: 모든 실제 고객 파일·OS 복구상태·BitLocker/BCD·로컬 보고서 불변. Git 전 SHA 복원 가능, 민감값/키/로그 repo 업로드 없음.
 9. 다음 작업/승인: Windows VM+실기기에서 사전 검사·종료값·오탐 QA → 물리 저장장치 식별 실패시 차단 확인 → 별도 신규/빈 디스크·용량·연결끊김·FAT32/EFS/OneDrive/다중 프로필 테스트 → 승인 전까지 파일 복사 기능 구현을 릴리스로 취급하지 말 것.
 10. 확인 시각·범위·문서 기준: 2026-10-30 KST. Linux Python 정적 경계 테스트만 검증, Windows/WinRE/실백업/실패복구·운영서비스 미검증. 커밋 후 HEAD·문서 갱신 검증.
+
+## [최신] 2026-10-31 KST — Release A 상담보고서 수집 신뢰성 인계
+1. **목표·기술:** PowerShell 5.1 기반 `Get-PcCareConsultationSummary`에서 저장장치/이벤트 수집 실패를 정상·실측으로 오인하지 않기.
+2. **구현·판단:** `collectionStatus.physicalDisks=collected`인 완전·비어 있지 않은 Healthy만 정상 표기, 미확인 경우 정상 주장 금지. 수집 실패해도 실제 관찰된 Warning은 남기고 수집 한계 추가. `eventCollection`/Windows Update 상태 collected 또는 truncated일 때만 이벤트 목록 반영, unavailable/no matching events 제외. 기존 보고서 구조와 HTML 출력 유지.
+3. **테스트:** GitHub 이전/수정 원본 기반 소스 계약 V8 7/7 PASS. `tests/consultation_report.tests.ps1` 신규 Assertion 10개·기존 기대값 변경, `tests/test_package.py` 정적 소스 계약. **PowerShell 5.1 네이티브 합성·전체 Python·ZIP·Windows·CI는 이번 턴 미실행**. 증빙 `tests/evidence/consultation_provenance_qa_20261031.json`.
+4. **현상태:** 코드 구현/정적 안전계약 완료. 실제 Windows 건강검진 및 인쇄/A4/QR/USB·WinRE 검증/배포 미완료.
+5. **오류/재시도:** 기존 보고서는 'healthy 표본 + 조회 실패'를 정상으로 표시 가능, '업데이트 조회 실패+잔류 이벤트'를 근거로 노출 가능. 정적 계약 확보, Windows PS5.1 실제 실행은 CI runner 없음으로 미검증. runner 이전 실패 `41034866482` 무의미한 재시도 금지.
+6. **Git:** `hibi89/AX_MART` `feature/pc-care-usb`; 변경 전 SHA `ad392a6d646f1e104c9ed20ba32ad43d26ed73c5`. 소스 `tools/consultation_report.ps1`, 테스트 `tests/consultation_report.tests.ps1`, `tests/test_package.py`, 증빙 JSON, 문서.
+7. **운영:** Cloudflare `https://ax-mart.pages.dev/` 기존 main 불변. `START_PC_CARE.cmd` → READ ONLY 진단·상담 HTML, Windows QA는 `tests/windows_smoke.ps1` 명령으로 검증 필요.
+8. **데이터·보안:** 고객 원본 보고서/물리 디스크/BitLocker/레지스트리·WinRE 복구/비밀 키 미변경. 기존 SHA로 안전 복구 가능. 원격 배포·판매 비활성.
+9. **다음 작업:** PowerShell 5.1 synthetic fixtures 테스트 → 전체 Python/Node·정식 내부 ZIP build/verify → Windows 표준권한 USB/file://·QR 실스캔·A4 PDF 확인 → WinRE 분리 실기기 QA. 물리 디스크 분리 증명 없는 Release B 실제 복사는 계속 금지. 공개/판매 승인 별도.
+10. **시각·검증범위:** 2026-10-31 KST, 검증은 V8 정적 계약 7개·Git blob 일치. Windows/WinRE/Production 미검증, 최종 SHA 푸시 후 확인.

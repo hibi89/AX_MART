@@ -127,3 +127,8 @@
 - `feature/pc-care-usb` 시작 SHA `b1ab5de8c4274b9b699fdc886a5b4d911c95ed9a`. 신규 `recovery/RESCUE_READINESS.cmd`는 접근 가능한 Windows 볼륨 후보/도구 파일 존재만 읽고, 물리 디스크 분리·BitLocker·용량·해시 증명 불가로 항상 종료코드 3 BLOCKED. 파일 복사·삭제·키 입력·로그 기록·설정 변경·수리 없음.
 - 동일 기능을 내부 시험 ZIP allowlist·`WINRE_READ_ONLY.cmd`의 별도 수동 사용 안내에 연결. `tests/test_rescue_readiness.py` Linux Python 3.13.5 실제 정적 경계 **4 PASS / 0 FAIL**, Git blob SHA 원본 일치. Windows CMD/WinRE·실제 백업·전체 저장소 Python/Node·내부 ZIP/CI 미실행.
 - Release B 실복사는 준비 검사/물리 분리 증명/실기기 안전 QA까지 미활성화. main `fbb32362455378b85bcdd0b5037d1f338055fb71`, Cloudflare Production 불변; 공개/판매 차단. 증빙 `products/pc-care/tests/evidence/rescue_readiness_static_qa_20261030.json`.
+
+## 2026-10-31 KST — PC CARE 상담표 오탐 차단·관측 근거 검증
+- `feature/pc-care-usb` 기준 `ad392a6d646f1e104c9ed20ba32ad43d26ed73c5`에서 Release A `consultation_report.ps1`의 수집 근거 검사 강화. 장치 정상 표시에는 `collectionStatus.physicalDisks=collected` + 비어 있지 않은 전체 Healthy 장치 목록 필수. 경고 신호는 수집 불완전해도 표시하되 불확실성 고지. 이벤트/업데이트 `unavailable` 상태의 잔류 로그는 상담표에 포함하지 않음.
+- PS 합성 픽스처 `consultation_report.tests.ps1` 기대값 갱신 + 새 10개 안전 Assertion; Python 정적 테스트 계약 갱신. GitHub 원본을 사용한 V8 소스 계약 검사 7/7 PASS, **실제 PowerShell 5.1/Windows/전체 Python/ZIP/CI 미실행**. QA `products/pc-care/tests/evidence/consultation_provenance_qa_20261031.json`.
+- Release B WinRE 실제 복사는 물리 디스크 분리 증명과 안전성 실기기 검증 전까지 계속 차단. main/Cloudflare·고객 파일·수리 코드 불변.

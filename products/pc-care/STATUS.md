@@ -310,3 +310,8 @@
 - 안전한 분리 개발: `recovery/RESCUE_READINESS.cmd` 수동 WinRE CMD용. Windows SYSTEM/Users 폴더 후보·필수 명령 존재만 관찰, 자동 BitLocker 조회/키 입력/파일 복사/로그 기록/변경 없음. 별도 물리 디스크, 잠금 상태, 사용가능 용량, 복사 결과를 판별하지 못해 **무조건 BLOCKED/exit 3**.
 - `WINRE_READ_ONLY.cmd` 마지막 안내/시험 ZIP allowlist 및 `tests/test_release.py`, `tests/test_package.py` 계약에 추가. Python 3.13.5 `test_rescue_readiness.py` 실제 **4 PASS/0 FAIL**. CMD/Windows/WinRE/실복사/전체 ZIP·Python·CI·Production 미검증. 이전 SHA `b1ab5de8c4274b9b699fdc886a5b4d911c95ed9a`.
 - ZIP/README/SAFETY 참조. 실기기 확인 전 Release B 백업 기능을 상품 완성품으로 표기 금지. 복구 기능 개발 단계는 여전히 미완료.
+
+## 2026-10-31 KST — 상담표 저장장치/이벤트 근거 신뢰성 강화
+- 기존 건강한 장치 표본만 있고 전체 장치 조회가 실패해도 정상 신호로 잘못 표시될 수 있던 조건 수정: `collectionStatus.physicalDisks='collected'`+비어 있지 않은 전체 Healthy만 'Windows 정상 신호 (보증 아님)'. 관찰된 Warning/Unhealthy는 미완전 수집 상태라도 경고 표시 및 수집 한계 고지.
+- 이벤트·업데이트 상태가 `unavailable` 또는 `no matching events`인 경우 배열에 남은 이벤트를 실제 기록 근거로 표시하지 않음. `truncated` 부분 기록은 한계 고지와 함께 표시. 기존 테스트의 '조회 불가 업데이트 이벤트도 표시' 오류 기대값 수정.
+- PS 합성 픽스처에 신규 10개 Assert, Python 소스 계약 테스트 추가. 원본 GitHub Blob 안전 계약 V8 7 PASS / 0 FAIL; **PowerShell 런타임 테스트/전체 Python·Node·ZIP/CI/WinRE·실기기 미검증**. 사용자 배포 금지.

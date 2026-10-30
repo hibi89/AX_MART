@@ -43,7 +43,16 @@ function Get-PcCareConsultationSummary {
     $updateState = [string]$observations.windowsUpdate.status
     if ($updateState -notin @('collected','no matching events','truncated','unavailable')) { $updateState = 'unavailable' }
     $recorded = New-Object 'System.Collections.Generic.List[object]'
-    foreach ($item in (@($observations.eventEvidence) + @($observations.windowsUpdate.evidence))) {
+    # Failed/empty collectors are not evidence. Keep partially collected records
+    # only when their status explicitly says 'truncated' and disclose that limit.
+    $eligibleRecords = @()
+    if ($eventState -in @('collected','truncated')) {
+        $eligibleRecords += @($observations.eventEvidence)
+    }
+    if ($updateState -in @('collected','truncated')) {
+        $eligibleRecords += @($observations.windowsUpdate.evidence)
+    }
+    foreach ($item in $eligibleRecords) {
         if ($null -eq $item) { continue }
         $label = ''
         $kind = [string]$item.kind
@@ -76,10 +85,14 @@ function Get-PcCareConsultationSummary {
         })
     }
     $diskStatus = '미확인'
+    $diskCollectionState = [string]$observations.collectionStatus.physicalDisks
+    $diskComplete = ($diskCollectionState -eq 'collected')
     $diskItems = @($observations.physicalDisks | Where-Object { $null -ne $_ })
+    # Warning observations remain actionable even if collection was incomplete.
+    # Healthy observations require explicit complete collection, not a partial sample.
     if (@($diskItems | Where-Object { $_.status -in @('Warning','Unhealthy') }).Count -gt 0) {
         $diskStatus = '경고 신호 관측'
-    } elseif ($diskItems.Count -gt 0 -and @($diskItems | Where-Object { $_.status -ne 'Healthy' }).Count -eq 0) {
+    } elseif ($diskComplete -and $diskItems.Count -gt 0 -and @($diskItems | Where-Object { $_.status -ne 'Healthy' }).Count -eq 0) {
         $diskStatus = 'Windows 정상 신호 (보증 아님)'
     }
     $limits = New-Object 'System.Collections.Generic.List[string]'
@@ -88,6 +101,7 @@ function Get-PcCareConsultationSummary {
     if ($updateState -eq 'unavailable') { [void]$limits.Add('업데이트 로그 조회 불가') }
     if ($updateState -eq 'truncated') { [void]$limits.Add('업데이트 로그 일부만 수집') }
     if ($diskStatus -eq '미확인') { [void]$limits.Add('저장장치 상태 미확인') }
+    if (-not $diskComplete) { [void]$limits.Add('저장장치 수집 완전성 미확인') }
     if ($limits.Count -eq 0) { [void]$limits.Add('검사 범위 밖의 원인은 확인되지 않음') }
     $questions = @(
         '중요 파일 백업을 먼저 해야 하는 상태인가요?',

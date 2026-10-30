@@ -33,9 +33,9 @@ Assert-Consultation ($summary.assessment -eq '위험 신호') 'Confirmed assessm
 Assert-Consultation ($summary.windowsBuild -eq '26100') 'Only numeric Windows build'
 Assert-Consultation ($summary.storageSignal -eq '경고 신호 관측') 'Warning summarized without source model'
 Assert-Consultation ($summary.reviewItems.Count -eq 2) 'Issue allowlist and bounded codes'
-Assert-Consultation ($summary.recordedEvents.Count -eq 2) 'System and update records included'
-Assert-Consultation ($summary.recordedEvents[0].eventId -eq 20) 'Newest events first'
-Assert-Consultation ($summary.recordedEvents[0].recordedUtc -eq '2026-10-30 03:10') 'UTC normalized'
+Assert-Consultation ($summary.recordedEvents.Count -eq 1) 'Unavailable Windows update records must be excluded'
+Assert-Consultation ($summary.recordedEvents[0].eventId -eq 1001) 'Valid system record remains'
+Assert-Consultation ($summary.recordedEvents[0].recordedUtc -eq '2026-10-30 03:00') 'UTC normalized'
 Assert-Consultation ($summary.consultationQuestions.Count -ge 2 -and $summary.consultationQuestions.Count -le 4) 'Bounded consultation checklist'
 Assert-Consultation (@($summary.limitations | Where-Object { $_ -match '조회 불가|일부만 수집' }).Count -eq 2) 'Unavailable and truncated states'
 Assert-Consultation (-not $summary.containsIdentifiers) 'No identifiers declared'
@@ -84,4 +84,34 @@ $untrustedSummary.reviewItems = @('<script>test</script>')
 $evilHtml = ConvertTo-PcCareConsultationHtml -Summary $untrustedSummary
 Assert-Consultation ($evilHtml -notmatch '<script>' -and $evilHtml -notmatch '<img ') 'Untrusted values must be HTML-encoded'
 Assert-Consultation ($evilHtml -match '&lt;script&gt;') 'Encoded values retained safely'
+# Status provenance: a stale or injected event is never a valid record after failed lookup.
+$report.observations.eventCollection = 'unavailable'
+$report.observations.windowsUpdate.status = 'unavailable'
+$unavailableEvidence = Get-PcCareConsultationSummary -Report $report
+Assert-Consultation ($unavailableEvidence.recordedEvents.Count -eq 0) 'Failed collectors cannot present stale event records'
+$report.observations.eventCollection = 'truncated'
+$report.observations.windowsUpdate.status = 'collected'
+$validPartial = Get-PcCareConsultationSummary -Report $report
+Assert-Consultation ($validPartial.recordedEvents.Count -eq 4) 'Truncated System and collected update records may appear with limitations'
+Assert-Consultation (@($validPartial.limitations | Where-Object { $_ -eq 'System 로그 일부만 수집' }).Count -eq 1) 'Partial collection limitation remains visible'
+# Storage collection provenance: Healthy alone does not mean the whole device inventory is complete.
+$report.observations['physicalDisks'] = @([pscustomobject]@{ status='Healthy'; model='PRIVATE-DISK' })
+$report.observations['collectionStatus'] = [ordered]@{ physicalDisks='unavailable' }
+$diskUnavailable = Get-PcCareConsultationSummary -Report $report
+Assert-Consultation ($diskUnavailable.storageSignal -eq '미확인') 'Unavailable collection with Healthy item is unknown'
+Assert-Consultation (@($diskUnavailable.limitations | Where-Object { $_ -eq '저장장치 수집 완전성 미확인' }).Count -eq 1) 'Storage incompleteness limitation required'
+$report.observations.collectionStatus.physicalDisks = 'truncated'
+$diskTruncated = Get-PcCareConsultationSummary -Report $report
+Assert-Consultation ($diskTruncated.storageSignal -eq '미확인') 'Truncated disks cannot claim healthy'
+$report.observations.collectionStatus.physicalDisks = 'collected'
+$diskComplete = Get-PcCareConsultationSummary -Report $report
+Assert-Consultation ($diskComplete.storageSignal -eq 'Windows 정상 신호 (보증 아님)') 'Only complete all-healthy list may show healthy observation'
+$report.observations.physicalDisks = @()
+$diskEmpty = Get-PcCareConsultationSummary -Report $report
+Assert-Consultation ($diskEmpty.storageSignal -eq '미확인') 'Empty disk list cannot claim healthy'
+$report.observations.physicalDisks = @([pscustomobject]@{ status='Warning'; model='PRIVATE-DISK' })
+$report.observations.collectionStatus.physicalDisks = 'unavailable'
+$diskWarning = Get-PcCareConsultationSummary -Report $report
+Assert-Consultation ($diskWarning.storageSignal -eq '경고 신호 관측') 'Warning remains visible despite incomplete inventory'
+Assert-Consultation (($diskWarning | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE-') 'Warnings never leak model or private data'
 Write-Host 'CONSULTATION FIXTURE PASS: bounded evidence, A4 checklist, unknown data, privacy.' -ForegroundColor Green

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "dateKST": "2026-10-31",
+  "project": "AXMART PC CARE",
+  "branch": "feature/pc-care-usb",
+  "baselineSHA": "ad392a6d646f1e104c9ed20ba32ad43d26ed73c5",
+  "feature": "Release A consultation report collection provenance fail-closed",
+  "scope": [
+    "Do not claim healthy disks without collectionStatus.physicalDisks=collected, nonempty all-Healthy device list",
+    "Preserve positive observed disk warnings even when collection incomplete, but disclose uncertainty",
+    "Exclude eventEvidence when eventCollection unavailable/no-match and WindowsUpdate evidence when update status unavailable/no-match",
+    "Keep truncated observations only when explicitly marked and retain collection limitation"
+  ],
+  "tests": {
+    "staticSourceContract": {
+      "checks": 7,
+      "passed": 7,
+      "failed": 0,
+      "run": "V8 assertion over exact GitHub old/new source blobs"
+    },
+    "windowsPowerShellFixture": {
+      "addedOrRevisedAssertions": 13,
+      "run": false,
+      "reason": "Windows PowerShell 5.1 not installed in tool host; CI workflow dispatch unavailable"
+    },
+    "fullPythonNode": {
+      "run": false
+    },
+    "actualWindowsAndWinRE": {
+      "run": false
+    }
+  },
+  "files": {
+    "products/pc-care/tools/consultation_report.ps1": "550d54d29511e96fb6ba23a5e74bbba920764f2b",
+    "products/pc-care/tests/consultation_report.tests.ps1": "9eef753fbd5ad69054542c13e4d6db248f90af03",
+    "products/pc-care/tests/test_package.py": "8234a3c2908573c1b5a21cc253ab87dafc904c93"
+  },
+  "safety": "No disk reads, source report/OS changes, repair executions, customer data access, public uploads or production changes; schema remains backward compatible; incomplete collection => unknown.",
+  "outstanding": [
+    "Run full tests/windows_smoke.ps1 on Windows PowerShell 5.1 synthetic fixture, no -RunReadOnly required",
+    "Run Python full suite and internal ZIP manifest check",
+    "Real Windows reports and A4/QR/file:// USB validations",
+    "Release B physical disk identification and actual copy remain blocked, no implementation or release"
+  ]
+}

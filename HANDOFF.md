@@ -155,3 +155,11 @@
 - 상태: Release B 프리뷰 정적 계약만 구현, **실제 백업·사후 해시·전원중단·BitLocker/다중 디스크 테스트 미구현·미검증**. 공개 금지. 설계 대안: PS5.1 기반은 WinRE 기본 탑재 미보장, CMD 접근만 선행; 물리 분리 증명 불가면 복사 절대 금지.
 - GitHub: `hibi89/AX_MART` `feature/pc-care-usb`, 변경 전 `b1ab5de8c4274b9b699fdc886a5b4d911c95ed9a`(복원 가능). Production `https://ax-mart.pages.dev/` main 불변. Git commit author/committer 신원·remote SHA 및 CI 마지막 실행 별도 확인.
 - 다음: Windows 11 VM/WinRE에서 이 스크립트의 탐지·종료 3 확인, 무단 쓰기·명령 실행 0회; 물리적으로 다른 장치 증명, FAT32·BitLocker·EFS/OneDrive·용량·USB 중단 테스트. 보안/실기기 전체 통과 전 실제 복사 코드를 패키징/노출하지 않는다. 고객 데이터/BitLocker 키/시스템 설정 미변경. 2026-10-30 KST, 실제 테스트 4개는 구조적 Python QA만.
+
+## 2026-10-31 — AXMART CUBE 상담표 fail-closed 업데이트 인수인계
+- 목표: PC CARE Release A 진단 상담표의 과도한 정상 표시/로그 출처 오인 방지; 설계/라이선스/출시 기준 불변.
+- 완료: `products/pc-care/tools/consultation_report.ps1` 저장장치 정상 표시에 전체 수집 상태 필수, 경고 보존·불확실성 고지; System/Windows Update 수집 실패·비매칭 로그 미표시. `tests/consultation_report.tests.ps1` 상태변형 합성 테스트 10개 신규, 기존 오류 기대값 교정, `tests/test_package.py` 정적 계약 추가.
+- 테스트: 현재 GitHub Blob에 대한 V8 소스 안전 계약 7/7 PASS. Windows PowerShell 5.1 합성 픽스처, Python 전체/ZIP, CI·실기기 모두 미실행/미검증. 과거 runner 41034866482 실패 반복 재시도 금지.
+- Repo: `hibi89/AX_MART`, `feature/pc-care-usb`, 복원 기준 `ad392a6d646f1e104c9ed20ba32ad43d26ed73c5`; QA `products/pc-care/tests/evidence/consultation_provenance_qa_20261031.json`.
+- 서비스: `https://ax-mart.pages.dev/` main/Cloudflare 무변경·미배포. 고객 REPORTS/개인 파일/BitLocker/WinRE/수리 수정 없음.
+- 다음: Windows 11 PowerShell 5.1 `tests/windows_smoke.ps1` 기본 합성 실행 → 전체 Python·Node·ZIP → 실제 표준 권한 진단 및 보고서 UI/USB/QR/PDF 검증 → Release B 별도 안전 승인. 확인일 2026-10-31 KST. 완료 판정 금지.

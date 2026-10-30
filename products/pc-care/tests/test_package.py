@@ -140,6 +140,21 @@ class PackageTests(unittest.TestCase):
         self.assertIn('test_rejects_zip_member_with_oversized_decompressed_size', tests)
         self.assertIn('test_verify_cli_requires_sha256_sidecar', tests)
 
+    def test_consultation_refuses_incomplete_healthy_and_untrusted_events(self):
+        consultation = (ROOT/'tools/consultation_report.ps1').read_text(encoding='utf-8-sig')
+        tests = (ROOT/'tests/consultation_report.tests.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("$diskComplete = ($diskCollectionState -eq 'collected')", consultation)
+        self.assertIn("$diskComplete -and $diskItems.Count -gt 0", consultation)
+        self.assertIn("'저장장치 수집 완전성 미확인'", consultation)
+        self.assertIn("$eventState -in @('collected','truncated')", consultation)
+        self.assertIn("$updateState -in @('collected','truncated')", consultation)
+        self.assertIn('foreach ($item in $eligibleRecords)', consultation)
+        self.assertNotIn("foreach ($item in (@($observations.eventEvidence) + @($observations.windowsUpdate.evidence)))", consultation)
+        self.assertIn('Failed collectors cannot present stale event records', tests)
+        self.assertIn('Unavailable collection with Healthy item is unknown', tests)
+        self.assertIn('Only complete all-healthy list may show healthy observation', tests)
+        self.assertIn('Warning remains visible despite incomplete inventory', tests)
+
     def test_normal_check_is_read_only(self):
         text = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
         # No change-enabling cmdlets or dangerous commands in scanner.
