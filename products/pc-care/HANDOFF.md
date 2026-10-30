@@ -602,3 +602,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본·백업·인증 관리: Git 작업 전 SHA 복구 가능. 개인 REPORTS·장치·BitLocker 키·자격증명·OS 설정·백업/복구 데이터 무접근/무변경; 자동 수리·외부 업로드·공개 없음.
 9. 다음 우선순위·승인: Windows 전체 개발 checkout/합성 fixture→실기기 읽기전용 JSON·HTML/타임라인→H08/USB 한글/QR 실스캔/A4→WinRE 격리VM 위험검증. 실복사·복구·결제·운영 변경 시 사전 승인. 완료 기준은 Windows 정상 실행과 실제 기능 검증.
 10. 갱신: 2026-10-31 KST. 원격 GitHub source/readback/정적 25개만 검증; 실제 Native/Windows 여부 미확인. 테스트 원본 SHA는 evidence, 기준 최종 커밋은 GitHub 재조회.
+
+## 2026-10-31 KST — CUBE 네이티브 QA 영수증/Provider P0 인수인계 10항
+1. 목표·기술: PC CARE Release A 오프라인 Windows PS5.1/CMD·HTML/JS·JSON 진단/보고서/H08·인쇄. WinRE Release B 실제 파일 백업/수리는 별도 안전 게이트.
+2. 이번 기능·결정: Windows 개발 소스 `RUN_RELEASE_QA.cmd`가 `preflight.py --receipt-dir QA_RESULTS`를 이용해 자동으로 민감정보 배제된 단발성 JSON QA 영수증을 기록(오염 원본/기존 리포트 덮어쓰기 없음). 안전 저장·중복 방지·허용된 단계명·PASS와 부분 검증 구분. Windows Update 정규화 공급자를 정확한 `Microsoft-Windows-WindowsUpdateClient`로 제한; 이름 비슷한 가짜 공급자 차단.
+3. 검증 명령·결과: 원격 소스 계약 **26 PASS/0 FAIL**, 동일 핵심 QA 영수증 함수 격리 로컬 Python 3.13 실행 **6 PASS/0 FAIL**. `tests/test_preflight.py`, `tests/telemetry_analysis.tests.ps1`, `tests/test_package.py` 회귀 소스 커밋. GitHub 전체 native Python/Node, Win PS5.1, 제품 ZIP, Windows/USB/QR/A4·WinRE/CI **NOT_RUN**.
+4. 상태·차단: Release A 코드·테스트 등록/로컬 receipt 작성 준비 완료, 실제 Windows 수용 QA 대기. Release B 실제 백업/고권한 수리·고객 배포 차단.
+5. 오류·원인·대안: 기존 Update normalizer 정규식 `(^|-)WindowsUpdateClient$`가 가짜 접두사 허용. 정확한 공급자 비교로 전환. 이전 Actions 41034866482 runner 미배정 0 steps, 무의미한 재시도 금지. Windows 실행은 본 환경에 PS5.1·비공개 repo checkout 연결이 없어 미검증.
+6. 저장소/브랜치/SHA/경로: `hibi89/AX_MART@feature/pc-care-usb`, 이전 기준 `f604d2f4902dec82e3e58a0166f2dc94faa0e5ce`; `tools/preflight.py`, `tests/test_preflight.py`, `RUN_RELEASE_QA.cmd`, `tools/telemetry_analysis.ps1`, `tests/telemetry_analysis.tests.ps1`, `.github/workflows/pc-care-windows-synthetic.yml`, `tests/test_package.py`, `README.md`, 루트 `.gitignore`. 근거 `tests/evidence/native_qa_receipt_update_provider_static_20261031.json`.
+7. 운영/환경: `https://ax-mart.pages.dev/` 운영 main/Cloudflare 미변경, 이 개발 기능 프로덕션 미적용. Windows 11 x64·PS5.1, Python≥3.11, Node; `RUN_RELEASE_QA.cmd`는 합성 테스트/임시 ZIP만, 실제 고객 진단·수리 시작 안 함.
+8. 원본·백업·보안: Git 변경 전 SHA 복원점. 고객 REPORTS·OS·BitLocker·인증키·파일 무접근/무변경. `QA_RESULTS/` Git ignore 및 배포 ZIP 제외. 영수증에는 경로/원시 로그·시리얼/개인정보 없음. 별도 외부 전송 없음.
+9. 다음 P0·승인: 전체 Windows 개발 체크아웃에서 `RUN_RELEASE_QA.cmd` 네이티브 1회 실행→`QA_RESULTS/pc-care-qa-*.json` 확인→명시적 read-only 진단 생성 JSON/HTML/H08·한글USB/QR/A4. WinRE 실제 복사·수리·출시/결제·권한 변경은 사전 승인 필수.
+10. 시점·범위: 2026-10-31 KST. GitHub 원격 readback/정적 26건 + 복사된 isolated receipt smoke 6건까지만 확인. 진짜 Windows Native/CI/배포 미검증. 문서 커밋 후 feature SHA 별도 확인.
