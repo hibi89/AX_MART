@@ -152,3 +152,14 @@
 - **제품 상용화:** AXMART³ 프로그램 무료 제공 가정 / 크몽은 소프트웨어 파일 판매가 아니라 유료 결과 해석·상담 서비스 별도 검토. `README.md`의 과거 소프트웨어 5천원 판매 가정 수정. 실제 검증 전 무료/유료 배포·서비스 등록 금지.
 - **다음:** Windows PS5.1 파서와 합성 fixture 실제 실행 → 1일 읽기 전용 출력 → Edge/Chrome A4 PDF 검증(한글/긴 텍스트/폰트/무전송) → P2 QR 텍스트 payload 미리보기/명시 선택과 오프라인 생성·스캔 검증 → 전체 Release A QA. 사용자 파일 데이터 복사/WinRE Release B는 독립 안전 게이트 후만.
 
+## 2026-10-30 KST — P2 오프라인 QR용 개인정보 최소 공유 문구·명시 미리보기 (최신)
+
+- **목표/분리:** FINAL_SPEC_V2.md R04-R07의 QR 공유 준비 단계. QR 비트맵 생성기는 **아직 없음**; QR 이미지/실제 스캔 완료 판정 금지. 기존 A4 인쇄와 read-only diagnostics/analysis 기능 보존. AXMART³ 운영 main/Cloudflare·크몽/무료 공개 없음.
+- **신규 share payload:** `tools/share_payload.ps1` (PS5.1 UTF8 BOM) pure function `Get-PcCareSharePayload`; 기존 비식별 consultation 모델의 assessment/화이트리스트 신호 두 종류(추가 종류 수 표기)/허용 Event ID에 해당하는 UTC 기록 시각만 사용. 로그 원문, 장치/사용자 ID·이름·경로·키, 자유 입력 문구 복사 금지. '로그 기록 시각'·'원인 미확정'·'백업 후 추가 점검' 명시. 정확한 UTF-8 byteCount 계산, 목표 상한 **250 bytes**, 초과 시 payloadText=null/too_large (무단 절단 없음). 실제 QR 비트맵 없음.
+- **신규 opt-in 미리보기:** `tools/share_preview.ps1`는 local `<details><summary>` 클릭으로만 보이도록 공유 문구를 HTML-encode 후 readonly textarea에 삽입. '전체 선택' 버튼 클릭은 텍스트 select만 하고 실제 Ctrl+C/공유는 사용자 판단. 외부 CDN/QR 서비스·자동 clipboard/upload/fetch 없음. 만료/과다 길이 차단 표시. 브라우저 프린트에서는 기존 `#consultation-print` 외 섹션 숨김 유지.
+- **진단 연동:** `tools/diagnose.ps1`에 공유 payload·미리보기 모듈을 연결. JSON에는 `sharePreview`의 상태/바이트 수/비트맵 미생성/문자열 미저장 메타만 추가; 실제 문구는 진단 JSON에 넣지 않음. HTML 문서에는 펼치기 전에도 텍스트가 포함될 수 있어 전체 HTML 파일 공유 시 검토 필요(README 경고 추가).
+- **테스트 코드:** `tests/share_payload.tests.ps1`에 malicious Message/DeviceID/경로 유출 금지, 허용 신호/ID·UTC 시간, 사용자 입력 배제, UTF-8 250바이트 상한/의도적 실패, HTML escape·클릭 펼치기·QR 미생성 테스트. `tests/windows_smoke.ps1` parser/fixture 및 JSON schema, `tools/release.py` internal-test ZIP ALLOWLIST, `test_release.py`와 `test_package.py` 의존성을 일괄 업데이트. docs/WINDOWS_TEST_PLAN.md에 후속 실제 QR 독립 검증 게이트 작성.
+- **검증 구분:** GitHub 소스 8개 파일의 모듈·BOM·whitelist·250바이트 검증·미리보기·출시 차단 의존성 **정적 계약 40/40 조건 충족**. 실제 PowerShell 5.1 parser/fixture, Python unittest/ZIP, Windows Edge/Chrome, 화면, 스마트폰 QR 스캔, WinRE **미실행/미검증**. 40/40은 제품 사용성·동작 테스트 통과가 아님.
+- **남은 기능:** 실제 로컬 QR 인코더/오픈소스 라이선스 검토·스캔 검증, P2 홈 UI/인쇄 1장 실증, Windows/USB/권한/파일 저장 QA, Release B WinRE 파일 복사 및 승인형 수리 안전 검증. 베타·판매·다운로드 여전히 차단.
+- **코드 기준:** feature/pc-care-usb 작업 시작 HEAD 2684cd3b55f9186921e630fe4a672be4c27ad1e6. 최종 문서 반영 후 HEAD 검증 필요.
+
