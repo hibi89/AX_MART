@@ -59,6 +59,8 @@
 
 ## 개발자 검증
 
+개발용 GitHub 전체 소스 체크아웃의 Windows 11에서 `RUN_RELEASE_QA.cmd`를 실행한다. Python/Node/Windows PowerShell 5.1 합성 테스트와 임시 내부 ZIP 해시 검사를 수행하지만 실제 진단·수리·WinRE 작업은 시작하지 않는다. 테스트 결과는 로컬 `QA_RESULTS/pc-care-qa-*.json` 파일에 자동 저장된다. 이 영수증에는 **단계 이름·PASS/FAIL/BLOCKED/NOT-RUN·테스트 수·미검증 범위**만 포함하며 로그 원문·사용자 경로·디스크 식별자는 포함하지 않는다. 폴더는 Git에서 제외하고 고객용 ZIP에도 포함하지 않는다. 실제 기기 검증·브라우저 인쇄·복구 작업 완료를 뜻하지 않는다.
+
 `python3 tests/test_package.py` 실행. 이 테스트는 정적 패키지 구성과 위험 명령 미포함 여부만 점검한다. Windows 실행 성공을 증명하지 않는다.
 
 상품명: **AXMART PC CARE**. AXMART³ 무료 프로그램 구상이며, 크몽에서는 소프트웨어 자체가 아니라 별도 결과 해석·상담 서비스(제안가 19,900원부터)를 검토 중이다. **Windows 실기기 검증 전 무료 배포·유료 상담 등록·결제 시작 금지.**
