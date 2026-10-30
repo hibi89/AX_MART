@@ -219,3 +219,14 @@
 - **미검증/출시 차단:** Windows11 PowerShell5.1, 일반 Windows/Edge·Chrome 저장 HTML의 캔버스 실제 이미지, QR 휴대전화 한글 스캔·BOM UX, USB·저장/프린터/A4 PDF 1장, WinRE/BitLocker 안전성, Python 전체 unittest/ZIP 빌드 **미검증**. Release A/B 공개/크몽 등록 금지. 제품 진척률은 종합 설계 기준 보수적으로 **약 30%** 수준 유지(Windows/WinRE 검증 비중 큼).
 - **다음:** Node vendor+UI 테스트 실행 증거 → `tests/qr_browser_smoke.py` 실제 Chromium/QR decoder → Windows 실기기 `RUN_SELF_TEST.cmd`와 저장 HTML/JSON/A4 QR 스캔 → 안전 테스트/승인 기반 Release B. QA가 준비되지 않은 상태에서 운영 사이트 연결·유료 출시 금지.
 
+
+## 2026-10-30 KST — P2 실제 QR 인코더 252건 조합 검증·로컬 파일 브라우저 QA 보강 (최신)
+
+- **대상:** hibi89/AX_MART `feature/pc-care-usb`. 이전 기능 SHA `f4e494dc716000c1ad0b845342cacf3e6e50183b`. main/Cloudflare/WinRE/고객 원본 변경 없음.
+- **실행 성과:** 동봉 QR 인코더 `ui/qrcode.min.js` 수정본(소스 blob `f7e18fb3c1be406dca4a1aef5269cddf5d13c561`) 자체를 V8에서 실행해 유효한 상담 QR 문구 **252건/252건**에서 정확한 UTF-8 데이터 크기(+선행 BOM 3bytes), QR 인코딩과 모듈 생성 정상 확인. 사용 상태 4 × 신호 유형(1~2) 21 × 생략형 3. 본문 최대 228 UTF-8 bytes, QR 모듈 53~61칸. 새 스모크 실행을 통해 한글 버퍼 오류 재발 부재 확인.
+- **GitHub 회귀 구현:** `tests/test_qr_vendor.cjs`에 252 조합을 반복 확인하는 실제 라이브러리 Node test 추가(기존 6개 case→7개 테스트 블록, 마지막 블록 252회). QR 엔진의 5자 버그 패치 유지. 실제 GitHub Actions에서 새 Node 테스트 실행은 러너 미배정으로 대기. 테스트 소스 추가만으로 Node suite PASS 단정 금지.
+- **브라우저 QA 강화:** `tests/qr_browser_smoke.py`가 오프라인 한글 파일명 HTML을 실제 `file://`로 열고, HTTP(S) 외부 요청을 명시적 차단, 전 세션 요청/JS 예외 확인, OpenCV QR 디코딩·한글/BOM 비교·날짜 변조·이전 QR 소거를 검사하도록 수정. 기능 자체는 사용자 ZIP 제외한 개발자 검증 도구이며 실행 환경에서 실제 Chromium vendor 렌더 테스트는 **미수행**.
+- **현실적인 차단:** 공개 상류 라이브러리의 로컬 컨테이너 다운로드가 접근 제한으로 실패했으며, GitHub 연결 소스를 로컬 Chromium 실행 환경에 안전하게 동일 파일로 가져오는 경로를 확보하지 못함. 동일 방식 반복 대신 Windows 또는 코드 체크아웃 가능한 개발자 환경에서 `python tests/qr_browser_smoke.py --chromium <경로>`를 실행해야 함. CI Actions 41034866482는 runner 배정 이전 실패. Windows PowerShell5.1, 실제 Edge/Chrome 제품 HTML/QR 스캔, Android/iOS, ZIP·A4 PDF·USB/WinRE 안전 검증 미완료.
+- **정적 연결 검증:** GitHub 6개 관련 파일 cross-check **17/17 조건 충족**. V8 252/252은 실행된 인코더 결과이며, 브라우저 조건 17/17은 정적 계약 검사일 뿐 별개. 제품 출시/무료 다운로드/크몽 판매·운영 main 변경 금지. 최종 설계 포함 완성률 **약 31% 추정**, 실기기 검증 우선.
+- **다음:** 별도 리포트 파일/USB/한글 경로에서 실제 Windows smoke → Edge·Chrome 로컬 QR 이미지/PDF 인쇄 → 스마트폰 카메라 확인 → Release B 승인형 백업 및 WinRE 안전성. 반복 구현 대신 장치 QA와 진단 UX 검증 확보.
+
