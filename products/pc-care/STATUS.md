@@ -108,3 +108,14 @@
 - **실측 범위:** GitHub 반영 파일 10개에 대해 소스/BOM/호출 관계/충돌 가드/ZIP 구성 **정적 계약 16/16 조건 충족**. Python 단위 테스트 및 Windows PowerShell 파서·새 fixture는 실제 실행되지 않았으므로 PASS로 표시하지 않는다.
 - **개발 브랜치:** hibi89/AX_MART feature/pc-care-usb. main 및 Cloudflare 운영 사이트 미변경. 공개 다운로드·결제·승인형 복구 테스트/실사용 모두 차단.
 - **다음 게이트:** Windows 11 x64 비관리자 PS5.1 Parser 및 event/report fixtures 실제 실행, 내부 ZIP에서 self-test 재실행, 읽기 전용 진단의 데이터/권한/쓰기 실패 시나리오 실측. P0 전체 완료는 검증 후 결정.
+
+## 2026-10-30 KST — P1 장애 증거 해설 엔진 첫 구현 (최신)
+
+- 기존 feature/pc-care-usb P0 코드는 보존. 신규 tools/incident_analysis.ps1에 PowerShell 5.1용 순수 규칙 함수를 구현. 인풋은 정규화된 System 이벤트, 장치 상태, 이벤트 수집 상태; 출력은 versioned findings/observedCounts/limitations이며 진단 확정 여부는 false.
+- 관측 기반 규칙: 저장장치 오류·Warning/Unhealthy 시 백업 우선, BugCheck(정상 공급자) 기록 시 STOP 코드 검토 안내, 이벤트 41/6008은 비정상 종료 신호만으로 취급. 저장장치+BugCheck 동시 관측은 인과/시간적 근접성이 확인되지 않았음을 명시.
+- 미수집·로그 상한·상태 Unknown·장치 0건은 incomplete. 건강점수·고장원인 확정·메인보드/SSD 수리 보증 및 자동복구 금지 유지. 장치 이름/원문 이벤트 내용을 findings로 복제하지 않음.
+- tools/diagnose.ps1 JSON analysis 필드와 HTML의 원인 후보/한계 섹션에 연동. HTML 동적 문구는 Esc 인코딩 처리. tests/incident_analysis.tests.ps1 신규: 로그 없음, 41 단독, BugCheck, 저장장치 우선, truncation, 원인 비확정·기기 이름 비노출.
+- Windows tests/windows_smoke.ps1 파서·fixture 연결, 내부 시험 ZIP ALLOWLIST와 Python packaging/static 테스트에 필수 파일 추가. 실제 제품 구매/다운로드 페이지, WinRE/수리 변경 없음.
+- **실행/검증:** GitHub 9개 소스 대상 교차 구조·BOM·보안·배포 의존성을 검사한 **32/32 정적 조건 충족**. Windows PowerShell 5.1/pwsh 런타임 없음; private GitHub 컨테이너 네트워크 DNS 접근도 불가. Windows 실제 Parser/fixture, Python unittest/ZIP 실제 패키징, WinRE·안전성 QA는 **미실행**. 합격 주장 금지.
+- **단계:** P1 원인 후보 규칙 초기 구현, P1 배터리/업데이트·분석 정확도·이력 기능 미완료. P0도 Windows QA 대기로 부분 완료. P2 인쇄/QR 및 Release B 미구현. docs/WINDOWS_TEST_PLAN.md에 P1 실행 수용조건 추가.
+- **참고:** Cloudflare Pages main/배포·판매/다운로드 정책 변경 없음. 변경 전 작업 브랜치 HEAD ec065d00f031d3e1689ece951945c2a58d9bda63으로 복구 가능. 다음은 실제 Windows PS5.1 테스트와 회귀 실패 수정, 이후 Windows Update/배터리/인쇄 요약 순서.
