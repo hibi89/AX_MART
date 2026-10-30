@@ -1,6 +1,7 @@
 ﻿# Synthetic repair consultation summary fixtures, no Windows or filesystem changes.
 $ErrorActionPreference = 'Stop'
 . (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/consultation_report.ps1')
+. (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/consultation_render.ps1')
 function Assert-Consultation([bool]$condition, [string]$message) {
     if (-not $condition) { throw ('CONSULTATION FIXTURE FAIL: ' + $message) }
 }
@@ -72,4 +73,15 @@ $bounded = Get-PcCareConsultationSummary -Report $report
 Assert-Consultation ($bounded.recordedEvents.Count -eq 4) 'A4 evidence max four'
 Assert-Consultation ($bounded.recordedEvents[0].recordedUtc -eq '2026-10-30 01:19') 'Four newest evidence rows'
 Assert-Consultation (($bounded | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE-') 'Long history cannot leak private strings'
+$printHtml = ConvertTo-PcCareConsultationHtml -Summary $summary
+Assert-Consultation ($printHtml -match 'id="consultation-print"') 'Print-only section selector'
+Assert-Consultation ($printHtml -match '수리점 상담 질문' -and $printHtml -match 'Event ID') 'Print includes consultation checklist and evidence'
+Assert-Consultation ($printHtml -notmatch 'PRIVATE-') 'Rendered HTML does not contain original private strings'
+$untrustedSummary = $summary.PSObject.Copy()
+$untrustedSummary.generatedAt = '<script>ALERT</script>'
+$untrustedSummary.advice = '<img src=x onerror=alert(1)>'
+$untrustedSummary.reviewItems = @('<script>test</script>')
+$evilHtml = ConvertTo-PcCareConsultationHtml -Summary $untrustedSummary
+Assert-Consultation ($evilHtml -notmatch '<script>' -and $evilHtml -notmatch '<img ') 'Untrusted values must be HTML-encoded'
+Assert-Consultation ($evilHtml -match '&lt;script&gt;') 'Encoded values retained safely'
 Write-Host 'CONSULTATION FIXTURE PASS: bounded evidence, A4 checklist, unknown data, privacy.' -ForegroundColor Green
