@@ -11,3 +11,5 @@
 - PC CARE 실기기 테스트 및 정식 안전 판정 완료 후 무료 베타 공개 여부 결정
 
 관련 현재 상태는 STATUS.md 및 HANDOFF.md 참조.
+
+- 사이트 리브랜딩: AXMART³ (AXMART CUBE), 첫 제품 AXMART PC CARE. 제품 기술 이름 `products/pc-care/` 유지. 메인 브랜치가 실제 사이트 브랜드 소스다.

@@ -49,3 +49,7 @@
 - 사용자 기기에서 내부 테스트 ZIP 압축 해제 후 `RUN_SELF_TEST.cmd` 1회 실행만으로 문법+읽기 전용 보고서 생성 여부 확인 가능. 별도의 수리 실행은 절대 금지.
 - README, 패키지 ALLOWLIST(11개), 정적 테스트 갱신. Python fixture 패키징 6/6 성공. 실기기·WinRE PASS 주장 금지.
 - 변경 전 HEAD `2ee12d9bf1fcf311ca40c7d4e129076d68ce96f0`; 다음 Windows 검증 실패 시 로그 및 명령/환경만 별도 정리하고 개인정보 공유 금지.
+
+## 2026-10-30 KST — 네이밍 인계
+- `AXMART³`는 플랫폼명(AXMART CUBE), `AXMART PC CARE`는 제품명. 제품명에 'CUBE'나 'USB'를 포함시키지 않는다. 제품 경로/내부 ZIP에 USB가 있는 것은 기술 파일명일 뿐.
+- 브랜드 프리뷰는 `main`의 가상 UI 시안이며 실제 Windows 앱 UI 완성과는 무관. 본 feature HEAD 이전 `69b8bd26caf7fb4a63dec4db627a54d0ae7548a8`.

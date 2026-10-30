@@ -57,3 +57,6 @@
 - 검증: Python 임시 fixture 패키징 테스트 6/6 PASS, GitHub 소스 조건 17/17 확인; Windows 런타임·BSOD 원인 검증·WinRE·수리·배포는 미검증. 코드가 있어도 무료 공개/판매 불가.
 - 다음: Windows 실제 PC에서 `RUN_SELF_TEST.cmd`를 실행해 화면 종료 코드 확인(고객의 원본 리포트 외부 공유 금지) → 문제 보정 → WinRE/BitLocker 및 별도 스냅샷 복구 VM에서 승인형 수리 검증 → 최종 릴리스 승인.
 - 보안: 제품 ZIP은 내부 시험용이며 공개 링크 없음. 원본 보존·로그 로컬, ZIP 결정적 허용 목록. KST 기준 2026-10-30.
+
+## 2026-10-30 KST — 네이밍 주의
+- 플랫폼 AXMART³ (CUBE) / 제품 AXMART PC CARE. 제품 코드와 내부 USB ZIP 명명은 호환성 때문에 유지. 실사용 검증 전 상품 판매/배포 차단.

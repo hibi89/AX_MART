@@ -1,4 +1,4 @@
-# AXMART PC CARE v0.1-alpha — USB 진단·복구 보조 도구
+# AXMART PC CARE v0.1-alpha — Windows PC·USB 포터블 진단·복구 보조 도구
 
 **상태: 초기 시험용, 판매 불가. 실제 Windows PC에서 실행 검증 전.**
 
@@ -35,7 +35,7 @@
 
 `python3 tests/test_package.py` 실행. 이 테스트는 정적 패키지 구성과 위험 명령 미포함 여부만 점검한다. Windows 실행 성공을 증명하지 않는다.
 
-상품 가칭: **AXMART PC CARE USB**. 예상 소비자가 **₩5,000**, 실제 상품 판매·결제 연결 전.
+상품 가칭: **AXMART PC CARE**. 예상 소비자가 **₩5,000**, 실제 상품 판매·결제 연결 전.
 
 ## 내부 검증용 패키지 (배포 금지)
 - `python3 tests/test_package.py` — 제품의 정적 안전성/구조 검사. 실제 Windows 작동을 증명하지 않음.
@@ -47,3 +47,8 @@
 
 ## Windows 초보자용 안전 시험 (공개 전 내부 전용)
 압축 해제한 USB 폴더에서 `RUN_SELF_TEST.cmd`를 더블클릭한다. PowerShell 문법 검사 후 **최근 1일에 대한 읽기 전용 검사**와 로컬 HTML/JSON 생성 여부만 검증한다. 시스템 파일 수리는 실행하지 않는다. 완료 화면의 PASS/FAILED와 종료 코드를 확인한다. 시험 중인 Windows 10/11에서만 사용하며, 개인정보가 포함될 수 있는 보고서를 그대로 외부에 공유하지 않는다. 결과가 PASS여도 WinRE·복구 기능 안전성은 별도 검증이 필요하다.
+
+## 브랜드 및 배포 이름 (2026-10-30)
+- 플랫폼/사이트: **AXMART³** (읽기: AXMART CUBE), 제품: **AXMART PC CARE**. 'USB'는 포터블 구동 매체/내부 ZIP 명명일 뿐 판매명 아님.
+- GitHub 폴더와 내부 시험 ZIP 경로에는 하위 호환을 위해 `pc-care`·`USB`를 유지한다. 공개 제품 패키지명은 Windows 검증 후 별도 최종 결정.
+- Windows 실행(PC 폴더/USB)은 설치 없이 동일한 스크립트 경로로 시작하도록 설계. WinRE는 별도 공식 복구 환경 필요.
