@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sourceRef": "6b17c88863bc035c266ac159b61e7ab3812b84e9",
+  "checks": [
+    {
+      "name": "BOM",
+      "passed": true
+    },
+    {
+      "name": "System",
+      "passed": true
+    },
+    {
+      "name": "Update",
+      "passed": true
+    },
+    {
+      "name": "invalid UTC",
+      "passed": true
+    },
+    {
+      "name": "Provider",
+      "passed": true
+    },
+    {
+      "name": "invalid coverage",
+      "passed": true
+    },
+    {
+      "name": "tests",
+      "passed": true
+    },
+    {
+      "name": "contract",
+      "passed": true
+    },
+    {
+      "name": "not giant",
+      "passed": true
+    }
+  ],
+  "staticSourceChecks": 9,
+  "actualPowerShell51": "NOT_RUN",
+  "actualPython": "NOT_RUN",
+  "actualNode": "NOT_RUN",
+  "windowsUsbQrA4": "UNVERIFIED",
+  "winre": "BLOCKED",
+  "actualZip": "NOT_RUN",
+  "ci": "NOT_RUN",
+  "main": "UNCHANGED",
+  "release": "HOLD"
+}

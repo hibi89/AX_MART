@@ -1,5 +1,39 @@
 ﻿# AXMART PC CARE - evidence-based interpretation, not automated diagnosis.
 # PowerShell 5.1, pure function; no filesystem, registry or network side effects.
+
+# Only normalized event log evidence may create diagnostic review findings.
+function Test-PcCareIncidentEvidence {
+    [CmdletBinding()]
+    param([object]$Evidence, [ValidateSet('system','update')][string]$Source)
+    if ($null -eq $Evidence) { return $false }
+    try {
+        if ([string]$Evidence.timeBasis -cne 'event_recorded_time') { return $false }
+        $kind = [string]$Evidence.kind
+        $id = [int]$Evidence.eventId
+        $provider = [string]$Evidence.provider
+        $recorded = [string]$Evidence.recordedUtc
+        if ($recorded -cnotmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})$') { return $false }
+        $when = [datetimeoffset]::Parse($recorded, [Globalization.CultureInfo]::InvariantCulture)
+        if ($when -eq [datetimeoffset]::MinValue) { return $false }
+        if ($Source -eq 'update') {
+            return ((($kind -eq 'update_installation_failure_record' -and $id -eq 20) -or
+                     ($kind -eq 'update_installation_success_record' -and $id -eq 19)) -and
+                     ($provider -ceq 'Microsoft-Windows-WindowsUpdateClient'))
+        }
+        if ($kind -eq 'bugcheck_record' -and $id -eq 1001) {
+            return $provider -match '^(?:BugCheck|WER-SystemErrorReporting|Microsoft-Windows-(?:BugCheck|WER-SystemErrorReporting))$'
+        }
+        if ($kind -eq 'shutdown_signal') {
+            return (($id -eq 41 -and $provider -match '^(?:Microsoft-Windows-)?Kernel-Power$') -or
+                    ($id -eq 6008 -and $provider -match '^EventLog$'))
+        }
+        if ($kind -eq 'storage_signal' -and $id -in @(7,51,55,129,153,157)) {
+            return $provider -match '^(?:(?:Microsoft-Windows-)?(?:disk|ntfs|volmgr|storahci|stornvme|storport|storvsc|nvme)|Microsoft-Windows-Storage-Storport|iaStor(?:A|AC|V|VD))$'
+        }
+    } catch { return $false }
+    return $false
+}
+
 function Get-PcCareIncidentAssessment {
     [CmdletBinding()]
     param(
@@ -17,8 +51,10 @@ function Get-PcCareIncidentAssessment {
     # Stale arrays can survive a failed collector. They are not usable evidence.
     # Incomplete (truncated) collections retain observed signals with a caveat.
     $allEvents = @()
+    $rejectedSystemEvidence = 0
     if ($EventCollectionStatus -in @('collected','truncated')) {
-        $allEvents = @($EventEvidence | Where-Object { $null -ne $_ })
+        $allEvents = @($EventEvidence | Where-Object { Test-PcCareIncidentEvidence -Evidence $_ -Source 'system' })
+        $rejectedSystemEvidence = @($EventEvidence).Count - $allEvents.Count
     }
     # As with events and PnP, a failed or empty inventory cannot certify stale disk rows.
     # Truncated/collected queries may retain observed warnings, but never claim full coverage.
@@ -30,8 +66,11 @@ function Get-PcCareIncidentAssessment {
     $shutdowns = @($allEvents | Where-Object { $_.kind -eq 'shutdown_signal' })
     $storageSignals = @($allEvents | Where-Object { $_.kind -eq 'storage_signal' })
     $updateFailures = @()
+    $rejectedUpdateEvidence = 0
     if ($UpdateCollectionStatus -in @('collected','truncated')) {
-        $updateFailures = @($UpdateEvidence | Where-Object { $null -ne $_ -and $_.kind -eq 'update_installation_failure_record' })
+        $validUpdates = @($UpdateEvidence | Where-Object { Test-PcCareIncidentEvidence -Evidence $_ -Source 'update' })
+        $rejectedUpdateEvidence = @($UpdateEvidence).Count - $validUpdates.Count
+        $updateFailures = @($UpdateEvidence | Where-Object { $_.kind -eq 'update_installation_failure_record' -and (Test-PcCareIncidentEvidence -Evidence $_ -Source 'update') })
     }
     $diskWarnings = @($allDisks | Where-Object { $_.status -in @('Warning','Unhealthy') })
     $unknownDisks = @($allDisks | Where-Object { $_.status -notin @('Healthy','Warning','Unhealthy') })
@@ -48,6 +87,10 @@ function Get-PcCareIncidentAssessment {
     $findings = New-Object 'System.Collections.Generic.List[object]'
     $caveats = New-Object 'System.Collections.Generic.List[string]'
     $incomplete = ($EventCollectionStatus -in @('truncated','unavailable')) -or ($DiskCollectionStatus -ne 'collected')
+    if ($rejectedSystemEvidence -gt 0 -or $rejectedUpdateEvidence -gt 0) {
+        $incomplete = $true
+        [void]$caveats.Add('원본 이벤트 정규화 검증을 통과하지 못한 기록을 제외했습니다. 수집 결과의 완전성을 확인할 수 없습니다.')
+    }
     if ($EventCollectionStatus -eq 'unavailable') {
         [void]$caveats.Add('시스템 이벤트 조회 불가: 로그 부재나 장애 부재를 확인한 결과가 아닙니다.')
     } elseif ($EventCollectionStatus -eq 'truncated') {
@@ -155,6 +198,8 @@ function Get-PcCareIncidentAssessment {
             storageSignals = [int]$storageSignals.Count
             storageWarnings = [int]$diskWarnings.Count
             updateFailureRecords = [int]$updateFailures.Count
+            rejectedSystemEvidence = [int]$rejectedSystemEvidence
+            rejectedUpdateEvidence = [int]$rejectedUpdateEvidence
             pnpIssueSamples = [int]$pnpActiveIssues.Count
             pnpDisabledSamples = [int]$pnpDisabled.Count
         }
