@@ -53,3 +53,10 @@
 - 브랜드명 AXMART 유지, 헤더와 푸터에 공통 적용되는 `.brand-ax` 우측 여백 `0.12em`만 추가. 사용자 요청에 따른 최소 UI 수정.
 - 사이트 가상 상품·결제 미노출 정책, 제품 상태, JavaScript·이미지 및 반응형 구조는 변경하지 않음.
 - 정적 소스 일치 점검만 수행, 실제 Cloudflare 배포 SHA 및 운영 브라우저 검증은 미확인.
+
+## 2026-10-30 KST — 사이트 AXMART³ 브랜드 확정
+- 사용자 확정: **AXMART³ (AXMART CUBE)** = 플랫폼·사이트명; **AXMART PC CARE** = 첫 제품명. USB는 이용 방식.
+- `main` 사이트의 title/meta/OG, 상단·푸터 로고와 favicon, 제품명·설명, 반응형 PC CARE 콘셉트 화면, 테스트와 빌드 명칭 정리.
+- 사용자가 선택한 다크 퍼플·민트 포스터 감성을 CSS/HTML 프리뷰로 반영. 프리뷰는 **가상 UI**로 표시하고 실제 코드는 아직 Windows 기기·WinRE 미검증 상태 유지.
+- 기존 Cloudflare URL과 GitHub 레포명, 다운로드/판매 차단 정책 유지.
+- 변경 전 main SHA: `af2996965691e4e9e318cd843de758c10baa7d23`. 커밋 후 Cloudflare 새 Production SHA·브라우저 UI 별도 확인 필요.
