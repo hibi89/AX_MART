@@ -335,8 +335,8 @@ class PackageTests(unittest.TestCase):
                 self.assertIn('exit /b 2', source)
                 self.assertIn('DisableDelayedExpansion', source)
                 self.assertNotIn('where powershell.exe', source)
-                self.assertNotRegex(source, r'(?im)^powershell[.]exe\\s')
-                self.assertNotIn('if not exist "%AXMART_PS51%"\\nif errorlevel 1', source)
+                self.assertNotRegex(source, r'(?im)^powershell[.]exe\s')
+                self.assertNotIn('if not exist "%AXMART_PS51%"' + chr(10) + 'if errorlevel 1', source)
         self.assertTrue((ROOT/'tests/test_qr_ui.cjs').is_file())
         self.assertIn('node:test', (ROOT/'tests/test_qr_ui.cjs').read_text(encoding='utf-8'))
 
