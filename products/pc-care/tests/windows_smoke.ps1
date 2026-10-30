@@ -31,9 +31,15 @@ foreach ($dir in $locations) {
     }
 }
 if ($recent.Count -eq 0) { throw 'No new diagnostic JSON found after read-only test.' }
-$json = Get-Content -LiteralPath ($recent | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName -Raw -Encoding UTF8 | ConvertFrom-Json
-if ($json.mode -ne 'read-only' -or $json.version -notmatch 'alpha' -or $null -eq $json.observations.eventCollection) {
+$jsonFile = ($recent | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+$htmlFile = [System.IO.Path]::ChangeExtension($jsonFile, '.html')
+if (-not (Test-Path -LiteralPath $htmlFile -PathType Leaf)) {
+    throw 'Incomplete report pair: JSON exists but matching HTML is missing.'
+}
+$json = Get-Content -LiteralPath $jsonFile -Raw -Encoding UTF8 | ConvertFrom-Json
+if ($json.mode -ne 'read-only' -or $json.version -notmatch 'alpha' -or $null -eq $json.observations.eventCollection -or $null -eq $json.observations.collectionStatus) {
     throw 'Diagnostic output schema mismatch.'
 }
-Write-Host ('READ-ONLY TEST PASS: ' + $json.assessment) -ForegroundColor Green
+Write-Host ('READ-ONLY TEST PASS: ' + $json.assessment)
+Write-Host ('Report pair: ' + $jsonFile + ' / ' + $htmlFile) -ForegroundColor Green
 Write-Host 'No disk repair or boot configuration changes were initiated. Local HTML/JSON report files WERE written.'
