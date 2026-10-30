@@ -201,3 +201,11 @@
 - **검증 상태:** GitHub 관련 7파일 소스 cross-contract **21/21 정적 조건 충족**. 실제 Windows 11/PowerShell5.1/USB/WinRE·Edge/Chrome 실제 제품 HTML·QR 실픽셀/스마트폰 스캔·Python unittest·ZIP 빌드·A4 PDF 출력 **미검증**. GitHub Actions runner 미배정 문제는 그대로, 자동 재시도 금지/수동 workflow 유지.
 - **브랜치·배포:** hibi89/AX_MART feature/pc-care-usb만 변경. AXMART³ 무료판 출시/크몽 판매·Cloudflare main 배포 없음. 전체 예상 완성률 기존 약 30% 유지(테스트·Windows QA 큰 비중).
 
+## 2026-10-30 KST — QR 실제 날짜 검증 및 BOM 스캐너 규칙 보강 (최신)
+
+- **재발 방지:** `ui/qr_ui.js`의 QR UTC 기록 시각 검증을 문자열 모양만 검사하던 방식에서 실달력 검증(`Date.UTC` + UTC 연월일 역대조)으로 보강. 평년 2/29, 2/30, 잘못된 월/시간은 QR 생성 차단, 윤년 정상 날짜·`미확인` 허용. 이전 QR 초기화 및 7줄 화이트리스트/250 UTF-8 byte 제한/오프라인 보존.
+- **실제 수행 증거:** GitHub 해당 JS Git blob `13faebe44753b73f2a1cf9c99308aab220745276`과 로컬 소스 Git blob SHA-1 일치 검증, Linux headless Chromium Playwright 가짜 QR 생성자 기존 13개 조건 + 날짜 7개 조건 **20/20 실제 실행 통과**; Node `--check` 성공. 이들은 QR 버튼/데이터 보호 UI 검증이지 벤더 라이브러리 실제 QR bitmap/scanner 검증이 아님.
+- **테스트 추가:** `tests/test_qr_ui.cjs` 합성 Node fixture 17→21개, 날짜/윤년/시간 미확인 경계 추가. `tests/qr_browser_smoke.py` 실제 QR+OpenCV 스캐너 대기 코드에 5개 날짜 사례 추가, UTF-8 BOM 감지 및 명시적 정규화/원문 SHA 비교 추가. `tests/test_package.py` QR 달력+스캐너 BOM 테스트 연결 회귀 조건 추가.
+- **발견한 QR 벤더 특성:** qrcodejs 최소화 JS에서 비ASCII 데이터에 BOM(EF BB BF)을 선행하는 코드 확인. 독립 Python `qrcode`+OpenCV QR 해독(실제 벤더와 별개)을 실행해 BOM 포함 QR은 선행 U+FEFF가 문자열에 나타나 원문과 직접 비교 시 다르다는 것을 확인. 이는 벤더 라이브러리 실제 동작 성공 증거가 아님. QR 스캐너 시험에서는 0개 또는 정확히 선행 BOM 한 개만 명시적으로 허용/보고, 임의 문자 차이는 실패 처리.
+- **지속 차단:** 실제 `qrcode.min.js` QR 이미지 생성·OpenCV 디코딩, Android/iOS 스캔, Windows 11/PowerShell 5.1, 내부 ZIP/테스트, A4 PDF 한 페이지, WinRE/USB 검증은 미수행. GitHub Actions runner 미배정으로 수동 workflow만. 무료 배포/크몽 제품 판매/운영 main 변경 없음. 전체 완성률 약 30% 보수적 유지.
+
