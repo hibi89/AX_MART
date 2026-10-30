@@ -21,3 +21,29 @@
 - 하드웨어 고장·BitLocker 잠김·불명확한 증상에서 자동 수리 및 위험 변경이 실행되지 않아야 한다.
 - GitHub SHA/릴리스 ZIP SHA256, SmartScreen/코드 서명 확인, 백업/복구 시나리오 통과 후에만 무료 공개 여부 판단.
 - 현재 결과: **Windows/WinRE/실제 복구 미검증**. Linux 정적 검사와 코드 리뷰는 합격 증거로 대체 불가.
+
+## P0 추가 검증 매트릭스 — 2026-10-30 (미실행)
+
+**첫 실행(Windows 11 x64, 표준 사용자):** 제품 폴더를 로컬 또는 USB에 정상 압축 해제한 뒤 PowerShell 5.1에서 'RUN_SELF_TEST.cmd' 실행. 해당 런처는 PowerShell 파서, synthetic fixture, 1일간의 읽기 전용 진단만 수행. 절대 RUN_SAFE_REPAIR.cmd를 실행하지 말 것. 검사 결과는 REPORTS 또는 Documents/AXMART-PC-CARE-Reports에 저장.
+
+| 경로 | 테스트 방법 | 기대 판정 | 실제 |
+|---|---|---|---|
+| Parse/BOM | RUN_SELF_TEST.cmd -> Parser.ParseFile | diagnose, repair, event_analysis, synthetic tests 문법 오류 0 | 미실행 |
+| 사건 분류 | synthetic fixture 자동 실행 | 1001 잘못된 공급자 제외, 원문 미저장, 41/6008 중복 가능 그룹만 | 미실행 |
+| 시간대·기록 지연 | UTC synthetic fixture | 같은 순간 다른 시간대를 동일 UTC로 정규화, 1001 시각은 recorded time | 미실행 |
+| 이벤트 조회 결과 | synthetic fixture | empty / access denied / collected / truncated 구분 | 미실행 |
+| 이벤트 상한 | synthetic fixture 5건 + max=3 | 반환 3건, truncated | 미실행 |
+| 일반 계정 | 기본 읽기 전용 1일 진단 | OS/권한 state, 볼륨/장치/Defender collectionStatus, JSON/HTML 쌍 | 미실행 |
+| 이벤트 조회 실패 | 테스트 VM에서 의도적 권한 거부 재현 | unavailable, '0건 정상' 주장 없음 | 미실행 |
+| 이벤트 미발견 | 테스트 VM의 로그 없음 | no matching events (접근 거부와 구별) | 미실행 |
+| 장치 API 미지원 | StorageReliabilityCounter 미지원 VM | reliabilityStatus unavailable/empty, Wear/온도 모르는 값으로 취급 | 미실행 |
+| 잘못된 용량 | synthetic/mock VM에서 Size/FreeSpace null/비정상 | 비정상 볼륨 제외, limitation 명시 | 미실행 |
+| USB REPORTS 쓰기 거부 | 테스트 전용 USB 또는 VM에서 경로 권한 제한 | Documents 대체 경로에 JSON/HTML 모두 생성 | 미실행 |
+| 양쪽 저장 불가 | VM에서 USB·Documents 쓰기 거부 | 파일 저장 실패, 성공 안내 없음, 시스템 변경 없음 | 미실행 |
+| 반복/고유성 | 읽기 전용 실행 3회 | 고유 이름/JSON-HTML 쌍 일치, 이전 보고서 보존 | 미실행 |
+
+주의: 접근 거부·Read-only·로그 임의 삭제와 같은 고위험 실패 재현은 **테스트 전용 VM/USB에만** 적용한다. 평소 쓰는 PC의 시스템 로그·권한·디스크 구성을 수정해서 시험하지 않는다.
+
+**기록 항목:** Windows 빌드/PowerShell 버전, 표준·관리자 여부, 비식별 환경, 명령, 종료 코드, 결과 JSON의 collectionStatus/eventCollection, HTML-JSON 파일 쌍 존재 여부, 실패 원인. 개인 이름/경로/실디스크 일련번호/BitLocker 키/원문 이벤트는 커밋 금지.
+
+**출시 판정:** 위 표는 실행 전 계획이며 합격 결과가 아니다. GitHub 내 소스 검토와 CI 상태는 Windows 실측·WinRE/BitLocker·위험 수리 VM 게이트를 대신할 수 없다.
