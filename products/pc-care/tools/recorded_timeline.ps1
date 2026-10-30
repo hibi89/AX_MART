@@ -14,8 +14,7 @@ function Get-PcCareRecordedTimeline {
     )
     if ($WindowMinutes -lt 1 -or $WindowMinutes -gt 60) { throw 'WindowMinutes must be 1..60' }
     if ($MaxEntries -lt 1 -or $MaxEntries -gt 200) { throw 'MaxEntries must be 1..200' }
-    # Never use stale arrays from a failed/no-match query or mix evidence providers.
-    # The upstream normalizers bind kind to eventId; repeat the invariant at this boundary.
+    # Ignore stale arrays from failed or empty queries and do not mix providers.
     $streams = New-Object 'System.Collections.Generic.List[object]'
     if ($SystemCollectionStatus -in @('collected','truncated')) {
         foreach ($item in @($SystemEvidence)) {
@@ -44,9 +43,13 @@ function Get-PcCareRecordedTimeline {
                 ($kind -eq 'update_installation_success_record' -and $id -eq 19)
             )
             if (-not ($systemMatch -or $updateMatch)) { continue }
-            # DateTimeOffset.Parse otherwise accepts local/ambiguous timestamps.
+            # Local timestamps are ambiguous; require the normalizer's UTC/offset.
             $rawTime = [string]$item.recordedUtc
-            if ($rawTime -cnotmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})        [void]$rows.Add([pscustomobject]@{
+            if ($rawTime -cnotmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})$') { continue }
+            $when = [datetimeoffset]::Parse($rawTime, [Globalization.CultureInfo]::InvariantCulture).ToUniversalTime()
+            if ($when -eq [datetimeoffset]::MinValue) { continue }
+        } catch { continue }
+        [void]$rows.Add([pscustomobject]@{
             kind = $kind
             recordedUtc = $when.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
             whenUtc = $when
@@ -95,59 +98,6 @@ function Get-PcCareRecordedTimeline {
             system = $SystemCollectionStatus
             update = $UpdateCollectionStatus
         }
-        acceptedCount = $totalAccepted
-        returnedCount = $mostRecent.Count
-        windows = @($output.ToArray())
-        note = '서로 가까운 이벤트 기록 시각을 묶었을 뿐이며, BugCheck 발생 시각·업데이트의 장애 원인·실제 종료 횟수를 입증하지 않습니다.'
-    }
-}
-) { continue }
-            $when = [datetimeoffset]::Parse($rawTime, [Globalization.CultureInfo]::InvariantCulture).ToUniversalTime()
-            if ($when -eq [datetimeoffset]::MinValue) { continue }
-        } catch { continue }
-        [void]$rows.Add([pscustomobject]@{
-            kind = $kind
-            recordedUtc = $when.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
-            whenUtc = $when
-        })
-    }
-    $totalAccepted = $rows.Count
-    # Newest recorded evidence first; then chronological grouping.
-    $mostRecent = @($rows.ToArray() | Sort-Object whenUtc -Descending | Select-Object -First $MaxEntries)
-    $ordered = @($mostRecent | Sort-Object whenUtc)
-    $windows = New-Object 'System.Collections.Generic.List[object]'
-    $current = $null
-    foreach ($item in $ordered) {
-        if ($null -eq $current -or ($item.whenUtc - $current.start).TotalMinutes -gt $WindowMinutes) {
-            $current = [pscustomobject]@{
-                start = $item.whenUtc
-                end = $item.whenUtc
-                kinds = (New-Object 'System.Collections.Generic.List[string]')
-                count = 0
-            }
-            [void]$windows.Add($current)
-        }
-        $current.end = $item.whenUtc
-        $current.count++
-        if (-not $current.kinds.Contains($item.kind)) { [void]$current.kinds.Add($item.kind) }
-    }
-    $output = New-Object 'System.Collections.Generic.List[object]'
-    foreach ($w in $windows) {
-        [void]$output.Add([pscustomobject]@{
-            firstRecordedUtc = $w.start.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
-            lastRecordedUtc = $w.end.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
-            evidenceCount = [int]$w.count
-            kinds = @($w.kinds.ToArray())
-            interpretation = 'recorded_timestamp_proximity_only'
-            causeConfirmed = $false
-        })
-    }
-    $resultStatus = if ($totalAccepted -gt $MaxEntries) { 'truncated' } else { 'collected' }
-    [pscustomobject]@{
-        schemaVersion = 1
-        timeBasis = 'event_recorded_time_not_verified_incident_time'
-        windowMinutes = $WindowMinutes
-        status = $resultStatus
         acceptedCount = $totalAccepted
         returnedCount = $mostRecent.Count
         windows = @($output.ToArray())
