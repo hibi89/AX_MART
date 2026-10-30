@@ -61,6 +61,22 @@ class ReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'sidecar'):
             release.verify_archive(path)
 
+    def test_internal_zip_includes_transitive_self_test_dependencies(self):
+        """An internal ZIP must include every script the read-only launcher loads."""
+        required = {
+            'RUN_SELF_TEST.cmd',
+            'tests/windows_smoke.ps1',
+            'tests/event_analysis.tests.ps1',
+            'tools/diagnose.ps1',
+            'tools/event_analysis.ps1',
+        }
+        self.assertTrue(required.issubset(release.ALLOWLIST))
+        archive, _ = release.build_internal(self.root, self.root / 'dist-internal')
+        with zipfile.ZipFile(archive) as handle:
+            paths = set(handle.namelist())
+        for item in required:
+            self.assertIn(f'{release.FOLDER}/{item}', paths)
+
     def test_no_default_public_release(self):
         with self.assertRaises(SystemExit) as raised:
             release.main([])
