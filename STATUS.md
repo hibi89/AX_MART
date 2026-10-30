@@ -201,3 +201,9 @@
 - `feature/pc-care-usb`: 비정규화된 이벤트를 버린 뒤에도 '정상 수집'·'일치 기록 없음'으로 표시할 수 있는 코어 오류 수정. `recorded_timeline.ps1`은 kind/ID/시각 근거·UTC를 확인하고 거부 건수를 출력; 정상 조회 중 거부 입력은 불완전 처리. `diagnose.ps1` JSON/HTML 및 Windows 스모크/PS fixture/Python 계약에 거부 내역 반영.
 - 원격 정적 계약 **25/25 PASS**. `products/pc-care/tests/evidence/timeline_rejected_evidence_static_qa_20261031.json` 참조. **Native PowerShell5.1·Node/Python 전체·Windows/USB·QR/PDF·ZIP·WinRE·현재 CI NOT_RUN**.
 - 개발 전 SHA `63ca3c8513d921bfa990dbdec813118f2372e9b2`; main/Cloudflare/사용자 파일/복구/자동 수리 무변경. 다음 Windows PS5.1 실제 synthetic QA + 읽기전용 보고서 생성 E2E.
+
+## 2026-10-31 KST — CUBE PC CARE QA 영수증·공급자 안전 개선
+- `feature/pc-care-usb`: 기존 개발용 `RUN_RELEASE_QA.cmd`에 로컬 `QA_RESULTS` JSON 영수증 추가. 합성 QA 단계명·상태·테스트 수·미검증 범위만 기록; 원시 로그/경로/개인정보 저장 및 기존 영수증 덮어쓰기 금지. Git ignore/고객 ZIP 제외. PC/수리 직접 실행 없음.
+- WindowsUpdate 이벤트 공급자를 전체 이름으로 정확히 확인하도록 변경하고 위장 provider 회귀 추가. 기존 수동 Windows QA workflow 누락된 H08 System E2E JS 테스트 등록.
+- GitHub 정적 계약 **26/26 PASS**; 분리된 동일 Python helper 로컬 스모크 **6/6 PASS**, **전체 GitHub native Python/Node 및 Windows/PS5.1/실 ZIP·USB·QR/A4·WinRE·CI NOT_RUN**. `products/pc-care/tests/evidence/native_qa_receipt_update_provider_static_20261031.json`.
+- 운영 main/Cloudflare·고객 원본·OS/복구·인증 불변, 공개 배포 금지. 다음 Windows `RUN_RELEASE_QA.cmd` 1회 실제 검증 후 `QA_RESULTS` 검토.
