@@ -62,3 +62,16 @@
 ## 2026-10-30 KST — 새 채팅방 인계 문서
 - **바로 읽을 것:** 저장소 루트 `NEXT_CHAT_PC_CARE.md`, `products/pc-care/docs/FINAL_SPEC_V2.md`.
 - Gemini 통합 사양은 고정; 첫 구현 P0는 기존 PowerShell/Windows 읽기 전용 엔진 안정화, 예외/권한/이벤트 기록 처리 및 단위 회귀 테스트. 프로그램 판매/배포 활성화하지 않음.
+
+## [최신 인수인계] 2026-10-30 KST — P0 코드 1차 구현, 실행 검증 대기
+
+1. **목표·기술:** 최종 설계 Release A의 Windows PowerShell 5.1 읽기 전용 진단 안정화. 오프라인 CMD·로컬 HTML/JSON. 우선 NEXT_CHAT_PC_CARE.md → docs/FINAL_SPEC_V2.md → STATUS.md 확인.
+2. **완료·변경·결정:** tools/event_analysis.ps1: 정상화된 System 이벤트, BugCheck 공급자 판별, 기록/실제 장애 시간 구별, 41/6008 중복 가능 그룹, UTC 정렬, 원문 로그 비수집. diagnose.ps1: 조회 결과 및 예외 상태 분리, 볼륨 누락값 정상 오인 방지, JSON/HTML 쌍 저장·Documents 폴백.
+3. **테스트·성공/실패/미검증:** GitHub 소스 대상 문자열/BOM/경로 참조 등 정적 체크 17/17 조건 충족(실행 테스트 아님). 실행한 Python unittest 0회, Windows 파서·fixture 0회, 실제 진단 0회, WinRE·실제 복구 0회. CI 상태 체크 0개는 통과 판정 불가. 제품 폴더에서 Python test_package.py 및 test_release.py, Windows 표준 권한 RUN_SELF_TEST.cmd 실행이 다음 검증 순서.
+4. **완료/진행/대기/차단:** 코드 P0 일부 완료, OS 실측 및 실패 주입 검증 대기. P1·P2와 Release B Rescue 미착수. 무료 다운로드·유료 판매·자동 파일 복구 계속 차단.
+5. **오류 근거·원인·시도·대안:** 작업 환경에 PowerShell/pwsh 없음, 컨테이너의 private GitHub DNS 접속도 실패. GitHub 커넥터로 코드 직접 반영 및 정적 검토만 성공. 반복 시도보다 Win11 스냅샷 VM/실기기에서 실행하는 것이 정확. 실측 없이 PASS 주장 금지.
+6. **저장소·브랜치·SHA·경로:** hibi89/AX_MART, feature/pc-care-usb, 직전 기능 코드 SHA cad89a644dd18e3a267fda842e3da22c841f9b95. 파일: products/pc-care/tools/diagnose.ps1, tools/event_analysis.ps1, tests/event_analysis.tests.ps1, tests/windows_smoke.ps1, tools/release.py, tests/test_package.py. 후속 문서 커밋이 HEAD를 갱신함.
+7. **Production·URL·환경:** Cloudflare Pages ax-mart / https://ax-mart.pages.dev/ 는 main 기반. P0 feature 코드는 Production 미배포·미적용. RUN_SELF_TEST.cmd는 정상 Windows 환경에서만 사용, 수리 명령 금지. 새 배포 SHA/실제 브라우저 QA 미검증.
+8. **원본·백업·권한·수정 금지:** 이력 Git SHA로 변경 전 소스를 복구할 수 있으며 main 무수정. 원본 파일, 개인 데이터, 암호, BitLocker 키, 이벤트 원문을 자동 업로드하지 않음. RUN_SAFE_REPAIR.cmd와 WinRE 파일 복사/파티션 쓰기 명령은 VM 스냅샷·별도 승인/검증 전 실행 금지.
+9. **다음 작업 및 완료 기준:** Python 정적/패키징 테스트 → Win11 PS5.1 파서·event fixture → 비관리자 1일 진단 → JSON/HTML 쌍·권한 거부/빈 이벤트/상한/읽기 전용 USB/폴백 재현 → Win10 제한 검증. 실패 시 코드 최소 수정 및 재실행. 무료 베타·서명/보안/복구 전 출시 불가.
+10. **갱신 시점·검증 범위·문서 기준:** 2026-10-30 KST. GitHub 커넥터로 파일·커밋 작성자/커미터 hibi89 확인, 코드 기준 cad89a644dd18e3a267fda842e3da22c841f9b95. Windows/CI/Production 테스트 미수행. 본 HANDOFF 기록 반영 후 GitHub HEAD 재확인 필요.
