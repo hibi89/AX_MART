@@ -11,12 +11,23 @@ $base = 'pc-care-{0}-{1}' -f $stamp, ([guid]::NewGuid().ToString('N').Substring(
 $issues = New-Object 'System.Collections.Generic.List[object]'
 $limits = New-Object 'System.Collections.Generic.List[string]'
 $observations = [ordered]@{}
+$collectionStatus = [ordered]@{}
 
 function Add-Issue([string]$Severity, [string]$Code, [string]$Title, [string]$Explain, [string]$Advice) {
     [void]$issues.Add([ordered]@{ severity=$Severity; code=$Code; title=$Title; explanation=$Explain; recommendation=$Advice })
 }
-function Safe-Collect([scriptblock]$Action, [string]$Label) {
-    try { return (& $Action) } catch {
+function Safe-Collect([scriptblock]$Action, [string]$Label, [string]$Key) {
+    try {
+        $result = @(& $Action)
+        $nonNull = @($result | Where-Object { $null -ne $_ })
+        $collectionStatus[$Key] = if ($nonNull.Count -eq 0) { 'empty' } else { 'collected' }
+        if ($nonNull.Count -eq 0) {
+            [void]$limits.Add(('{0}: 정보가 반환되지 않았습니다 (조회 성공, 결과 없음).' -f $Label))
+        }
+        return $result
+    } catch {
+        $collectionStatus[$Key] = 'unavailable'
+        # Never serialize exception messages, machine paths, or account information.
         [void]$limits.Add(('{0}: 데이터를 읽지 못했습니다 ({1})' -f $Label, $_.Exception.GetType().Name))
         return $null
     }
@@ -26,14 +37,14 @@ function Esc([object]$Value) {
 }
 
 Write-Host '[AXMART PC CARE] Read-only health check...' -ForegroundColor Cyan
-$os = Safe-Collect { Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop } 'Windows 버전'
+$os = Safe-Collect { Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop } 'Windows 버전' 'windows'
 if ($null -ne $os) {
     $observations['windows'] = @{ name=[string]$os.Caption; version=[string]$os.Version; build=[string]$os.BuildNumber; bootTime=([string]$os.LastBootUpTime) }
 }
 else { $observations['windows'] = @{ name='확인 불가'; version=''; build=''; bootTime='' } }
 
 # Logical volume free space; do not collect absolute file paths or filenames.
-$volumes = @(Safe-Collect { @(Get-CimInstance -ClassName Win32_LogicalDisk -Filter 'DriveType=3' -ErrorAction Stop) } '디스크 여유 공간')
+$volumes = @(Safe-Collect { @(Get-CimInstance -ClassName Win32_LogicalDisk -Filter 'DriveType=3' -ErrorAction Stop) } '디스크 여유 공간' 'volumes')
 $volData = New-Object 'System.Collections.Generic.List[object]'
 foreach ($v in $volumes) {
     if ($null -eq $v -or $null -eq $v.DeviceID -or [double]$v.Size -le 0) { continue }
@@ -51,7 +62,7 @@ foreach ($v in $volumes) {
 $observations['volumes'] = @($volData.ToArray())
 
 # Storage provider may not expose NVMe SMART. Unknown is not Healthy.
-$disks = @(Safe-Collect { @(Get-PhysicalDisk -ErrorAction Stop) } '저장장치 건강 상태')
+$disks = @(Safe-Collect { @(Get-PhysicalDisk -ErrorAction Stop) } '저장장치 건강 상태' 'physicalDisks')
 $diskData = New-Object 'System.Collections.Generic.List[object]'
 foreach ($disk in $disks) {
     if ($null -eq $disk) { continue }
@@ -122,6 +133,7 @@ $observations['shutdownGroups'] = @($shutdownGroups | Select-Object -First 30)
 $observations['storageEvents'] = @($storageErrors | Select-Object -First 30)
 $observations['eventEvidence'] = @($evidence | Select-Object -First 1500)
 $observations['eventCollection'] = if ($eventQueryFailed) { 'unavailable' } elseif ($eventsTruncated) { 'truncated' } elseif ($events.Count -eq 0) { 'no matching events' } else { 'collected' }
+$collectionStatus['events'] = $observations['eventCollection']
 $observations['eventCollectionLimit'] = 1500
 $observations['eventTimeMeaning'] = 'System event recorded time, not verified incident time'
 # Zero is not verified when logs are unavailable, nor complete when capped.
@@ -130,13 +142,15 @@ $shutdownCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($events
 $storageCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsTruncated) { '{0}건 (수집분)' -f $storageErrors.Count } else { '{0}건' -f $storageErrors.Count }
 
 # Optional indication; third-party AV users must not be labeled unprotected.
-$defender = Safe-Collect { Get-MpComputerStatus -ErrorAction Stop } 'Microsoft Defender'
+$defender = Safe-Collect { Get-MpComputerStatus -ErrorAction Stop } 'Microsoft Defender' 'defender'
 if ($null -ne $defender) {
     $observations['defender'] = @{ available=$true; antivirusEnabled=([bool]$defender.AntivirusEnabled); realtime=([bool]$defender.RealTimeProtectionEnabled) }
     if (-not [bool]$defender.RealTimeProtectionEnabled) {
         [void]$limits.Add('Microsoft Defender 실시간 보호가 비활성일 수 있습니다. 타사 백신 사용 여부는 별도 확인이 필요합니다.')
     }
 } else { $observations['defender'] = @{ available=$false; antivirusEnabled=$null; realtime=$null } }
+
+$observations['collectionStatus'] = $collectionStatus
 
 $assessment = if (@($issues | Where-Object {$_.severity -eq 'high'}).Count -gt 0) { '위험 신호' }
               elseif (@($issues | Where-Object {$_.severity -eq 'medium'}).Count -gt 0) { '주의 필요' }
