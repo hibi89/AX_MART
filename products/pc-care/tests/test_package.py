@@ -181,6 +181,15 @@ class PackageTests(unittest.TestCase):
         tests = (ROOT/'tests/test_release.py').read_text(encoding='utf-8')
         self.assertIn('test_rejects_zip_member_with_oversized_decompressed_size', tests)
         self.assertIn('test_verify_cli_requires_sha256_sidecar', tests)
+        self.assertIn("with pending.open('xb')", source)
+        self.assertIn("with checksum_pending.open('x'", source)
+        self.assertIn("os.replace(checksum_pending, sidecar)", source)
+        self.assertIn("Refusing symlink checksum target", source)
+        self.assertIn("if owned_checksum_temp and checksum_pending.exists()", source)
+        self.assertNotIn("Path(str(zip_path) + '.sha256').write_text", source)
+        self.assertIn("test_checksum_symlink_rejected_without_touching_target_or_existing_zip", tests)
+        self.assertIn("test_foreign_temporary_files_are_never_rewritten_or_deleted", tests)
+        self.assertIn("test_checksum_rebuild_uses_exclusive_temp_and_preserves_verified_output", tests)
 
     def test_consultation_refuses_incomplete_healthy_and_untrusted_events(self):
         consultation = (ROOT/'tools/consultation_report.ps1').read_text(encoding='utf-8-sig')
