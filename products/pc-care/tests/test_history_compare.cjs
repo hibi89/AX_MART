@@ -3,7 +3,9 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const {compareReports,validateReport}=require("../ui/history_compare.js");
 function sample(at) {return {schemaVersion:1,product:"AXMART PC CARE",mode:"read-only",generatedAt:at,assessment:"주의 필요",
-issues:[{code:"DISK_SPACE_LOW"}],observations:{eventWindowDays:30,eventCollection:"collected",collectionStatus:{physicalDisks:"collected"},bugchecks:[{}],
+issues:[{code:"DISK_SPACE_LOW"}],observations:{eventWindowDays:30,eventCollection:"collected",collectionStatus:{physicalDisks:"collected",events:"collected"},
+eventEvidence:[{kind:"bugcheck_record",eventId:1001,timeBasis:"event_recorded_time",recordedUtc:"2026-10-28T01:00:00.0000000Z"}],
+bugchecks:[{time:"2026-10-28T10:00:00.000+09:00",stopCode:"0x0000000A"}],
 unexpectedShutdowns:[],storageEvents:[],volumes:[{drive:"C:",sizeGB:100,remainingGB:20}],
 physicalDisks:[{status:"Healthy"}]}};}
 const a=sample("2026-10-29 11:00:00 +09:00"), b=sample("2026-10-30 11:00:00 +09:00");
@@ -55,6 +57,47 @@ test("valid leap day and UTC negative offsets compare correctly",()=>{
  const leap={...a,generatedAt:"2024-02-29 22:00:00 -05:00"};
  const following={...b,generatedAt:"2024-03-01 04:00:00 -04:00"};
  assert.ok(compareReports(leap,following));
+});
+test("System history counts must match validated normalizer evidence",()=>{
+ const valid=compareReports(a,b);
+ assert.deepEqual(valid.eventCounts,{days:30,before:[1,0,0],after:[1,0,0]});
+ const invalid=[
+   o=>{o.eventEvidence=[]}, // displayed rows cannot invent events
+   o=>{o.eventEvidence=[{}]},
+   o=>{o.eventEvidence[0].eventId=41},
+   o=>{o.eventEvidence[0].kind="storage_signal"},
+   o=>{o.eventEvidence[0].timeBasis="inferred_crash_time"},
+   o=>{o.eventEvidence[0].recordedUtc="2026-02-30T01:00:00Z"},
+   o=>{o.eventEvidence[0].recordedUtc="2026-10-28T01:00:00"},
+   o=>{o.collectionStatus.events="unavailable"},
+   o=>{delete o.eventEvidence},
+   o=>{o.unexpectedShutdowns=[{}]},
+   o=>{o.storageEvents=[{}]}
+ ];
+ for(const change of invalid){
+   const report={...b,observations:structuredClone(b.observations)};
+   change(report.observations);
+   assert.equal(compareReports(a,report).eventCounts,null);
+ }
+});
+test("actual no-match is a genuine zero, missing logs are not",()=>{
+ const empty={...b,observations:{...b.observations,
+   eventCollection:"no matching events",
+   collectionStatus:{...b.observations.collectionStatus,events:"no matching events"},
+   eventEvidence:[],bugchecks:[],unexpectedShutdowns:[],storageEvents:[]}};
+ assert.deepEqual(compareReports(a,empty).eventCounts.after,[0,0,0]);
+ const missing={...empty,observations:{...empty.observations,eventCollection:"unavailable"}};
+ assert.equal(compareReports(a,missing).eventCounts,null);
+});
+test("System source type and ID validation still allows real storage and shutdown observations",()=>{
+ const newer={...b,observations:{...b.observations,
+  eventEvidence:[
+    {kind:"shutdown_signal",eventId:6008,timeBasis:"event_recorded_time",recordedUtc:"2026-10-30T02:00:00.0000000Z"},
+    {kind:"storage_signal",eventId:153,timeBasis:"event_recorded_time",recordedUtc:"2026-10-30T02:00:01.0000000Z"}],
+  bugchecks:[],unexpectedShutdowns:[{time:"2026-10-30T11:00:00.000+09:00",eventId:6008}],
+  storageEvents:[{time:"2026-10-30T11:00:01.000+09:00",eventId:153,source:"disk"}]
+ }};
+ assert.deepEqual(compareReports(a,newer).eventCounts.after,[0,1,1]);
 });
 test("unrecognized assessment text never appears in comparison",()=>{
  const result=compareReports(a,{...b,assessment:"SECRET DEVICE SERIAL: 12345"});
