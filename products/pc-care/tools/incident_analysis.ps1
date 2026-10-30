@@ -20,7 +20,12 @@ function Get-PcCareIncidentAssessment {
     if ($EventCollectionStatus -in @('collected','truncated')) {
         $allEvents = @($EventEvidence | Where-Object { $null -ne $_ })
     }
-    $allDisks = @($DiskObservations | Where-Object { $null -ne $_ })
+    # As with events and PnP, a failed or empty inventory cannot certify stale disk rows.
+    # Truncated/collected queries may retain observed warnings, but never claim full coverage.
+    $allDisks = @()
+    if ($DiskCollectionStatus -in @('collected','truncated')) {
+        $allDisks = @($DiskObservations | Where-Object { $null -ne $_ })
+    }
     $bugchecks = @($allEvents | Where-Object { $_.kind -eq 'bugcheck_record' })
     $shutdowns = @($allEvents | Where-Object { $_.kind -eq 'shutdown_signal' })
     $storageSignals = @($allEvents | Where-Object { $_.kind -eq 'storage_signal' })
