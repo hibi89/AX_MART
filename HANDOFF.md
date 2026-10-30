@@ -272,3 +272,9 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - `hibi89/AX_MART@feature/pc-care-usb`의 `tools/recorded_timeline.ps1`에서 거부된 이벤트 kind/ID/UTC/timeBasis 입력을 추적, `rejectedCount>0`이면 완전 수집/정상 0건 주장 금지. `tools/diagnose.ps1` 보고서 JSON/HTML에 거부 기록 수와 정확한 제한 설명 추가. 기존 타임라인 근접 관측은 원인 확정이 아님.
 - `tests/driver_timeline.tests.ps1`, `tests/windows_smoke.ps1`, `tests/test_package.py` 회귀 갱신. GitHub 원격 실제 소스 정적 **25/25 PASS**, 네이티브 Windows/PS5.1/Node·Python 전체·USB·QR/PDF·WinRE·ZIP·CI 미실행. 증거 `products/pc-care/tests/evidence/timeline_rejected_evidence_static_qa_20261031.json`.
 - 변경 전 SHA `63ca3c8513d921bfa990dbdec813118f2372e9b2`; 운영 main/Cloudflare·고객 REPORTS·OS·BitLocker·복구·결제·공개 불변. 상세 10항 `products/pc-care/HANDOFF.md`; 다음 Windows 전체 체크아웃 `RUN_RELEASE_QA.cmd`→선택적 read-only 실제 보고서/H08/USB/QR/A4→WinRE 별도 안전 게이트. 최종 SHA 재조회 필요.
+
+## 2026-10-31 KST — CUBE PC CARE 최신 QA 영수증 인수인계
+- `hibi89/AX_MART@feature/pc-care-usb`: 합성 `RUN_RELEASE_QA.cmd`가 원본/로그를 올리지 않는 QA 영수증 `QA_RESULTS/pc-care-qa-*.json`을 로컬 생성하도록 연결. 출력은 상태·테스트 수·미검증 목록만 포함, Git ignore 및 고객 ZIP 제외. 무인 실제 진단·수리/WinRE 실행 없음.
+- Windows Update 이벤트 `ConvertTo-PcCareUpdateEvidence` 공급자 검사에서 임의 접두사 통과 버그를 정확한 Microsoft provider 비교로 수정하고 합성 회귀 추가. Windows 수동 workflow에 최신 E2E JS 시험 추가.
+- 소스 정적 **26/26 PASS**, 로컬 별도 추출 Python QA helper 스모크 **6/6 PASS**(GitHub 전체 native는 아님). 실제 Windows PS5.1/Node/Python 전체·Windows/USB·ZIP·QR/A4/WinRE·현재 SHA CI 미검증. 증거 `products/pc-care/tests/evidence/native_qa_receipt_update_provider_static_20261031.json`.
+- 개발 전 SHA `f604d2f4902dec82e3e58a0166f2dc94faa0e5ce`, 운영 main/Cloudflare·고객 파일/권한/키/복구 불변. 상세 10항 `products/pc-care/HANDOFF.md`. 다음 Windows checkout `RUN_RELEASE_QA.cmd` 1회→QA_RESULTS 영수증 확인→사용자 명시 read-only 보고서/H08·USB/QR/A4→WinRE 격리 안전 검증. 문서 최종 SHA 재확인.
