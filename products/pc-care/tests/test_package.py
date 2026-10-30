@@ -501,6 +501,9 @@ class PackageTests(unittest.TestCase):
         self.assertIn('IsInfinity($remaining)', telemetry)
         self.assertIn("if ($drive -cnotmatch '^[A-Z]:$')", telemetry)
         self.assertIn('ConvertTo-PcCareVolumeSample -Volume $v', diagnose)
+        self.assertIn("$collectionStatus['volumes'] = 'incomplete'", diagnose)
+        self.assertIn("$observations['volumeRejectedCount'] = $volumeRejectedCount", diagnose)
+        self.assertIn("$volumeRejectedCount++", diagnose)
         self.assertLess(diagnose.index(". (Join-Path $PSScriptRoot 'telemetry_analysis.ps1')"),
                         diagnose.index('ConvertTo-PcCareVolumeSample -Volume $v'))
         self.assertEqual(diagnose.count(". (Join-Path $PSScriptRoot 'telemetry_analysis.ps1')"), 1)
