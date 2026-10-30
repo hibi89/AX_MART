@@ -1,0 +1,33 @@
+{
+  "dateKST": "2026-10-31",
+  "repo": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "baseHead": "f604d2f4902dec82e3e58a0166f2dc94faa0e5ce",
+  "features": [
+    "Require exact Microsoft-Windows-WindowsUpdateClient provider for Update event IDs 19/20, rejecting synthetic lookalike names.",
+    "One-click RUN_RELEASE_QA.cmd saves private JSON result in ignored QA_RESULTS directory, with stage name, status, tests count, explicit unverified scope, timestamp, no raw errors/logs/device data/user paths.",
+    "QA receipts cannot overwrite existing file, reject symlink directory, exclude untrusted stage names, and downgrade inconsistent result status to fail.",
+    "Updated preflight Python fixture, package source contracts, README and manually dispatched Windows workflow to include latest System evidence JS integration test."
+  ],
+  "validation": {
+    "remoteReadbackSourceContracts": {
+      "pass": 26,
+      "fail": 0
+    },
+    "isolatedLocalPythonExtractSmoke": {
+      "pass": 6,
+      "fail": 0,
+      "method": "Python 3.13 executed a manually transcribed isolated helper matching submitted receipt logic; NOT execution of GitHub checkout"
+    },
+    "nativeFullPython": "NOT_RUN",
+    "nativeNode": "NOT_RUN",
+    "nativePowerShell51": "NOT_RUN",
+    "WindowsPhysicalE2E": "NOT_RUN",
+    "internalActualZip": "NOT_RUN",
+    "QR_A4_USB": "NOT_RUN",
+    "WinRE": "NOT_RUN",
+    "CI": "NOT_RUN"
+  },
+  "security": "No customer data, local Windows system, backup, repair, WinRE, production main or Cloudflare touched. QA_RESULTS ignored; developer-only not packaged; no automatic external upload.",
+  "next": "Execute RUN_RELEASE_QA.cmd once on user's trusted full Windows checkout; inspect locally created QA_RESULTS/*.json and upload only that sanitized QA receipt if desired; real read-only test/USB/QR/A4/WinRE are separate gates."
+}
