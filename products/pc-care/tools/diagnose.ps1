@@ -36,6 +36,18 @@ function Esc([object]$Value) {
     return [System.Net.WebUtility]::HtmlEncode([string]$Value)
 }
 
+# Observe current privileges; never elevate automatically.
+try {
+    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+    $privilege = if ($principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { 'administrator' } else { 'standard' }
+} catch {
+    $privilege = 'unavailable'
+    [void]$limits.Add('현재 사용자 권한을 판별하지 못했습니다.')
+}
+$observations['privilege'] = @{ state=$privilege; requestedElevation=$false }
+$collectionStatus['privilege'] = if ($privilege -eq 'unavailable') { 'unavailable' } else { 'collected' }
+
 Write-Host '[AXMART PC CARE] Read-only health check...' -ForegroundColor Cyan
 $os = Safe-Collect { Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop } 'Windows 버전' 'windows'
 if ($null -ne $os) {
