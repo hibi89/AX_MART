@@ -39,4 +39,16 @@ $queryTruncated = Invoke-PcCareEventQuery -Query { 41; 6008; 1001 } -MaxEvents 3
 Assert-PcCare ($queryTruncated.status -eq 'truncated' -and $queryTruncated.returnedCount -eq 3) 'Capped event set'
 $queryPartial = Invoke-PcCareEventQuery -Query { 41; 6008 } -MaxEvents 3
 Assert-PcCare ($queryPartial.status -eq 'collected' -and $queryPartial.returnedCount -eq 2) 'Partial below cap'
+$queryOverCap = Invoke-PcCareEventQuery -Query { 1; 2; 3; 4; 5 } -MaxEvents 3
+Assert-PcCare ($queryOverCap.status -eq 'truncated' -and $queryOverCap.returnedCount -eq 3) 'Query must not retain records past cap'
+# Same instant reported as two different timezone offsets must stay chronologically identical.
+$utcStamp = [datetime]::SpecifyKind(([datetime]::Parse('2026-10-30T03:00:00')), [DateTimeKind]::Utc)
+$localStamp = $utcStamp.ToLocalTime()
+$utcRecords = @(
+    [pscustomobject]@{ Id=41; ProviderName='Microsoft-Windows-Kernel-Power'; RecordId=201; TimeCreated=$utcStamp; Message='' },
+    [pscustomobject]@{ Id=6008; ProviderName='EventLog'; RecordId=202; TimeCreated=$localStamp; Message='' }
+)
+$utcEvidence = @(ConvertTo-PcCareEvidence -Events $utcRecords)
+Assert-PcCare ($utcEvidence.Count -eq 2) 'Timezone fixture evidence count'
+Assert-PcCare ($utcEvidence[0].recordedUtc -eq $utcEvidence[1].recordedUtc) 'Timestamp normalized to UTC'
 Write-Host 'EVENT FIXTURE PASS: normalization, provider filter, duplicate grouping, timestamps, privacy.' -ForegroundColor Green
