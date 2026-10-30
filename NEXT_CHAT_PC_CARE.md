@@ -1,3 +1,5 @@
+> **[AXMART_CUBE_POLICY_20261031 | 2026-10-31 해총→AXMART³ CUBE 총괄 공시 | 실행 우선]** 사용자 최신 지침: [48시간 코어 우선 개발 프로토콜](https://github.com/hibi89/hackathon-command-center-2026/blob/main/docs/strategy/20261031_OWNER_BACKEND_FIRST_48H_EXECUTION_PROTOCOL.md). 다음 `ㄱ`은 아래 최종 설계·실제 GitHub 코드 기준으로 **미완성 핵심 기능 묶음 직접 구현·실행 검증**을 진행한다. 제품·스택·기존 모듈/레포/버전·호출/파일 계약을 1장 기준선으로 먼저 확인하되, 이미 승인된 `FINAL_SPEC_V2.md`를 반복 설계하지 않는다. 서버·클라우드 DB 신설 불필요; 로컬 PowerShell/CMD/HTML/JSON 실행 경로가 백엔드/코어다. CI 실행·SHA/결과 기록 후 독립 코드 작업 계속, 필수 보안/Windows/WinRE·복구/판매 게이트 통과 전 `100%`·출시 주장 금지. `main` 운영 사이트와 사용자 원본은 변경하지 않는다. **공시만 적용, 실제 개발/테스트 수행 안 함.**
+
 # AXMART PC CARE — NEXT CHAT / AX_MART 총괄 인수인계
 
 **작성 기준:** 2026-10-30 KST  
