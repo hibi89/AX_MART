@@ -2,6 +2,7 @@
 $ErrorActionPreference = 'Stop'
 . (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/pnp_analysis.ps1')
 . (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/recorded_timeline.ps1')
+. (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/incident_analysis.ps1')
 function Assert-PcCareDriverTimeline([bool]$Yes, [string]$Why) {
     if (-not $Yes) { throw ('DRIVER/TIMELINE FIXTURE FAIL: ' + $Why) }
 }
@@ -40,4 +41,11 @@ $bounded = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence 
 Assert-PcCareDriverTimeline ($bounded.status -eq 'truncated' -and $bounded.returnedCount -eq 2) 'Enforced timeline limit'
 $invalidTime = Get-PcCareRecordedTimeline -SystemEvidence @([pscustomobject]@{ kind='shutdown_signal'; recordedUtc='not-a-date' })
 Assert-PcCareDriverTimeline ($invalidTime.acceptedCount -eq 0) 'Reject invalid timestamp'
+$pnpFinding = Get-PcCareIncidentAssessment -EventEvidence @() -DiskObservations @([pscustomobject]@{ status='Healthy' }) -EventCollectionStatus 'collected' -UpdateCollectionStatus 'collected' -PnPSummary $pnp
+Assert-PcCareDriverTimeline (@($pnpFinding.findings | Where-Object { $_.code -eq 'PNP_CONFIG_REVIEW' }).Count -eq 1) 'PnP error gets conservative review'
+Assert-PcCareDriverTimeline ($pnpFinding.observedCounts.pnpIssueSamples -eq 1) 'Disabled code 22 is excluded from active issue count'
+Assert-PcCareDriverTimeline (@($pnpFinding.findings | Where-Object { $_.causeConfirmed }).Count -eq 0) 'No root cause asserted'
+$disabledOnly = ConvertTo-PcCarePnPSummary -Devices @([pscustomobject]@{ ConfigManagerErrorCode=22 }) -QueryStatus 'collected'
+$disabledFinding = Get-PcCareIncidentAssessment -EventEvidence @() -DiskObservations @([pscustomobject]@{ status='Healthy' }) -EventCollectionStatus 'collected' -UpdateCollectionStatus 'collected' -PnPSummary $disabledOnly
+Assert-PcCareDriverTimeline (@($disabledFinding.findings | Where-Object { $_.code -eq 'PNP_CONFIG_REVIEW' }).Count -eq 0) 'Deliberate disabling cannot be called a driver failure'
 Write-Host 'DRIVER/TIMELINE FIXTURE PASS: scoped PnP codes, privacy, UTC grouping, bounded and noncausal history.' -ForegroundColor Green
