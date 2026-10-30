@@ -226,6 +226,13 @@ class PackageTests(unittest.TestCase):
         self.assertIn("if ($movedJson) { Remove-Item -LiteralPath $finalJson", report_io)
         self.assertIn("if ($movedHtml) { Remove-Item -LiteralPath $finalHtml", report_io)
         self.assertIn("Report filename collision:", report_io)
+        self.assertIn("Invalid report file base:", report_io)
+        self.assertIn("'^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$'", report_io)
+        self.assertLess(report_io.index("Invalid report file base:"),
+                        report_io.index("$tempJson = Join-Path"))
+        report_fixture = (ROOT/'tests/report_io.tests.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("Unsafe report file base accepted:", report_fixture)
+        self.assertIn("Traversal wrote a JSON file outside REPORTS", report_fixture)
         self.assertNotIn('[System.IO.File]::WriteAllText($tempJson', report_io)
         self.assertNotIn('Move-Item -LiteralPath $tempJson', report_io)
 
