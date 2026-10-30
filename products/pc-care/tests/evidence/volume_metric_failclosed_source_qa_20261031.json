@@ -1,0 +1,39 @@
+{
+  "dateKST": "2026-10-31",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "beforeHead": "328bcf1611d588b3c4c285cf773ac6540decdc40",
+  "finding": "Win32_LogicalDisk CIM fields were directly cast to double outside Safe-Collect and weren't checked for NaN/Infinity. A malformed volume could abort the report or misrepresent missing data as complete inventory.",
+  "changes": [
+    "Moved the existing packaged telemetry_analysis.ps1 dot-source before logical-disk processing, without adding extra modules.",
+    "Added pure ConvertTo-PcCareVolumeSample to validate C: letter, finite numeric capacity/free bytes, bounds, decimal rounding and no raw volume label or path.",
+    "diagnose.ps1 skips malformed volumes, preserves good volumes, emits generic limitation, records volumeRejectedCount, marks collectionStatus.volumes=incomplete when any result was rejected.",
+    "Added synthetic PowerShell 5.1 fixtures and Python source contracts; H08 already requires volumes status collected to compare."
+  ],
+  "sourceShas": {
+    "tools/telemetry_analysis.ps1": "ec707aa7a60312994a9b0ae6c1eaf7e64845d3a7",
+    "tools/diagnose.ps1": "3ce654325ea44f3b22e1823140c0990b0b17d1b7",
+    "tests/telemetry_analysis.tests.ps1": "649c50deea0f9205ae6992ebca85465f62bf77e5",
+    "tests/test_package.py": "d88a93c61e95ba8486eae13b63962485f1135797",
+    "ui/history_compare.js": "ed6f5538dad8d5b0d498ddf4bb4187de8e0e8e4a"
+  },
+  "verification": {
+    "GitHub_remote_readback_source_contracts": {
+      "passed": 23,
+      "failed": 0
+    },
+    "previous_release_zip_python_tests_rerun": {
+      "passed": 15,
+      "failed": 0,
+      "scope": "Same unchanged original release.py + test_release.py in local container; not newly modified diagnostic code"
+    },
+    "changed_PowerShell_native": "NOT_RUN",
+    "changed_Python_source_test_package": "NOT_RUN",
+    "actual_Windows_diagnosis_and_report": "NOT_RUN",
+    "native_Node_H08": "NOT_RUN",
+    "real_USB_QR_A4_WinRE": "NOT_RUN",
+    "CI_current_head": "NOT_RUN"
+  },
+  "safety": "Only feature/pc-care-usb code, synthetic tests, QA evidence and handoff. No actual Windows event reads, repairs, customer reports, production/main or cloud configuration changes.",
+  "next": "Windows full checkout RUN_RELEASE_QA.cmd (synthetic PS5.1/Python/Node/ZIP) followed by opt-in read-only real JSON+HTML/H08/Unicode USB and QR/A4; WinRE isolated approval gate."
+}
