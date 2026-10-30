@@ -18,7 +18,7 @@ $bugOnly = Get-PcCareIncidentAssessment -EventEvidence $crash -DiskObservations 
 Assert-PcCareIncident ($bugOnly.findings.Count -eq 1) 'Bugcheck should produce one interpretation'
 Assert-PcCareIncident ($bugOnly.findings[0].code -eq 'BUGCHECK_REVIEW') 'Bugcheck review'
 $badDisk = @([pscustomobject]@{ status='Warning'; model='<not-an-id>' })
-$combo = Get-PcCareIncidentAssessment -EventEvidence $crash -DiskObservations $badDisk -EventCollectionStatus 'truncated'
+$combo = Get-PcCareIncidentAssessment -EventEvidence $crash -DiskObservations $badDisk -DiskCollectionStatus 'truncated' -EventCollectionStatus 'truncated'
 Assert-PcCareIncident ($combo.status -eq 'incomplete') 'Truncated event window'
 Assert-PcCareIncident ($combo.findings.Count -eq 2) 'Independent storage and crash findings'
 Assert-PcCareIncident ($combo.findings[0].code -eq 'STORAGE_FIRST') 'Storage data protection prioritized'
@@ -63,6 +63,13 @@ Assert-PcCareIncident (@($unknownDiskCollection.caveats | Where-Object { $_ -mat
 $knownDiskCollection = Get-PcCareIncidentAssessment -EventEvidence @() -DiskObservations $healthy -DiskCollectionStatus 'collected' -EventCollectionStatus 'no matching events'
 Assert-PcCareIncident (@($knownDiskCollection.caveats | Where-Object { $_ -match '물리 저장장치 상태의 일부' }).Count -eq 0) 'Complete all-healthy disk inventory lacks false collection caveat'
 $diskDangerObserved = Get-PcCareIncidentAssessment -EventEvidence @() -DiskObservations $badDisk -DiskCollectionStatus 'unavailable' -EventCollectionStatus 'no matching events'
-Assert-PcCareIncident (@($diskDangerObserved.findings | Where-Object { $_.code -eq 'STORAGE_FIRST' }).Count -eq 1) 'Observed disk warning is kept despite incomplete inventory'
+Assert-PcCareIncident (@($diskDangerObserved.findings | Where-Object { $_.code -eq 'STORAGE_FIRST' }).Count -eq 0) 'Failed inventory cannot create a warning from stale disk observations'
+$diskEmpty = Get-PcCareIncidentAssessment -EventEvidence @() -DiskObservations $badDisk -DiskCollectionStatus 'empty' -EventCollectionStatus 'no matching events'
+Assert-PcCareIncident (@($diskEmpty.findings | Where-Object { $_.code -eq 'STORAGE_FIRST' }).Count -eq 0) 'Successful empty inventory excludes stale warnings'
+$diskTruncated = Get-PcCareIncidentAssessment -EventEvidence @() -DiskObservations $badDisk -DiskCollectionStatus 'truncated' -EventCollectionStatus 'no matching events'
+Assert-PcCareIncident (@($diskTruncated.findings | Where-Object { $_.code -eq 'STORAGE_FIRST' }).Count -eq 1) 'Truncated but observed warning is retained'
+Assert-PcCareIncident ($diskTruncated.status -eq 'incomplete') 'Truncated disk source cannot imply full coverage'
+$diskCollected = Get-PcCareIncidentAssessment -EventEvidence @() -DiskObservations $badDisk -DiskCollectionStatus 'collected' -EventCollectionStatus 'no matching events'
+Assert-PcCareIncident (@($diskCollected.findings | Where-Object { $_.code -eq 'STORAGE_FIRST' }).Count -eq 1) 'Collected valid warning still reported'
 Assert-PcCareIncident ($diskDangerObserved.status -eq 'incomplete') 'Observed disk warning cannot make incomplete collection complete'
 Write-Host 'INCIDENT FIXTURE PASS: missing evidence, 41-only, BugCheck, storage priority, uncertainty.' -ForegroundColor Green
