@@ -232,3 +232,9 @@
 - `feature/pc-care-usb`: 신규 드라이브 수집 `incomplete`이거나 `volumeRejectedCount`가 잘못됐는데도 과거 `DISK_SPACE_LOW/CRITICAL`을 `missing`으로 비교하던 H08 결함 수정. 신규 관측 경고와 다른 경고 비교는 유지. 공식 JS 회귀 4건 등록.
 - GitHub 원본 코드 V8 호환 시험 공식 **26/26 PASS**+별도 17/17(중복), 원격 정적 16/16. **실제 Node test runner/Windows PS5.1/전체 제품 ZIP·브라우저·USB/QR/A4·WinRE·현 CI 미검증**. `products/pc-care/tests/evidence/h08_volume_warning_provenance_v8_20261031.json`.
 - 운영 main/Cloudflare·사용자 파일/OS·수리/출시 불변. 다음 실제 Windows `RUN_RELEASE_QA.cmd` 및 read-only 보고서/H08 수용 시험.
+
+## 2026-10-31 KST — PC CARE 상담표 수집 증거 fail-closed (CUBE)
+- `tools/consultation_report.ps1`: 물리 디스크 조회 `unavailable/empty` 상태에서 남은 Warning 표본을 새 경고로 표시하던 오탐 차단. `collected/truncated`에서 실제 관측한 Warning은 유지, `collected` 전체 Healthy만 정상 신호로 허용.
+- A4 상담표 사건 근거에 System/Update 수집 출처별 kind·ID 분리, System provider allowlist, `event_recorded_time`, 명시적 UTC/offset 및 유효 달력 검사 추가. 미검증·위장·로컬시각 입력은 상담표에서 제외.
+- 합성 PowerShell 회귀 fixture 및 Python 소스 계약 보강. GitHub 원본 내용 기준 정적 연결/스키마 검사만 수행; **Windows PowerShell 5.1 실제 실행, 전체 Python/Node, 실 Windows·USB/QR/A4·WinRE, 제품 ZIP, CI = NOT_RUN/UNVERIFIED**. 증거 `tests/evidence/consultation_provenance_status_static_qa_20261031.json`.
+- 원본 Git 시작 SHA `28a7828bff5f0279cd01b62368fbbfcc09a28672`; `main` `fbb32362455378b85bcdd0b5037d1f338055fb71`/Cloudflare Production·기존 사용자 파일·권한·수리·판매/공개 배포 불변. 다음 P0: 전체 Windows checkout `RUN_RELEASE_QA.cmd` 실행 후 읽기전용 JSON/HTML→상담표·H08→QR/A4/USB 실제 QA.

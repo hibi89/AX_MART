@@ -674,3 +674,9 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본/백업·인증: Git baseline SHA는 코드 복구점. 사용자 REPORTS·OS/저장장치·BitLocker·개인정보/토큰 미접근·무수정. 외부 API 호출/자동 수리·배포/권한 변경 없음.
 9. 다음 작업/승인: 실제 전체 Windows 체크아웃 `RUN_RELEASE_QA.cmd`로 Node/PS5.1/Python/ZIP → 사용자 명시 read-only 로컬 JSON·HTML/H08 비교/한글 USB/QR·A4 → WinRE는 격리 실장치 안전성 검증. 실제 복사·복구·수리·공개 배포·비용/권한 변경 사전 승인.
 10. 갱신: 2026-10-31 KST. 현재 검증은 원본 JS를 V8에서 실행한 호환 테스트와 원격 정적 검사까지. 실제 Windows·Node/CI 미검증이며 제품 출시 완료 아님.
+
+## 2026-10-31 KST — PC CARE 상담표 수집 증거 fail-closed (CUBE)
+- `tools/consultation_report.ps1`: 물리 디스크 조회 `unavailable/empty` 상태에서 남은 Warning 표본을 새 경고로 표시하던 오탐 차단. `collected/truncated`에서 실제 관측한 Warning은 유지, `collected` 전체 Healthy만 정상 신호로 허용.
+- A4 상담표 사건 근거에 System/Update 수집 출처별 kind·ID 분리, System provider allowlist, `event_recorded_time`, 명시적 UTC/offset 및 유효 달력 검사 추가. 미검증·위장·로컬시각 입력은 상담표에서 제외.
+- 합성 PowerShell 회귀 fixture 및 Python 소스 계약 보강. GitHub 원본 내용 기준 정적 연결/스키마 검사만 수행; **Windows PowerShell 5.1 실제 실행, 전체 Python/Node, 실 Windows·USB/QR/A4·WinRE, 제품 ZIP, CI = NOT_RUN/UNVERIFIED**. 증거 `tests/evidence/consultation_provenance_status_static_qa_20261031.json`.
+- 원본 Git 시작 SHA `28a7828bff5f0279cd01b62368fbbfcc09a28672`; `main` `fbb32362455378b85bcdd0b5037d1f338055fb71`/Cloudflare Production·기존 사용자 파일·권한·수리·판매/공개 배포 불변. 다음 P0: 전체 Windows checkout `RUN_RELEASE_QA.cmd` 실행 후 읽기전용 JSON/HTML→상담표·H08→QR/A4/USB 실제 QA.

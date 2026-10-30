@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "scope": "consultation-source-static-and-fixture-contracts",
+  "dateKst": "2026-10-31",
+  "baselineSha": "28a7828bff5f0279cd01b62368fbbfcc09a28672",
+  "modifiedCode": [
+    "tools/consultation_report.ps1"
+  ],
+  "testsUpdated": [
+    "tests/consultation_report.tests.ps1",
+    "tests/test_package.py"
+  ],
+  "checksPassed": [
+    "disk status strictly gates stale warnings",
+    "full healthy requires collected",
+    "system events gated by collector",
+    "update events gated by collector",
+    "explicit scope for system",
+    "explicit scope for update",
+    "time basis exact",
+    "event id parse bounded",
+    "system provider verification",
+    "strict zoned timestamp",
+    "date parse guarded",
+    "limited report rows",
+    "synthetic valid provider fixture",
+    "synthetic spoof provider fixture",
+    "synthetic missing time fixture",
+    "synthetic no-offset fixture",
+    "synthetic mixed-source fixture",
+    "synthetic failed disk test",
+    "synthetic partial disk test",
+    "static Python contracts updated",
+    "preserve PowerShell 5.1 BOM",
+    "no repair command in new code"
+  ],
+  "nativeWindowsPowerShell": "NOT_RUN",
+  "fullNativePython": "NOT_RUN",
+  "nativeNode": "NOT_RUN",
+  "usbQrA4WinRE": "UNVERIFIED",
+  "ci": "NOT_RUN",
+  "production": "UNCHANGED",
+  "release": "BLOCKED"
+}

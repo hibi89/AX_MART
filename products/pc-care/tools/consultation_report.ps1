@@ -45,27 +45,51 @@ function Get-PcCareConsultationSummary {
     $recorded = New-Object 'System.Collections.Generic.List[object]'
     # Failed/empty collectors are not evidence. Keep partially collected records
     # only when their status explicitly says 'truncated' and disclose that limit.
-    $eligibleRecords = @()
+    # Restrict each evidence stream to its own collector. Stale or forged
+    # cross-source events must not populate the 1-page consultation record.
+    $eligibleRecords = New-Object 'System.Collections.Generic.List[object]'
     if ($eventState -in @('collected','truncated')) {
-        $eligibleRecords += @($observations.eventEvidence)
+        foreach ($event in @($observations.eventEvidence)) {
+            [void]$eligibleRecords.Add([pscustomobject]@{ scope='system'; item=$event })
+        }
     }
     if ($updateState -in @('collected','truncated')) {
-        $eligibleRecords += @($observations.windowsUpdate.evidence)
+        foreach ($event in @($observations.windowsUpdate.evidence)) {
+            [void]$eligibleRecords.Add([pscustomobject]@{ scope='update'; item=$event })
+        }
     }
-    foreach ($item in $eligibleRecords) {
+    foreach ($entry in $eligibleRecords) {
+        $item = $entry.item
         if ($null -eq $item) { continue }
+        if ([string]$item.timeBasis -cne 'event_recorded_time') { continue }
         $label = ''
         $kind = [string]$item.kind
         $id = -1
         try { $id = [int]$item.eventId } catch { continue }
-        if ($kind -eq 'bugcheck_record' -and $id -eq 1001) { $label='BugCheck 기록' }
-        elseif ($kind -eq 'shutdown_signal' -and $id -in @(41,6008)) { $label='비정상 종료 신호' }
-        elseif ($kind -eq 'storage_signal' -and $id -in @(7,51,55,129,153,157)) { $label='저장장치 신호' }
-        elseif ($kind -eq 'update_installation_failure_record' -and $id -eq 20) { $label='업데이트 설치 실패 기록' }
-        elseif ($kind -eq 'update_installation_success_record' -and $id -eq 19) { $label='업데이트 설치 성공 기록' }
-        else { continue }
+        if ($entry.scope -eq 'system') {
+            $provider = [string]$item.provider
+            if ($kind -eq 'bugcheck_record' -and $id -eq 1001 -and
+                $provider -match '^(?:BugCheck|WER-SystemErrorReporting|Microsoft-Windows-(?:BugCheck|WER-SystemErrorReporting))$') {
+                $label = 'BugCheck 기록'
+            } elseif ($kind -eq 'shutdown_signal' -and
+                (($id -eq 41 -and $provider -match '^(?:Microsoft-Windows-)?Kernel-Power$') -or
+                 ($id -eq 6008 -and $provider -match '^EventLog$'))) {
+                $label = '비정상 종료 신호'
+            } elseif ($kind -eq 'storage_signal' -and $id -in @(7,51,55,129,153,157) -and
+                $provider -match '^(?:(?:Microsoft-Windows-)?(?:disk|ntfs|volmgr|storahci|stornvme|storport|storvsc|nvme)|Microsoft-Windows-Storage-Storport|iaStor(?:A|AC|V|VD))$') {
+                $label = '저장장치 신호'
+            }
+        } elseif ($entry.scope -eq 'update') {
+            if ($kind -eq 'update_installation_failure_record' -and $id -eq 20) { $label = '업데이트 설치 실패 기록' }
+            elseif ($kind -eq 'update_installation_success_record' -and $id -eq 19) { $label = '업데이트 설치 성공 기록' }
+        }
+        if ($label -eq '') { continue }
+        # Reject unzoned/local time or missing provenance. Parsing an ambiguous
+        # local timestamp would silently shift its UTC time on another computer.
+        $rawTime = [string]$item.recordedUtc
+        if ($rawTime -cnotmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})$') { continue }
         try {
-            $when = [datetimeoffset]::Parse([string]$item.recordedUtc, [Globalization.CultureInfo]::InvariantCulture).ToUniversalTime()
+            $when = [datetimeoffset]::Parse($rawTime, [Globalization.CultureInfo]::InvariantCulture).ToUniversalTime()
             if ($when -eq [datetimeoffset]::MinValue) { continue }
         } catch { continue }
         [void]$recorded.Add([pscustomobject]@{
@@ -88,9 +112,10 @@ function Get-PcCareConsultationSummary {
     $diskCollectionState = [string]$observations.collectionStatus.physicalDisks
     $diskComplete = ($diskCollectionState -eq 'collected')
     $diskItems = @($observations.physicalDisks | Where-Object { $null -ne $_ })
-    # Warning observations remain actionable even if collection was incomplete.
-    # Healthy observations require explicit complete collection, not a partial sample.
-    if (@($diskItems | Where-Object { $_.status -in @('Warning','Unhealthy') }).Count -gt 0) {
+    # Observed warnings are usable only from a collected or truncated inventory.
+    # A failed/empty query must never recycle stale warning rows as real evidence.
+    $diskEvidenceUsable = ($diskCollectionState -in @('collected','truncated'))
+    if ($diskEvidenceUsable -and @($diskItems | Where-Object { $_.status -in @('Warning','Unhealthy') }).Count -gt 0) {
         $diskStatus = '경고 신호 관측'
     } elseif ($diskComplete -and $diskItems.Count -gt 0 -and @($diskItems | Where-Object { $_.status -ne 'Healthy' }).Count -eq 0) {
         $diskStatus = 'Windows 정상 신호 (보증 아님)'

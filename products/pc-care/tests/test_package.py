@@ -212,7 +212,14 @@ class PackageTests(unittest.TestCase):
         self.assertIn('Failed collectors cannot present stale event records', tests)
         self.assertIn('Unavailable collection with Healthy item is unknown', tests)
         self.assertIn('Only complete all-healthy list may show healthy observation', tests)
-        self.assertIn('Warning remains visible despite incomplete inventory', tests)
+        self.assertIn('Unavailable disk warnings must not be treated as observed', tests)
+        self.assertIn('Truncated inventory retains genuinely observed warnings', tests)
+        self.assertIn("$diskEvidenceUsable = ($diskCollectionState -in @('collected','truncated'))", consultation)
+        self.assertIn("if ($diskEvidenceUsable -and", consultation)
+        self.assertIn("if ([string]$item.timeBasis -cne 'event_recorded_time')", consultation)
+        self.assertIn("if ($entry.scope -eq 'system')", consultation)
+        self.assertIn("} elseif ($entry.scope -eq 'update') {", consultation)
+        self.assertIn('Untrusted provider, time basis, zone, and cross-source kinds rejected', tests)
 
     def test_history_warnings_use_exact_known_collector_codes(self):
         import json

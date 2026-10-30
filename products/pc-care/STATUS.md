@@ -430,3 +430,9 @@
 - 기존 `volumeMap`의 값·드라이브 중복/크기 검증을 경고 차이 산출보다 먼저 적용. 신규 데이터가 비교 가능한 볼륨 수집이 아닐 때만 `DISK_SPACE_LOW`·`DISK_SPACE_CRITICAL` 경고의 `missing` 출력을 보류하고 이유를 주의 문구로 표시. 다른 경고의 비교 및 최신 보고서에서 실제 관찰된 신규 디스크 경고는 유지. `volumeRejectedCount`가 존재할 때 0 이외 값은 비교 금지; 과거 필드 없는 보고서는 기존 호환 유지.
 - `tests/test_history_compare.cjs`에 신규 회귀 4건 + `tests/test_package.py` 소스 계약 반영. GitHub 최신 전체 JS 3파일(`history_compare.js`, `history_signals.js`, 공식 test)을 V8에서 Node test/assert 호환 래퍼로 실행 **26/26 PASS**, 별도 직접 재현 **17/17 PASS**(중복 범위 존재), 정적 연결 **16/16 PASS**. 증거 `tests/evidence/h08_volume_warning_provenance_v8_20261031.json`.
 - **실제 Node 러너, Windows PS5.1, 실제 JSON/HTML/H08 브라우저, 전체 ZIP, USB/QR/A4/WinRE, 최신 CI NOT_RUN**. 운영 `main`/Cloudflare·고객 보고서/OS/수리/출시 무변경. 다음 Windows 개발 체크아웃에서 `RUN_RELEASE_QA.cmd`로 원본 QA 네이티브 실행.
+
+## 2026-10-31 KST — PC CARE 상담표 수집 증거 fail-closed (CUBE)
+- `tools/consultation_report.ps1`: 물리 디스크 조회 `unavailable/empty` 상태에서 남은 Warning 표본을 새 경고로 표시하던 오탐 차단. `collected/truncated`에서 실제 관측한 Warning은 유지, `collected` 전체 Healthy만 정상 신호로 허용.
+- A4 상담표 사건 근거에 System/Update 수집 출처별 kind·ID 분리, System provider allowlist, `event_recorded_time`, 명시적 UTC/offset 및 유효 달력 검사 추가. 미검증·위장·로컬시각 입력은 상담표에서 제외.
+- 합성 PowerShell 회귀 fixture 및 Python 소스 계약 보강. GitHub 원본 내용 기준 정적 연결/스키마 검사만 수행; **Windows PowerShell 5.1 실제 실행, 전체 Python/Node, 실 Windows·USB/QR/A4·WinRE, 제품 ZIP, CI = NOT_RUN/UNVERIFIED**. 증거 `tests/evidence/consultation_provenance_status_static_qa_20261031.json`.
+- 원본 Git 시작 SHA `28a7828bff5f0279cd01b62368fbbfcc09a28672`; `main` `fbb32362455378b85bcdd0b5037d1f338055fb71`/Cloudflare Production·기존 사용자 파일·권한·수리·판매/공개 배포 불변. 다음 P0: 전체 Windows checkout `RUN_RELEASE_QA.cmd` 실행 후 읽기전용 JSON/HTML→상담표·H08→QR/A4/USB 실제 QA.

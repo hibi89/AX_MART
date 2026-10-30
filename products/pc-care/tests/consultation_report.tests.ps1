@@ -7,6 +7,7 @@ function Assert-Consultation([bool]$condition, [string]$message) {
 }
 $privateEvent = [pscustomobject]@{
     kind='bugcheck_record'; eventId=1001; recordedUtc='2026-10-30T03:00:00Z'
+    timeBasis='event_recorded_time'; provider='BugCheck'
     Message='PRIVATE-USERNAME'; ProviderName='PRIVATE-SERIAL'; stopCode='PRIVATE-KEY'
 }
 $report = [ordered]@{
@@ -64,6 +65,7 @@ $many = New-Object 'System.Collections.Generic.List[object]'
 for ($i=0; $i -lt 20; $i++) {
     [void]$many.Add([pscustomobject]@{
         kind='shutdown_signal'; eventId=41
+        timeBasis='event_recorded_time'; provider='Microsoft-Windows-Kernel-Power'
         recordedUtc=([datetimeoffset]'2026-10-30T01:00:00+00:00').AddMinutes($i).ToString('o')
         Message='PRIVATE-LARGE-LOG'
     })
@@ -112,6 +114,29 @@ Assert-Consultation ($diskEmpty.storageSignal -eq '미확인') 'Empty disk list 
 $report.observations.physicalDisks = @([pscustomobject]@{ status='Warning'; model='PRIVATE-DISK' })
 $report.observations.collectionStatus.physicalDisks = 'unavailable'
 $diskWarning = Get-PcCareConsultationSummary -Report $report
-Assert-Consultation ($diskWarning.storageSignal -eq '경고 신호 관측') 'Warning remains visible despite incomplete inventory'
+Assert-Consultation ($diskWarning.storageSignal -eq '미확인') 'Unavailable disk warnings must not be treated as observed'
+$report.observations.collectionStatus.physicalDisks = 'truncated'
+$observedPartialWarning = Get-PcCareConsultationSummary -Report $report
+Assert-Consultation ($observedPartialWarning.storageSignal -eq '경고 신호 관측') 'Truncated inventory retains genuinely observed warnings'
 Assert-Consultation (($diskWarning | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE-') 'Warnings never leak model or private data'
+# Evidence provenance: only the right collector, known provider, and explicit zoned UTC are allowed.
+$report.observations.eventCollection = 'collected'
+$report.observations.windowsUpdate.status = 'collected'
+$report.observations.eventEvidence = @(
+    [pscustomobject]@{ kind='bugcheck_record'; eventId=1001; provider='BugCheck'; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:00:00Z' },
+    [pscustomobject]@{ kind='bugcheck_record'; eventId=1001; provider='PRIVATE-FORGED-PROVIDER'; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:01:00Z' },
+    [pscustomobject]@{ kind='bugcheck_record'; eventId=1001; provider='BugCheck'; timeBasis='PRIVATE-NOT-RECORDED'; recordedUtc='2026-10-30T03:02:00Z' },
+    [pscustomobject]@{ kind='bugcheck_record'; eventId=1001; provider='BugCheck'; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:03:00' },
+    [pscustomobject]@{ kind='update_installation_failure_record'; eventId=20; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:04:00Z' }
+)
+$report.observations.windowsUpdate.evidence = @(
+    [pscustomobject]@{ kind='update_installation_failure_record'; eventId=20; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:05:00+00:00' },
+    [pscustomobject]@{ kind='shutdown_signal'; eventId=41; provider='Microsoft-Windows-Kernel-Power'; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T03:06:00Z' },
+    [pscustomobject]@{ kind='update_installation_failure_record'; eventId=20; timeBasis='event_recorded_time'; recordedUtc='2026-02-30T03:07:00Z' }
+)
+$trusted = Get-PcCareConsultationSummary -Report $report
+Assert-Consultation ($trusted.recordedEvents.Count -eq 2) 'Untrusted provider, time basis, zone, and cross-source kinds rejected'
+Assert-Consultation ($trusted.recordedEvents[0].eventId -eq 20 -and $trusted.recordedEvents[0].recordedUtc -eq '2026-10-30 03:05') 'Valid offset-normalized update retained'
+Assert-Consultation ($trusted.recordedEvents[1].eventId -eq 1001) 'Valid System provider record retained'
+Assert-Consultation (($trusted | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE-') 'Forged inputs and private fields never reach shared report'
 Write-Host 'CONSULTATION FIXTURE PASS: bounded evidence, A4 checklist, unknown data, privacy.' -ForegroundColor Green
