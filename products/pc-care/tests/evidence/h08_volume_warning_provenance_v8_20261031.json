@@ -1,0 +1,49 @@
+{
+  "testedAtKst": "2026-10-31 04:03-04:20 KST (session; exact clock not measured)",
+  "repo": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "previousHead": "d2eaf480df274ac21c0eb4470cf795b35cbe933d",
+  "defect": {
+    "reproduced": true,
+    "before": "H08 compareReports emitted missing=['DISK_SPACE_LOW'] when current collector declared volumes='incomplete' and rejectedCount=1, even though no current low-space warning could be concluded.",
+    "cause": "Source issue-code comparison ignored volume collection completeness; drive delta already excluded incomplete samples."
+  },
+  "changes": [
+    "Move existing volumeMap validation before issue-difference calculation (same validation semantics).",
+    "Reject collected but volumeRejectedCount nonzero, null, string, negative, invalid.",
+    "Retain newly observed warning additions and unrelated issue missing comparisons; suppress only missing DISK_SPACE_LOW/DISK_SPACE_CRITICAL when current comparable volume inventory unavailable.",
+    "Show explicit Korean caution explaining why previous disk warning disappearance is withheld.",
+    "Register four regression tests in official test_history_compare.cjs and Python source contract."
+  ],
+  "verified": {
+    "javascriptV8OriginalSource": {
+      "officialCasesPassed": 26,
+      "failed": 0,
+      "method": "Fetched exact GitHub source of history_signals.js/history_compare.js/test_history_compare.cjs; evaluated complete JS in V8 with emulated Node require, node:test and node:assert/strict. This is not actual Node test runner nor browser.",
+      "shas": {
+        "ui/history_signals.js": "906104fa1689424d547cd53a2b2034686480ec88",
+        "ui/history_compare.js": "be9fb7443c7b3cdad3936da503967bfc40eaa720",
+        "tests/test_history_compare.cjs": "8cbc39cea52cb58c5113a000c9e9e4f68ac6847c"
+      }
+    },
+    "additionalDirectV8Cases": {
+      "pass": 17,
+      "fail": 0,
+      "overlapWithOfficialTests": true
+    },
+    "remoteGitHubStaticContracts": {
+      "pass": 16,
+      "fail": 0
+    },
+    "nativeNodeTestRunner": "NOT_RUN",
+    "nativeWindowsPowerShell51": "NOT_RUN",
+    "realWindowsReadOnlyReport": "NOT_RUN",
+    "realZipOfEntireProduct": "NOT_RUN",
+    "browserEdgeHtmlAndQrCameraA4": "NOT_RUN",
+    "realUsbUnicode": "NOT_RUN",
+    "WinRE": "NOT_RUN",
+    "CIForNewCommit": "NOT_RUN"
+  },
+  "safety": "Changes limited to private feature branch H08 comparison and tests, no customer REPORTS/OS/BitLocker/backup/repair, no Cloudflare main, no network transmit or public release.",
+  "next": "Run Windows checkout RUN_RELEASE_QA.cmd actual Node+PS5.1+Python+ZIP; then user-approved read-only JSON/HTML+H08 live report; QR/A4/USB and WinRE gated separately."
+}
