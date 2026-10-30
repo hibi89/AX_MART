@@ -54,3 +54,16 @@
 - It uses an isolated temporary directory and has four cases: successful JSON/HTML pair, existing-name collision preservation, fallback from an unusable first destination, and explicit failure when all destinations are unusable.
 - The fixture is read/write within only its own temporary directory; it does not run system repair or modify real diagnostic reports.
 - Actual Windows PowerShell 5.1 execution, error codes, and output evidence remain unverified.
+
+## P1 initial incident interpretation acceptance cases (2026-10-30, not executed)
+
+The standalone incident_analysis.tests.ps1 fixture is invoked by tests/windows_smoke.ps1 after syntax checks. It makes no operating-system changes.
+
+- Empty/unavailable System log and no physical disk data: incomplete evidence, not a normal health assessment.
+- Event 41 alone: possible unexpected shutdown signal, not confirmed BugCheck.
+- Valid BugCheck event without storage warning: review needed, but the root cause is not confirmed.
+- Storage Warning alongside BugCheck and a truncated event window: storage-first backup guidance, incomplete evidence, no causal or chronological claim.
+- Unknown storage health: remains incomplete even when no matching events were observed.
+- Data minimization: no model or raw source messages copied into the generated incident findings.
+
+Windows 11 x64 / PowerShell 5.1 parser and fixture execution must pass before considering these checks verified. This does not replace WinRE/repair safety validation.
