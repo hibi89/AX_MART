@@ -6,7 +6,10 @@ const assert=require("node:assert/strict");
 const {compareReports}=require("../ui/history_compare.js");
 const {buildHistoryPrint}=require("../ui/history_print.js");
 const event=(kind,eventId,utc)=>({
-  kind,eventId,timeBasis:"event_recorded_time",recordedUtc:utc
+  kind,eventId,timeBasis:"event_recorded_time",recordedUtc:utc,
+  provider:kind==="bugcheck_record"?"BugCheck":
+    kind==="shutdown_signal"?(eventId===41?"Kernel-Power":"EventLog"):
+    kind==="storage_signal"?"disk":"Microsoft-Windows-WindowsUpdateClient"
 });
 const update=(id)=>event(id===20?"update_installation_failure_record":"update_installation_success_record",id,"2026-10-29T01:00:00.0000000Z");
 const d=(code)=>({configurationCode:code,category:"other",interpretation:"device_configuration_issue_record",rootCauseConfirmed:false});
@@ -56,6 +59,15 @@ test("forged System display rows cannot invent event counts or printable success
  const text=buildHistoryPrint(c);
  assert.match(text,/이벤트 기록  비교 불가/);
  assert.doesNotMatch(text,/PRIVATE-NAME/);
+});
+test("untrusted event provider cannot forge System evidence or private print statistics",()=>{
+ const spoofed=copy(after);
+ spoofed.observations.eventEvidence[0].provider="PRIVATE_USER_HOST";
+ const c=compareReports(before,spoofed);
+ assert.equal(c.eventCounts,null);
+ const text=buildHistoryPrint(c);
+ assert.match(text,/이벤트 기록  비교 불가/);
+ assert.doesNotMatch(text,/PRIVATE_USER_HOST/);
 });
 test("stale System array after unavailable query stays non-comparable",()=>{
  const stale=copy(after);
