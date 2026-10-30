@@ -194,3 +194,16 @@
 9. **완료 조건:** Windows 합성 fixture와 Python unittest 실제 PASS, 수리/WinRE 독립 QA, 실제 PDF 한 장/QR 스캔 실증 후만 Release A 공개 승인.
 10. **시각·맥락:** 2026-10-30 KST. 초기 feature HEAD c32ab92576ce1c5c299ae069ebf49c64e486c20f. 최종 HEAD는 문서 기록 후 확인. 다음 'ㄱ'은 CI 실패가 테스트 실패가 아님을 구분하고 개발 계속.
 
+## [최신] 2026-10-30 KST — CMD 실행기 신뢰경로·Node QR 테스트 인수인계
+
+1. **요구/목표:** AXMART PC CARE Release A 포터블 Windows/USB 안전 사용성 보강. P2 QR 버튼 작동 검증 및 P0 신뢰된 OS 실행기 절대경로. `hibi89/AX_MART` 브랜치 `feature/pc-care-usb`, main 무변경.
+2. **수정 코드:** `products/pc-care/RUN_HEALTH_CHECK.cmd`, `RUN_SELF_TEST.cmd`, `RUN_SAFE_REPAIR.cmd`에서 `powershell.exe` PATH/현 디렉터리 검색 호출을 없애고 `%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe` 절대경로 확인 및 실패 시 종료. `DisableDelayedExpansion` 설정. `tests/windows_smoke.ps1`이 실제 저장된 JSON/HTML의 A4/QR 로컬 인라인/MIT 고지/지원 상태/무전송 태그 여부 추가 점검. 복구 자동 승인, 시스템 수정, 새 네트워크 기능은 없음.
+3. **실행 테스트와 증거:** GitHub `ui/qr_ui.js` 동일 소스 FNV32 `3087562328` 직접 확인, 로컬 Node v22.16.0 실제 VM+가짜 DOM/QR 생성자로 6/6 시나리오 통과 및 `node --check` 성공(실제 QR 스캔 아님). `tests/test_qr_ui.cjs` 별도 Node 내장 test를 저장하고 workflow에 연결했지만 runner에서 파일 자체 테스트는 아직 미실행. 원격 GitHub 정적 계약 21/21 확인. Windows PS5.1/CMD/HTML/브라우저·QR 실제 출력·Python unittest·ZIP·WinRE **미실행**.
+4. **CI/막힘:** GitHub run 41034866482는 러너 미배정(runner_id 0, steps []), logs 404. workflow manual `workflow_dispatch`만, 자동 push 비활성. CI 실패는 실행/구문 테스트 실패를 뜻하지 않으며 성공도 아님.
+5. **남은 핵심:** Windows 11 사용자 PC에서 `RUN_SELF_TEST.cmd` 실행/자가 검사·표준 사용자/USB 공백·한글 경로/문서 폴백을 확인. GitHub 러너 확보 시 수동 workflow dispatch, Node `node --test tests/test_qr_ui.cjs`, Python unittest와 PowerShell synthetic fixtures. PDF A4 실제 한 페이지, QR iOS/Android UTF8 스캔 및 원본 바이트 일치, 무네트워크·UI 접근성 테스트.
+6. **관련 경로:** `RUN_HEALTH_CHECK.cmd`, `RUN_SELF_TEST.cmd`, `RUN_SAFE_REPAIR.cmd`, `tests/windows_smoke.ps1`, `tests/test_package.py`, `tests/test_qr_ui.cjs`, `ui/qr_ui.js`, `.github/workflows/pc-care-windows-synthetic.yml`, `docs/WINDOWS_TEST_PLAN.md`, `STATUS.md`. 최신 HEAD는 문서 완료 후 확인.
+7. **운영/실행환경:** 운영 main `https://ax-mart.pages.dev/` 변경 없음. Windows 11 x64 + PowerShell 5.1 목표, Node/Python은 개발 QA에서만 필요. WinRE는 별도 읽기 전용 실행기, Windows 복구 미디어 필요.
+8. **보안/원본:** Git feature branch 커밋으로 롤백 가능. BitLocker 키, 사용자 파일, 장치 시리얼/로그 원문 유출 금지. 관리자 자동승격, Windows 파티션/레지스트리 자동 수정, 외부 QR 서비스 사용 금지.
+9. **상태/완료 조건:** P2 UI/QR/인쇄 소스 구현에 진전 있으나 실제 실기기 QA 제로. Release A/B 완료·무료/크몽 판매·일반 배포 불가. 제품 전체는 약 30% 추정에 머무르며 과장하지 않음.
+10. **기록시각/맥락:** 2026-10-30 KST. GitHub connector 직접 수정, Node VM 로컬 테스트 6/6+JS syntax, GitHub 정적 21/21, Windows/WinRE 실제 실행 미확인. 다음 ㄱ은 Windows QA 확보를 우선하되 사용자가 직접 테스트할 수 있는 명확한 로컬 진입점과 증거 수집에 집중.
+
