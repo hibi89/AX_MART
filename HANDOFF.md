@@ -232,3 +232,10 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - 수정: `tools/recorded_timeline.ps1` 입력 수집 상태·출처·종류/ID·UTC 검증, `tools/diagnose.ps1` 상태 연결, `tests/driver_timeline.tests.ps1` 실수집 실패/스푸핑·타임존 회귀 추가. 최초 코드 자동 치환 손상 발견 즉시 직전 Git 원본으로 재구성·정확한 정규식과 로직을 재검증하고 정상 소스로 재커밋. 사용자 원본·수리·WinRE·홈페이지 수정 없음.
 - 정적 계약 17 PASS/0 FAIL; PowerShell 5.1 파서/fixture·Windows 실제 실행·전체 Python/Node/내부 원본 ZIP·CI·USB·QR/PDF·WinRE는 NOT_RUN. 최종 릴리스 승인 대기. 기준 복구 SHA `dc53774703d1ea856599c599f3cf4b97418d885c`, 사이트 `https://ax-mart.pages.dev/` main 무변경.
 - 다음 핵심 경로: `RUN_RELEASE_QA.cmd` 전체 소스 Windows 검증→읽기전용 `RUN_SELF_TEST.cmd` 실보고서→Edge file://·USB 한국어 경로·오프라인 QR 실스캔·A4 PDF→WinRE 복사 독립 디스크/VM·보안 검증. 문서-only/CI 대기로 신규 핵심 개발 중단 금지.
+
+## 2026-10-31 KST — AXMART CUBE Release A 최신 인수인계
+- 목표: 해총 코어 우선 지시에 따라 기존 PS5.1/CMD 로컬 진단→근거/시간축→보고서 수직 경로의 실제 사용자 신뢰성을 높임. 제품/통합 기준선 `products/pc-care/docs/PRODUCT_AND_INTEGRATION_BASELINE.md`와 최종 사양 유지.
+- 코드: `tools/recorded_timeline.ps1` 시간축 coverageComplete·수집 실패/무결과/상한 구별, 종류·Event ID·출처·UTC 검증 및 원인 확정이 아닌 15분 기록 근접 조합 3종. `tools/diagnose.ps1` JSON+HTML 표시와 오류 고지, `driver_timeline.tests.ps1`·`test_package.py`·`windows_smoke.ps1` 실행/회귀 계약 보강. 상세 `products/pc-care/HANDOFF.md`.
+- 검증: 실제 GitHub 파일 정적 계약 **32 PASS/0 FAIL**, 증거 `products/pc-care/tests/evidence/timeline_coverage_static_qa_20261031.json`. **Windows PS5.1/전체 테스트/실 ZIP/WinRE/QR/A4/CI NOT_RUN**, 실제 기능 100% 아님.
+- 복구: 작업 전 SHA `dfe918e3c1860aaa6fe9bd1deeaf1e8eb2fc1274`; 현재 `feature/pc-care-usb`만 작업, `main`·Cloudflare 운영 사이트/사용자 데이터 및 복구 기능 미변경.
+- 다음: Windows 실기기/VM `RUN_RELEASE_QA.cmd`/읽기 전용 저장 JSON·HTML → USB·QR·PDF 검증 → WinRE 독립 위험 게이트. 무인 수리·실 복사·무료/유료 배포 금지. 최종 작업 SHA는 GitHub 확인 결과로 보고.
