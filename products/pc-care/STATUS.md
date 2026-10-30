@@ -406,3 +406,9 @@
 - `tools/preflight.py`의 기존 generic 상태 집계는 PASS 단계 일부만 있어도 PASS 가능. `classify_full_qa_stages()` 추가하여 Python·Node·내부 ZIP·Windows PS5.1 네 단계 각각 1회 필수, 누락/중복·비정상 단계는 FAIL; 실제 비Windows 호스트 not-run은 PARTIAL. 실제 `run_qa` 및 개인정보 배제 로컬 영수증 판정에 적용.
 - 회귀: `tests/test_preflight.py`에서 정상/누락/중복/가짜 단계/Windows skip/Node 문법·ZIP verify 실패 검사. `tests/test_package.py` 계약 연동. 실제 GitHub 소스 함수 부분을 격리 복사한 Python 3.13 테스트 **10/10 PASS**. 전체 native Python/Node/PS5.1/ZIP·USB·QR·A4·WinRE·CI 미실행. 증거 `tests/evidence/qa_gate_matrix_20261031.json`.
 - 작업 전 SHA `c8ca0136a1ec65f2d3490e0d7245f2e6b97f81f3`; feature 브랜치만 변경. 운영 main·Cloudflare·사용자 자료·OS/수리/백업 불변. 다음 Windows `RUN_RELEASE_QA.cmd` 실제 실행/영수증 검토.
+
+## 2026-10-31 KST — ZIP SHA256 체크섬 출력 원본 보호
+- 내부 개발 ZIP 빌드 `tools/release.py`의 `.sha256.write_text()`는 링크를 따라 타깃 파일을 덮어쓸 위험이 있었음. sidecar 심볼릭 링크 거부, ZIP·SHA256 각각 exclusive `.tmp` 생성 후 `os.replace`; 충돌 임시파일은 건드리지 않고 이번 실행이 소유한 파일만 정리. 기존 결정적 2회 빌드/해시 검증 유지.
+- `tests/test_release.py`에 sidecar symlink sentinel 보호, 외부 ZIP·sidecar 임시파일 충돌 보존, 연속 재빌드·검증 성공 회귀 추가. `tests/test_package.py` 출처 계약 추가.
+- 원격 실제 `build_internal()` 함수 2561문자/FNV1a `21f4b696`를 격리 Python 3.13에서 동일 코드로 실행, 합성 1파일 ZIP/sidecar/재빌드/충돌/링크 **9 PASS/0 FAIL**. 전체 실제 `release.py`·공식 `verify_archive`/모든 allowlist 제품 ZIP 및 Windows 11/PS5.1/USB·QR/A4·WinRE/CI **NOT_RUN**. 증거 `tests/evidence/zip_sidecar_atomic_native_qa_20261031.json`.
+- 개발 시작 기준 `51ffdc2695e88a7491ff903653b8fab5b303aba5`; 원본 소스와 운영 main/Cloudflare·고객 파일·OS/수리·복구·개인정보 미수정. 다음 Windows 전체 소스 `RUN_RELEASE_QA.cmd` 네이티브 검증 후 read-only 생성 JSON/HTML·H08/USB/인쇄.
