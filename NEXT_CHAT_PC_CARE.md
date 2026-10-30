@@ -64,3 +64,11 @@
 - 실제 확인: GitHub 소스 교차 정적 계약 점검 35/35. Python unittest/PowerShell parser/Windows 10·11·WinRE/USB 저장 실패·복구 실제 실행은 여전히 미검증.
 - 다음 ㄱ은 먼저 해당 제품 브랜치의 HEAD를 확인한 뒤, Windows 검증 실행이 가능한 도구/기기를 확보하면 test_package.py, test_release.py, RUN_SELF_TEST.cmd의 명령과 결과를 기록. 다른 독립 소스 개선은 위 게이트가 필요 없는 범위로만 진행.
 - 상세 현재 상태와 10항 인수인계는 products/pc-care/STATUS.md 및 HANDOFF.md 최신 섹션, 테스트 표는 docs/WINDOWS_TEST_PLAN.md 참조. main/Cloudflare는 미변경이고 공개 다운로드·결제 금지 유지.
+
+## 2026-10-30 KST — P1 driver/timeline continuation checkpoint
+
+- AXMART PC CARE 개발 브랜치는 feature/pc-care-usb, 최종 목표는 products/pc-care/docs/FINAL_SPEC_V2.md. 기존 운영 main/Cloudflare 배포 무변경.
+- 신규 modules: tools/pnp_analysis.ps1 (Win32_PnPEntity ConfigManagerErrorCode, 코드 22와 오류 분리, 장치 이름/ID 비저장) 및 tools/recorded_timeline.ps1 (시스템/업데이트 기록 시간의 UTC/15분 윈도우/최신 80건, 원인 비확정). diagnose.ps1 JSON/HTML 및 incident_analysis.ps1 연동. tests/driver_timeline.tests.ps1, windows_smoke.ps1, internal ZIP/test release 참조 추가.
+- 마지막 정적 소스 검사 37/37 조건 충족, Windows/PowerShell 실제 테스트·Python unittest/ZIP 실행은 아직 없음. STATUS.md/HANDOFF.md 최신 항목 참조.
+- 다음 작업은 Windows 11 PS5.1 및 Python 테스트의 실측 가능 환경 우선 확인, 불가하면 P2 1페이지 Print/PDF 보고서의 안전한 정보 모델과 CSS 작업 진행. QR은 개인정보 최소·오프라인 스캔 실증 전 완성 표기 금지. WinRE 파일 복사/수리는 여전히 별도 게이트 전 금지.
+
