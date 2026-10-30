@@ -360,3 +360,10 @@
 - **실행**: GitHub 실소스와 커밋된 두 JS 단위테스트 파일을 V8+Node API 어댑터에서 실행 **25/25 PASS**; 직접 V8 시나리오 12/12 PASS; 원격 소스 정적 체크 12/12 PASS. 이는 Node 실제 `node --test`, Chromium file://, Windows PowerShell 5.1 실행을 대체하지 않음. 증빙 `tests/evidence/h08_normalized_sample_validation_20261031.json`.
 - **미검증**: 네이티브 Node/Python 전체, 실제 Windows·USB, QR/A4·WinRE, 원본 ZIP, CI. 운영 `main`/Cloudflare 무변경; 고객 보고서·수리/삭제/공개·결제 없음. 이전 브랜치 기준 SHA `209a3366ed841519c871be1aba3bdf84cf815d0b` 복구 가능.
 - 다음 필수: 전체 소스 Windows에서 `RUN_RELEASE_QA.cmd` → 진짜 5.1 스모크 → read-only 저장 JSON/HTML → Edge file:// H08 및 인쇄/QR/USB → WinRE 별도 게이트.
+
+## 2026-10-31 — H08 System event evidence end-to-end verification bundle
+- **실제 오류 수정**: 비교 UI의 `bugchecks/unexpectedShutdowns/storageEvents`가 정규화된 System 근거 없이 배열 길이만으로 건수 변화를 표시하던 문제. `ui/history_compare.js`에 `eventEvidence`의 종류+Event ID(1001/41/6008/7·51·55·129·153·157)+UTC 시각+timeBasis, `collectionStatus.events` 및 배열 건수 일치 검증 추가. 미검증·실패/절단 기록은 '비교 불가'; 실제 정상 조회 무결과만 0 인정.
+- 합성 `tests/test_history_evidence_integration.cjs`: 실제 보고서 구조로 **정규화 JSON → 이력 비교 → 개인정보 필터 인쇄 요약**의 통합 테스트 5개 신규. `tools/preflight.py` Node QA에 등록, `test_package.py` 보안 계약 보강.
+- 커밋된 JS 두 단위테스트 소스 **V8 어댑터 28/28 PASS**, 신규 통합 **V8 5/5 PASS**, GitHub 파일 정적 **12/12 PASS**; 오류 재현 및 수정 후 차단 확인. **Native Node, Python 전체, PowerShell 5.1, ZIP, Windows/Edge/USB/QR/A4/WinRE는 NOT_RUN**. 증거: `tests/evidence/h08_system_evidence_integration_qa_20261031.json`.
+- 기존 CI `41034866482`는 과거 SHA `5c6c794d`, Windows job 결론 failure/steps 0/runner name 없음; 신규 HEAD에 대한 CI 검증 아님. 자동 재실행하지 않음. 원본·운영 `main`·Cloudflare·고객 데이터 무변경. 출시 금지 유지.
+- 다음 P0: 전체 Windows checkout의 `RUN_RELEASE_QA.cmd` 실제 실행 → `windows_smoke.ps1` read-only → 실제 보고서와 H08→인쇄→USB/QR 검증. Release B WinRE 별도 안전 승인.
