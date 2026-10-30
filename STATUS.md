@@ -174,3 +174,8 @@
 - `feature/pc-care-usb`에 실제 반복 검사 비교 결함 수정: 업데이트 이벤트·PnP 샘플의 빈/허위 항목을 건수만으로 비교하는 오류 방지. 원래 정상 관측/실패·무결과 비교 의미 유지.
 - GitHub 원본 JS+커밋된 단위 테스트 V8 어댑터 실행 **25/25 PASS**, 추가 V8 12/12, 정적 12/12. **네이티브 Node·Python·Windows·USB·QR·A4·WinRE·CI·제품 ZIP NOT_RUN**. 증거 `products/pc-care/tests/evidence/h08_normalized_sample_validation_20261031.json`.
 - 기존 운영 `main`·Cloudflare, 고객 데이터, 수리/복구, 무료/유료 배포 변경 없음. 다음 Release A 실 Windows 진단→보고서→H08 비교의 실제 런타임 검증을 우선.
+
+## 2026-10-31 KST — CUBE H08 정규화 이벤트 통합 검증
+- `feature/pc-care-usb`: 진단 System 정규화 증거를 검사하지 않고 UI가 41/6008·BugCheck·Storage 건수를 비교하던 오류 수정. 실제 JSON 구조의 합성 통합 `eventEvidence → H08 → 로컬 인쇄 요약` 테스트 5개와 `preflight.py` 등록, 패키지 소스 계약 갱신.
+- 기존 비교 테스트 V8 **28/28 PASS**, 신규 통합 V8 **5/5 PASS**, 정적 **12/12 PASS**. **Native Windows/PowerShell5.1/Node/Python/ZIP/QR/PDF/USB/WinRE 및 신규 CI NOT_RUN**. 증거 `products/pc-care/tests/evidence/h08_system_evidence_integration_qa_20261031.json`.
+- 운영 main·Cloudflare·원본 고객 데이터 불변; 새 릴리스/결제/WinRE 복사 금지. 기존 CI 실패 `41034866482`는 과거 SHA의 job 0 steps로 현재 기능 불량 증거 아님. 다음 실제 Windows E2E 검증이 필수.
