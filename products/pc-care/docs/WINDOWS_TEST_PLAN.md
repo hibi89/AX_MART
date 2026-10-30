@@ -125,3 +125,23 @@ Required Windows 11 / edge cases (all pending):
 
 P2 NOT completed: QR encoding and scanning, opt-in QR preview, polished home UI, actual Windows A4/PDF screenshot evidence. Do not approve public release, free download or paid service until Windows/WinRE/repair acceptance gates are satisfied.
 
+## P2 QR-compatible share TEXT acceptance (2026-10-30; no bitmap yet)
+
+Scope: `tools/share_payload.ps1` (pure whitelist/UTF-8 payload builder) and `tools/share_preview.ps1` (local, opt-in expanded text preview). This stage does **not** encode a QR bitmap. Never describe it as scan-ready.
+
+| Case | Required result | Status |
+|---|---|---|
+| All four assessment labels | Only fixed known Korean labels, no raw source text | Synthetic fixture written; Windows not run |
+| Issue codes and source messages with untrusted strings | Only fixed signal categories, never device names, serials, paths, username, raw messages | Synthetic fixture written; Windows not run |
+| >2 distinct signal categories | First two categories plus visible 'other N kinds' disclosure | Synthetic fixture written; Windows not run |
+| EventId unsupported / malformed UTC timestamp | Excluded, date shown as unavailable | Synthetic fixture written; Windows not run |
+| 250 UTF-8 byte boundary | Actual `Encoding.UTF8.GetByteCount`, reject over limit, no silent truncation | Synthetic fixture written; Windows not run |
+| Too large | `too_large`, no share payload or textarea | Synthetic fixture written; Windows not run |
+| HTML special characters in text/disclosure | Encoded; no injected tags/script | Synthetic fixture written; Windows not run |
+| Opt-in | User must expand `details` to view text; explicit select + Ctrl+C, no auto-copy/upload | Synthetic fixture written; browser not run |
+| Offline Windows USB / fallback Documents | All references inline, no network, no remote fonts/libs, available after USB removal once HTML saved | Windows browser not run |
+| Browser PDF printing | Share panel not included in A4 print; only consultation section prints | Windows browser not run |
+| JSON | `sharePreview` stores status/byte count, not payload text | Static source check only |
+
+**Still blocking full QR acceptance:** choose license-compatible local encoder; package it for offline use; user explicitly requests image generation; independently verify actual QR pixels decode UTF-8 without corruption; scan on Android/iOS with Korean and long content; verify quiet zone, error correction, printer and phone camera; assert no unintended telemetry or automatic upload. Until then, share text only. No public ZIP/Kmong offer.
+
