@@ -53,3 +53,8 @@
 ## 2026-10-30 KST — 네이밍 인계
 - `AXMART³`는 플랫폼명(AXMART CUBE), `AXMART PC CARE`는 제품명. 제품명에 'CUBE'나 'USB'를 포함시키지 않는다. 제품 경로/내부 ZIP에 USB가 있는 것은 기술 파일명일 뿐.
 - 브랜드 프리뷰는 `main`의 가상 UI 시안이며 실제 Windows 앱 UI 완성과는 무관. 본 feature HEAD 이전 `69b8bd26caf7fb4a63dec4db627a54d0ae7548a8`.
+
+## 2026-10-30 KST — AXMART PC CARE 통합 스펙 v2.0 확정
+- 상세 요구사항과 기능 범위는 products/pc-care/docs/FINAL_SPEC_V2.md를 기준으로 한다. Gemini 제안 두 개 결합: HEALTH, ANALYZE, REPORT(1페이지/PDF/QR), RESCUE(WinRE 조건부 파일 백업), RECOVER.
+- Release A(진단+보고서+WinRE 읽기전용)와 Release B(복사 안전 검증 통과 후)를 분리. BitLocker 자동 해제·무인 전체 파일복사·DDU 자동화·하드웨어/사기판단 보증 금지.
+- 이번 턴은 사양만 기록, 기존 Windows 코드 변경/테스트/홈페이지 판매 개시는 수행하지 않았다.
