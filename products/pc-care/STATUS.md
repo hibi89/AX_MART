@@ -99,3 +99,12 @@
 - 실제 수행: GitHub 소스 9개 파일에 대한 교차 정적 계약 검사 35/35 조건 충족. PowerShell 파서·Python unittest·Windows/WinRE 런타임·실제 ZIP 생성/검증 테스트는 미실행. GitHub 체크 상태 0개는 CI PASS가 아니다.
 - 제품 개발 브랜치 feature/pc-care-usb, 문서 작성 직전 기능 커밋 5dd651ab0d713780bbaac5c730394a141df2ae59. main/Cloudflare Production 및 공개 다운로드·판매 기능은 변경하지 않음.
 - 다음 게이트: Windows 11 x64 PS5.1 파서+fixture → 기본 사용자 1일 read-only 진단 → USB/로그/파일 실패 VM 재현 → Windows 10 제한 대상 호환성. 그 전까지 P0 완성 및 무료 배포 주장 금지.
+
+## 2026-10-30 KST — P0 로컬 보고서 안전성 보강 (최신)
+
+- **원인:** 기존 보고서 저장 함수의 실패 정리 루프가 실행 시 새로 만든 파일인지 구별하지 않고 최종 JSON/HTML 경로까지 삭제할 수 있었다. 파일명 충돌 등 예외 환경에서 기존 보고서 보존 보장이 부족했다.
+- **해결:** 보고서 저장 함수를 tools/report_io.ps1로 격리, 기존 임시/최종 파일 이름이 존재하면 덮어쓰기 없이 중단. 임시 파일은 정리하되 최종 파일은 이번 실행에서 이동 완료한 파일만 제거하도록 상태 플래그 추가. 보고서 생성은 로컬 기능만 수행하고 시스템 원본은 변경하지 않음.
+- **새 검증 코드:** tests/report_io.tests.ps1는 독립 임시 폴더에서 정상 JSON/HTML 저장, 기존 이름 충돌 보존, 첫 저장 후보 실패 후 폴백, 전부 실패한 경우의 명시적 오류를 검사한다. tests/windows_smoke.ps1 연결 및 내부 시험 ZIP 파일/의존 테스트 반영.
+- **실측 범위:** GitHub 반영 파일 10개에 대해 소스/BOM/호출 관계/충돌 가드/ZIP 구성 **정적 계약 16/16 조건 충족**. Python 단위 테스트 및 Windows PowerShell 파서·새 fixture는 실제 실행되지 않았으므로 PASS로 표시하지 않는다.
+- **개발 브랜치:** hibi89/AX_MART feature/pc-care-usb. main 및 Cloudflare 운영 사이트 미변경. 공개 다운로드·결제·승인형 복구 테스트/실사용 모두 차단.
+- **다음 게이트:** Windows 11 x64 비관리자 PS5.1 Parser 및 event/report fixtures 실제 실행, 내부 ZIP에서 self-test 재실행, 읽기 전용 진단의 데이터/권한/쓰기 실패 시나리오 실측. P0 전체 완료는 검증 후 결정.
