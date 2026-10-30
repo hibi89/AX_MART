@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "baselineSha": "bbe120757799e3826d0b0ab3b43d97b0e72bc4f6",
+  "dateKst": "2026-10-31",
+  "reproduction": {
+    "priorAdded": [
+      "BUGCHECK"
+    ],
+    "sourceStatus": "unavailable",
+    "observedEvents": 0
+  },
+  "testRunner": "V8 Node:test/assert-compatible JS shim (not native Node)",
+  "executedOfficialTests": 61,
+  "passedOfficialTests": 61,
+  "failedOfficialTests": 0,
+  "officialFiles": [
+    "test_history_compare.cjs",
+    "test_history_issue_allowlist.cjs",
+    "test_history_evidence_integration.cjs",
+    "test_history_signals.cjs"
+  ],
+  "newTests": 4,
+  "sourceChecks": 8,
+  "passedSourceChecks": 8,
+  "windowsPowerShell51": "NOT_RUN",
+  "nativeNode": "NOT_RUN",
+  "nativePython": "NOT_RUN",
+  "realUsbQrPrint": "NOT_RUN",
+  "ci": "NOT_RUN",
+  "launch": "HOLD"
+}

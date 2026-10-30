@@ -67,7 +67,7 @@ function compareReports(oldReport,newReport){
      return !!now&&Math.abs(now.sizeGB-v.sizeGB)/Math.max(now.sizeGB,v.sizeGB)<=0.05;
    });
  // Unknown issue lists must not be presented as "no warnings".
- const added=prev&&next?[...next].filter(x=>!prev.has(x)).sort():null;
+ const addedCandidates=prev&&next?[...next].filter(x=>!prev.has(x)).sort():null;
  const missingCandidates=prev&&next?[...prev].filter(x=>!next.has(x)&&
    (!volumeIssueCodes.has(x)||currentVolumesComparable)&&
    // LOW -> CRITICAL indicates deterioration, not disappearance of the hazard.
@@ -154,6 +154,94 @@ function compareReports(oldReport,newReport){
      default: return true; // Volume issues were already gated by currentVolumesComparable.
    }
  };
+
+ // New warnings need real collector observations, not just an allowlisted label.
+ const latestEventKinds=(()=>{
+   const o=b.o;
+   if(!["collected","truncated"].includes(o.eventCollection)||
+      !o.collectionStatus||o.collectionStatus.events!==o.eventCollection||
+      !Array.isArray(o.eventEvidence)||o.eventEvidence.length>1500)return null;
+   const kinds={bugcheck_record:0,shutdown_signal:0,storage_signal:0};
+   for(const e of o.eventEvidence){
+     if(!e||typeof e!=="object"||Array.isArray(e)||e.timeBasis!=="event_recorded_time"||
+       !Object.prototype.hasOwnProperty.call(systemIds,e.kind)||
+       !systemIds[e.kind].includes(e.eventId)||!validSystemProvider(e)||!validUtc(e.recordedUtc))return null;
+     kinds[e.kind]++;
+   }
+   return kinds;
+ })();
+ const latestUpdateFailureObserved=(()=>{
+   const o=b.o,u=o.windowsUpdate;
+   if(!o.collectionStatus||!u||!["collected","truncated"].includes(u.status)||
+      u.status!==o.collectionStatus.windowsUpdate||!Array.isArray(u.evidence)||
+      u.evidence.length>300||
+      !Number.isSafeInteger(u.installationFailureRecords)||u.installationFailureRecords<0||
+      !Number.isSafeInteger(u.installationSuccessRecords)||u.installationSuccessRecords<0)return false;
+   let failures=0,successes=0;
+   for(const e of u.evidence){
+     if(!e||e.provider!=="Microsoft-Windows-WindowsUpdateClient"||
+        e.timeBasis!=="event_recorded_time"||!validUtc(e.recordedUtc))return false;
+     if(e.kind==="update_installation_failure_record"&&e.eventId===20)failures++;
+     else if(e.kind==="update_installation_success_record"&&e.eventId===19)successes++;
+     else return false;
+   }
+   return failures>0&&failures===u.installationFailureRecords&&successes===u.installationSuccessRecords;
+ })();
+ const latestPnPIssueObserved=(()=>{
+   const o=b.o,d=o.driverDevices;
+   if(!o.collectionStatus||!d||!["collected","truncated"].includes(d.status)||
+      d.status!==o.collectionStatus.driverDevices||!Array.isArray(d.samples)||
+      d.samples.length>30||!Number.isSafeInteger(d.observedCount)||
+      d.observedCount<d.samples.length||
+      (d.status==="collected"&&d.observedCount!==d.samples.length))return false;
+   if(d.samples.some(x=>!x||!Number.isSafeInteger(x.configurationCode)||
+       x.configurationCode<1||x.configurationCode>55))return false;
+   return d.samples.some(x=>x.configurationCode!==22);
+ })();
+ const latestDiskWarningObserved=(()=>{
+   const o=b.o;
+   return !!(o.collectionStatus&&["collected","truncated"].includes(o.collectionStatus.physicalDisks)&&
+     Array.isArray(o.physicalDisks)&&o.physicalDisks.length>0&&
+     o.physicalDisks.every(d=>d&&["Healthy","Warning","Unhealthy"].includes(d.status))&&
+     o.physicalDisks.some(d=>d.status==="Warning"||d.status==="Unhealthy"));
+ })();
+ const latestVolumeWarningObserved=code=>{
+   const o=b.o,state=o.collectionStatus&&o.collectionStatus.volumes;
+   if(!["collected","incomplete"].includes(state)||!Array.isArray(o.volumes)||
+      !o.volumes.length||(state==="incomplete"&&
+      (!Number.isSafeInteger(o.volumeRejectedCount)||o.volumeRejectedCount<1))||
+      (state==="collected"&&Object.prototype.hasOwnProperty.call(o,"volumeRejectedCount")&&
+       o.volumeRejectedCount!==0))return false;
+   const letters=new Set();
+   let observed=false;
+   for(const v of o.volumes){
+     if(!v||typeof v.drive!=="string"||!/^[A-Z]:$/i.test(v.drive)||
+       !Number.isFinite(v.sizeGB)||!Number.isFinite(v.remainingGB)||
+       v.sizeGB<=0||v.remainingGB<0||v.remainingGB>v.sizeGB||
+       letters.has(v.drive.toUpperCase()))return false;
+     letters.add(v.drive.toUpperCase());
+     if(v.sizeGB<20)continue;
+     const percent=Math.round((v.remainingGB/v.sizeGB)*1000)/10;
+     const critical=percent<5||v.remainingGB<5;
+     if(code==="DISK_SPACE_CRITICAL"?critical:!critical&&percent<15)observed=true;
+   }
+   return observed;
+ };
+ const sourceSupportsAdded=code=>{
+   switch(code){
+     case "BUGCHECK": return !!latestEventKinds&&latestEventKinds.bugcheck_record>0;
+     case "UNEXPECTED_REBOOT": return !!latestEventKinds&&latestEventKinds.shutdown_signal>0;
+     case "STORAGE_EVENTS": return !!latestEventKinds&&latestEventKinds.storage_signal>0;
+     case "WINDOWS_UPDATE_FAILURE_RECORD": return latestUpdateFailureObserved;
+     case "PNP_CONFIGURATION": return latestPnPIssueObserved;
+     case "DISK_HEALTH": return latestDiskWarningObserved;
+     case "DISK_SPACE_LOW": case "DISK_SPACE_CRITICAL": return latestVolumeWarningObserved(code);
+     default: return false;
+   }
+ };
+ const added=addedCandidates===null?null:addedCandidates.filter(sourceSupportsAdded);
+ if(addedCandidates&&added.length!==addedCandidates.length)
+   caution.push("신규 경고 중 수집 증거가 불완전하거나 경고 코드와 일치하지 않는 항목은 표시하지 않습니다.");
  const missing=missingCandidates===null?null:missingCandidates.filter(sourceSupportsMissing);
  if(missingCandidates && missing.length!==missingCandidates.length)
    caution.push("수집 상태·증거가 불완전하거나 현재도 경고 신호가 관측되어 일부 과거 경고의 미관찰 여부를 판단하지 않습니다.");

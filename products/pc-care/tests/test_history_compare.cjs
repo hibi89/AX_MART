@@ -68,7 +68,7 @@ test("complete volume evidence preserves normal issue comparisons",()=>{
  assert.deepEqual(result.missing,["DISK_SPACE_LOW"]);
  assert.equal(result.drives[0].change,5);
  const observed={...b,issues:[{code:"DISK_SPACE_CRITICAL"}],observations:{
-   ...b.observations,volumeRejectedCount:1,collectionStatus:{...b.observations.collectionStatus,volumes:"incomplete"}}};
+   ...b.observations,volumeRejectedCount:1,volumes:[{drive:"C:",sizeGB:100,remainingGB:4}],collectionStatus:{...b.observations.collectionStatus,volumes:"incomplete"}}};
  const partial=compareReports(a,observed);
  assert.deepEqual(partial.added,["DISK_SPACE_CRITICAL"]);
  assert.deepEqual(partial.missing,[]);
@@ -241,4 +241,39 @@ test("complete same-volume evidence still permits old LOW warning no longer obse
  const r=compareReports(a,current);
  assert.deepEqual(r.missing,["DISK_SPACE_LOW"]);
  assert.equal(r.drives[0].change,20);
+});
+
+test("new BugCheck requires verified System source evidence",()=>{
+ const previous={...a,issues:[]},current={...b,issues:[{code:"BUGCHECK"}]};
+ assert.deepEqual(compareReports(previous,current).added,["BUGCHECK"]);
+ const failed={...current,observations:{...current.observations,
+  eventCollection:"unavailable",collectionStatus:{...current.observations.collectionStatus,events:"unavailable"},
+  eventEvidence:[],bugchecks:[]}};
+ assert.deepEqual(compareReports(previous,failed).added,[]);
+ const spoofed={...current,observations:{...current.observations,
+  eventEvidence:[{kind:"bugcheck_record",eventId:1001,provider:"FakeBugCheck",timeBasis:"event_recorded_time",recordedUtc:"2026-10-30T01:00:00Z"}]}};
+ assert.deepEqual(compareReports(previous,spoofed).added,[]);
+});
+test("physical disk and volume warnings need current corroborated readings",()=>{
+ const previous={...a,issues:[]};
+ const disk={...b,issues:[{code:"DISK_HEALTH"}],observations:{...b.observations,physicalDisks:[{status:"Warning"}]}};
+ assert.deepEqual(compareReports(previous,disk).added,["DISK_HEALTH"]);
+ const diskFailed={...disk,observations:{...disk.observations,
+  collectionStatus:{...disk.observations.collectionStatus,physicalDisks:"unavailable"}}};
+ assert.deepEqual(compareReports(previous,diskFailed).added,[]);
+ const low={...b,issues:[{code:"DISK_SPACE_LOW"}],observations:{...b.observations,
+  volumes:[{drive:"C:",sizeGB:100,remainingGB:10}]}};
+ assert.deepEqual(compareReports(previous,low).added,["DISK_SPACE_LOW"]);
+ const forged={...low,observations:{...low.observations,volumes:[{drive:"C:",sizeGB:100,remainingGB:50}]}};
+ assert.deepEqual(compareReports(previous,forged).added,[]);
+});
+test("incomplete volume inventory retains actually observed severe low space",()=>{
+ const previous={...a,issues:[]};
+ const latest={...b,issues:[{code:"DISK_SPACE_CRITICAL"}],observations:{...b.observations,
+   volumes:[{drive:"C:",sizeGB:100,remainingGB:3}],volumeRejectedCount:1,
+   collectionStatus:{...b.observations.collectionStatus,volumes:"incomplete"}}};
+ assert.deepEqual(compareReports(previous,latest).added,["DISK_SPACE_CRITICAL"]);
+ const unavailable={...latest,observations:{...latest.observations,
+   collectionStatus:{...latest.observations.collectionStatus,volumes:"unavailable"}}};
+ assert.deepEqual(compareReports(previous,unavailable).added,[]);
 });

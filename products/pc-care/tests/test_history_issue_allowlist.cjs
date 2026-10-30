@@ -9,10 +9,11 @@ const report=(t,issues=[])=>({schemaVersion:1,product:"AXMART PC CARE",mode:"rea
 const earlier=(items=[])=>report("2026-10-28 08:00:00 +09:00",items);
 const later=(items=[])=>report("2026-10-30 08:00:00 +09:00",items);
 const input=items=>items.map(code=>({code}));
-test("every real generated PC CARE warning is allowed",()=>{
+test("known warning codes without collector evidence are not treated as observed",()=>{
  const result=compareReports(earlier(),later(input(CODES)));
- assert.deepEqual(result.added,[...CODES].sort());
+ assert.deepEqual(result.added,[]);
  assert.deepEqual(result.missing,[]);
+ assert.match(result.caution.join(" "),/신규 경고 중 수집 증거가 불완전하거나/);
 });
 test("unknown uppercase code cannot appear as a newly observed warning",()=>{
  const r=compareReports(earlier(),later(input(["CUSTOMER_PRIVATE_NAME"])));

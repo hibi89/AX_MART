@@ -108,3 +108,20 @@ test("Update and PnP warnings need validated zero/current inactive evidence befo
  disabled.issues=[];disabled.observations.driverDevices.samples=[d(22)];
  assert.deepEqual(compareReports(older,disabled).missing,["PNP_CONFIGURATION"]);
 });
+
+test("new Update and PnP issues need actual trusted current source evidence",()=>{
+ const previous=copy(before);previous.issues=[];
+ const current=copy(before);current.generatedAt="2026-10-30 11:00:00 +09:00";
+ current.issues=[{code:"WINDOWS_UPDATE_FAILURE_RECORD"},{code:"PNP_CONFIGURATION"}];
+ assert.deepEqual(compareReports(previous,current).added,["PNP_CONFIGURATION","WINDOWS_UPDATE_FAILURE_RECORD"]);
+ const failed=copy(current);
+ failed.observations.windowsUpdate.status="unavailable";
+ failed.observations.collectionStatus.windowsUpdate="unavailable";
+ failed.observations.driverDevices.status="unavailable";
+ failed.observations.collectionStatus.driverDevices="unavailable";
+ assert.deepEqual(compareReports(previous,failed).added,[]);
+ const spoofed=copy(current);
+ spoofed.observations.windowsUpdate.evidence[0].provider="Fake-Microsoft-Windows-WindowsUpdateClient";
+ spoofed.observations.driverDevices.samples[0].configurationCode="PRIVATE_ID";
+ assert.deepEqual(compareReports(previous,spoofed).added,[]);
+});
