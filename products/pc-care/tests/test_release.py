@@ -69,6 +69,8 @@ class ReleaseTests(unittest.TestCase):
             'tests/event_analysis.tests.ps1',
             'tools/diagnose.ps1',
             'tools/event_analysis.ps1',
+            'tools/incident_analysis.ps1',
+            'tests/incident_analysis.tests.ps1',
             'tools/report_io.ps1',
             'tests/report_io.tests.ps1',
         }
