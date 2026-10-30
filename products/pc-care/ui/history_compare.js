@@ -27,6 +27,21 @@ function compareReports(oldReport,newReport){
  const signals = signalApi && typeof signalApi.compareSignals === "function" ? signalApi.compareSignals(a.r,b.r) : null;
  if (signals) caution.push(...signals.notes);
  else caution.push("추가 관측 비교 모듈을 불러오지 못해 확장 비교를 생략했습니다.");
+ // Stale volume arrays from failed CIM reads are never evidence of free-space change.
+ // Duplicate drive letters in a malformed JSON are ambiguous, so fail closed.
+ const volumeMap=x=>{
+   const m=new Map();
+   if(!x.o.collectionStatus || x.o.collectionStatus.volumes!=="collected" || !Array.isArray(x.o.volumes) ||
+     (Object.prototype.hasOwnProperty.call(x.o,"volumeRejectedCount") && x.o.volumeRejectedCount!==0))return m;
+   for(const v of x.o.volumes){
+     if(!v||!(/^[A-Z]:$/i.test(v.drive))||!Number.isFinite(v.sizeGB)||!Number.isFinite(v.remainingGB)||
+       v.sizeGB<=0||v.remainingGB<0||v.remainingGB>v.sizeGB)return new Map();
+     const key=v.drive.toUpperCase();
+     if(m.has(key))return new Map();
+     m.set(key,v);
+   }
+   return m;
+ };
  const issueCodes=new Set(["DISK_HEALTH","STORAGE_EVENTS","DISK_SPACE_CRITICAL","DISK_SPACE_LOW","BUGCHECK","UNEXPECTED_REBOOT","WINDOWS_UPDATE_FAILURE_RECORD","PNP_CONFIGURATION"]);
  // A syntactically uppercase value is NOT necessarily a PC CARE warning.
  // Unknown/malformed entries make the comparison incomplete, never "no warnings".
@@ -40,9 +55,17 @@ function compareReports(oldReport,newReport){
    return known;
  };
  const prev=codeSet(a),next=codeSet(b);
+ // Missing low-space warnings are not reliable if the newer volume inventory is
+ // incomplete, even if the report contains no new low-space issue.
+ const volumeIssueCodes=new Set(["DISK_SPACE_LOW","DISK_SPACE_CRITICAL"]);
+ const currentVolumesComparable=volumeMap(b).size>0;
  // Unknown issue lists must not be presented as "no warnings".
  const added=prev&&next?[...next].filter(x=>!prev.has(x)).sort():null;
- const missing=prev&&next?[...prev].filter(x=>!next.has(x)).sort():null;
+ const missing=prev&&next?[...prev].filter(x=>!next.has(x)&&
+   (!volumeIssueCodes.has(x)||currentVolumesComparable)).sort():null;
+ if(prev&&next&&!currentVolumesComparable&&
+    [...prev].some(x=>volumeIssueCodes.has(x)&&!next.has(x)))
+   caution.push("현재 드라이브 수집이 불완전하거나 값이 유효하지 않아 과거 디스크 공간 경고의 미관찰 여부를 판단하지 않습니다.");
  // Arrays of displayed rows are NOT proof of actual Windows events. Verify the
  // complete System normalizer evidence before comparing any event counts.
  const systemIds={
@@ -95,20 +118,6 @@ function compareReports(oldReport,newReport){
  const comparableEvents=complete(a)&&complete(b)&&Number.isSafeInteger(a.o.eventWindowDays)&&a.o.eventWindowDays>=1&&a.o.eventWindowDays<=90&&a.o.eventWindowDays===b.o.eventWindowDays&&oldCounts!==null&&newCounts!==null;
  const eventCounts=comparableEvents?{days:a.o.eventWindowDays,before:oldCounts,after:newCounts}:null;
  caution.push(eventCounts?"이벤트 수는 이동하는 조회 기간의 로그 수로, 실제 사건 횟수나 호전을 의미하지 않습니다.":"이벤트 수는 기간·수집상태·표시 상한이 달라 비교하지 않습니다.");
- // Stale volume arrays from failed CIM reads are never evidence of free-space change.
- // Duplicate drive letters in a malformed JSON are ambiguous, so fail closed.
- const volumeMap=x=>{
-   const m=new Map();
-   if(!x.o.collectionStatus || x.o.collectionStatus.volumes!=="collected" || !Array.isArray(x.o.volumes))return m;
-   for(const v of x.o.volumes){
-     if(!v||!(/^[A-Z]:$/i.test(v.drive))||!Number.isFinite(v.sizeGB)||!Number.isFinite(v.remainingGB)||
-       v.sizeGB<=0||v.remainingGB<0||v.remainingGB>v.sizeGB)return new Map();
-     const key=v.drive.toUpperCase();
-     if(m.has(key))return new Map();
-     m.set(key,v);
-   }
-   return m;
- };
  const pastDrives=volumeMap(a),currentDrives=volumeMap(b),drives=[];
  for(const [id,v] of currentDrives){const prevDisk=pastDrives.get(id);if(!prevDisk||Math.abs(v.sizeGB-prevDisk.sizeGB)/Math.max(v.sizeGB,prevDisk.sizeGB)>0.05)continue;drives.push({drive:id,before:prevDisk.remainingGB,after:v.remainingGB,change:Math.round((v.remainingGB-prevDisk.remainingGB)*10)/10});}
  drives.sort((x,y)=>x.drive.localeCompare(y.drive));
