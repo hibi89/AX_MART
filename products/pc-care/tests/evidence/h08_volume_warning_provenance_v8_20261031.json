@@ -1,5 +1,5 @@
 {
-  "testedAtKst": "2026-10-31 04:03-04:20 KST (session; exact clock not measured)",
+  "testedAtKst": "2026-10-31 KST (exact clock not measured)",
   "repo": "hibi89/AX_MART",
   "branch": "feature/pc-care-usb",
   "previousHead": "d2eaf480df274ac21c0eb4470cf795b35cbe933d",
