@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "project": "AXMART PC CARE",
+  "feature": "Release A H08 local report comparison",
+  "verifiedAtKST": "2026-10-30 22:27 KST",
+  "baselineBranch": "feature/pc-care-usb",
+  "baselineSHA": "4af8e8b0ffaccf78fb5d90898d19017d8b8c9dc7",
+  "change": "Replace non-standard Date.parse with explicit PowerShell5.1 yyyy-MM-dd HH:mm:ss zzz calendar/offset validation; allowlist display assessments to avoid echoing untrusted raw values.",
+  "execution": {
+    "environment": "Linux Node.js 22.16.0",
+    "command": "node --check ui/history_compare.js && node --test tests/test_history_compare.cjs tests/test_history_dom.cjs",
+    "tests": 22,
+    "passed": 22,
+    "failed": 0,
+    "nodeSyntax": "PASS",
+    "codeSha": "c57d4fd2e98bd4f0bbe53dc7570f284ca5442de8",
+    "unitTestSha": "5c533efe63ac8db0c9e8a07072303f2d73243dea",
+    "domTestSha": "958b5a68caa366c50fc3a6adb0a693a3a745aee2",
+    "scenarios": [
+      "offset-equivalent timestamps rejected as same moment",
+      "invalid calendar date and time rejected",
+      "bad UTC offset rejected",
+      "valid leap day and negative offset accepted",
+      "unrecognized assessment text not included in rendered summary"
+    ]
+  },
+  "notVerified": [
+    "Windows PowerShell5.1 runtime",
+    "Windows Edge/Chrome file://",
+    "USB unicode/space path",
+    "full Python suite and internal ZIP",
+    "QR/A4 PDF real rendering",
+    "WinRE backup/recovery",
+    "Production runtime"
+  ],
+  "publicRelease": false,
+  "changesToUserFiles": false,
+  "changesToMain": false
+}

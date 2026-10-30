@@ -281,3 +281,9 @@ Pending manual tests:
 - Given empty/missing `physicalDisks`, `collectionStatus.physicalDisks=unavailable`, unknown storage status or changed disk count, UI must not show '0 → 0' warnings. Report '비교 불가'; never infer a repaired drive.
 - Even when both complete statuses and counts match, warning totals are not device-identity proof. Continue avoiding hardware serials/IDs and automatic history deletion.
 - Real Node v22: `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs`: 18 tests, 18 pass, 0 fail; reference evidence file tests/evidence/history_fail_closed_qa_20261030.json. Python static/ZIP, Windows PS5.1, Edge/Chrome file://, QR/PDF, USB and WinRE still unverified.
+
+## 2026-10-30 H08 timestamp contract / output safety QA
+- Report source uses PowerShell 5.1 `(Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz')`. Local browser H08 now validates this exact format and calendar/time/UTC offset, no engine-dependent Date.parse. Check date-invalid, leap-day, positive/negative offsets, equivalent instants; malformed timestamps must block comparison without touching source JSON.
+- Only the four known Korean assessment strings may be shown directly; unsupported strings display '확인 불가' rather than copying arbitrary JSON content into UI. Preserve textContent-only rendering.
+- Actual Node 22 command `node --check ui/history_compare.js && node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **22/22 PASS, zero failed**. GitHub source SHA and locally executed files identical. Evidence `tests/evidence/history_date_offset_qa_20261030.json`.
+- Not Windows proof: check real PowerShell5.1 output timezone, Edge/Chrome file://, Unicode USB paths and QR/A4/WinRE separately. No automatic release or destructive operations.

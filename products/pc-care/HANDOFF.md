@@ -349,3 +349,15 @@
 8. **원본·백업·보안:** 이전 커밋으로 코드 복원 가능, 실제 PC 고객 로그/BitLocker 키/시스템 수정·권한 상승·외부 통신 없음. 보고서 자동 읽기/삭제 없음.
 9. **다음 우선순위/완료:** Windows11 PowerShell5.1 실제 보고서 생성→같은 PC 2회 JSON을 Edge/Chrome `file://`에서 비교 및 Network/Console 무오류→USB 한글/특수문자→QR/A4 PDF→VM WinRE/Release B 승인형 안전 시험. 공개/판매 사용자 별도 승인 필수.
 10. **갱신/검증 범위:** 2026-10-30 KST, Node 18/18 및 Git SHA만 검증. 전체 Python/ZIP, Windows/Production 미검증. 변경 후 GitHub HEAD 재조회.
+
+## [최신] 2026-10-30 22:27 KST — H08 날짜 파싱 정확성 및 안전한 상태 출력
+1. **목표·확정기술:** PC CARE Release A의 수동 JSON 두 건 비교 기능(H08), Windows PS5.1 생성시각 `yyyy-MM-dd HH:mm:ss zzz`을 OS/브라우저 차이 없이 UTC로 환산하고 출력 안전성 강화. 서버/계정/사용자 로그 전송 없음.
+2. **구현·결정:** `ui/history_compare.js`의 `Date.parse` 제거, 엄격한 숫자/실제 캘린더(윤년 포함)·UTC 오프셋 파싱. 서로 다른 시간대의 동일 순간 거부. 예상 범위 밖의 `assessment` 텍스트는 `확인 불가`로 최소화. 기존 메뉴/파이프라인/저장 경로/수리 불변.
+3. **테스트:** 개발용 Linux Node v22.16.0에서 `node --check ui/history_compare.js` PASS, `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **22 PASS/0 FAIL**. Git Blob SHA `c57d4fd2e98bd4f0bbe53dc7570f284ca5442de8` 및 `5c533efe63ac8db0c9e8a07072303f2d73243dea` 일치. 신규 test_history_compare.cjs 4가지 회귀와 Python 정적 가드. 증빙 `tests/evidence/history_date_offset_qa_20261030.json`.
+4. **상태:** H08 반복 검사 비교의 비표준 날짜 의존 및 오염된 상태 텍스트 방어 구현. Release A 전체 여전히 부분 완료. Windows/브라우저/USB/WinRE QA 대기; 일반 유통 금지.
+5. **실패·위험/대안:** JS `Date.parse` 비표준 날짜 포맷은 구현별 허용/오해 위험; 직접 엄격 파싱으로 전환. `assessment`의 임의 텍스트 노출 위험을 allowlist로 제한. 미래 포맷의 날짜는 JSON schemaVersion 업그레이드/테스트 동반 필요. 기존 Chromium sandbox의 `ERR_BLOCKED_BY_ADMINISTRATOR` 우회·재실행 금지; Windows 기기에서 안전한 실제 file:// 테스트 권고.
+6. **GitHub:** `hibi89/AX_MART` `feature/pc-care-usb`, 변경 전 `4af8e8b0ffaccf78fb5d90898d19017d8b8c9dc7`; 주요 파일 `products/pc-care/ui/history_compare.js`, `tests/test_history_compare.cjs`, `tests/test_package.py`, 테스트 증빙, 문서.
+7. **Production/실행:** Cloudflare `https://ax-mart.pages.dev/` 운영 main 불변, feature 개발/배포 미적용. 사용자 PC는 `START_PC_CARE.cmd` 5번으로 수동 진입.
+8. **원본/보안·백업:** 기존 REPORTS/컴퓨터 설정/BitLocker/관리자 수리 및 개인 데이터 수정·전송 없음. 원래 브랜치 SHA를 복원 지점으로 보유, Git 강제 기록 수정 금지.
+9. **다음 우선순위·완료 기준:** Windows11 PS5.1 구문·읽기전용 진단 실제 실행→Edge `file://`에서 같은 PC 2회 JSON 비교(윤년·다른 시차 synthetic 포함)→한글 USB/QR 실제 스캔/A4 PDF/WinRE VM 안전성 검증. 사용자 승인 없는 다운로드·판매 금지.
+10. **갱신 시점·검증 범위:** 2026-10-30 22:27 KST. Node·소스 해시만 확인; 전체 Python/ZIP/실기기 OS·브라우저·Production 미검증. 최종 HEAD는 커밋 후 원격 재확인.

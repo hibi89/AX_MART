@@ -93,3 +93,8 @@
 ## 2026-10-30 KST — PC CARE H08 불완전 데이터 비교 차단
 - `feature/pc-care-usb`: 누락된 경고 목록·저장장치 조회 실패·장치 수 변화가 정상/경고 0으로 오인되지 않도록 JS 판정 가드 및 DOM 회귀 보강. 로컬 Node v22 `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **18/18 PASS**, GitHub blob·실행 파일 SHA 일치.
 - 시작 SHA `712db3ab8d70dda8f3ad61604668747d816dcb98`; 수정 범위 제품 JS/tests/문서 및 QA 증빙만. 운영 main/Cloudflare, 제품 공개·유료 결제/시스템 수리 변경 없음. Windows PS5.1/USB/QR/PDF/WinRE/실제 브라우저 QA 미검증.
+
+## 2026-10-30 22:27 KST — PC CARE H08 엄격한 날짜 검증·민감 출력 최소화
+- `feature/pc-care-usb`에서 비표준 브라우저 `Date.parse` 기반 비교를 Windows PS5.1 진단 형식 `yyyy-MM-dd HH:mm:ss zzz`의 캘린더+UTC 오프셋 엄격 검증으로 교체. 유효하지 않은 날짜·시간·시차 및 예상 외 진단 상태 문자열을 fail-closed 처리.
+- 개발 환경 Node v22.16.0에서 `node --check`, `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **22/22 PASS**, 원격 Git blob SHA=로컬 실행 파일 확인. 제품 문서·회귀/evidence 최신화. Windows/USB/QR/PDF/WinRE 전체 실기기 미검증, H08 자동 이력관리 미구현.
+- 운영 main/Cloudflare/사이트/원본 사용자 데이터/수리·WinRE 코드·상품 다운로드/결제 변경 없음. 기준 HEAD `4af8e8b0ffaccf78fb5d90898d19017d8b8c9dc7`.

@@ -99,3 +99,8 @@
 - 저장소 `hibi89/AX_MART`, 브랜치 `feature/pc-care-usb`, 이전 SHA `712db3ab8d70dda8f3ad61604668747d816dcb98`. H08 JSON 비교에서 `issues` 미수집과 `physicalDisks` 누락/빈배열/조회 실패/수량 변경을 '경고 없음' 아닌 비교 불가로 처리. 사용자 개인정보 수집·원본 저장·무인 삭제/수리 추가하지 않음.
 - Linux Node 22 실제 단위 및 가상 DOM 테스트 **18 PASS/0 FAIL**, 소스 SHA `56ecd3f0`, 회귀 `d94edc31`/`958b5a68`. 증빙 `products/pc-care/tests/evidence/history_fail_closed_qa_20261030.json`. Windows/USB/WinRE/QR/A4/브라우저 실제 환경과 전체 Python/ZIP 미검증, Cloudflare main 무변경, 공개/판매 차단.
 - 다음은 사용자 Windows 11 표준권한 진단/Edge file:// 로컬 두 보고서 비교/USB 한글 경로·네트워크 0 검사; 이후 QR/A4/VM WinRE 별도 게이트. 상세 제품 `products/pc-care/HANDOFF.md` / STATUS 기준.
+
+## 2026-10-30 22:27 KST — PC CARE H08 브라우저 날짜 안전성 인수인계
+- 저장소 `hibi89/AX_MART`, 브랜치 `feature/pc-care-usb`, 기준 SHA `4af8e8b0ffaccf78fb5d90898d19017d8b8c9dc7`. HTML 로컬 두-JSON 비교 JS에서 PowerShell `yyyy-MM-dd HH:mm:ss zzz`을 캘린더/시차 엄격 검사, 임의 `assessment` 텍스트는 허용 상태 외 `확인 불가`. 기존 수동 파일 선택·조회 상태 차단·경합 가드 유지.
+- Git 원본과 로컬 SHA 일치한 Node 22 `node --check` + `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **22 PASS/0 FAIL**, 테스트 증빙 `products/pc-care/tests/evidence/history_date_offset_qa_20261030.json`. 실 Windows PowerShell 5.1, 브라우저 file://, USB, QR 스캔/A4, WinRE, 내부 ZIP/전체 Python 미검증.
+- 복구는 baseline feature HEAD로 가능. 생산 `main`·Cloudflare `https://ax-mart.pages.dev/` 미수정, 코드 서명/정식 출시 미승인, 고객 데이터 저장/전송·자동 수리/삭제 없음. 다음은 Windows 현장 읽기진단 및 H08 실브라우저 검증, 이어 QR/A4/USB/WinRE 안전 QA. 상세 인계는 `products/pc-care/HANDOFF.md` 기준.

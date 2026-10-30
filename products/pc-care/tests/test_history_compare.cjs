@@ -36,3 +36,29 @@ test("complete same-count storage observations remain comparable, with identity 
  assert.equal(result.disks.after.warning,1);
  assert.ok(result.caution.some(s=>s.includes("동일성이 확인되지 않은")));
 });
+
+test("strict PowerShell date uses offset and rejects equal instants",()=>{
+ const sameUtc={...b,generatedAt:"2026-10-29 02:00:00 +00:00"};
+ assert.throws(()=>compareReports(a,sameUtc));
+ const newerUtc={...b,generatedAt:"2026-10-29 02:00:01 +00:00"};
+ assert.ok(compareReports(a,newerUtc));
+});
+test("strict date rejects impossible calendar and impossible offset",()=>{
+ for(const at of ["2026-02-30 11:00:00 +09:00","2026-13-01 11:00:00 +09:00",
+   "2026-10-30 24:00:00 +09:00","2026-10-30 11:99:00 +09:00",
+   "2026-10-30 11:00:60 +09:00","2026-10-30 11:00:00 +15:00",
+   "2026-10-30 11:00:00 +14:30","2026-10-30T11:00:00+09:00",
+   "2026-10-30 11:00:00","2026-10-30 11:00:00 +09:0x"])
+   assert.throws(()=>compareReports(a,{...b,generatedAt:at}),at);
+});
+test("valid leap day and UTC negative offsets compare correctly",()=>{
+ const leap={...a,generatedAt:"2024-02-29 22:00:00 -05:00"};
+ const following={...b,generatedAt:"2024-03-01 04:00:00 -04:00"};
+ assert.ok(compareReports(leap,following));
+});
+test("unrecognized assessment text never appears in comparison",()=>{
+ const result=compareReports(a,{...b,assessment:"SECRET DEVICE SERIAL: 12345"});
+ assert.equal(result.afterAssessment,"확인 불가");
+ assert.doesNotMatch(JSON.stringify(result),/SECRET DEVICE SERIAL/);
+ assert.ok(result.caution.some(v=>v.includes("상태값")));
+});

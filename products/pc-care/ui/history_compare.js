@@ -2,8 +2,20 @@
 (function (root) {
 function validateReport(r){
  if(!r||typeof r!=="object"||Array.isArray(r)||r.schemaVersion!==1||r.product!=="AXMART PC CARE"||r.mode!=="read-only"||!r.observations||typeof r.observations!=="object"||Array.isArray(r.observations))throw Error("지원하지 않는 PC CARE 읽기 전용 JSON 형식입니다.");
- const stamp=Date.parse(r.generatedAt);
- if(!Number.isFinite(stamp))throw Error("보고서 생성시각이 올바르지 않습니다.");
+ // PowerShell 5.1 emits yyyy-MM-dd HH:mm:ss zzz. Do not depend on
+ // browser-specific Date.parse acceptance of this non-ISO text format.
+ const m=typeof r.generatedAt==="string" && /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2}) ([+-])(\d{2}):(\d{2})$/.exec(r.generatedAt);
+ if(!m)throw Error("보고서 생성시각 형식이 올바르지 않습니다.");
+ const y=Number(m[1]),mo=Number(m[2]),day=Number(m[3]),hour=Number(m[4]),minute=Number(m[5]),second=Number(m[6]);
+ const offHours=Number(m[8]),offMinutes=Number(m[9]);
+ const calendar=new Date(Date.UTC(y,mo-1,day,hour,minute,second));
+ if(y<2000||y>2099||calendar.getUTCFullYear()!==y||calendar.getUTCMonth()!==mo-1||
+   calendar.getUTCDate()!==day||calendar.getUTCHours()!==hour||calendar.getUTCMinutes()!==minute||
+   calendar.getUTCSeconds()!==second||offHours>14||offMinutes>59||(offHours===14&&offMinutes!==0))
+   throw Error("보고서 생성시각의 날짜 또는 UTC 시차가 유효하지 않습니다.");
+ const offsetMinutes=(m[7]==="+"?1:-1)*(offHours*60+offMinutes);
+ const stamp=calendar.getTime()-offsetMinutes*60000;
+ if(!Number.isFinite(stamp))throw Error("보고서 생성시각을 확인할 수 없습니다.");
  return {r,stamp,o:r.observations};
 }
 function compareReports(oldReport,newReport){
@@ -38,7 +50,10 @@ function compareReports(oldReport,newReport){
  caution.push(diskComparable?"물리 저장장치 경고 건수는 장치 동일성이 확인되지 않은 집계입니다.":"저장장치 조회 상태·장치 수·미확인 값 때문에 경고 건수의 직접 비교를 보류합니다.");
  if(missing&&missing.length)caution.push("최근 기록에 보이지 않는 경고는 문제가 해결됐다는 뜻이 아닙니다.");
  if(!prev||!next)caution.push("경고 코드 배열을 읽지 못해 신규/미관찰 경고 비교를 건너뛰었습니다.");
- return {beforeTime:a.r.generatedAt,afterTime:b.r.generatedAt,beforeAssessment:String(a.r.assessment||"확인 불가"),afterAssessment:String(b.r.assessment||"확인 불가"),added,missing,eventCounts,drives,disks,diskComparable,caution};
+ // Never echo arbitrary untrusted assessment text from a local JSON file.
+ const safeAssessment=r=>["위험 신호","주의 필요","확인 불완전","관찰 범위 내 특이사항 없음"].includes(r.assessment)?r.assessment:"확인 불가";
+ if(safeAssessment(a.r)==="확인 불가"||safeAssessment(b.r)==="확인 불가")caution.push("진단 상태값을 인식하지 못해 확인 불가로 표시합니다.");
+ return {beforeTime:a.r.generatedAt,afterTime:b.r.generatedAt,beforeAssessment:safeAssessment(a.r),afterAssessment:safeAssessment(b.r),added,missing,eventCounts,drives,disks,diskComparable,caution};
 }
   const api = { validateReport, compareReports };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

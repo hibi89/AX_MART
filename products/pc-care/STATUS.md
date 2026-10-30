@@ -274,3 +274,9 @@
 - `ui/history_compare.js`: JSON `issues` 누락 시 신규/미관찰 경고를 '없음'이 아닌 '비교 불가'로 표시. `physicalDisks` 조회 실패·빈 결과·미확인 상태·장치 수 변화는 0→0 경고라고 표기하지 않고 비교 불가 처리. 알려진 장치 수/수집상태가 일치할 때도 같은 물리 디스크라는 보장은 하지 않음.
 - Node 합성 회귀 기존 14개 + 보강 4개 = **18/18 PASS**, fail 0. 실제 로컬 Node v22.16.0 실행 및 Git blob SHA 교차검증. 테스트 파일 `test_history_compare.cjs`·`test_history_dom.cjs`, 정적 계약 `test_package.py` 갱신. 증빙 `tests/evidence/history_fail_closed_qa_20261030.json`.
 - 기준 브랜치 SHA `712db3ab8d70dda8f3ad61604668747d816dcb98`. Windows11 PowerShell5.1/USB, Edge 실제 `file://`/QR/A4/WinRE/전체 Python·ZIP **미검증**. 기존 main/Cloudflare·수리·사용자 보고서 불변, 무료·유료 공개 차단 유지.
+
+## 2026-10-30 22:27 KST — H08 날짜·시간대 결정적 파싱 / 상태값 유출 방어
+- 브라우저별 비표준 `Date.parse('yyyy-MM-dd HH:mm:ss +09:00')` 관대한 파싱을 제거하고, Windows PowerShell 5.1의 현재 JSON 형식 `yyyy-MM-dd HH:mm:ss zzz`을 캘린더 실제 날짜/윤년/시간/UTC 오프셋 검증 후 UTC ms로 변환하도록 수정. 다른 표기·불가능한 날짜·잘못된 시차는 fail-closed.
+- `assessment`에 예상 외 문자열이 포함되면 내용을 화면에 그대로 반영하지 않고 `확인 불가`로 표시. 기존 비교/선택 경합/개인정보 보호 동작 유지.
+- 실제 로컬 Node v22.16.0 `node --check` PASS; `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **22 PASS/0 FAIL**. GitHub blob SHA `c57d4fd2`(JS), `5c533efe`(unit) 및 DOM `958b5a68`이 로컬 테스트 복제본과 일치. 증빙 `tests/evidence/history_date_offset_qa_20261030.json`.
+- Windows 11 PowerShell5.1 실제 JSON·Edge/Chrome `file://`·USB·QR/A4 PDF·WinRE·전체 Python/ZIP 실검증 **대기**. 운영 main, 수리 코드 및 고객 실제 보고서 미변경. 이전 feature HEAD `4af8e8b0ffaccf78fb5d90898d19017d8b8c9dc7`. 무료 공개/유료 판매 불가 유지.

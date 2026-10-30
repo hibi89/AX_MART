@@ -132,3 +132,7 @@ QR 이미지 생성 전 UTC 기록 시각을 **정규식 + 실제 달력 날짜*
 - 신규 `tests/test_history_dom.cjs`에서 가상 DOM의 성공 비교, 2MB 초과 사전 거부, 잘못된 JSON 원문 비노출, 느린 파일 읽기 중 변경, 오래된 파싱 오류가 뒤늦게 발생하는 경우를 검증. 두 Node fixture 합계 **14/14 PASS** (Linux Node.js 22).
 - Linux Chromium headless를 이용한 `file://` 접근 및 로컬 HTTP 폴백은 실행 환경 관리자 정책으로 모두 `ERR_BLOCKED_BY_ADMINISTRATOR` 차단. 이는 제품의 Edge/Chrome 결함으로 단정하지 않는다. 브라우저 실제 렌더링·휴대폰·Windows USB QA는 여전히 **미검증**.
 - 실제 PC 로그·고객 정보·시스템 수리·네트워크 전송/스토리지 변경 없음. 수동 CI는 runner 미배정 이력 때문에 자동 재실행하지 않음. 출시 승인 및 공개 다운로드는 계속 보류.
+
+### H08 날짜·보안 회귀 검증 (2026-10-30)
+- 실제 진단 JSON의 날짜 형식 `yyyy-MM-dd HH:mm:ss +09:00`을 브라우저의 비표준 `Date.parse` 대신 엄격하게 검사한다. 불가능한 날짜·윤년·시간대 오류, 동일한 UTC 순간을 검출한다.
+- 진단 상태값으로 예상하지 않은 문자열이 들어오면 내용을 그대로 노출하지 않고 **확인 불가**로 처리한다. 로컬 Node v22.16.0 회귀 `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **22/22 PASS**. Windows 실제 실행·브라우저 렌더·ZIP/USB/WinRE/QR·A4 검증은 여전히 필요하다.
