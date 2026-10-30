@@ -75,6 +75,22 @@ class PackageTests(unittest.TestCase):
         self.assertNotIn("bootrec /fix",text)
         self.assertNotIn("format ",text.lower())
 
+    def test_event_provider_allowlist_and_schema_version(self):
+        event = (ROOT/'tools/event_analysis.ps1').read_text(encoding='utf-8-sig')
+        diag = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        smoke = (ROOT/'tests/windows_smoke.ps1').read_text(encoding='utf-8-sig')
+        fixture = (ROOT/'tests/event_analysis.tests.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("^(?:BugCheck|WER-SystemErrorReporting|Microsoft-Windows-", event)
+        self.assertIn("^(?:Microsoft-Windows-)?Kernel-Power$", event)
+        self.assertIn("$provider -match '^EventLog$'", event)
+        self.assertIn("Microsoft-Windows-Storage-Storport|iaStor", event)
+        self.assertNotIn("'BugCheck|SystemErrorReporting'", event)
+        self.assertNotIn("'disk|stor|nvme|ntfs|volmgr|iaStor'", event)
+        for bad in ("FakeBugCheck","Kernel-Power-Helper","EventLogProxy","InventoryStore","diskmon"):
+            self.assertIn(bad, fixture)
+        self.assertIn("schemaVersion=1; product='AXMART PC CARE'", diag)
+        self.assertIn("$json.schemaVersion -ne 1", smoke)
+
     def test_missing_event_data_is_not_reported_as_zero(self):
         text = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
         self.assertIn("$observations['eventCollection']", text)

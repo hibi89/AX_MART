@@ -14,11 +14,14 @@ function ConvertTo-PcCareEvidence {
             $provider = [string]$item.ProviderName
         } catch { continue }
         $kind = ''
-        if ($id -eq 1001 -and $provider -match 'BugCheck|SystemErrorReporting') {
+        # Anchor provider names to avoid classifying lookalikes as Windows faults.
+        if ($id -eq 1001 -and $provider -match '^(?:BugCheck|WER-SystemErrorReporting|Microsoft-Windows-(?:BugCheck|WER-SystemErrorReporting))$') {
             $kind = 'bugcheck_record'
-        } elseif (($id -eq 41 -and $provider -match 'Kernel-Power') -or ($id -eq 6008 -and $provider -match 'EventLog')) {
+        } elseif (($id -eq 41 -and $provider -match '^(?:Microsoft-Windows-)?Kernel-Power$') -or
+                  ($id -eq 6008 -and $provider -match '^EventLog$')) {
             $kind = 'shutdown_signal'
-        } elseif ($id -in @(7,51,55,129,153,157) -and $provider -match 'disk|stor|nvme|ntfs|volmgr|iaStor') {
+        } elseif ($id -in @(7,51,55,129,153,157) -and
+                  $provider -match '^(?:(?:Microsoft-Windows-)?(?:disk|ntfs|volmgr|storahci|stornvme|storport|storvsc|nvme)|Microsoft-Windows-Storage-Storport|iaStor(?:A|AC|V|VD))$') {
             $kind = 'storage_signal'
         } else { continue }
         # RecordId, when available, distinguishes separate entries with identical timestamps.

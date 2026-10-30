@@ -301,3 +301,15 @@
 ## 2026-10-30 KST — 자가검사 receipt 블록 구문 복구
 - 이전 2c83634 커밋의 windows_smoke.ps1에 중복된 JSON 검사와 잘린 정규식 문장이 발견되어 정상 실행을 방해할 위험이 있었다. 해당 블록을 단일 유효 구조로 교체, [.]json filename 매칭 및 경로/파일 검증 보강, 정적 테스트 동기화.
 - 실제 Windows PowerShell 5.1 실행·VM/USB/WinRE/QR/A4 검증 여전히 대기. 2c83634 이전 소스 기준 복구 가능. 운영 main/Cloudflare 미변경.
+
+## [최신] 2026-10-30 KST — 이벤트 공급자 정확도/JSON schemaVersion 인수인계
+1. 목표/기술: Windows11 PowerShell5.1 오프라인 건강검진에서 유사 이름 이벤트 공급자의 오탐 방지, JSON 스키마 버전 명시.
+2. 완료: event_analysis.ps1 공급자 앵커 allowlist, diagnose.ps1 schemaVersion=1, 5개 음성 synthetic fixture 및 Windows smoke/Python 계약 검사. 원래 수리/WinRE/QR 인터페이스 변경 없음.
+3. 테스트: 14개 공급자 정규식 V8 모형 테스트 PASS, GitHub Base64 blob 바이트 단위 readback. Windows PS5.1 파서/fixture·Python 전체 테스트·실기기 USB·QR/A4·WinRE 검증 미수행.
+4. 상태: 소스 작성 및 GitHub 저장 무결성 확인, 실제 Windows/OEM 테스트 대기. 공개/무료/크몽 배포 불가.
+5. 문제/원인/피벗: 기존 부분문자열 매칭 오탐, 엄격 매칭 OEM 누락 위험. 중간 결함 코드 a7b6c4d는 JS replace 특수 $ 문자 확장에 의한 중복이었으며 e39f345 롤백으로 복원; 재시도 금지. 함수형 치환 + Base64 blob readback 방식 채택.
+6. 저장소/브랜치: hibi89/AX_MART, feature/pc-care-usb, 복구 기준 e39f345a88d8f03d3cfb1432ca7cee0e2b9b9dc3. 경로 products/pc-care/tools/event_analysis.ps1, diagnose.ps1, tests/.
+7. Production: https://ax-mart.pages.dev/ Cloudflare main 불변. Windows 실행명령 RUN_SELF_TEST.cmd 또는 START_PC_CARE.cmd, feature 미배포.
+8. 원본/보안: 사용자 로그·민감정보 업로드 없음; 시스템 파일/파티션/BitLocker/수리 실행 변경 없음. Git SHA로 되돌리기 가능.
+9. 다음 순위: Windows 11 PS5.1 syntax + fixture + 표준 사용자 진단, 실 OEM 이벤트 공급자 확인 → USB 한글/특수경로 → QR 실제 스캔·A4 PDF → WinRE/안전 수리 별도 VM/승인 후 출시 판단.
+10. 확인/갱신: 2026-10-30 KST, GitHub 원격 바이트 및 JS regex 모델, 실제 Windows/Production 동작 검증 범위 제외. 변경 후 HEAD 확인.

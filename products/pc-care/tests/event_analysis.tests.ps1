@@ -14,16 +14,22 @@ $fixtures = @(
     [pscustomobject]@{ Id=1001; ProviderName='Application Error'; RecordId=102; TimeCreated=$t.AddMinutes(4); Message='not a bugcheck' },
     [pscustomobject]@{ Id=1001; ProviderName='Microsoft-Windows-WER-SystemErrorReporting'; RecordId=103; TimeCreated=$t.AddMinutes(5); Message='STOP: 0x0000007e' },
     [pscustomobject]@{ Id=7; ProviderName='disk'; RecordId=104; TimeCreated=$t.AddMinutes(6); Message='disk message must not be stored' },
-    [pscustomobject]@{ Id=41; ProviderName='Microsoft-Windows-Kernel-Power'; RecordId=105; TimeCreated=$t.AddMinutes(80); Message='new outage signal' }
+    [pscustomobject]@{ Id=41; ProviderName='Microsoft-Windows-Kernel-Power'; RecordId=105; TimeCreated=$t.AddMinutes(80); Message='new outage signal' },
+    [pscustomobject]@{ Id=1001; ProviderName='FakeBugCheck'; RecordId=106; TimeCreated=$t; Message='forged crash' },
+    [pscustomobject]@{ Id=41; ProviderName='Kernel-Power-Helper'; RecordId=107; TimeCreated=$t; Message='forged shutdown' },
+    [pscustomobject]@{ Id=6008; ProviderName='EventLogProxy'; RecordId=108; TimeCreated=$t; Message='forged log' },
+    [pscustomobject]@{ Id=129; ProviderName='InventoryStore'; RecordId=109; TimeCreated=$t; Message='forged storage' },
+    [pscustomobject]@{ Id=7; ProviderName='diskmon'; RecordId=110; TimeCreated=$t; Message='forged disk' }
 )
 $evidence = @(ConvertTo-PcCareEvidence -Events $fixtures)
-Assert-PcCare ($evidence.Count -eq 5) 'Unexpected normalization count / deduplication'
+Assert-PcCare ($evidence.Count -eq 5) 'Unexpected normalization count / deduplication or spoofed provider'
 $bugchecks = @($evidence | Where-Object { $_.kind -eq 'bugcheck_record' })
 Assert-PcCare ($bugchecks.Count -eq 1) '1001 requires matching provider'
 Assert-PcCare ($bugchecks[0].stopCode -eq '0X0000007E') 'STOP code extraction'
 Assert-PcCare ($bugchecks[0].timeBasis -eq 'event_recorded_time') '1001 time cannot be called crash time'
 $storage = @($evidence | Where-Object { $_.kind -eq 'storage_signal' })
 Assert-PcCare ($storage.Count -eq 1) 'Storage event classification'
+Assert-PcCare (($evidence | ConvertTo-Json -Depth 5) -notmatch 'forged') 'Lookalike provider was misclassified'
 Assert-PcCare (($evidence | ConvertTo-Json -Depth 5) -notmatch 'disk message must not be stored') 'Raw event content leak'
 $groups = @(Group-PcCareShutdownSignals -Evidence $evidence)
 Assert-PcCare ($groups.Count -eq 2) '41/6008 likely duplicate and distant record must remain separate'

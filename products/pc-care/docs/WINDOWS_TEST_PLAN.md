@@ -258,3 +258,9 @@ Pending manual tests:
 - New tools/diagnose.ps1 optional -PassThru emits exactly one local JSON/HTML path receipt after successful Save-PcCareReportPair, -NoOpenReport disables the browser launch in smoke mode. Default RUN_HEALTH_CHECK.cmd still opens the saved local HTML as before.
 - windows_smoke.ps1 -RunReadOnly now verifies the exact returned pair, rooted paths, same parent, versioned basename, and destination folder allowlist before parsing JSON/HTML. It does not enumerate recent reports. It never starts repair or automatically uploads report contents.
 - Static regression added test_read_only_smoke_uses_own_receipt_not_other_run_report. Real Windows PowerShell5.1 invocation, concurrent diagnostic processes and USB path edge-cases remain UNVERIFIED until performed.
+
+## 2026-10-30: Exact provider matching and root schemaVersion=1 (PS5.1 QA pending)
+- 1001, 41, 6008 and storage event signals now require an anchored source-name allowlist, rejecting similarly named providers. Five synthetic lookalike events are added to the event-analysis fixture.
+- Diagnostic JSON root adds schemaVersion=1; Windows read-only smoke requires this field. The existing data fields and local-only behavior remain unchanged.
+- Check real OEM storage provider names, Windows locale, event 1001/41/6008, truncated/no-match/access-denied states in Windows 11. Strict allowlisting can miss valid OEM names; no event count means no fault confirmed, not a health guarantee.
+- GitHub source checks and independent JS regex boundaries only; PS5.1 real execution, USB, QR/A4, WinRE and full unit tests remain unverified. No raw customer logs are needed for QA evidence.

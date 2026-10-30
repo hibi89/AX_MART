@@ -252,3 +252,9 @@
 ## 2026-10-30 KST — 자가검사 receipt 블록 구문 복구
 - 이전 2c83634 커밋의 windows_smoke.ps1에 중복된 JSON 검사와 잘린 정규식 문장이 발견되어 정상 실행을 방해할 위험이 있었다. 해당 블록을 단일 유효 구조로 교체, [.]json filename 매칭 및 경로/파일 검증 보강, 정적 테스트 동기화.
 - 실제 Windows PowerShell 5.1 실행·VM/USB/WinRE/QR/A4 검증 여전히 대기. 2c83634 이전 소스 기준 복구 가능. 운영 main/Cloudflare 미변경.
+
+## 2026-10-30 KST — P0 이벤트 공급자 오탐/스키마
+- 이전 source 부분 문자열 매칭은 FakeBugCheck/InventoryStore 같은 유사 공급자를 Windows 오류 근거로 잘못 분류할 위험. BugCheck/Kernel-Power/EventLog/저장장치 이벤트에 앵커된 공급자 화이트리스트 적용.
+- JSON root schemaVersion=1, Windows smoke 스키마 검사, 부정 fixture 5종·Python 정적 가드 추가. 기존 수리·USB·QR·HTML/보고서 필드는 보존.
+- 저장 전 Git Blob Base64 생성/바이트 재조회 확인. 실제 Windows PowerShell5.1/지원 장치 OEM 공급자 범위·전체 unittest/USB/QR/A4/WinRE는 미검증. 정식 배포/크몽 판매 차단.
+- 이전 정상 SHA e39f345a88d8f03d3cfb1432ca7cee0e2b9b9dc3. 운영 main/Cloudflare 미변경.

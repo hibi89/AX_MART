@@ -80,3 +80,7 @@
 ## 2026-10-30 KST — 자가검사 receipt 블록 구문 복구
 - 이전 2c83634 커밋의 windows_smoke.ps1에 중복된 JSON 검사와 잘린 정규식 문장이 발견되어 정상 실행을 방해할 위험이 있었다. 해당 블록을 단일 유효 구조로 교체, [.]json filename 매칭 및 경로/파일 검증 보강, 정적 테스트 동기화.
 - 실제 Windows PowerShell 5.1 실행·VM/USB/WinRE/QR/A4 검증 여전히 대기. 2c83634 이전 소스 기준 복구 가능. 운영 main/Cloudflare 미변경.
+
+## 2026-10-30 KST — PC CARE P0 이벤트 공급자 근거 개선
+- feature/pc-care-usb only: ID 1001/41/6008/storage events의 공급자명을 엄격한 allowlist로 제한, 루트 보고서 schemaVersion=1 추가 및 음성 fixture 5개·스모크 검증 강화.
+- 이전 잘못된 코드 치환 커밋 a7b6c4d는 롤백 e39f345에서 복구 완료. 새 변경은 Base64 Git blob 읽기 검증 후 반영. Windows PS5.1/USB/QR/A4/WinRE 미검증, main/Cloudflare/판매 미변경.

@@ -84,3 +84,8 @@
 ## 2026-10-30 KST — 자가검사 receipt 블록 구문 복구
 - 이전 2c83634 커밋의 windows_smoke.ps1에 중복된 JSON 검사와 잘린 정규식 문장이 발견되어 정상 실행을 방해할 위험이 있었다. 해당 블록을 단일 유효 구조로 교체, [.]json filename 매칭 및 경로/파일 검증 보강, 정적 테스트 동기화.
 - 실제 Windows PowerShell 5.1 실행·VM/USB/WinRE/QR/A4 검증 여전히 대기. 2c83634 이전 소스 기준 복구 가능. 운영 main/Cloudflare 미변경.
+
+## 2026-10-30 KST — PC CARE P0 증거 검증 인수인계
+- `hibi89/AX_MART` `feature/pc-care-usb`, 기준 e39f345a88d8f03d3cfb1432ca7cee0e2b9b9dc3. 1001/41/6008/스토리지 공급자 이름 앵커 allowlist, root JSON schemaVersion=1, synthetic spoofed providers 5개 및 Python/Windows smoke 관련 소스 추가.
+- 오작동 커밋 a7b6c4d는 JS replace의 $ 특수 치환으로 인해 원격 코드 손상, 즉시 e39f345 롤백 완료. 새 소스는 함수형 치환과 Base64 blob readback 검증. 동일 오류 방식 금지.
+- 운영 `main`, Cloudflare https://ax-mart.pages.dev/, 무료/유료 다운로드 및 수리 코드 불변. Windows PowerShell5.1/USB/OEM 공급자·QR/A4 PDF·WinRE/전체 테스트 미검증. 제품 상세 `products/pc-care/HANDOFF.md` 및 STATUS.md 기준.
