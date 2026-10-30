@@ -80,3 +80,10 @@
 - Windows real-device parser/synthetic tests and print preview remain release blockers; QR remains unimplemented. No public ZIP/free download or Kmong services until gates pass. AXMART³ free software/Kmong paid interpretation service is a business proposal, not an active listing.
 - Next ㄱ: actual Windows tests if runtime exists; otherwise continue with safe opt-in local share-text preview/QR payload model (not yet QR bitmap or final implementation), or print accessibility improvements. Do not call CSS one-page verified without browser PDF evidence.
 
+## 2026-10-30 KST — QR share-text P2 continuation checkpoint
+
+- hibi89/AX_MART `feature/pc-care-usb` only. AXMART³ main/Cloudflare must remain unchanged; no free/paid downloads yet.
+- New pure PS5.1 modules `products/pc-care/tools/share_payload.ps1` (whitelist-only summary, 250 UTF-8 bytes cap, no device IDs/log messages, no silent clipping) and `share_preview.ps1` (`details` opt-in local preview, manual select+Ctrl+C). `diagnose.ps1` includes metadata-only `sharePreview` in JSON and a preview section in offline HTML. No QR image, no cloud, no automatic clipboard copying.
+- New `tests/share_payload.tests.ps1`, Windows smoke parser/fixture, internal ZIP and Python static/release tests. Static GitHub source check 40/40 conditions satisfied but PowerShell/Windows/Python/ZIP/QR scan tests have NOT run.
+- Next work: acquire actual Windows 11 PS5.1 test execution / run fixtures if possible; choose small permissively licensed local QR encoder and verify physical scanning of generated Korean UTF8 codes. Offline encoder plus opt-in QR generation is necessary before calling QR complete. Continue P2 UI/PDF accessibility while Windows or CI wait; do not begin unsafe WinRE copy/repair.
+
