@@ -298,3 +298,8 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - `hibi89/AX_MART@feature/pc-care-usb`: 비정상 Win32_LogicalDisk 값으로 read-only 진단이 중단되거나 불완전한 볼륨 목록이 '완전 수집'으로 보이는 결함 방지. 기존 `tools/telemetry_analysis.ps1` 정규화 helper + `tools/diagnose.ps1`의 `volumeRejectedCount`·`collectionStatus.volumes=incomplete` 도입. `tests/telemetry_analysis.tests.ps1`와 `tests/test_package.py` 보강.
 - 원격 실소스 정적 검사 **23/23 PASS**, 변경 PS5.1 원본 native 실행/실 Windows·전체 Python·Node/실 ZIP·USB·QR/PDF·WinRE·현 SHA CI **미검증**. 근거 `products/pc-care/tests/evidence/volume_metric_failclosed_source_qa_20261031.json`.
 - 작업 전 기준 `328bcf1611d588b3c4c285cf773ac6540decdc40`, main/Cloudflare·고객 원본/OS·인증/수리·배포 미변경. 자세한 10항 `products/pc-care/HANDOFF.md`. 다음 Windows `RUN_RELEASE_QA.cmd` 실제 합성 QA와 JSON/HTML/H08 확인, WinRE는 별도 안전 게이트. 최종 SHA 원격 확인.
+
+## 2026-10-31 KST — CUBE PC CARE H08 허위 경고 소멸 차단 인수인계
+- `hibi89/AX_MART@feature/pc-care-usb`: H08에서 수집 불완전/비정상 볼륨 때문에 이전 디스크 공간 부족 경고를 허위 `missing` 처리하는 결함 수정. 비교 가능한 최신 볼륨만 경고 미관찰 판단 근거로 인정; 일반 경고와 신규 관측 경고 유지. `tests/test_history_compare.cjs` 4개 회귀 + `tests/test_package.py` 검증 추가.
+- 실제 GitHub 원본 전체 JS를 V8 호환 Node test/assert 래퍼로 실행 공식 **26/26 PASS**, 추가 직접 17/17(중복), 정적 16/16. **네이티브 Node/Windows PS5.1/실 브라우저/전체 ZIP/USB·QR/A4·WinRE/CI NOT_RUN**. `products/pc-care/tests/evidence/h08_volume_warning_provenance_v8_20261031.json`.
+- 작업 전 SHA `d2eaf480df274ac21c0eb4470cf795b35cbe933d`. 운영 main/Cloudflare·고객 REPORTS/OS·BitLocker/수리·계정·배포 불변. 상세 필수 10항 `products/pc-care/HANDOFF.md`. 다음 Windows 전체 checkout `RUN_RELEASE_QA.cmd` 네이티브 시험→실제 읽기전용 JSON·HTML/H08·USB/QR/A4→WinRE 격리 검증. 최종 SHA 재조회.
