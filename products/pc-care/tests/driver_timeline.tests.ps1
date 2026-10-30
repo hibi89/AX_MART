@@ -42,6 +42,10 @@ $timeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence
 Assert-PcCareDriverTimeline ($timeline.acceptedCount -eq 4 -and $timeline.windows.Count -eq 2) 'Only allowed kinds and separate distant window'
 Assert-PcCareDriverTimeline ($timeline.windows[0].evidenceCount -eq 3) 'Same instant zone offsets should group by UTC'
 Assert-PcCareDriverTimeline ($timeline.windows[0].interpretation -eq 'recorded_timestamp_proximity_only') 'Never infer cause'
+Assert-PcCareDriverTimeline ($timeline.status -eq 'collected' -and $timeline.coverageComplete) 'Healthy collection status means complete observed scope'
+Assert-PcCareDriverTimeline (@($timeline.windows[0].coObserved | Where-Object { $_ -eq 'bugcheck_update_proximity' }).Count -eq 1) 'BugCheck and update failure share a recording-time window'
+Assert-PcCareDriverTimeline (@($timeline.windows[0].coObserved | Where-Object { $_ -eq 'bugcheck_storage_proximity' }).Count -eq 0) 'Distant storage events cannot become near-term correlations'
+Assert-PcCareDriverTimeline (@($timeline.windows[1].coObserved).Count -eq 0) 'Isolated storage record carries no inferred pair'
 Assert-PcCareDriverTimeline (@($timeline.windows | Where-Object { $_.causeConfirmed }).Count -eq 0) 'No causal conclusion'
 Assert-PcCareDriverTimeline (($timeline | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE-') 'No raw event messages or identifiers'
 $bounded = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updates -MaxEntries 2 -SystemCollectionStatus 'collected' -UpdateCollectionStatus 'collected'
@@ -52,6 +56,20 @@ Assert-PcCareDriverTimeline ($invalidTime.acceptedCount -eq 0) 'Reject invalid t
 $staleTimeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updates -SystemCollectionStatus 'unavailable' -UpdateCollectionStatus 'no matching events'
 Assert-PcCareDriverTimeline ($staleTimeline.acceptedCount -eq 0 -and $staleTimeline.windows.Count -eq 0) 'Failed/no-match collectors cannot generate timeline windows'
 Assert-PcCareDriverTimeline ($staleTimeline.sourceCollection.system -eq 'unavailable') 'Collection provenance exposed without raw identifiers'
+Assert-PcCareDriverTimeline ($staleTimeline.status -eq 'unavailable' -and -not $staleTimeline.coverageComplete) 'Failed source never gets collected status'
+$partiallyDenied = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updates -SystemCollectionStatus 'unavailable' -UpdateCollectionStatus 'collected'
+Assert-PcCareDriverTimeline ($partiallyDenied.status -eq 'incomplete' -and $partiallyDenied.acceptedCount -eq 1) 'Mixed success and query failure marked incomplete'
+$trulyEmpty = Get-PcCareRecordedTimeline -SystemEvidence @() -UpdateEvidence @() -SystemCollectionStatus 'no matching events' -UpdateCollectionStatus 'no matching events'
+Assert-PcCareDriverTimeline ($trulyEmpty.status -eq 'no matching events' -and $trulyEmpty.coverageComplete) 'Successful empty queries distinguished from unavailable'
+$nearStorage = @(
+    [pscustomobject]@{ kind='bugcheck_record'; eventId=1001; recordedUtc='2026-10-30T01:01:00Z' },
+    [pscustomobject]@{ kind='storage_signal'; eventId=7; recordedUtc='2026-10-30T01:04:00Z' },
+    [pscustomobject]@{ kind='shutdown_signal'; eventId=6008; recordedUtc='2026-10-30T01:06:00Z' }
+)
+$near = Get-PcCareRecordedTimeline -SystemEvidence $nearStorage -UpdateEvidence $updates -SystemCollectionStatus 'collected' -UpdateCollectionStatus 'collected'
+Assert-PcCareDriverTimeline (@($near.windows[0].coObserved).Count -eq 3) 'Three bounded proximity combinations are emitted'
+Assert-PcCareDriverTimeline ($near.windows[0].causeConfirmed -eq $false) 'Near-recording co-observation never confirms causation'
+Assert-PcCareDriverTimeline (($near | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE-') 'No raw identity in proximity output'
 $partialTimeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updates -SystemCollectionStatus 'truncated' -UpdateCollectionStatus 'collected'
 Assert-PcCareDriverTimeline ($partialTimeline.status -eq 'truncated' -and $partialTimeline.acceptedCount -eq 4) 'Collector cap preserved even below timeline display cap'
 $crossOrigin = Get-PcCareRecordedTimeline -SystemEvidence $updates -UpdateEvidence $evidence -SystemCollectionStatus 'collected' -UpdateCollectionStatus 'collected'
