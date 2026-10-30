@@ -141,3 +141,14 @@
 - **실제 검증 범위:** GitHub의 9개 코드 소스에서 참조·정적 계약 검사를 **37/37 조건 충족**으로 확인. 컨테이너 Python 버전 3.13.5 확인, 그러나 비공개 원본을 직접 클론/실행하지 않았으므로 **Python unittest/Powershell/parser/Windows/실제 ZIP 생성 결과 0회**. Windows 11 x64 실기기·USB/WinRE/VM 실패주입·SmartScreen 검증 전 P0/P1 완료 및 무료 공개/판매 주장 금지.
 - **잔여:** Windows 실제 실행 QA 우선. P1의 추가 사건 상관 오탐 검증, P2 수리점 1페이지 인쇄/PDF+개인정보 최소 오프라인 QR, P3 Rescue 독립 안전 검증은 미완료. 시작 feature SHA 46db07771cdb45bbd733ef766919672801c2dc47, 문서 변경 후 HEAD 확인.
 
+## 2026-10-30 KST — P2 상담표 A4 인쇄/PDF UI 초기 구현 (최신)
+
+- **개발 기준:** FINAL_SPEC_V2.md REPORT R01/R02/R03/R05/R07. P1까지의 진단·분석 원본을 보존하고 feature/pc-care-usb만 변경. main/Cloudflare/공개 ZIP·유료 결제 건드리지 않음.
+- **신규 도구:** `tools/consultation_report.ps1`가 기존 report 내 보수적 원인·상태 데이터로 개인정보 최소 상담표 모델을 생성. Windows build·검사 기록 시각·검사 판단·저장장치 상태·화이트리스트 이슈 최대 4개·최근 이벤트 기록 최대 4건·추가 확인 질문 3개·조회 한계·백업 권고. 원본 이벤트 Message, 장치/사용자 식별 이름·경로·디스크 시리얼을 새 상담표에 포함하지 않음. 이벤트 1001/41/6008/스토리지/업데이트 19/20의 분류·ID·UTC 기록시각만 담고 고장 발생 시각·원인 확정 금지.
+- **인쇄 UI:** `tools/consultation_render.ps1`가 모든 동적 텍스트 HTML 인코딩하여 `#consultation-print` HTML 섹션 생성. `tools/diagnose.ps1` 기존 전체 JSON에 `consultation` 필드 추가, 화면에서 요약표 확인 가능, `@page{size:A4 portrait}` 및 `@media print`로 브라우저 Ctrl+P 시 상담표만 출력하도록 설계. PDF는 브라우저 'PDF로 저장'만 사용, 설치형 PDF 엔진·CDN·서버·원격 전송 없음. 증상 메모는 출력 후 직접 작성, 무단 개인 증상 수집 없음.
+- **안전 경계:** CSS 인쇄 1장 실증되지 않았으므로 'A4 한 페이지 검증 완료' 주장 불가. QR 인코더·실제 스캔 미구현. 원본 JSON/전체 HTML을 제3자에게 공유하는 것은 별도 검토 필요.
+- **테스트 추가:** `tests/consultation_report.tests.ps1` - 장치명·시리얼·원문 이벤트/이슈 제목 탈락, whitelist 4건 한도, 날짜·빌드 값 필터, UTC 4건 제한, 조회 실패/미지원, renderer의 악성 HTML 문자열 인코딩을 합성 검증하도록 작성. `tests/windows_smoke.ps1` PowerShell parser/fixture 연결, `tools/release.py` 내부 시험 ZIP의 module/fixture 포함, `tests/test_package.py`, `test_release.py` 회귀 검증 경로 추가. `docs/WINDOWS_TEST_PLAN.md` 실제 프린트·PDF·오프라인/한글/USB/한 장 출력 수용조건 기재.
+- **수행 검증:** GitHub 파일 8개에 대해 파일·UTF8 BOM·HTML 인코딩/비식별·시간/이슈 상한·@media print·내부 ZIP 연결 **정적 계약 37/37 조건 충족**. Windows 10/11 PowerShell 5.1 parser/fixture 실제 실행, Python unittest, ZIP 생성/검증, Edge/Chrome A4 출력·PDF/콘솔 오류·실기기·WinRE QA는 모두 **미수행**. 정적 통과를 동작 PASS로 간주하지 않는다.
+- **제품 상용화:** AXMART³ 프로그램 무료 제공 가정 / 크몽은 소프트웨어 파일 판매가 아니라 유료 결과 해석·상담 서비스 별도 검토. `README.md`의 과거 소프트웨어 5천원 판매 가정 수정. 실제 검증 전 무료/유료 배포·서비스 등록 금지.
+- **다음:** Windows PS5.1 파서와 합성 fixture 실제 실행 → 1일 읽기 전용 출력 → Edge/Chrome A4 PDF 검증(한글/긴 텍스트/폰트/무전송) → P2 QR 텍스트 payload 미리보기/명시 선택과 오프라인 생성·스캔 검증 → 전체 Release A QA. 사용자 파일 데이터 복사/WinRE Release B는 독립 안전 게이트 후만.
+
