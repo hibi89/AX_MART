@@ -506,3 +506,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. Security: no user reports or Windows settings touched, WinRE backup disabled, prior Git SHA rollback available.
 9. Next: run one-click QA on full checkout, then USB/QR/A4 and WinRE VM before explicit release approval.
 10. Checked 2026-10-31 KST: Python tests/negative case only; Windows/runtime/production not verified. Final SHA to reconfirm.
+
+## 2026-10-31 KST — 시간축 근거 무결성 개발 묶음 (10항)
+1. 목표/스택: Windows 11 PS5.1 로컬 진단 → 정규화된 System/Update 근거 → 시간축 → JSON/HTML 경로를 강화, 제품 v2.0 전체 목표는 보존. 최종 사양 `docs/FINAL_SPEC_V2.md`, 구성 기준선 `docs/PRODUCT_AND_INTEGRATION_BASELINE.md`.
+2. 변경/판단: 새로운 서버·DB를 도입하는 B안 대신 기존 모듈 최소 변경 A안. `tools/recorded_timeline.ps1` 실패·무결과 수집 차단, 출처/종류+ID 화이트리스트, UTC 시차 엄격 검사, truncation/collection provenance 추가. `diagnose.ps1` 상태 연결 및 driver/timeline fixtures 강화.
+3. 테스트: 원격 소스 readback 및 정적 불변 조건 **17 PASS/0 FAIL**. Windows 네이티브 PowerShell parser/fixture, 전체 Python·Node·ZIP, 실제 진단·브라우저·QR/PDF·WinRE는 **NOT_RUN** (실환경 검증 PASS 아님).
+4. 상태: 소스 수정·원격 반영 완료, 코드가 실행되는지는 미검증. Release A/B 출시 미완료; `main`·운영 사이트/실판매는 미변경.
+5. 실패/복구: 첫 자동 문자열 치환이 PowerShell 정규식의 `$'`를 치환 메타문자로 해석하여 원격 파일 손상. 즉시 사전 HEAD `dc53774703d1ea856599c599f3cf4b97418d885c`의 blob을 읽어 함수형 치환으로 재구성하고 재조회 정확성 확인. 이 잘못된 문자열 치환 방식 재사용 금지. Windows runner 미배정 CI의 무의미한 재시도 금지.
+6. 저장소/경로: `hibi89/AX_MART@feature/pc-care-usb`; `tools/recorded_timeline.ps1`, `tools/diagnose.ps1`, `tests/driver_timeline.tests.ps1`, `docs/PRODUCT_AND_INTEGRATION_BASELINE.md`. 복구 SHA 위 참조, 최종 HEAD는 원격 확인값을 이 대화에서 보고.
+7. Production/실행: `https://ax-mart.pages.dev/`는 `main` 운영, 해당 기능 미배포. Windows 전체 소스에서 `RUN_RELEASE_QA.cmd` → `tests/windows_smoke.ps1`, 이후 opt-in `RUN_SELF_TEST.cmd`.
+8. 보안/원본: 로그/경로/식별자 외부 전송 없음; 사용자 REPORTS·OS·수리·BitLocker·WinRE 복사 변경 없음. 원본 기존 SHA에서 복원 가능. UI/QR 자동 업로드 및 무인 수리 금지.
+9. 다음/완료 게이트: PS5.1 네이티브 합성 → 실제 표준 권한 보고서 생성/JSON·HTML → 한글 USB 경로/Edge file://·QR 스마트폰 스캔·A4 PDF → WinRE 격리 VM 물리 디스크 분리/용량/BitLocker 실패 테스트. 출시/복사 활성화 별도 승인.
+10. 갱신: 2026-10-31 KST, 소스 정적 17개만 확인, CI 상태 체크 없음·Windows 미실행. 문서 기준은 본 업데이트 시점의 `feature/pc-care-usb` HEAD 및 위 사전 SHA.
