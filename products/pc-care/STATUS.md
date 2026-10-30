@@ -412,3 +412,9 @@
 - `tests/test_release.py`에 sidecar symlink sentinel 보호, 외부 ZIP·sidecar 임시파일 충돌 보존, 연속 재빌드·검증 성공 회귀 추가. `tests/test_package.py` 출처 계약 추가.
 - 원격 실제 `build_internal()` 함수 2561문자/FNV1a `21f4b696`를 격리 Python 3.13에서 동일 코드로 실행, 합성 1파일 ZIP/sidecar/재빌드/충돌/링크 **9 PASS/0 FAIL**. 전체 실제 `release.py`·공식 `verify_archive`/모든 allowlist 제품 ZIP 및 Windows 11/PS5.1/USB·QR/A4·WinRE/CI **NOT_RUN**. 증거 `tests/evidence/zip_sidecar_atomic_native_qa_20261031.json`.
 - 개발 시작 기준 `51ffdc2695e88a7491ff903653b8fab5b303aba5`; 원본 소스와 운영 main/Cloudflare·고객 파일·OS/수리·복구·개인정보 미수정. 다음 Windows 전체 소스 `RUN_RELEASE_QA.cmd` 네이티브 검증 후 read-only 생성 JSON/HTML·H08/USB/인쇄.
+
+## 2026-10-31 KST — 실제 원본 ZIP 파이썬 테스트 실행 (검증 단계 전진)
+- 이전 작업에선 `release.py`의 일부 함수만 로컬 실행했으나, 이번엔 비공개 GitHub에서 읽은 **`tools/release.py` 전체 + `tests/test_release.py` 공식 테스트 파일을 바이트 동일하게** 로컬 격리 공간에 복원. `git hash-object` 원격 blob SHA 일치 확인: `df378a1a308089e5b7ccbf1d2dd3c1a6b9d24095`, `8758f0df5a1dbf46770b4376534d64397d42d05f`.
+- Python 3.13.5 Linux에서 **공식 `python -m unittest discover -s tests -p test_release.py -v` 15 PASS / 0 FAIL / 0 SKIP**. 별도 동일 실제 코드의 합성 보안·ZIP 스모크 **14 PASS / 0 FAIL**(공식 테스트와 겹치는 범위가 있으므로 독립 항목 29개로 집계하지 않음).
+- 테스트는 실제 ZIP/manifest/SHA256 처리 코드를 실행했으나 `ALLOWLIST`의 내용은 합성 placeholder. **실제 제품 파일이 모두 들어간 ZIP, Windows PS5.1/Windows 실기기·USB/QR/A4/WinRE/Node·전체 Python·CI NOT_RUN**. 근거 `tests/evidence/release_actual_python_native_20261031.json`.
+- 코드 결함 새로 발견되지 않아 제품 소스 무수정. feature 증빙/상태만 반영, 운영 main/Cloudflare·고객 데이터·인증/수리/배포 불변. 다음 전체 소스 Windows 체크아웃 `RUN_RELEASE_QA.cmd` 실행 및 사설 `QA_RESULTS` 검토.
