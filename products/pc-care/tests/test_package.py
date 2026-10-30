@@ -279,6 +279,35 @@ class PackageTests(unittest.TestCase):
         for identifier in ['.SerialNumber','.DeviceID','.Message','.FriendlyName','.UserName']:
             self.assertNotIn(identifier, payload)
 
+    def test_offline_qr_generation_is_opt_in_and_licensed(self):
+        vendor = (ROOT/'ui/qrcode.min.js').read_text(encoding='utf-8')
+        license_text = (ROOT/'ui/QR_CODE_LICENSE.txt').read_text(encoding='utf-8')
+        qr_ui = (ROOT/'ui/qr_ui.js').read_text(encoding='utf-8')
+        diagnostic = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        preview = (ROOT/'tools/share_preview.ps1').read_text(encoding='utf-8-sig')
+        package = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        self.assertIn('Copyright (c) 2012 davidshimjs', license_text)
+        self.assertIn('The MIT License', license_text)
+        self.assertIn('QRCode', vendor)
+        self.assertIn('new QRCode(target', qr_ui)
+        self.assertIn('addEventListener("click"', qr_ui)
+        self.assertIn('TextEncoder()', qr_ui)
+        self.assertIn('bytes > 250', qr_ui)
+        self.assertIn('id="pc-care-generate-qr"', preview)
+        self.assertIn('QrSupported = $false', preview)
+        self.assertIn('qrImageSupported', diagnostic)
+        self.assertIn('$qrInlineScripts', diagnostic)
+        self.assertIn('$qrLicenseText', diagnostic)
+        self.assertIn('QR_CODE_LICENSE.txt', diagnostic)
+        for name in ['ui/qrcode.min.js','ui/QR_CODE_LICENSE.txt','ui/qr_ui.js']:
+            self.assertIn(repr(name), package)
+        self.assertNotIn('</script', vendor.lower())
+        for banned in ['fetch(', 'XMLHttpRequest', 'sendBeacon', 'navigator.clipboard', 'window.location=', 'Start-Process']:
+            self.assertNotIn(banned, qr_ui)
+        # No remote URLs for QR generation. SVG namespace in the vendor is not a network call.
+        self.assertNotIn('http:', qr_ui)
+        self.assertNotIn('https:', qr_ui)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
         for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/pnp_analysis.ps1','tools/recorded_timeline.ps1','tools/consultation_report.ps1','tools/consultation_render.ps1','tools/share_payload.ps1','tools/share_preview.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/driver_timeline.tests.ps1','tests/consultation_report.tests.ps1','tests/share_payload.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
