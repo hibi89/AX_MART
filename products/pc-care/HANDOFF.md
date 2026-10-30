@@ -75,3 +75,16 @@
 8. **원본·백업·권한·수정 금지:** 이력 Git SHA로 변경 전 소스를 복구할 수 있으며 main 무수정. 원본 파일, 개인 데이터, 암호, BitLocker 키, 이벤트 원문을 자동 업로드하지 않음. RUN_SAFE_REPAIR.cmd와 WinRE 파일 복사/파티션 쓰기 명령은 VM 스냅샷·별도 승인/검증 전 실행 금지.
 9. **다음 작업 및 완료 기준:** Python 정적/패키징 테스트 → Win11 PS5.1 파서·event fixture → 비관리자 1일 진단 → JSON/HTML 쌍·권한 거부/빈 이벤트/상한/읽기 전용 USB/폴백 재현 → Win10 제한 검증. 실패 시 코드 최소 수정 및 재실행. 무료 베타·서명/보안/복구 전 출시 불가.
 10. **갱신 시점·검증 범위·문서 기준:** 2026-10-30 KST. GitHub 커넥터로 파일·커밋 작성자/커미터 hibi89 확인, 코드 기준 cad89a644dd18e3a267fda842e3da22c841f9b95. Windows/CI/Production 테스트 미수행. 본 HANDOFF 기록 반영 후 GitHub HEAD 재확인 필요.
+
+## [최신] 2026-10-30 KST — P0 후속 작업 인수인계
+
+1. 목표·기술: AXMART PC CARE Release A P0 수집/권한/시간/로그/보고서 저장 실패 안정화. FINAL_SPEC_V2.md 기준, PowerShell 5.1/CMD, 오프라인·로컬.
+2. 구현/변경: 누락된 synthetic fixture를 내부 ZIP에 추가. 옛 Python 정적 테스트의 NoMatchingEventsFound 참조 수정. 자체 임시 보고서만 삭제 허용하도록 검사 보강. 이벤트 최대 조회수 상한, UTC fixture, 권한 state, 물리 저장장치 신뢰성 자료 collected/empty/unavailable 상태 추가.
+3. 테스트/실제 결과: GitHub 파일 9개 교차 정적 계약 35/35 충족. Python unittest, PowerShell Parser, fixture 실제 실행, Windows·WinRE, ZIP 빌드/실제 실행 모두 미실행. GitHub CI 체크 0개로 성공 여부 미판정. 명령: 제품 폴더에서 python3 tests/test_package.py 및 python3 tests/test_release.py; Windows 일반 사용자에서 RUN_SELF_TEST.cmd.
+4. 완료·진행·대기·차단: P0 소스 및 테스트 보강 진행, Windows 11 실측/예외 재현 대기. P1, P2, Release B의 실제 Rescue 백업은 별도 범위, 출시 불가.
+5. 실패·근거·원인·시도·대안: smoke가 호출할 synthetic fixture가 ZIP ALLOWLIST에 없어 Windows self-test 실패 가능 → ALLOWLIST/회귀 추가. 옛 테스트 경로 가정 오판 → 신규 모듈 참조. 이 컨테이너는 pwsh/PowerShell이 없으므로 Windows VM/실기기에서 직접 확인해야 함. 미실행을 PASS로 표시하지 않음.
+6. 저장소/브랜치/SHA: hibi89/AX_MART, feature/pc-care-usb, 문서 전 기능 SHA 5dd651ab0d713780bbaac5c730394a141df2ae59. 주요 파일: products/pc-care/tools/diagnose.ps1, event_analysis.ps1, release.py, tests/test_package.py, test_release.py, windows_smoke.ps1, event_analysis.tests.ps1, docs/WINDOWS_TEST_PLAN.md.
+7. Production·실행 환경: Cloudflare https://ax-mart.pages.dev/ / main, 이번 P0 코드는 미배포. Windows 11 x64/Windows PowerShell 5.1 대상. RUN_SELF_TEST.cmd는 읽기 전용+로컬 보고서 생성용; 수리 실행 금지.
+8. 백업·보안: GitHub 과거 커밋에서 소스 복구 가능. main 미변경. 이벤트 원문/복구키/고객 로그·인증정보 GitHub 업로드 금지, 외부 자동전송 없음. DISM/SFC/WinRE 파일 복사는 실제 VM 스냅샷·별도 안전 검증 전 실행 금지.
+9. 우선순위·완료조건: Python 테스트 → Windows 파서/합성 fixture → 일반 사용자 1일 검사 → JSON/HTML 쌍 및 오류/폴백 재현 → 저장장치 지원 차이/권한 → Win10 한정 호환성. 오류 발견 시 최소 수정과 재검증, 그 전 P0 전체 완료/공개 베타 불가.
+10. 갱신 시각/범위: 2026-10-30 KST. GitHub 소스 35/35 정적 점검과 브랜치·커밋 작성/커미터 hibi89 확인. 실제 Windows, CI, 배포/브라우저 검증은 미수행. 최종 문서 커밋 후 HEAD 재확인 필요.
