@@ -119,3 +119,15 @@
 - **실행/검증:** GitHub 9개 소스 대상 교차 구조·BOM·보안·배포 의존성을 검사한 **32/32 정적 조건 충족**. Windows PowerShell 5.1/pwsh 런타임 없음; private GitHub 컨테이너 네트워크 DNS 접근도 불가. Windows 실제 Parser/fixture, Python unittest/ZIP 실제 패키징, WinRE·안전성 QA는 **미실행**. 합격 주장 금지.
 - **단계:** P1 원인 후보 규칙 초기 구현, P1 배터리/업데이트·분석 정확도·이력 기능 미완료. P0도 Windows QA 대기로 부분 완료. P2 인쇄/QR 및 Release B 미구현. docs/WINDOWS_TEST_PLAN.md에 P1 실행 수용조건 추가.
 - **참고:** Cloudflare Pages main/배포·판매/다운로드 정책 변경 없음. 변경 전 작업 브랜치 HEAD ec065d00f031d3e1689ece951945c2a58d9bda63으로 복구 가능. 다음은 실제 Windows PS5.1 테스트와 회귀 실패 수정, 이후 Windows Update/배터리/인쇄 요약 순서.
+
+## 2026-10-30 KST — P1 배터리·Windows 업데이트 관측값 초기 구현 (최신)
+
+- 기준: FINAL_SPEC_V2.md H05/H06, hibi89/AX_MART feature/pc-care-usb. Production main과 공개 배포는 미변경.
+- **추가 기능:** tools/telemetry_analysis.ps1 신규(PowerShell 5.1/UTF-8 BOM, 순수 정규화). 배터리는 Win32_Battery의 조회 결과를 unavailable/not_present/collected로 분리. 현재 충전량(0–100%), 제공되는 설계/완충 용량(mWh)만 숫자로 기록. 값 0·잘못된 수치·미지원은 null. 배터리 건강도·남은 수명 퍼센트 추정 금지. 이름/일련번호/DeviceID 미수집.
+- **Windows 업데이트:** System의 Microsoft-Windows-WindowsUpdateClient 이벤트 19/20만 최대 300개 수집. 설치 성공/실패 '기록'으로 표시, 실제 최신 설치·해결 여부 단정 금지. 시간은 이벤트 기록시각. provider/ID whitelist 및 RecordId 중복 처리, 원문 Message/KB 제목 미저장. 접근 실패/no matching/truncated 구분.
+- **연동:** tools/diagnose.ps1이 observations.battery/observations.windowsUpdate/collectionStatus와 이슈·HTML 보기에 반영. 장애 규칙 도구 tools/incident_analysis.ps1이 Update 실패 기록을 별도 검토 항목으로 처리하고, BugCheck와 함께 있어도 원인 관계를 확정하지 않음.
+- **테스트 코드:** tests/telemetry_analysis.tests.ps1(배터리 없음·거부·잘못된 수치·민감정보 누출, 업데이트 ID/provider/중복/원문 제한); tests/incident_analysis.tests.ps1(업데이트 장애 인과 비확정/조회 잘림) 확장. Windows smoke 구문검사 및 fixture 연결, 내부 시험 ZIP ALLOWLIST/파이썬 패키징 정적 테스트에도 의존성 추가. docs/WINDOWS_TEST_PLAN.md 실행 매트릭스 작성.
+- **현재 검증:** GitHub 원격 소스 9개 파일의 BOM·참조·출력 모델·오프라인·시험 ZIP·표현 안전성을 대상으로 한 JS 정적 계약 검사 **39/39 조건 충족**. 실제 PowerShell Parser·fixture 실행, Python unittest·ZIP 빌드/Windows 10·11/USB/WinRE QA **미실행**; 테스트 성공이라고 표기 금지.
+- **잔여 P1:** 업데이트/드라이버 오류 범위 확장, 배터리 설계·완충 용량 공급자 호환성 실기기 조사, 실제 사건 간 시각 연결·오탐 QA. P0 Windows/WinRE 안전 게이트와 P2 단일 인쇄 보고서/QR 미완료. 공개 ZIP·결제·강제 복구 없음.
+- **기준 커밋:** 시작 SHA 9ca1bca478bed6ffb90ba7c1c67e52ee8cef99e3. 작업 문서 반영 후 feature HEAD를 재확인할 것.
+
