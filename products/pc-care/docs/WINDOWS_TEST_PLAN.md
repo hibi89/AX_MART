@@ -270,3 +270,8 @@ Pending manual tests:
 - Pick prior and current JSON for the same PC; verify schemaVersion=1, generatedAt order, changed issue codes, drive free space, log collection statuses and equal eventWindowDays. For unavailable/truncated logs, changed lookback, 30-record cap, different volume size, unsupported JSON, wrong order or same file: clearly reject/inhibit misleading comparisons.
 - No silent report folder enumeration, original JSON modification, auto deletion, network, cookies, storage, or upload; input JSON sizes capped at 2MB. HTML result uses textContent only. Confirm behavior on Edge and Chrome file:// and after USB is unplugged.
 - V8 pure JS comparison logic 16/16 synthetic pass. Node test_history_compare.cjs 9 tests authored/manual-only CI linked; actual node command, Chromium/Windows/USB/real user report acceptance unverified. H08 automated retention and delete features remain unimplemented.
+
+## 2026-10-30 — H08 execution QA
+- Reconstructed exact GitHub original files by comparing Git blob SHA, then ran `node --test tests/test_history_compare.cjs`: 9 PASS.
+- Fixed a late asynchronous File.text() response overwriting newer file-choice output: selectionRevision guard in JS plus new DOM fixture (5 tests). Actual Node 22 combined suite 14 PASS/0 FAIL; exact new JS blob bd793bb5cf1dabbbb82ba4210faade3b7f22994a and DOM fixture 93679760ea7e090bb33af0e07846e9040d7c3605.
+- Linux Chromium 144 refused both file:///... and local HTTP://127.0.0.1/... with net::ERR_BLOCKED_BY_ADMINISTRATOR. Do not assert the product works or fails in real browsers based on this environment policy. No further policy bypass. Real Windows11 standard-user Edge file:// + QR/A4, USB, PowerShell5.1, WinRE remain UNVERIFIED.

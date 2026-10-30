@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "project": "AXMART PC CARE",
+  "component": "H08 local history comparison",
+  "dateKST": "2026-10-30",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "baselineSHA": "518413d3def107633b1215eeddf5f30be067e4e8",
+  "executed": {
+    "command": "node --test tests/test_history_compare.cjs tests/test_history_dom.cjs",
+    "environment": "Linux container, Node v22.16.0",
+    "tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "evidenceType": "actual Node execution of byte-identical GitHub source and newly added DOM mock fixture",
+    "sourceGitBlobSHA": "bd793bb5cf1dabbbb82ba4210faade3b7f22994a",
+    "baselineNodeTestGitBlobSHA": "831f738b9029556d21a4a01bbda2dab5c61819d4",
+    "domFixtureGitBlobSHA": "93679760ea7e090bb33af0e07846e9040d7c3605",
+    "cases": [
+      "previous/current issue and volume comparison",
+      "read-only schema rejection",
+      "date order rejection",
+      "unavailable/truncated log handling",
+      "window/cap handling",
+      "invalid drive filtering",
+      "untrusted issue filtering",
+      "unknown disk preservation",
+      "missing issue warning",
+      "DOM display success",
+      "file size limit before read",
+      "malformed JSON redaction",
+      "selection change cancels stale result",
+      "late read rejection preserves fresh selection message"
+    ]
+  },
+  "browser": {
+    "environment": "Linux Chromium 144, Playwright",
+    "attempts": [
+      {
+        "urlType": "file://",
+        "result": "net::ERR_BLOCKED_BY_ADMINISTRATOR"
+      },
+      {
+        "urlType": "http://127.0.0.1",
+        "result": "net::ERR_BLOCKED_BY_ADMINISTRATOR"
+      }
+    ],
+    "status": "blocked by environment policy; application behavior not verified",
+    "furtherAttempts": "do not bypass the platform policy"
+  },
+  "unverified": [
+    "Windows 11 PowerShell5.1",
+    "Windows CMD menu and USB paths",
+    "Edge or Chrome file:// behavior",
+    "smartphone QR",
+    "A4 PDF print",
+    "WinRE",
+    "full Python suite",
+    "production deployment"
+  ],
+  "safety": "No user data, repairs, system modifications, external API calls, payment or production changes. Synthetic JSON only."
+}

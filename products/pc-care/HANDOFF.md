@@ -325,3 +325,15 @@
 8. **원본·백업·보안:** 기존 보고서/수리·WinRE/PC 시스템·BitLocker·사이트 코드는 수정하지 않음. 보고서를 브라우저 메모리에서만 읽고 업로드/삭제/자동 보관하지 않음. Git 이전 SHA로 복원 가능.
 9. **다음 작업:** Node 테스트 실제 실행→Windows 11 표준권한 메뉴5/0→Edge/Chrome file:// 2개 진짜 JSON 실험(한글 USB 경로·오프라인)→A4/QR/WinRE 안전성 별도 검증. 출시 전 사용자 승인 필수.
 10. **갱신/검증 범위:** 2026-10-30 KST. 순수 V8 비교 로직 및 GitHub 소스 읽기 일치만 입증. Windows/Production/USB·실기기 브라우저 미검증. 최종 HEAD 반영 후 재조회.
+
+## [최신] 2026-10-30 KST — H08 Node 실검증 및 비동기 결과 경합 인계
+1. **목표·기술:** 오프라인 Windows PC CARE H08 수동 JSON 비교 결과의 파일 변경 경합 방지, Linux Node 22와 가상 DOM에서 재현 및 시험.
+2. **구현/근거:** JS `selectionRevision`으로 선택 상태가 바뀌면 이전 JSON 비교 또는 파싱 실패 메시지를 렌더하지 않음. `tests/test_history_dom.cjs` 파일선택 UI 5종, CI·Python 정적 계약, README 갱신. 원본 진단/복구·REPORTS 불변.
+3. **테스트 명령/성공·실패:** `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` Linux Node v22.16.0, **14/14 PASS, 0 FAIL**. 소스 SHA `bd793bb5cf1dabbbb82ba4210faade3b7f22994a`, DOM fixture `93679760ea7e090bb33af0e07846e9040d7c3605`. Chromium 144 실제 file://, localhost 모두 `ERR_BLOCKED_BY_ADMINISTRATOR`; 코드 실행 확인 불가.
+4. **상태:** 비교 순수 JS+가상 DOM 검증 완료. Windows 11 Edge/Chrome file:// USB·CMD·PowerShell·실제 QR/PDF·WinRE **검증 대기**. H08 자동 저장/삭제 미구현; 일반 출시 금지.
+5. **장애 계층/시도·대안:** 브라우저 두 주소가 관리자 정책 차단, 제품 버그 단정 불가. 동일 환경 우회/반복 금지. 실제 Windows 사용자 환경에서 정상 접근 확인 또는 별도 승인된 브라우저 시험 환경. Node 가상 DOM은 브라우저 검증을 대체하지 못함.
+6. **저장소/브랜치/SHA:** hibi89/AX_MART `feature/pc-care-usb`, 시작 `518413d3def107633b1215eeddf5f30be067e4e8`, `products/pc-care/ui/history_compare.js`, `tests/test_history_dom.cjs`, CI/README/tests/evidence.
+7. **Production:** https://ax-mart.pages.dev/ 운영 main/배포 불변, feature 브랜치 내부 시험만. 실행: 사용자 PC `START_PC_CARE.cmd` 메뉴 5; 개발 QA Node 22.
+8. **원본/백업·보안:** 이전 HEAD로 소스 복구 가능. 원본 보고서/개인 정보 전송 없음, 디스크·레지스트리·BitLocker/수리 변경 없음. Chromium 정책 우회 시도 금지.
+9. **다음 우선순위/완료 기준:** Windows 실장치 Edge file:// 두 JSON 선택/네트워크 0·콘솔 오류 0 확인→CMD 메뉴5/0·PowerShell5.1 fixtures→한글 USB·QR 실 스캔/A4 PDF→WinRE 격리. 공개·유료 배포는 사용자 승인 전 보류.
+10. **갱신 KST·검증 범위:** 2026-10-30, SHA 확인된 GitHub 원본 JS/fixture를 Node 실제 실행; 브라우저 접근 실패는 환경 정책. 최종 HEAD 커밋 후 재확인.

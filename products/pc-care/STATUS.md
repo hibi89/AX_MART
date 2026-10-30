@@ -263,3 +263,9 @@
 - 동일 PC의 과거/현재 읽기 전용 JSON 두 개를 수동 선택하고 신규·미관찰 경고/디스크 여유/조건부 이벤트 수/저장장치 경고 합계를 브라우저 오프라인에서 비교. 자동 업로드·파일 탐색·삭제 없음.
 - 메뉴 5번, ui/history_compare.html/js, JS 합성 16/16 통과, Node 테스트 9개 작성, 내부 ZIP/수동 CI·문서 연결. 실제 Node 실행/Windows Edge file:// /USB/QR/PDF/WinRE **미검증**.
 - H08 자동 저장/보존기간/삭제 UI 미구현. 무료/판매 배포 차단, 운영 main 불변. 변경 전 SHA 789a831f0e21f52071f642effafee94ca0a89141.
+
+## 2026-10-30 KST — H08 실제 Node 실행·파일선택 경합 보강
+- GitHub 원본 JS `65bfb8995676babaf36fa4c3f62dbfec18094805` 및 Node 회귀 fixture `831f738b9029556d21a4a01bbda2dab5c61819d4`를 SHA 검증해 Linux Node 22에서 **9/9 PASS** 실행.
+- 비교 중 파일 선택 변경시 이전 결과·오류가 뒤늦게 덮어쓰는 문제 예방: `ui/history_compare.js` selectionRevision 가드. 가상 DOM Node fixture 5개 추가, 수정된 JS 정확한 Blob SHA `bd793bb5cf1dabbbb82ba4210faade3b7f22994a`, 테스트 Blob `93679760ea7e090bb33af0e07846e9040d7c3605`. 통합 **14/14 PASS**.
+- Chromium 144의 file:// 및 127.0.0.1 로컬 테스트 URL 모두 관리자 정책 `ERR_BLOCKED_BY_ADMINISTRATOR`에 차단: 브라우저 정상/장애 판정 불가, 추가 우회 시도 금지. Windows PS5.1, Edge/Chrome/USB 실제 기능·QR/A4/WinRE **미검증**.
+- 수동 CI workflow에 5개 UI 회귀 추가; runner 미배정으로 workflow dispatch는 하지 않음. 운영 main/Cloudflare 변경 없음, 출시 차단 유지. QA 시작 HEAD 518413d3def107633b1215eeddf5f30be067e4e8.

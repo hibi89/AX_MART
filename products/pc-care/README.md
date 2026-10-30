@@ -124,3 +124,11 @@ QR 이미지 생성 전 UTC 기록 시각을 **정규식 + 실제 달력 날짜*
 - 신규/미관찰 경고 코드, 비교 가능한 디스크 여유 공간·이벤트 건수·저장장치 경고 합계를 표시한다. 이벤트 수는 조회 기간·수집 완전성·표시 상한이 일치할 때만 비교한다.
 - **같은 PC 여부는 자동 확인할 수 없고, 최근 미관찰 경고는 해결됐다는 뜻이 아니다.** 자동 이력 탐색/삭제까지 완료된 H08 기능이 아닌 수동 비교 1단계. 이전 보고서 삭제는 Windows 파일 탐색기에서 직접 결정한다.
 - 순수 비교 JS V8 합성 테스트 **16/16 통과**, `tests/test_history_compare.cjs`에 Node 회귀 9종 작성. 실제 Node·Edge/Chrome `file://`, USB 특수경로 및 현장 데이터 검증 **미실행**. 무료 배포·판매 계속 차단.
+
+### H08 Node QA 확대 — 2026-10-30
+
+- GitHub 원본 Blob SHA를 확인한 JS와 Node fixture를 별도 실행 환경에 복사해 `node --test tests/test_history_compare.cjs` **9/9 PASS** 실행.
+- 파일을 읽는 중에 사용자가 과거/현재 선택을 바꾸면 `selectionRevision`을 증가시켜 **이전 비교 결과 및 뒤늦은 오류가 새 선택 상태를 덮어쓰지 않도록** 수정.
+- 신규 `tests/test_history_dom.cjs`에서 가상 DOM의 성공 비교, 2MB 초과 사전 거부, 잘못된 JSON 원문 비노출, 느린 파일 읽기 중 변경, 오래된 파싱 오류가 뒤늦게 발생하는 경우를 검증. 두 Node fixture 합계 **14/14 PASS** (Linux Node.js 22).
+- Linux Chromium headless를 이용한 `file://` 접근 및 로컬 HTTP 폴백은 실행 환경 관리자 정책으로 모두 `ERR_BLOCKED_BY_ADMINISTRATOR` 차단. 이는 제품의 Edge/Chrome 결함으로 단정하지 않는다. 브라우저 실제 렌더링·휴대폰·Windows USB QA는 여전히 **미검증**.
+- 실제 PC 로그·고객 정보·시스템 수리·네트워크 전송/스토리지 변경 없음. 수동 CI는 runner 미배정 이력 때문에 자동 재실행하지 않음. 출시 승인 및 공개 다운로드는 계속 보류.

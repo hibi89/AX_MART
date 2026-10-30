@@ -89,3 +89,8 @@
 - `hibi89/AX_MART` `feature/pc-care-usb`, 기준 e39f345a88d8f03d3cfb1432ca7cee0e2b9b9dc3. 1001/41/6008/스토리지 공급자 이름 앵커 allowlist, root JSON schemaVersion=1, synthetic spoofed providers 5개 및 Python/Windows smoke 관련 소스 추가.
 - 오작동 커밋 a7b6c4d는 JS replace의 $ 특수 치환으로 인해 원격 코드 손상, 즉시 e39f345 롤백 완료. 새 소스는 함수형 치환과 Base64 blob readback 검증. 동일 오류 방식 금지.
 - 운영 `main`, Cloudflare https://ax-mart.pages.dev/, 무료/유료 다운로드 및 수리 코드 불변. Windows PowerShell5.1/USB/OEM 공급자·QR/A4 PDF·WinRE/전체 테스트 미검증. 제품 상세 `products/pc-care/HANDOFF.md` 및 STATUS.md 기준.
+
+## 2026-10-30 KST — H08 Node 실제 검증/비동기 안전성 인계
+- 저장소/브랜치: hibi89/AX_MART feature/pc-care-usb, 시작 SHA `518413d3def107633b1215eeddf5f30be067e4e8`. H08 `ui/history_compare.js` 읽는 중 파일 선택 변경 시 stale 결과/오류 무시(`selectionRevision`), `tests/test_history_dom.cjs` 가상 DOM 5개 새로 추가, 수동 CI·정적 테스트 갱신.
+- 검증: GitHub 소스 blob SHA와 로컬 복제본 일치. Linux Node v22.16.0 `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **14 PASS, 0 FAIL**. Chromium 144 file:// 및 localhost 모두 환경 관리자 정책 `ERR_BLOCKED_BY_ADMINISTRATOR`: 실제 브라우저 결과 불명, 접근 우회 금지.
+- Production https://ax-mart.pages.dev/ main 불변/기능 배포 미적용, 사용자 시스템/원본 리포트 수정·삭제 없음. 실제 Windows Edge/Chrome 파일 선택/USB, PowerShell5.1, QR 스캔/A4, WinRE 미검증. 새 H08 자동 저장·삭제 미구현, 무료/유료 출시 차단. 상세 products/pc-care/HANDOFF.md 최신 단락 참고.

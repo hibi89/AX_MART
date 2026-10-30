@@ -42,6 +42,7 @@ function compareReports(oldReport,newReport){
     const button = document.getElementById("compare");
     const output = document.getElementById("output");
     if (!prev || !curr || !button || !output) return;
+    let selectionRevision = 0; // Invalidate an in-flight comparison when a selected file changes.
     function checkFile(f) {
       if (!f || f.size < 1 || f.size > 2000000) throw Error("JSON 파일은 2MB 이하만 선택하세요.");
       if (!/[.]json$/i.test(f.name)) throw Error("JSON 파일만 선택하세요.");
@@ -51,12 +52,14 @@ function compareReports(oldReport,newReport){
       return JSON.parse((await f.text()).replace(/^\uFEFF/, ""));
     }
     button.addEventListener("click", async () => {
+      const requestRevision = selectionRevision;
       button.disabled = true;
       output.textContent = "기기 내부에서 보고서를 읽고 있습니다.";
       try {
         if (!prev.files.length || !curr.files.length) throw Error("과거와 현재 JSON을 각각 선택하세요.");
         checkFile(prev.files[0]);checkFile(curr.files[0]);
         const [before,after] = await Promise.all([parseFile(prev.files[0]),parseFile(curr.files[0])]);
+        if (requestRevision !== selectionRevision) return; // Never display stale file data.
         if (JSON.stringify(before) === JSON.stringify(after)) throw Error("서로 다른 두 검사 결과를 선택하세요.");
         const result = compareReports(before,after);
         const lines = ["AXMART PC CARE — 오프라인 반복 검사 비교 (고장 확정 아님)",
@@ -71,10 +74,15 @@ function compareReports(oldReport,newReport){
         if (result.disks.before && result.disks.after) lines.push("저장장치 경고 집계: "+result.disks.before.warning+" → "+result.disks.after.warning);
         lines.push("", "검사 한계:", ...result.caution.map(s => "- "+s));
         output.textContent = lines.join("\n");
-      } catch (err) {output.textContent = "비교 불가: " + (err instanceof SyntaxError ? "올바른 JSON 파일이 아닙니다." : err.message);}
+      } catch (err) {
+        if (requestRevision === selectionRevision) output.textContent = "비교 불가: " + (err instanceof SyntaxError ? "올바른 JSON 파일이 아닙니다." : err.message);
+      }
       finally {button.disabled=false;}
     });
-    [prev,curr].forEach(input=>input.addEventListener("change",()=>{output.textContent="파일 선택이 변경되어 이전 비교 내용을 지웠습니다."; }));
+    [prev,curr].forEach(input=>input.addEventListener("change",()=>{
+      selectionRevision++;
+      output.textContent="파일 선택이 변경되어 이전 비교 내용을 지웠습니다.";
+    }));
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded",init);
   else init();

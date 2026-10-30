@@ -84,3 +84,8 @@
 ## 2026-10-30 KST — PC CARE P0 이벤트 공급자 근거 개선
 - feature/pc-care-usb only: ID 1001/41/6008/storage events의 공급자명을 엄격한 allowlist로 제한, 루트 보고서 schemaVersion=1 추가 및 음성 fixture 5개·스모크 검증 강화.
 - 이전 잘못된 코드 치환 커밋 a7b6c4d는 롤백 e39f345에서 복구 완료. 새 변경은 Base64 Git blob 읽기 검증 후 반영. Windows PS5.1/USB/QR/A4/WinRE 미검증, main/Cloudflare/판매 미변경.
+
+## 2026-10-30 KST — PC CARE H08 Node 실제 검증 및 경합 수정
+- feature/pc-care-usb: 새 이력 비교 UI의 선택 변경 비동기 경합 수정, Node 가상 DOM fixture 5개 추가. 정확한 GitHub JS 원본/fixture SHA를 로컬 Node 22에 확인 후 `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` 실행 **14/14 PASS**.
+- Linux Chromium 144: file://와 localhost 모두 `ERR_BLOCKED_BY_ADMINISTRATOR` 환경 차단. 브라우저/Windows/USB/QR/PDF/WinRE 실기기 동작 미검증; 관리자 정책 우회·동일 환경 재시도 금지.
+- 운영 main/Cloudflare 및 수리·원본 데이터 불변; H08 자동 이력 삭제 미구현. 공개/유료 배포 차단. 변경 전 GitHub `518413d3def107633b1215eeddf5f30be067e4e8`; 세부 제품 HANDOFF/STATUS 기록.
