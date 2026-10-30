@@ -244,3 +244,9 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - 해총 지시대로 최종 v2.0 설계 유지·기존 로컬 JS 모듈 최소 수정. H08 비교기가 업데이트·PnP 잘못된 JSON 샘플을 정상 관측 수치로 취급하던 결함을 재현 후 kind/eventId/UTC/timeBasis/장치 코드 검증으로 차단. `products/pc-care/HANDOFF.md` 최신 10항 상세.
 - GitHub 정확한 소스·test V8 실행 **25/25 PASS**, 독립 12/12, 정적 12/12. 이는 native Node/Windows/USB/QR/PDF/WinRE/ZIP/CI 미검증과 엄격히 분리. 근거 `products/pc-care/tests/evidence/h08_normalized_sample_validation_20261031.json`.
 - 변경 전 복구 SHA `209a3366ed841519c871be1aba3bdf84cf815d0b`. `feature/pc-care-usb`만 수정, 사이트 `main`/Cloudflare·사용자 보고서·권한·복구·판매 변경 없음. 다음 Windows 개발 checkout `RUN_RELEASE_QA.cmd` 실행→Read-only 보고서·H08 통합 증명, 필요 시 UI·QR/A4, 마지막 WinRE 안전 게이트. 인수인계 이후 최종 feature SHA 별도 확인.
+
+## 2026-10-31 KST — AXMART CUBE 최신 System 근거/이력 비교 인수인계
+- 최종 제품/구성 기준선 `products/pc-care/docs/FINAL_SPEC_V2.md`·`PRODUCT_AND_INTEGRATION_BASELINE.md` 유지. `ui/history_compare.js`에서 정규화 이벤트 ID·종류·UTC·수집 상태·표시 건수 교차 검증으로 잘못된 증감 판정 차단. 합성 `JSON → H08 비교 → 오프라인 인쇄` 통합 테스트 `tests/test_history_evidence_integration.cjs` 신규 등록. 상세 10항 `products/pc-care/HANDOFF.md`.
+- 검증: GitHub 소스의 기존 V8 두 테스트 스위트 28 PASS, 신규 통합 V8 5 PASS, 원격 정적 12 PASS. Native Node/Python/PS5.1/실기기/USB/QR/A4/WinRE/ZIP/CI 미실행. 예전 CI failure(run `41034866482`, 과거 SHA, job 0 steps)는 현 SHA와 무관하므로 오류 범위 구분.
+- 저장소 `hibi89/AX_MART` 브랜치 `feature/pc-care-usb`, 변경 전 복구 SHA `a7843dd4983959d8e4d19d4ee85d567a82982c6a`. 운영 main/Cloudflare 및 고객 보고서·Windows 설정/수리/복구/배포 미변경. 증거 `products/pc-care/tests/evidence/h08_system_evidence_integration_qa_20261031.json`.
+- 차순위: 실제 Windows 전체 소스 `RUN_RELEASE_QA.cmd`→read-only 보고서/반복비교/Edge file://→USB/QR/PDF→WinRE 격리 VM 및 위험 승인. 마지막 검증 SHA는 별도 GitHub에서 확인.
