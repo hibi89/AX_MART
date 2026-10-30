@@ -54,6 +54,20 @@ def command(name: str, argv: list[str], *, cwd: Path = ROOT) -> dict:
                     output=type(exc).__name__)
 
 
+def classify_qa_status(stages: list[dict]) -> str:
+    """Never label skipped native Windows coverage as complete QA."""
+    if not stages:
+        return 'fail'
+    statuses = [item.get('status') for item in stages]
+    if 'fail' in statuses or any(x not in ('pass', 'blocked', 'not-run', 'fail') for x in statuses):
+        return 'fail'
+    if 'blocked' in statuses:
+        return 'blocked'
+    if 'not-run' in statuses:
+        return 'partial'
+    return 'pass'
+
+
 def run_qa(root: Path, *, windows_synthetic: bool | None = None) -> dict:
     """Run independent QA stages concurrently; never regard a skip as a pass."""
     root = root.resolve()
@@ -127,9 +141,7 @@ def run_qa(root: Path, *, windows_synthetic: bool | None = None) -> dict:
     else:
         stages.append(dict(name='windows-powershell-51-synthetic',status='not-run',
                            output='Non-Windows host: Windows test not executed'))
-    status = ('fail' if any(s['status']=='fail' for s in stages) else
-              'blocked' if any(s['status']=='blocked' for s in stages) else
-              'pass' if all(s['status'] in ('pass','not-run') for s in stages) else 'fail')
+    status = classify_qa_status(stages)
     return dict(status=status,stages=stages,not_verified=NOT_VERIFIED,
                 warning='PASS covers synthetic/source QA only, NOT actual Windows/WinRE operation')
 
@@ -144,7 +156,8 @@ def main(argv: list[str] | None = None) -> int:
         if stage['status'] not in ('pass','not-run') and stage.get('output'):
             print(stage['output'][-1800:])
     print(json.dumps({k:v for k,v in result.items() if k!='stages'},ensure_ascii=False))
-    return 0 if result['status']=='pass' else 1
+    # Partial native coverage is not a PASS and must propagate a nonzero exit.
+    return 0 if result['status']=='pass' else (2 if result['status']=='partial' else 1)
 
 
 if __name__ == '__main__':
