@@ -2,10 +2,17 @@
 
 **상태: 초기 시험용, 판매 불가. 실제 Windows PC에서 실행 검증 전.**
 
+## 기본 실행 (Release A 개발용 시작 메뉴)
+
+정상 부팅 Windows 11에서 `START_PC_CARE.cmd`를 더블클릭하면 비관리자 오프라인 텍스트 메뉴가 나타난다. **1 읽기 전용 진단 / 2 읽기 전용 자가검사 / 3 로컬 보고서 위치 / 4 복구 안전 안내 / 0 종료** 기능만 있다. 메뉴는 수리 실행기 또는 WinRE를 자동으로 시작하지 않는다. 실패 시 실행기 오류를 표시하고 파일을 삭제하거나 인터넷으로 보내지 않는다.
+
+기존 `RUN_HEALTH_CHECK.cmd`와 `RUN_SELF_TEST.cmd`를 직접 실행하는 방식도 계속 지원한다. 전체 패키지는 실기기 검증 전 내부 시험 전용이며 무료/유료 배포 불가.
+
 ## 구성
 
 | 파일 | 실행 위치 | 기능 | 시스템 수정 |
 |---|---|---|---|
+| `START_PC_CARE.cmd` | 정상 부팅 Windows | 진단·자가검사·보고서 위치·안전 안내 통합 메뉴(수리 자동 실행 없음) | 없음 |
 | `RUN_HEALTH_CHECK.cmd` | 정상 부팅한 Windows 10/11 | OS·저장장치 여유 공간·일부 저장장치 상태·최근 30일 BugCheck(1001)·예기치 않은 종료(41/6008)·스토리지 이벤트 점검, HTML/JSON 보고서 | 없음 (보고서 파일만 생성) |
 | `RUN_SAFE_REPAIR.cmd` | 정상 부팅한 Windows, 관리자 실행 | 백업/승인 확인 후 DISM RestoreHealth + SFC Scannow | **있음** |
 | `recovery/WINRE_READ_ONLY.cmd` | Windows RE 명령 프롬프트 | 설치 Windows 후보·BitLocker 보호 상태·부트 항목 확인, 로컬 텍스트 로그 | 없음 (보고서 파일만 생성) |

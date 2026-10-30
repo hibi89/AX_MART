@@ -13,6 +13,7 @@ FOLDER = f'AXMART_PC_CARE_USB_{VERSION}'
 ROOT = Path(__file__).resolve().parents[1]
 ALLOWLIST = (
     'README.md',
+    'START_PC_CARE.cmd',
     'RUN_HEALTH_CHECK.cmd',
     'RUN_SELF_TEST.cmd',
     'RUN_SAFE_REPAIR.cmd',

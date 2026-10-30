@@ -234,3 +234,13 @@ Pending manual tests:
 - **Blocker / attempts:** Tried to fetch publicly available pristine MIT vendor into the local Chromium container for direct comparison with the GitHub patched blob, but raw hosting/download access was restricted or unsuccessful. No private GitHub source was published to external hosting and no fake runtime result was reported. Since two retrieval approaches failed without usable download progress, stop the same attempts; instead execute the already committed offline browser scanner where source checkout and Chromium coexist.
 - **Required next:** Windows 11/Edge+Chrome `RUN_SELF_TEST.cmd` and local saved report HTML/JSON; actual QR full vendor render/UTF-8 OpenCV round-trip; camera scan iOS/Android; A4 print one-page, USB removal/permission failures, WinRE read-only/B-safe release separately. Never equate 252 V8 QR encoding checks with a real phone scan.
 
+
+## 2026-10-30: START_PC_CARE.cmd 비관리자 메뉴 수용조건 (코드 추가, Windows 미검증)
+
+- Windows 11 x64 CMD에서 정상 실행; 사용자 권한 자동 상승/복구/네트워크 작업 없음.
+- 메뉴 [1]은 기존 RUN_HEALTH_CHECK.cmd를, [2]는 RUN_SELF_TEST.cmd를 호출. 둘 다 완료 후 메뉴로 돌아오며 실제 진단 오류코드가 표시되는지 확인.
+- 메뉴 [3]은 로컬 REPORTS/문서 폴백 경로만 안내하며 보고서 자동 업로드·열람·삭제 없음.
+- 메뉴 [4]는 WinRE와 백업/수리 분리 안내만 표시하고 repair.ps1 또는 RUN_SAFE_REPAIR.cmd를 호출하지 않는다.
+- 메뉴 [0], 비정상 입력, 누락된 진단/자가검사 실행기, 신뢰 경로 choice.exe 부재 시 fail-closed.
+- USB 경로에 공백/한글/괄호/앰퍼샌드가 포함된 경우, 표준 사용자·Windows 10 22H2·USB 읽기 전용 여부를 별도 테스트. CMD CALL 경로 특수문자 및 종료 코드 전파는 실기기 확인 전 PASS 선언 금지.
+- 내부 ZIP에 START_PC_CARE.cmd 포함, 정적 보안 회귀는 test_package.py 및 test_release.py로 검사. 현재 Windows 실제 실행 결과는 **미검증**.

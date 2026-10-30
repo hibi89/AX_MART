@@ -65,6 +65,7 @@ class ReleaseTests(unittest.TestCase):
         """An internal ZIP must include every script the read-only launcher loads."""
         required = {
             'RUN_SELF_TEST.cmd',
+            'START_PC_CARE.cmd',
             'tests/windows_smoke.ps1',
             'tests/event_analysis.tests.ps1',
             'tools/diagnose.ps1',

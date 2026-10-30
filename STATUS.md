@@ -62,3 +62,8 @@
 - 상세 요구사항과 기능 범위는 products/pc-care/docs/FINAL_SPEC_V2.md를 기준으로 한다. Gemini 제안 두 개 결합: HEALTH, ANALYZE, REPORT(1페이지/PDF/QR), RESCUE(WinRE 조건부 파일 백업), RECOVER.
 - Release A(진단+보고서+WinRE 읽기전용)와 Release B(복사 안전 검증 통과 후)를 분리. BitLocker 자동 해제·무인 전체 파일복사·DDU 자동화·하드웨어/사기판단 보증 금지.
 - 이번 턴은 사양만 기록, 기존 Windows 코드 변경/테스트/홈페이지 판매 개시는 수행하지 않았다.
+
+## 2026-10-30 KST (PC CARE 메뉴 구현, 실기기 미검증) — PC CARE 기능 브랜치
+- PC CARE `feature/pc-care-usb`에 `START_PC_CARE.cmd` 비관리자 메뉴 소스 추가. 패키지 allowlist/회귀 테스트 및 제품 문서 업데이트.
+- 운영 `main`/Cloudflare 변경 없음, 실제 Windows/WinRE/QR 스캔/인쇄/ZIP 전체 테스트·무료 다운로드·판매 미검증/비활성.
+- 변경 전 feature HEAD `92294f15486e63d08c4b707024c0409779e1ba92`, 세부 내용은 `products/pc-care/HANDOFF.md` 참조.

@@ -260,3 +260,16 @@
 9. **다음 우선순위·절차·완료조건:** (1) git checkout된 Windows/Linux 브라우저 환경에서 실제 QR canvas PNG+OpenCV 디코드 (2) Windows 일반 사용자 `RUN_SELF_TEST.cmd`, 로컬 JSON+HTML·USB 한글 경로 및 권한 실패 (3) Edge/Chrome A4 PDF 1장·폰카 UTF-8/BOM 스캔 (4) Release B WinRE/파일 복사 별도 VM 안전성·두 단계 승인 (5) 공식 출시/크몽은 사용자 승인. CI 대기 때문에 다음 독립 오류 수정까지 막지 않음.
 10. **갱신 일시/검증 범위·문서 기준:** 2026-10-30 KST. 실제 GitHub vendor V8 252/252 인코딩, 소스 교차 검증 17/17. GitHub CI·제품 Windows/browser/phone 스캔 미검증. STATUS.md와 동일 단계, HEAD 커밋은 후속 도구로 재조회.
 
+
+## [최신] 2026-10-30 KST (PC CARE 메뉴 구현, 실기기 미검증) — 비관리자 START 메뉴
+
+1. **목표/환경:** 확정 FINAL_SPEC_V2 홈 진입점 구현, Windows 11 x64/CMD, USB/폴더 공통, 오프라인 기본.
+2. **완료/근거:** 신규 `START_PC_CARE.cmd` 선택지 1/2/3/4/0. 오직 기존 읽기 전용 진단/자가검사만 연결하고 복구 및 수리는 안내 텍스트에 한정. 기존 건강검진·QR·상담표·DISM/SFC 파일 미수정.
+3. **테스트:** GitHub 코드를 대상으로 allowlist 및 금지 명령·전달 경로 정적 계약 확인. Windows 실제 CMD, PowerShell5.1, Python unittest, ZIP 생성, QR 브라우저/실폰, A4 PDF **미검증**. 정적 확인을 런타임 PASS로 간주하지 않음.
+4. **상태:** 시작 메뉴 소스 완료, 실제 기기 및 QA 대기. Release A/B 완성/출시 승인 아님.
+5. **문제/대안:** Linux 개발환경에는 Windows cmd.exe/PS5.1 없음. 동일한 도구로 Windows 결과를 추정하지 말고 표준 사용자 Windows11/USB에서 테스트. GitHub Actions runner 미배정 41034866482 재시도 반복 금지.
+6. **저장소/브랜치/SHA:** hibi89/AX_MART `feature/pc-care-usb`. 이전 SHA `92294f15486e63d08c4b707024c0409779e1ba92`; 주요 신규 경로 `products/pc-care/START_PC_CARE.cmd`, `tools/release.py`, `tests/test_package.py`, `tests/test_release.py`.
+7. **Production/실행:** Cloudflare `https://ax-mart.pages.dev/` 는 `main` 전용이며 이번 기능 미배포. Windows 실행은 ZIP 해제 후 `START_PC_CARE.cmd`를 직접 선택.
+8. **원본/보안:** Git 이전 SHA로 복구 가능. 기존 보고서·사용자 원본/비밀키·배포 자산 미수정. 시작 메뉴가 시스템 수리 명령/관리자 요청/네트워크·삭제를 수행하지 않음.
+9. **다음 순서:** Windows11 CMD에서 1/2/0 및 누락 파일·표준 권한·USB 특수문자 테스트→로컬 HTML/JSON/QR·A4 한 장→Windows 10/WinRE/VM에서 별도 안전 시험→검증 후 사용자 출시 승인.
+10. **갱신:** 2026-10-30 KST. GitHub 작업 브랜치 코드 및 정적 계약만 검증, 기준 변경 전 커밋 `92294f1`; 변경 후 실제 HEAD 재조회.
