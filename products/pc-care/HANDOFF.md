@@ -530,3 +530,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본·보안: REPORTS/BitLocker 키/고객 로그·개인 파일/복구·Windows 설정·공개 사이트 무변경. 데이터 외부 전송·자동 수리/삭제·WinRE 실제 복사 없음. Source snapshot Git SHA로 복원 가능.
 9. 다음: Windows 11 전체 소스 QA→PS5.1 fixture→읽기 전용 보고서→한글 USB·Edge file://·오프라인 QR 스마트폰·A4 PDF→격리 WinRE VM·실제 물리 디스크 분리/잠금/용량/중단 안전 검증. 판매/복사 활성화 별도 승인.
 10. 갱신: 2026-10-31 KST, 원격 정적 계약만 검증. 근거 `tests/evidence/timeline_coverage_static_qa_20261031.json`; 최종 feature SHA는 이번 문서 커밋 후 원격 확인하여 사용자에게 보고.
+
+## 2026-10-31 KST — H08 실제 데이터 정규화 검증 인수인계
+1. 목표/기술: 최종 승인 `docs/FINAL_SPEC_V2.md` Release A H08 반복 진단 비교가 잘못된 Windows Update/PnP 샘플을 검증 없이 관측치로 보여주지 않게 수정. 기존 오프라인 JS/HTML + PS5.1 JSON 계약 유지.
+2. 변경/근거: `ui/history_signals.js`에 update kind/eventId 19·20, 기록 UTC·시간기준 및 PnP 코드 1..55·비확정 표시 검사. 원본 `evidence:[{},{}]`, `samples:[{}]` 허위 건수 비교 결함을 V8 실행으로 재현하고 수정. 정상 빈 수집과 기존 비교 유지.
+3. 테스트: 실제 GitHub source + 기존/변경 test source V8(Node test/assert adapter) **25 PASS / 0 FAIL**; 독립 악성·정상 fixture **12 PASS / 0 FAIL**; 소스 정적 12/12. Windows native PS5.1, real Node test runner, Python full, ZIP, 브라우저/USB/QR/A4/WinRE **NOT_RUN**.
+4. 상태: GitHub 소스·회귀 fixture·증빙 반영, 실제 고객 기기 신뢰성은 추가 검증 필요. Release A/B 미출시.
+5. 실패/대안: 기존 느슨한 샘플 건수 수용이 원인. 실제 필드 검증으로 fail-closed. 테스트 실행기(어댑터)는 네이티브 Node 및 Windows 결과라고 부르지 않음. 기존 runner 미배정 CI 반복 금지; Windows 전체 checkout 환경에서 재시험.
+6. 저장소/브랜치/경로: `hibi89/AX_MART@feature/pc-care-usb`; `ui/history_signals.js`, `tests/test_history_signals.cjs`, `tests/test_package.py`, `tests/evidence/h08_normalized_sample_validation_20261031.json`. 롤백 기준 `209a3366ed841519c871be1aba3bdf84cf815d0b`; 최종 SHA는 GitHub HEAD 재조회.
+7. 실행/Production: Windows 개발 전체 소스 `RUN_RELEASE_QA.cmd`, 이후 `RUN_SELF_TEST.cmd` opt-in. 공개 Cloudflare `https://ax-mart.pages.dev/`는 `main`이며 코드 배포하지 않음.
+8. 원본/보안: 고객 REPORTS·시스템 파일·장치·복구·BitLocker·유료 결제·공개 다운로드 변경 없음. JS는 임시 로컬 파일 선택만, 식별자·원문 메시지·외부 전송 없음. Git 브랜치 SHA 복구 가능.
+9. 다음: 전체 소스 Windows에서 Node/Python/ZIP/PS5.1 테스트, 실제 JSON 비교·한글 USB·Edge file://·QR/A4, 이후 별도 WinRE 격리 VM 검증. 판매/복사/고권한 복구 게이트 유지.
+10. 확인: 2026-10-31 KST, 원격 blob readback 및 V8 두 시험 묶음/정적 검증만 확인. 증거 `tests/evidence/h08_normalized_sample_validation_20261031.json`, 최종 문서 커밋은 이후 실제 HEAD로 확인.
