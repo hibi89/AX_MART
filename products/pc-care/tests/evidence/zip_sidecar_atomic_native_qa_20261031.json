@@ -1,0 +1,47 @@
+{
+  "dateKST": "2026-10-31",
+  "repo": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "baselineFeatureSHA": "51ffdc2695e88a7491ff903653b8fab5b303aba5",
+  "issue": "Internal ZIP build used Path(...'.sha256').write_text which follows existing sidecar symlinks and could overwrite an unrelated local file.",
+  "change": "tools/release.py build_internal checks ZIP and checksum symlinks, uses exclusive temporary archive+SHA256 files and os.replace for publication. Cleanup deletes only owned temporary files. Preserves deterministic second build and manifest/sidecar verification.",
+  "touched": [
+    "tools/release.py",
+    "tests/test_release.py",
+    "tests/test_package.py"
+  ],
+  "nativeIsolated": {
+    "pythonRuntime": "3.13.5 Linux",
+    "copiesExactGitHubBuildFunction": true,
+    "githubBuildFunctionBlob": "df378a1a308089e5b7ccbf1d2dd3c1a6b9d24095",
+    "matchedCodepointLength": 2561,
+    "matchedFnv1a32": "21f4b696",
+    "checksPassed": 9,
+    "checksFailed": 0,
+    "testInput": "Single synthetic README content and local-only temp directory",
+    "archiveVerification": "Matching synthetic SHA256 manifest/sidecar checker, NOT original release.py verify_archive or full allowlist",
+    "tests": [
+      "ZIP sidecar digest",
+      "deterministic rebuild",
+      "temporary files not left",
+      "symlink checksum rejected",
+      "target sentinel and original archive unchanged",
+      "foreign ZIP temporary rejected",
+      "foreign ZIP temporary unchanged",
+      "foreign checksum temporary rejected",
+      "foreign checksum temporary unchanged"
+    ]
+  },
+  "GithubRemoteReadback": true,
+  "unavailable": {
+    "nativeFullTestReleasePy": "NOT_RUN",
+    "fullOriginalReleasePyVerifyArchive": "NOT_RUN",
+    "releaseBuildWithAllOriginalProductFiles": "NOT_RUN",
+    "powershell51Windows": "NOT_RUN",
+    "usbQrA4WinRE": "NOT_RUN",
+    "production": "NOT_APPLICABLE",
+    "ciCurrentFeatureHead": "NOT_RUN"
+  },
+  "safety": "Only development feature branch changed. Existing main, Cloudflare and customer data/OS unchanged. No actual repairs or downloads. Local temporary QA source not persisted to GitHub.",
+  "next": "Run Windows developer checkout RUN_RELEASE_QA.cmd once; inspect private QA_RESULTS receipt; separately validate actual read-only diagnostics and WinRE under required approvals."
+}
