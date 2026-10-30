@@ -60,10 +60,12 @@ else { $observations['windows'] = @{ name='확인 불가'; version=''; build='';
 # Logical volume free space; do not collect absolute file paths or filenames.
 $volumes = @(Safe-Collect { @(Get-CimInstance -ClassName Win32_LogicalDisk -Filter 'DriveType=3' -ErrorAction Stop) } '디스크 여유 공간' 'volumes')
 $volData = New-Object 'System.Collections.Generic.List[object]'
+$volumeRejectedCount = 0
 foreach ($v in $volumes) {
     if ($null -eq $v) { continue }
     $sample = ConvertTo-PcCareVolumeSample -Volume $v
     if ($null -eq $sample) {
+        $volumeRejectedCount++
         [void]$limits.Add('드라이브: 문자/용량 정보가 유효하지 않아 해당 볼륨을 평가하지 않았습니다.')
         continue
     }
@@ -76,7 +78,13 @@ foreach ($v in $volumes) {
         Add-Issue 'medium' 'DISK_SPACE_LOW' ("{0} 드라이브 여유 공간 부족" -f $sample.drive) ("남은 공간 {0}GB ({1}%)" -f $gb,$pct) '용량 변화를 확인하고 개인 파일을 백업하세요.'
     }
 }
+if ($volumeRejectedCount -gt 0) {
+    # Failed normalization means the observed subset is not the full volume inventory.
+    if ($collectionStatus['volumes'] -eq 'collected') { $collectionStatus['volumes'] = 'incomplete' }
+    [void]$limits.Add(('드라이브 관측값 {0}건을 제외했습니다. 전체 볼륨 수집이 완전하다고 판단하지 않습니다.' -f $volumeRejectedCount))
+}
 $observations['volumes'] = @($volData.ToArray())
+$observations['volumeRejectedCount'] = $volumeRejectedCount
 
 # Storage provider may not expose NVMe SMART. Unknown is not Healthy.
 # The shared telemetry helpers were loaded once before volume normalization.
