@@ -150,6 +150,54 @@ class ReleaseTests(unittest.TestCase):
         self.assertNotIn('tools/preflight.py', release.ALLOWLIST)
         self.assertNotIn('tests/test_preflight.py', release.ALLOWLIST)
 
+    def test_checksum_symlink_rejected_without_touching_target_or_existing_zip(self):
+        archive, _ = release.build_internal(self.root, self.root / 'dist-internal')
+        original_zip = archive.read_bytes()
+        checksum = Path(str(archive) + '.sha256')
+        checksum.unlink()
+        sentinel = self.root / 'do-not-modify.txt'
+        sentinel.write_text('KEEP ORIGINAL', encoding='ascii')
+        try:
+            checksum.symlink_to(sentinel)
+        except (OSError, NotImplementedError):
+            self.skipTest('File symlinks unavailable on this host')
+        with self.assertRaisesRegex(ValueError, 'symlink checksum'):
+            release.build_internal(self.root, self.root / 'dist-internal')
+        self.assertEqual(sentinel.read_text(encoding='ascii'), 'KEEP ORIGINAL')
+        self.assertEqual(archive.read_bytes(), original_zip)
+        self.assertTrue(checksum.is_symlink())
+
+    def test_foreign_temporary_files_are_never_rewritten_or_deleted(self):
+        output = self.root / 'dist-internal'
+        output.mkdir(exist_ok=True)
+        archive = output / f'{release.FOLDER}_INTERNAL_TEST_ONLY.zip'
+        pending = Path(str(archive) + '.tmp')
+        pending.write_bytes(b'OTHER-PROCESS-ZIP')
+        with self.assertRaisesRegex(ValueError, 'incomplete internal build'):
+            release.build_internal(self.root, output)
+        self.assertEqual(pending.read_bytes(), b'OTHER-PROCESS-ZIP')
+        pending.unlink()
+        checksum_pending = Path(str(archive) + '.sha256.tmp')
+        checksum_pending.write_bytes(b'OTHER-PROCESS-CHECKSUM')
+        with self.assertRaisesRegex(ValueError, 'incomplete internal build'):
+            release.build_internal(self.root, output)
+        self.assertEqual(checksum_pending.read_bytes(), b'OTHER-PROCESS-CHECKSUM')
+        self.assertFalse(archive.exists())
+
+    def test_checksum_rebuild_uses_exclusive_temp_and_preserves_verified_output(self):
+        archive, first_sha = release.build_internal(self.root, self.root / 'dist-internal')
+        first_bytes = archive.read_bytes()
+        checksum_file = Path(str(archive) + '.sha256')
+        self.assertEqual(checksum_file.read_text(encoding='ascii'),
+                         f'{first_sha}  {archive.name}\\n')
+        archive2, second_sha = release.build_internal(self.root, self.root / 'dist-internal')
+        self.assertEqual(archive, archive2)
+        self.assertEqual(first_sha, second_sha)
+        self.assertEqual(archive2.read_bytes(), first_bytes)
+        self.assertFalse(Path(str(checksum_file) + '.tmp').exists())
+        self.assertFalse(Path(str(archive) + '.tmp').exists())
+        self.assertEqual(release.verify_archive(archive, require_sidecar=True), second_sha)
+
     def test_no_default_public_release(self):
         with self.assertRaises(SystemExit) as raised:
             release.main([])
