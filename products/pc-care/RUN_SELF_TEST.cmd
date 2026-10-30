@@ -9,9 +9,10 @@ echo 2. Runs a one-day read-only diagnostic and creates local reports.
 echo 3. NEVER launches the DISM/SFC repair script.
 echo 4. Do not share generated reports before reviewing private data.
 echo.
-where powershell.exe >nul 2>&1
+set "AXMART_PS51=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
+if not exist "%AXMART_PS51%"
 if errorlevel 1 (
-  echo ERROR: Windows PowerShell was not found.
+  echo ERROR: Windows PowerShell 5.1 not found at the trusted OS path. No code was executed.
   pause
   exit /b 2
 )
@@ -20,7 +21,7 @@ if not exist "%~dp0tests\windows_smoke.ps1" (
   pause
   exit /b 3
 )
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0tests\windows_smoke.ps1" -RunReadOnly
+"%AXMART_PS51%" -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0tests\windows_smoke.ps1" -RunReadOnly
 set "RC=%ERRORLEVEL%"
 echo.
 if "%RC%"=="0" (
