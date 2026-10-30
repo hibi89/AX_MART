@@ -52,5 +52,10 @@
   "usbWinre": "UNVERIFIED",
   "CI": "NOT_RUN",
   "production": "UNCHANGED",
-  "release": "HOLD"
+  "release": "HOLD",
+  "qaVariableOrderFixed": true,
+  "qaVariableOrderSourceVerified": true,
+  "qaReadbackAssertionCount": 1,
+  "nativePython": "NOT_RUN",
+  "previousStaticEvidenceNote": "Source checks were not full Python unittest; premature variable use was corrected after commit readback"
 }

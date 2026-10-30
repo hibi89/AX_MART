@@ -713,3 +713,7 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - USB `REPORTS`를 기본 후보로 유지. 보안 검증된 `LocalApplicationData\AXMART-PC-CARE-Reports`를 두 번째로 추가하고, 동기화되지 않는 구형 Documents는 세 번째로 유지. 기존 보고서 이동/삭제/덮어쓰기 없음. `tests/windows_smoke.ps1` 영수증 허용 경로도 갱신하고 잘못된 경로 거부. `tests/report_io.tests.ps1`에 합성 OneDrive/UNC, 정상 로컬 fallback, 클라우드 단독 후보 거부 회귀 추가. `tests/test_package.py` 소스 계약·README 안내 갱신.
 - 정적 원본 검사 **10/10 PASS**, Windows PowerShell 5.1·실Windows/OneDrive/USB/QR/A4·Python/Node 네이티브 전체·ZIP·CI **NOT_RUN/UNVERIFIED**. 별도 사용자 클라우드·OS·기존 보고서 접근/수정 없음. **기타 동기화 클라이언트와 특이 사용자 설정은 완전 검출 보장하지 않으며 Windows 실기기 검증 전 공개 금지**.
 - 기준 커밋 `69b8b8e84fc3ec4fa3863c945dceeb9790dc637b`, `main`/Cloudflare 운영 불변. 다음 실제 Windows `RUN_RELEASE_QA.cmd` → 폴더 동기화 경계·로컬 보고서 JSON/HTML/H08/상담/QR/USB 안전 확인, WinRE는 별도 승인 게이트.
+
+### 2026-10-31 KST — CUBE 로컬 보고서 정책 QA 코드 순서 수정
+- 직전 `6ae76d72c79691bfa70a899f1ae47c19e5ee76f7`의 `test_package.py`에서 `report_fixture`를 할당하기 전에 새 `assertIn`이 사용하는 순서 문제를 발견. 테스트 호출 시 `UnboundLocalError` 발생 가능. 해당 fixture 파일 읽기 할당을 최초 사용 앞에 이동하고 중복 할당 제거. 실행 중인 OS/사용자 원본 데이터·저장 경로 소스 변경 없음.
+- 실제 소스에서 `assignment index < first assertion index`, 할당 1회 확인; 정적 3/3 PASS. 기존 검증 표기 정정: **직전 10/10은 원본 코드 계약의 표면 검사이며 전체 Python unittest 통과 증거가 아님.** 네이티브 Python/WinPS5.1/CI·실 OneDrive·USB **미실행**, RELEASE HOLD. `feature/pc-care-usb`만 변경, `main`/Production 유지.
