@@ -81,8 +81,9 @@ function ConvertTo-PcCareUpdateEvidence {
             if ($seen.ContainsKey($key)) { continue }
             $seen[$key] = $true
         }
+        $kind = if ($id -eq 20) { 'update_installation_failure_record' } else { 'update_installation_success_record' }
         [pscustomobject]@{
-            kind = if ($id -eq 20) { 'update_installation_failure_record' } else { 'update_installation_success_record' }
+            kind = $kind
             eventId = $id
             recordedAt = $when.ToString('yyyy-MM-ddTHH:mm:ss.fffK', [Globalization.CultureInfo]::InvariantCulture)
             recordedUtc = $when.ToUniversalTime().ToString('o', [Globalization.CultureInfo]::InvariantCulture)
