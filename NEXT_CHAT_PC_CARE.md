@@ -117,3 +117,11 @@
 - **Evidence:** Linux Chromium Playwright with fake QR constructor and exact current GitHub JS blob b0b06f527bed53f147e05e6512ee289608048de1: 13/13 real browser DOM/validation/network-mock checks passed. No actual QR library bitmap or phone scan verified. GitHub cross-file static 21/21. Windows/PS5.1/USB/ZIP/WinRE QA pending, GitHub Actions runner unassigned and manual-only.
 - Next ㄱ: run real QR encoder scanner fixture in available developer environment or fix its failures, then Windows read-only self-test and A4 PDF/phone scans. Continue real code changes, preserve main, update docs, never claim Windows/QR decoder complete without evidence.
 
+## 2026-10-30 KST — QR Gregorian dates and BOM compatibility checkpoint
+
+- Branch `hibi89/AX_MART feature/pc-care-usb` only; production/main unchanged; no public ZIP or paid listing.
+- `products/pc-care/ui/qr_ui.js` now checks real UTC calendar dates (Date.UTC round-trip), not regex alone. Exact GitHub blob `13faebe44753b73f2a1cf9c99308aab220745276` used in local Chromium mocked QR UI tests **20/20 PASS**; Node --check PASS. QR schema seven fields and stale-image invalidation preserved.
+- `tests/test_qr_ui.cjs` now 21 Node fixture cases; `tests/qr_browser_smoke.py` optional real bundled vendor scanner has date boundary cases and explicit leading UTF-8 BOM reporting, only strips one leading U+FEFF when comparing canonical contents. Both new full fixture suites not executed via Windows GitHub Actions (runner unassigned).
+- Independent Python QR encoder + OpenCV (not vendored qrcodejs) confirmed a leading BOM returns U+FEFF when decoded; vendor source contains BOM insertion. Actual vendored bitmap/phone decode unverified. Do not say QR complete until vendor + phone scan passes.
+- Next ㄱ priority actual vendor QR scanner proof, then Windows RUN_SELF_TEST.cmd and offline HTML/JSON, A4 PDF print, WinRE backup gates. Preserve report data and no autonomous repair.
+
