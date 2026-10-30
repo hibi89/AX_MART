@@ -201,6 +201,37 @@ if ($updateFailures.Count -gt 0) {
     Add-Issue 'medium' 'WINDOWS_UPDATE_FAILURE_RECORD' 'Windows 업데이트 설치 실패 기록' ("최근 {0}일간 설치 실패 관련 이벤트 {1}건(확인된 수집분)" -f $Days,$updateFailures.Count) 'Windows 업데이트 기록을 확인하세요. 이 이벤트만으로 블루스크린이나 고장 원인을 확정할 수 없습니다.'
 }
 
+# Driver status: query only non-zero Configuration Manager codes, never device IDs.
+. (Join-Path $PSScriptRoot 'pnp_analysis.ps1')
+$pnpRaw = @()
+$pnpQueryStatus = 'unavailable'
+try {
+    $pnpRaw = @(Get-CimInstance -ClassName Win32_PnPEntity -Property ConfigManagerErrorCode,PNPClass -Filter 'ConfigManagerErrorCode > 0' -ErrorAction Stop | Select-Object -First 101)
+    $pnpQueryStatus = if ($pnpRaw.Count -ge 101) { 'truncated' }
+                      elseif ($pnpRaw.Count -eq 0) { 'no matching devices' }
+                      else { 'collected' }
+} catch {
+    [void]$limits.Add('장치 구성 코드: PnP 관리 인터페이스 조회 불가. 드라이버 상태를 정상으로 판정하지 않습니다.')
+}
+$pnpSummary = ConvertTo-PcCarePnPSummary -Devices $pnpRaw -QueryStatus $pnpQueryStatus -MaxSamples 30
+$observations['driverDevices'] = $pnpSummary
+$collectionStatus['driverDevices'] = $pnpSummary.status
+if ($pnpSummary.status -eq 'truncated') {
+    [void]$limits.Add('장치 구성 코드 관측이 표시 상한(30개)에 도달했습니다. 기기 전체 오류 목록을 대표하지 않습니다.')
+}
+$activePnPErrors = @($pnpSummary.samples | Where-Object { $_.configurationCode -ne 22 })
+if ($activePnPErrors.Count -gt 0) {
+    Add-Issue 'medium' 'PNP_CONFIGURATION' '장치 구성 상태 확인 필요' ("Windows 장치 구성 오류 코드가 표본에서 {0}건 관측됐습니다 (코드 22 비활성화는 제외)." -f $activePnPErrors.Count) '장치 관리자에서 코드를 확인하세요. 무인 드라이버 설치·제거·DDU 실행은 하지 않습니다.'
+}
+
+# Event time proximity is not event causation or confirmed crash occurrence time.
+. (Join-Path $PSScriptRoot 'recorded_timeline.ps1')
+$recordedTimeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updateEvidence -MaxEntries 80 -WindowMinutes 15
+$observations['recordedTimeline'] = $recordedTimeline
+if ($recordedTimeline.status -eq 'truncated') {
+    [void]$limits.Add('시간축 시각화는 최신 기록 80건만 표시합니다. 오래된 기록은 누락될 수 있습니다.')
+}
+
 # Optional indication; third-party AV users must not be labeled unprotected.
 $defender = Safe-Collect { Get-MpComputerStatus -ErrorAction Stop } 'Microsoft Defender' 'defender'
 if ($null -ne $defender) {
@@ -213,7 +244,7 @@ if ($null -ne $defender) {
 $observations['collectionStatus'] = $collectionStatus
 # Local evidence rules do not make a hardware diagnosis or confirm causality.
 . (Join-Path $PSScriptRoot 'incident_analysis.ps1')
-$incidentAssessment = Get-PcCareIncidentAssessment -EventEvidence $evidence -DiskObservations @($diskData.ToArray()) -EventCollectionStatus $eventResult.status -UpdateEvidence $updateEvidence -UpdateCollectionStatus $updateResult.status
+$incidentAssessment = Get-PcCareIncidentAssessment -EventEvidence $evidence -DiskObservations @($diskData.ToArray()) -EventCollectionStatus $eventResult.status -UpdateEvidence $updateEvidence -UpdateCollectionStatus $updateResult.status -PnPSummary $pnpSummary
 
 $assessment = if (@($issues | Where-Object {$_.severity -eq 'high'}).Count -gt 0) { '위험 신호' }
               elseif (@($issues | Where-Object {$_.severity -eq 'medium'}).Count -gt 0) { '주의 필요' }
@@ -295,6 +326,26 @@ foreach ($updateItem in @($updateEvidence | Select-Object -First 30)) {
 if ($updateRows.Count -eq 0) {
     [void]$updateRows.Add(('<tr><td colspan="2">{0}</td></tr>' -f (Esc $updateLabel)))
 }
+$pnpRows = New-Object 'System.Collections.Generic.List[string]'
+foreach ($deviceState in @($pnpSummary.samples | Select-Object -First 30)) {
+    $deviceLabel = if ($deviceState.interpretation -eq 'device_disabled') { '비활성화(의도적 가능)' }
+                   elseif ($deviceState.interpretation -eq 'driver_not_installed_record') { '드라이버 미설치 기록' }
+                   elseif ($deviceState.interpretation -eq 'device_cannot_start_record') { '장치 시작 불가 기록' }
+                   else { '장치 구성 점검 필요' }
+    [void]$pnpRows.Add(('<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>' -f (Esc $deviceState.category),(Esc $deviceState.configurationCode),(Esc $deviceLabel)))
+}
+if ($pnpRows.Count -eq 0) {
+    $pnpEmptyLabel = if ($pnpSummary.status -eq 'unavailable') { '장치 코드 조회 불가(정상 판정 아님)' } else { '수집 범위에 일치 기록 없음(정상 보증 아님)' }
+    [void]$pnpRows.Add(('<tr><td colspan="3">{0}</td></tr>' -f (Esc $pnpEmptyLabel)))
+}
+$timelineRows = New-Object 'System.Collections.Generic.List[string]'
+foreach ($window in @($recordedTimeline.windows | Select-Object -Last 30)) {
+    $codes = @($window.kinds) -join ', '
+    [void]$timelineRows.Add(('<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>' -f (Esc $window.firstRecordedUtc),(Esc $window.evidenceCount),(Esc $codes)))
+}
+if ($timelineRows.Count -eq 0) {
+    [void]$timelineRows.Add('<tr><td colspan="3">표시할 이벤트 기록 시각이 없습니다. 조회 실패와 구별해 확인하세요.</td></tr>')
+}
 $limRows = New-Object 'System.Collections.Generic.List[string]'
 foreach ($l in $report.limitations) { [void]$limRows.Add('<li>'+(Esc $l)+'</li>') }
 if ($limRows.Count -eq 0) { [void]$limRows.Add('<li>보고된 접근 제한이 없습니다. 다만 검사 범위 밖의 문제는 있을 수 있습니다.</li>') }
@@ -325,6 +376,8 @@ footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-heig
 <section><h2>물리 저장장치 상태</h2><p class="small">Windows에서 제공한 상태 신호이며 실제 SSD/HDD 수명 또는 정상 작동을 보증하지 않습니다. 마모율/온도는 드라이버 지원 기기에서만 표시됩니다.</p><div class="scroll-table"><table><thead><tr><th>장치</th><th>상태 신호</th><th>마모율</th><th>온도</th></tr></thead><tbody>$($diskRows -join "`n")</tbody></table></div></section>
 <section><h2>배터리 정보</h2><p class="small">$(Esc $batteryNote). 현재 충전량은 배터리 수명이나 건강도가 아닙니다. 용량 데이터는 기기/Windows 지원 여부에 따라 누락될 수 있습니다.</p><div class="scroll-table"><table><thead><tr><th>현재 충전량</th><th>설계 용량</th><th>완충 용량</th></tr></thead><tbody>$($batteryRows -join [Environment]::NewLine)</tbody></table></div></section>
 <section><h2>Windows 업데이트 설치 기록</h2><p class="small">System WindowsUpdateClient 이벤트 19/20에 한정합니다. 기록 시각은 설치 작업의 기록 시각이며 블루스크린 발생 시각·원인이 아닙니다. $(Esc $updateLabel).</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>관측 상태</th></tr></thead><tbody>$($updateRows -join [Environment]::NewLine)</tbody></table></div></section>
+<section><h2>장치 구성 코드</h2><p class="small">Windows PnP Configuration Manager 코드 중 0이 아닌 값만 조회합니다. 코드 22 비활성화는 의도적일 수 있습니다. 장치 고장·드라이버 문제 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>범주</th><th>코드</th><th>관측 해석</th></tr></thead><tbody>$($pnpRows -join [Environment]::NewLine)</tbody></table></div></section>
+<section><h2>사건 기록 시간축</h2><p class="small">최신 이벤트 80건의 기록 시각 기준 15분 내 관측을 묶었습니다. 실제 충돌 시각·사건 횟수·업데이트 인과관계를 보증하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>시작 기록 UTC</th><th>기록 수</th><th>사건 분류</th></tr></thead><tbody>$($timelineRows -join [Environment]::NewLine)</tbody></table></div></section>
 <section><h2>최근 블루스크린 상세</h2><p class="small">Windows System 로그 중 BugCheck 관련 기록 최대 15건입니다. 표의 시각은 이벤트가 기록된 시간이며 실제 충돌 시각이 아닐 수 있습니다. STOP 코드는 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>STOP 코드(추출값)</th></tr></thead><tbody>$($crashRows -join "`n")</tbody></table></div></section>
 <section><h2>검사 한계</h2><ul>$($limRows -join "`n")</ul><p class="small">Windows $(Esc $report.observations.windows.name) · 검사 기간: $Days 일 · 생성 $(Esc $report.generatedAt)</p></section>
 <footer>AXMART PC CARE v0.1 테스트용 제품. 하드웨어 자체 검사, 메모리 덤프 분석, 악성코드 전수 검사, 수리 성공 보증은 제공하지 않습니다. BitLocker 복구키는 절대 입력하거나 이 도구에 저장하지 마세요.<br>결과는 이 기기에만 저장하며 인터넷으로 전송하지 않습니다. 판매 준비 전 실제 Windows 환경 검증이 필요합니다.</footer></main></body></html>
