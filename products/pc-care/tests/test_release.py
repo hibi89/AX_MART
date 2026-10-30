@@ -71,8 +71,11 @@ class ReleaseTests(unittest.TestCase):
             'tools/event_analysis.ps1',
             'tools/incident_analysis.ps1',
             'tools/telemetry_analysis.ps1',
+            'tools/pnp_analysis.ps1',
+            'tools/recorded_timeline.ps1',
             'tests/incident_analysis.tests.ps1',
             'tests/telemetry_analysis.tests.ps1',
+            'tests/driver_timeline.tests.ps1',
             'tools/report_io.ps1',
             'tests/report_io.tests.ps1',
         }
