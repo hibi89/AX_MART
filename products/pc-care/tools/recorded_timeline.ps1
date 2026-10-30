@@ -27,10 +27,14 @@ function Get-PcCareRecordedTimeline {
         }
     }
     $rows = New-Object 'System.Collections.Generic.List[object]'
+    $rejectedCount = 0
     foreach ($entry in $streams) {
         $item = $entry.item
-        if ($null -eq $item) { continue }
+        if ($null -eq $item) { $rejectedCount++; continue }
         try {
+            # The source normalizers always mark when the log was recorded.
+            # Unmarked / manually fabricated dates are not timeline evidence.
+            if ([string]$item.timeBasis -cne 'event_recorded_time') { throw 'Unverified time basis' }
             $kind = [string]$item.kind
             $id = [int]$item.eventId
             $systemMatch = ($entry.scope -eq 'system') -and (
@@ -42,13 +46,13 @@ function Get-PcCareRecordedTimeline {
                 ($kind -eq 'update_installation_failure_record' -and $id -eq 20) -or
                 ($kind -eq 'update_installation_success_record' -and $id -eq 19)
             )
-            if (-not ($systemMatch -or $updateMatch)) { continue }
+            if (-not ($systemMatch -or $updateMatch)) { throw 'Unknown event identity' }
             # Local timestamps are ambiguous; require the normalizer's UTC/offset.
             $rawTime = [string]$item.recordedUtc
-            if ($rawTime -cnotmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})$') { continue }
+            if ($rawTime -cnotmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})$') { throw 'Invalid recorded timestamp' }
             $when = [datetimeoffset]::Parse($rawTime, [Globalization.CultureInfo]::InvariantCulture).ToUniversalTime()
-            if ($when -eq [datetimeoffset]::MinValue) { continue }
-        } catch { continue }
+            if ($when -eq [datetimeoffset]::MinValue) { throw 'Invalid recorded timestamp' }
+        } catch { $rejectedCount++; continue }
         [void]$rows.Add([pscustomobject]@{
             kind = $kind
             recordedUtc = $when.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
@@ -103,7 +107,7 @@ function Get-PcCareRecordedTimeline {
     $sourceTruncated = ($SystemCollectionStatus -eq 'truncated' -or $UpdateCollectionStatus -eq 'truncated')
     $resultStatus = if ($totalAccepted -gt $MaxEntries -or $sourceTruncated) { 'truncated' }
                     elseif ($sourceUnavailable -and $totalAccepted -eq 0) { 'unavailable' }
-                    elseif ($sourceUnavailable) { 'incomplete' }
+                    elseif ($sourceUnavailable -or $rejectedCount -gt 0) { 'incomplete' }
                     elseif ($totalAccepted -eq 0) { 'no matching events' }
                     else { 'collected' }
     [pscustomobject]@{
@@ -115,10 +119,11 @@ function Get-PcCareRecordedTimeline {
             system = $SystemCollectionStatus
             update = $UpdateCollectionStatus
         }
-        coverageComplete = (-not $sourceUnavailable -and -not $sourceTruncated -and $totalAccepted -le $MaxEntries)
+        coverageComplete = (-not $sourceUnavailable -and -not $sourceTruncated -and $totalAccepted -le $MaxEntries -and $rejectedCount -eq 0)
+        rejectedCount = $rejectedCount
         acceptedCount = $totalAccepted
         returnedCount = $mostRecent.Count
         windows = @($output.ToArray())
-        note = '근접 신호는 같은 기록 시각 묶음에 포함된 종류만 표시합니다. 실제 장애 시각·원인·사건 횟수의 증거가 아니며 수집 실패·상한은 불완전으로 표시합니다.'
+        note = '근접 신호는 같은 기록 시각 묶음에 포함된 종류만 표시합니다. 실제 장애 시각·원인·사건 횟수의 증거가 아닙니다. 수집 실패·상한·정규화 불일치 입력은 불완전으로 표시합니다.'
     }
 }
