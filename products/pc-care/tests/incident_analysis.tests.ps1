@@ -28,4 +28,14 @@ $unknown = Get-PcCareIncidentAssessment -EventEvidence @() -DiskObservations @([
 Assert-PcCareIncident ($unknown.status -eq 'incomplete') 'Unknown physical disk state cannot produce complete result'
 $serialized = $combo | ConvertTo-Json -Depth 8
 Assert-PcCareIncident ($serialized -notmatch '<not-an-id>') 'Do not copy source device names into interpretations'
+$failedUpdate = @([pscustomobject]@{ kind='update_installation_failure_record'; recordedAt='2026-10-30T01:00:00Z' })
+$updateOnly = Get-PcCareIncidentAssessment -EventEvidence @() -DiskObservations $healthy -EventCollectionStatus 'collected' -UpdateEvidence $failedUpdate -UpdateCollectionStatus 'collected'
+Assert-PcCareIncident ($updateOnly.findings.Count -eq 1 -and $updateOnly.findings[0].code -eq 'UPDATE_FAILURE_REVIEW') 'Update failure is an independent record'
+Assert-PcCareIncident ($updateOnly.observedCounts.updateFailureRecords -eq 1) 'Update failure count'
+Assert-PcCareIncident (-not $updateOnly.findings[0].causeConfirmed) 'Update failure must not be assigned as root cause'
+$updateWithCrash = Get-PcCareIncidentAssessment -EventEvidence $crash -DiskObservations $healthy -EventCollectionStatus 'collected' -UpdateEvidence $failedUpdate -UpdateCollectionStatus 'truncated'
+Assert-PcCareIncident ($updateWithCrash.status -eq 'incomplete') 'Truncated update window is incomplete'
+Assert-PcCareIncident (@($updateWithCrash.caveats | Where-Object { $_ -match '연관성은 입증되지' }).Count -eq 1) 'Coincident update and crash do not prove causality'
+$updateDenied = Get-PcCareIncidentAssessment -EventEvidence @() -DiskObservations $healthy -EventCollectionStatus 'collected' -UpdateCollectionStatus 'unavailable'
+Assert-PcCareIncident ($updateDenied.status -eq 'incomplete') 'Missing Windows Update logs cannot be called complete'
 Write-Host 'INCIDENT FIXTURE PASS: missing evidence, 41-only, BugCheck, storage priority, uncertainty.' -ForegroundColor Green
