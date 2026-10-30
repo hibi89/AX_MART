@@ -30,7 +30,7 @@ if "%QA_PY%"=="python" (
   if errorlevel 1 goto NO_PYTHON
 )
 REM No -RunReadOnly flag is ever supplied; preflight itself only invokes synthetic PS.
-%QA_PY% "tools\preflight.py" --root "."
+%QA_PY% "tools\preflight.py" --root "." --receipt-dir "%PC_CARE_DEV_ROOT%QA_RESULTS"
 set "QA_EXIT=%ERRORLEVEL%"
 echo.
 if "%QA_EXIT%"=="0" (
