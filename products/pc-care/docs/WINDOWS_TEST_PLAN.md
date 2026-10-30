@@ -108,3 +108,20 @@ Scope: Win32_PnPEntity.ConfigManagerErrorCode, optional whitelisted PNPClass cat
 
 Windows entrypoint: PowerShell 5.1 `tests/windows_smoke.ps1` for parser+synthetic fixtures. `RUN_SELF_TEST.cmd` additionally executes read-only diagnostics and creates local JSON/HTML. Never run repair functions as part of read-only verification. No current Windows runtime result exists.
 
+## P2 A4 consultation print / PDF acceptance (2026-10-30; not executed)
+
+Implementation: `tools/consultation_report.ps1` builds a bounded, privacy-minimized consultation object from existing observations, and `tools/consultation_render.ps1` HTML-encodes a dedicated `#consultation-print` section. `tools/diagnose.ps1` adds print-only CSS (`@page` A4 and `@media print`). The browser's Ctrl+P → Save as PDF is the only PDF route. No cloud calls, fonts, printing scripts, or third-party QR engine.
+
+Required Windows 11 / edge cases (all pending):
+1. Windows PowerShell 5.1 parses both modules and `tests/consultation_report.tests.ps1` executes successfully without elevated privilege.
+2. Windows Edge/Chrome Ctrl+P print preview selects ONLY the consultation summary, not raw disk inventory, full report, detailed issues, or root HTML footer.
+3. Korean A4 portrait 100% scale with default Windows fonts: one page, no clipping or overlap; repeat with longer text, browser margins, and PDF output. CSS alone does NOT prove one-page fit.
+4. Saved PDF preserves Korean glyphs, Event IDs, UTC recording-time warning, issue categories, 3 repair consultation questions, and non-certification disclaimer.
+5. Files containing untrusted HTML characters from synthetic event/issue data do not inject markup or scripts into the consultation section; raw user/device paths and event messages are absent.
+6. Missing System/Update logs, zero evidence and Unknown disk health are explicitly incomplete rather than normal/healthy.
+7. The consultation model retains at most 4 incident codes and 4 recorded event rows; event dates are only recorded timestamps, never confirmed crash times.
+8. Printing, opening or saving the report does not contact any remote service. Any sharing of the complete diagnostic JSON/HTML is a separate explicit user action.
+9. Offline USB FAT32 and NTFS paths with spaces/non-ASCII characters, read-only USB → My Documents fallback and printer unavailable should not destroy previous saved reports.
+
+P2 NOT completed: QR encoding and scanning, opt-in QR preview, polished home UI, actual Windows A4/PDF screenshot evidence. Do not approve public release, free download or paid service until Windows/WinRE/repair acceptance gates are satisfied.
+
