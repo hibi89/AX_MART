@@ -145,3 +145,23 @@ Scope: `tools/share_payload.ps1` (pure whitelist/UTF-8 payload builder) and `too
 
 **Still blocking full QR acceptance:** choose license-compatible local encoder; package it for offline use; user explicitly requests image generation; independently verify actual QR pixels decode UTF-8 without corruption; scan on Android/iOS with Korean and long content; verify quiet zone, error correction, printer and phone camera; assert no unintended telemetry or automatic upload. Until then, share text only. No public ZIP/Kmong offer.
 
+## 2026-10-30 P2 offline QR bitmap implementation acceptance (pending)
+
+Implementation now includes the vendored MIT library `ui/qrcode.min.js`, license `ui/QR_CODE_LICENSE.txt`, opt-in click handler `ui/qr_ui.js`, and `diagnose.ps1` embedding both JavaScript files and the complete MIT license into the saved local HTML. The `share_payload.ps1` 250-byte privacy filter remains mandatory. Code is implemented; **NOT yet a tested/scannable QR feature**.
+
+| Required acceptance test | Current evidence |
+|---|---|
+| Windows 11 x64 PowerShell 5.1 syntax, fixture + real read-only diagnostics | Not run |
+| Open saved HTML from local disk, USB drive, and Documents fallback without network | Not run |
+| Before user clicks, QR image/canvas element remains empty | Synthetic fixture written; browser not run |
+| Click in expanded preview generates QR using only allowlisted 250-byte text | Static source assertions only |
+| Chrome/Edge render an image with proper quiet zone, correct byte count and no clipping | Browser/visual tests not run |
+| Android and iOS QR scanner recover exact Korean UTF-8 bytes (including spaces, date, Unicode) | Not run |
+| QR scan with a 250-byte boundary payload and several status/signal permutations | Not run |
+| Unsupported browser or absent local library switches to text-only mode, diagnostics still persist | Synthetic fixture written; Windows not run |
+| Browser print/PDF hides QR/share section, includes only consultation A4 | CSS source inspected; visual test not run |
+| QR library includes MIT license in internal ZIP and saved HTML, network transactions remain zero | Static source assertions only |
+| Verify copies of generated QR are explicitly treated as user-shareable information | Text warning present; human review pending |
+
+No remote QR encoder, CDN, public upload, user identifier, automatic bitmap on page load, clipboard write or automatic network call was added. The local inline JS is read from the product folder when producing the report. No claim that QR scans successfully until real Windows browser/phone scans demonstrate it.
+
