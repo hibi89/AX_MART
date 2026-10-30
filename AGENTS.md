@@ -1,3 +1,5 @@
+> **[AXMART_CUBE_POLICY_20261031 | AXMART³ CUBE 총괄 직접 수신 | 2026-10-31 사용자 최상위 개발 가속 지시]** 원본 [해총 실행 정본](https://github.com/hibi89/hackathon-command-center-2026/blob/main/docs/strategy/20261031_OWNER_BACKEND_FIRST_48H_EXECUTION_PROTOCOL.md)을 새 채팅/다음 `ㄱ`에서 먼저 적용한다. **최종 제품부터 고정:** `products/pc-care/docs/FINAL_SPEC_V2.md`의 최종 기능·수용 기준, PowerShell 5.1/CMD/HTML/JSON 스택, 실제 구성요소·기존 모듈·레포/브랜치/SHA·입출력/저장·실행·복구 계약을 작은 기준선으로 점검(이미 확정된 내용은 다시 설계하지 않음). **제품 코어 우선:** AXMART PC CARE는 서버가 없는 포터블 로컬 프로그램이므로 '백엔드'는 실제 Windows 진단·증거 분석·원인 연계·로컬 보고·안전한 승인형 복구 로직을 뜻한다. 홈페이지·디자인·문서·마케팅보다 작동 경로와 남은 핵심 코드/실행 검증에 집중한다. 독립 기능 3~5개 묶음→빠른 필수 로컬 스모크→커밋/푸시→CI run/SHA 기록→CI 대기 중 안전한 다음 코드 진행; 병목 시 정지/전환. 필수 Windows·WinRE·복구·개인정보·원본/백업/라이선스 검증은 **절대 생략하지 않고** 미실행은 `UNVERIFIED`로 표기. 48시간은 재사용 가능한 핵심 코어 집중 목표이지 판매/출시 승인·완료 보장이 아님. `main`/Cloudflare Production, 사용자 확정 디자인, 기존 제품 소스는 이 공시로 변경하지 않는다. 아래 구형 지침과 충돌하면 사용자 최신 작업 우선순위·안전 지시를 우선한다. **이 커밋은 작업 공시만, 기능/CI/실Windows 실행 수행 아님.**
+
 # AXMART 작업 원칙
 
 - 기존 시안과 정상 데이터를 보호하며 UI 변경은 사용자가 승인한 범위에서 수행.
