@@ -246,3 +246,17 @@
 9. **다음 작업 우선순위·절차·완료 기준/승인:** QR 실제 브라우저 렌더 및 스캐너 시각 검증, BOM 사용자 체험 확인 → Windows PS5.1 전체 read-only fixture와 HTML/JSON 저장, USB·한글 경로·출력 실패 테스트 → A4 한 장 PDF → WinRE/백업 승인과 무변경 회귀 → 종합 QA 후 제품 무료 배포/크몽 서비스 등록은 사용자 승인. Windows Actions run 41034866482 실패(러너 0·steps[]), 수동-only 유지.
 10. **갱신 일시·검증 범위·문서 기준:** 2026-10-30 KST. GitHub connector 소스 직접 실행(V8 QR 인코더), Python OpenCV 실모듈 디코딩 **PASS**, 신규 Node/Windows 자체 테스트 runner 실행 **미수행**. STATUS.md/README.md/docs/WINDOWS_TEST_PLAN.md와 동기화; 본 문서 커밋 후 GitHub feature HEAD 재검사.
 
+
+## [최신] 2026-10-30 KST — P2 실제 QR 252 조합·오프라인 파일 브라우저 검증 인수인계
+
+1. **목표·확정 요구·기술:** AXMART PC CARE Release A 고장 근거 요약을 한글 7줄·250 UTF-8 byte 이내 QR로 명시 생성. Windows PowerShell 5.1, MIT qrcodejs, 로컬 HTML/JS, 별도 개발 전용 Node/Playwright/OpenCV QA. 단일 원칙: 실제 UI·기기 작동을 검증하기 전 출시 금지.
+2. **기능·변경·설계 근거:** 제품 JS/QR 라이브러리는 기존 설계 그대로 유지하며 실제 QR 인코딩 허용 조합 검증 확장. `tests/test_qr_vendor.cjs`에 상태×신호×생략 252회 반복 검증. `tests/qr_browser_smoke.py`를 한글 파일명 `file://` HTML / 외부 HTTP(S) 차단 / 전체 JavaScript 오류 검출 / PNG→OpenCV 정확 디코딩 테스트로 보강. 원본/고객 데이터 전송·복구 기능 변경 없음.
+3. **테스트·명령·성공 실패:** GitHub의 실제 수정된 vendor source V8로 252개 유효 한글 문구에서 **252/252 PASS**, source payload max 228 bytes, QR matrix 53~61, BOM 선행 3바이트 명시. GitHub 정적 17/17. `node --test tests/test_qr_ui.cjs tests/test_qr_vendor.cjs`, `python tests/qr_browser_smoke.py --chromium <실행파일>` 두 정규 개발 테스트는 아직 실제 체크아웃 환경에서 미실행. Windows PowerShell 5.1/real HTML/PDF/Android/iOS/WinRE 미실행.
+4. **완료·진행·대기·차단:** QR 인코더 자체의 다변량 V8 검사 정상; 정상 USB 고객 설치/실제 QR 픽셀 브라우저 스캔·A4 한장·WinRE 승인 검증은 차단. 전체 프로젝트 약 31% 추정. 인코더 검사 PASS를 UI/스마트폰/제품 출시 PASS로 확대 금지.
+5. **오류·원인·시도·중단·대안:** 상류 MIT qrcode.min.js 공용 소스를 컨테이너로 다운로드해 Github 원본과 blob 대조하고 로컬 Chromium에서 돌리려 했지만 raw/CDN/HTML 파일 다운로드 제한. 동일 방식 무의미한 재시도는 중지. 최선은 소스 체크아웃+Chromium Playwright가 모두 있는 실제 개발자/Windows 환경에서 원본 고정 테스트 실행. 자동 CI runner도 미배정(run 41034866482)이라 수동 워크플로만 유지.
+6. **저장소·브랜치·SHA·주요 경로:** hibi89/AX_MART feature/pc-care-usb (작업 시작 SHA f4e494dc716000c1ad0b845342cacf3e6e50183b), `products/pc-care/tests/test_qr_vendor.cjs`, `tests/qr_browser_smoke.py`, `ui/qrcode.min.js`, `ui/qr_ui.js`, `tests/test_package.py`, `README.md`, `docs/WINDOWS_TEST_PLAN.md`; 문서 최신 커밋 후 HEAD 다시 확인.
+7. **Production/실행환경:** https://ax-mart.pages.dev/ Cloudflare main 미변경, Vercel 미대상. Windows 11 x64/Windows PowerShell 5.1 및 Edge/Chrome/USB 우선, Linux Node+Chromium은 합성 개발 검증만.
+8. **원본·백업·권한·금지:** Git feature SHA로 최소 롤백 가능, MIT 원문·vendor 5자 버퍼 수정 보존. 사용자 보고서/로그·일련번호·BitLocker/민감 키/파티션 조작·네트워크 발송 없음. QR 공유는 사용자가 미리보기/생성 버튼을 직접 선택.
+9. **다음 우선순위·절차·완료조건:** (1) git checkout된 Windows/Linux 브라우저 환경에서 실제 QR canvas PNG+OpenCV 디코드 (2) Windows 일반 사용자 `RUN_SELF_TEST.cmd`, 로컬 JSON+HTML·USB 한글 경로 및 권한 실패 (3) Edge/Chrome A4 PDF 1장·폰카 UTF-8/BOM 스캔 (4) Release B WinRE/파일 복사 별도 VM 안전성·두 단계 승인 (5) 공식 출시/크몽은 사용자 승인. CI 대기 때문에 다음 독립 오류 수정까지 막지 않음.
+10. **갱신 일시/검증 범위·문서 기준:** 2026-10-30 KST. 실제 GitHub vendor V8 252/252 인코딩, 소스 교차 검증 17/17. GitHub CI·제품 Windows/browser/phone 스캔 미검증. STATUS.md와 동일 단계, HEAD 커밋은 후속 도구로 재조회.
+
