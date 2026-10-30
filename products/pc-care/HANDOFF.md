@@ -21,3 +21,15 @@
 - 가격/출시: 초기 무료 베타+익명 선택적 피드백. 이후 유료 판매 검토시 자체 AXMART 예상 ₩5,000, 크몽 예상 ₩10,000. 실제 판매·사업자·결제는 아직 없음.
 - 다음 채팅방 첫 작업: 본 브랜치 HEAD와 실제 코드 검사 → Windows 10/11 읽기 전용 진단 로직 수정·확장 → Windows VM/실기기 검증 계획 및 실행 → WinRE / BitLocker / 장애 상황 재현 → 위험 복구 절차 분리 검증 → 배포·피드백·상점 등록.
 - 업로드 원본 `AXMART_PC_CARE_USB_v0.1-alpha.zip` SHA-256: `27350aa7245e2b9d2ea48b360d96f69022caef29e286cef179063b22cbb02dad`. ZIP은 테스트용 별도 산출물로서 홈페이지 배포 불가.
+
+## 2026-10-30 15:35 KST 개발 재개 인수인계
+1. **목표/요구/기술**: 원안 유지: Windows 10/11 PS5.1/CMD 오프라인 읽기 전용 진단, 사용자 승인형 DISM/SFC, WinRE 수동 점검, 무료 베타는 안전성 검증 후.
+2. **완료/판단**: 기존 제품 코드 정밀 검토 후 UTF-8 BOM 누락, 미수집 이벤트 0건 오인 가능성, 디스크 조회 실패 시 수리 허용, WinRE 출력 저장 결함을 수리. 신규 파일 `tests/windows_smoke.ps1`, `docs/WINDOWS_TEST_PLAN.md`.
+3. **검증**: 기존 GitHub 바이트에서 BOM 없음 확인. 정적 회귀 가드 확장. Windows PowerShell 5.1/WinRE/실물 복구는 이 실행환경에서 돌리지 못했으므로 **미검증**. 위험 변경 명령은 직접 실행하지 않음.
+4. **완료/대기/차단**: 코드 안전성 강화 완료; Windows 정밀 실행·VM/BitLocker 시나리오·서명·릴리스는 미완료. 자동 복구/판매/무료 ZIP 공개 계속 차단.
+5. **문제/원인/대안**: 커넥터 UTF-8 소스 원본 BOM 누락→BOM을 명시해 재저장; 디스크 건강 Unknown/조회 실패→fail closed. 실제 Windows 검증은 Windows 실기기 또는 스냅샷 VM이 필요. 근거 없는 PASS 주장은 금지.
+6. **GitHub**: `hibi89/AX_MART` / `feature/pc-care-usb`, 변경 전 SHA `4d48eb5f3078e1442410205923f89fc5b4a77207`, `products/pc-care/` 아래. 본 문서 자체가 포함된 코드 커밋이 다음 검증 기준.
+7. **Production/환경**: AXMART `https://ax-mart.pages.dev`는 `main` 배포이며 본 브랜치 미배포. Python 정적 테스트: `python3 products/pc-care/tests/test_package.py`; Windows: `powershell.exe -NoProfile -File .\\tests\\windows_smoke.ps1` (제품 폴더 기준).
+8. **원본/보안**: 변경 전 4d48eb5f3078e1442410205923f89fc5b4a77207로 소스 추적 가능. 키·덤프·디스크 시리얼 수집/업로드 없음; WinRE 로그 공유 전 신원정보 검토.
+9. **다음 우선순위**: Windows 파서 → 표준 사용자 읽기 전용 1일 진단 → 관리자 진단 → WinRE 격리 VM → 복구/BitLocker/스토리지 장애 스냅샷 시험 → SHA256/코드 서명/무료 베타 승인.
+10. **갱신시각/검증범위**: 2026-10-30 15:35 KST. GitHub 코드 정적 검토와 변환 가드; Windows/CI/Production 미검증.

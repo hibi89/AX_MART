@@ -15,7 +15,9 @@ if not exist "%LOGDIR%" (
 )
 set "LOG=%LOGDIR%\recovery-review-%RANDOM%-%RANDOM%.txt"
 >"%LOG%" echo AXMART PC CARE recovery review - No repairs performed.
+if errorlevel 1 goto VIEWONLY
 >>"%LOG%" echo Note: WinRE drive letters can differ from normal Windows.
+>>"%LOG%" echo PRIVACY: BitLocker status and BCD entries may contain machine identifiers; review before sharing.
 echo Candidate Windows installations:
 >>"%LOG%" echo Candidate Windows installations:
 for %%D in (C D E F G H I J K L M N O P Q R S T U V W Y Z) do if exist "%%D:\Windows\System32\Config\SYSTEM" (
@@ -39,12 +41,13 @@ for %%D in (C D E F G H I J K L M N O P Q R S T U V W Y Z) do if exist "%%D:\Win
 )
 echo.
 echo BitLocker status (NO KEYS REQUESTED):
-manage-bde -status 2>&1 >>"%LOG%"
+manage-bde -status >>"%LOG%" 2>&1
 echo.
 echo Boot entries (read only):
-bcdedit /enum 2>&1 >>"%LOG%"
+bcdedit /enum >>"%LOG%" 2>&1
 echo.
 echo Saved review: "%LOG%"
+echo PRIVACY: BCD entries may contain machine identifiers. Do not share this report without review.
 goto END
 :VIEWONLY
 for %%D in (C D E F G H I J K L M N O P Q R S T U V W Y Z) do if exist "%%D:\Windows\System32\Config\SYSTEM" echo Candidate: %%D:\Windows

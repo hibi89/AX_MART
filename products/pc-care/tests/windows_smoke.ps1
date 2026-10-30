@@ -1,0 +1,37 @@
+﻿# AXMART PC CARE Windows PowerShell 5.1 verification (never starts repair).
+# Default performs parsing only; -RunReadOnly explicitly executes diagnostics.
+[CmdletBinding()]
+param([switch]$RunReadOnly)
+$ErrorActionPreference = 'Stop'
+$root = Split-Path -Parent $PSScriptRoot
+foreach ($rel in @('tools/diagnose.ps1','tools/repair.ps1')) {
+    $path = Join-Path $root $rel
+    $tokens = $null
+    $parseErrors = $null
+    [System.Management.Automation.Language.Parser]::ParseFile($path, [ref]$tokens, [ref]$parseErrors) | Out-Null
+    if ($parseErrors.Count -gt 0) {
+        foreach ($parseError in $parseErrors) { Write-Error ($rel + ': ' + $parseError.Message) }
+        throw ('PowerShell syntax failed: ' + $rel)
+    }
+    Write-Host ('PARSE PASS: ' + $rel) -ForegroundColor Green
+}
+if (-not $RunReadOnly) {
+    Write-Host 'Syntax checked only. No diagnostics or repairs were executed.'
+    exit 0
+}
+$begin = Get-Date
+& (Join-Path $root 'tools/diagnose.ps1') -Days 1
+$locations = @((Join-Path $root 'REPORTS'), (Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'AXMART-PC-CARE-Reports'))
+$recent = @()
+foreach ($dir in $locations) {
+    if (Test-Path -LiteralPath $dir) {
+        $recent += @(Get-ChildItem -LiteralPath $dir -Filter 'pc-care-*.json' -File -ErrorAction Stop | Where-Object { $_.LastWriteTime -ge $begin.AddSeconds(-2) })
+    }
+}
+if ($recent.Count -eq 0) { throw 'No new diagnostic JSON found after read-only test.' }
+$json = Get-Content -LiteralPath ($recent | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+if ($json.mode -ne 'read-only' -or $json.version -notmatch 'alpha' -or $null -eq $json.observations.eventCollection) {
+    throw 'Diagnostic output schema mismatch.'
+}
+Write-Host ('READ-ONLY TEST PASS: ' + $json.assessment) -ForegroundColor Green
+Write-Host 'No repair, disk writes, or boot configuration changes were initiated by this test.'

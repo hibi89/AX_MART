@@ -41,3 +41,7 @@
 - 제품 코드 로컬 작업본은 유료 출시 전까지 비공개 관리, 미검증 무료 ZIP을 사이트에 배포하지 않음.
 - 배포 계통: Cloudflare Pages https://ax-mart.pages.dev 자동 배포(main); 새로운 소스 커밋은 별도 GitHub SHA로 확인, 최종 Production 동일 SHA·익명 접근/브라우저 렌더는 추가 확인.
 - 이전 정상 Production 소스 복구점: GitHub main 이전 HEAD d37a005354f925b1e261e8c278ca082249e3b8cc.
+
+## 2026-10-30 15:35 KST — PC CARE USB 작업 브랜치
+- USB 소스 작업: `feature/pc-care-usb`; 기존 `main` Cloudflare 사이트 수정 없음. PowerShell BOM/이벤트 표시/복구 안전 차단/WinRE 로그 및 테스트 스크립트 보강.
+- 제품 세부 근거: `products/pc-care/STATUS.md`, `products/pc-care/HANDOFF.md`; 실제 Windows 검증 전 공개 다운로드·유료 판매 계속 금지.

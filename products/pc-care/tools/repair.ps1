@@ -1,4 +1,4 @@
-# AXMART PC CARE v0.1 | OPTIONAL APPROVAL-ONLY ONLINE REPAIR
+﻿# AXMART PC CARE v0.1 | OPTIONAL APPROVAL-ONLY ONLINE REPAIR
 # No disk format / bootloader rewrite / BitLocker changes / automatic reboot.
 [CmdletBinding()]
 param()
@@ -14,12 +14,13 @@ Write-Host 'Back up important personal files to another disk before repair.'
 Write-Host 'Do not proceed if the disk is failing, makes abnormal noises, or BitLocker access is uncertain.'
 try {
     $disks = @(Get-PhysicalDisk -ErrorAction Stop)
-    if (@($disks | Where-Object { $_.HealthStatus -in @('Warning','Unhealthy') }).Count -gt 0) {
-        Write-Host 'STORAGE HEALTH WARNING DETECTED. Repair blocked. Back up data and seek hardware assistance.' -ForegroundColor Red
+    if ($disks.Count -eq 0 -or @($disks | Where-Object { $_.HealthStatus -ne 'Healthy' }).Count -gt 0) {
+        Write-Host 'Storage health is warning, unknown, or unavailable. Automatic repair path blocked. Back up data and obtain independent hardware assessment.' -ForegroundColor Red
         exit 3
     }
 } catch {
-    Write-Host 'Disk health cannot be confirmed. Repair should be performed only after independent backup.' -ForegroundColor Yellow
+    Write-Host 'Storage health check failed. Repair blocked (fail-closed); use official Windows support after verifying backups and hardware.' -ForegroundColor Red
+    exit 3
 }
 $backup = Read-Host 'Type BACKUP only if important files are safely backed up'
 if ($backup -cne 'BACKUP') { Write-Host 'Canceled: no changes made.'; exit 1 }

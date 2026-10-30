@@ -1,4 +1,4 @@
-# AXMART PC CARE v0.1 | Windows PowerShell 5.1 | READ-ONLY DIAGNOSTICS
+﻿# AXMART PC CARE v0.1 | Windows PowerShell 5.1 | READ-ONLY DIAGNOSTICS
 # It never schedules tasks, fixes disks, changes services, or sends telemetry.
 [CmdletBinding()]
 param([int]$Days = 30)
@@ -118,8 +118,9 @@ foreach ($e in $events) {
     }
 }
 # Logs are capped to keep the tool responsive; warn if the query may be truncated.
-if ($events.Count -ge 1500) {
-    [void]$limits.Add('시스템 이벤트는 최대 1,500건만 수집했습니다. 30일 이내 전체 건수보다 적게 표시될 수 있습니다.')
+$eventsTruncated = ($events.Count -ge 1500)
+if ($eventsTruncated) {
+    [void]$limits.Add('시스템 이벤트는 최근 1,500건까지만 수집했습니다. 전체 검사 기간의 이벤트를 모두 확인한 결과가 아닐 수 있습니다.')
 }
 # 41 and 6008 can refer to the same outage, hence no false 'X crashes' diagnosis.
 if ($crashes.Count -gt 0) {
@@ -136,7 +137,11 @@ $observations['eventWindowDays'] = $Days
 $observations['bugchecks'] = @($crashes.ToArray())
 $observations['unexpectedShutdowns'] = @($unexpected.ToArray() | Select-Object -First 30)
 $observations['storageEvents'] = @($storageErrors.ToArray() | Select-Object -First 30)
-$observations['eventCollection'] = if ($eventQueryFailed) { 'unavailable' } elseif ($events.Count -eq 0) { 'no matching events' } else { 'collected' }
+$observations['eventCollection'] = if ($eventQueryFailed) { 'unavailable' } elseif ($eventsTruncated) { 'truncated' } elseif ($events.Count -eq 0) { 'no matching events' } else { 'collected' }
+# Never show zero as a verified count when the System log could not be read.
+$bugCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsTruncated) { '{0}건 (수집분)' -f $crashes.Count } else { '{0}건' -f $crashes.Count }
+$shutdownCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsTruncated) { '{0}건 (수집분)' -f $unexpected.Count } else { '{0}건' -f $unexpected.Count }
+$storageCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsTruncated) { '{0}건 (수집분)' -f $storageErrors.Count } else { '{0}건' -f $storageErrors.Count }
 
 # Optional indication; third-party AV users must not be labeled unprotected.
 $defender = Safe-Collect { Get-MpComputerStatus -ErrorAction Stop } 'Microsoft Defender'
@@ -195,7 +200,7 @@ footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-heig
 </style></head><body><main><header><div class="brand"><b>AX</b>MART <em>PC CARE</em></div><div class="small">READ-ONLY / v0.1-alpha</div></header>
 <h1>내 PC 건강검진 결과<span style="color:#a977e4">.</span></h1><p class="lead">시스템 로그와 저장장치 상태를 읽어 주요 위험 신호를 점검했습니다. 파일 삭제나 시스템 설정 변경 없이 검사했습니다.</p>
 <div class="status">$(Esc $assessment)</div>
-<div class="grid"><div class="tile"><div class="small">블루스크린 관련 기록</div><strong>$($crashes.Count)건</strong></div><div class="tile"><div class="small">비정상 종료 이벤트</div><strong>$($unexpected.Count)건</strong></div><div class="tile"><div class="small">저장장치 오류 이벤트</div><strong>$($storageErrors.Count)건</strong></div><div class="tile"><div class="small">발견한 주요 주의사항</div><strong>$($issues.Count)건</strong></div></div>
+<div class="grid"><div class="tile"><div class="small">블루스크린 관련 기록</div><strong>$(Esc $bugCountLabel)</strong></div><div class="tile"><div class="small">비정상 종료 이벤트</div><strong>$(Esc $shutdownCountLabel)</strong></div><div class="tile"><div class="small">저장장치 오류 이벤트</div><strong>$(Esc $storageCountLabel)</strong></div><div class="tile"><div class="small">발견한 주요 주의사항</div><strong>$($issues.Count)건</strong></div></div>
 <section><h2>진단 결과와 권장 조치</h2>$($cards -join "`n")</section>
 <section><h2>드라이브 공간</h2><table><thead><tr><th>드라이브</th><th>여유 공간</th><th>여유 비율</th></tr></thead><tbody>$($rows -join "`n")</tbody></table></section>
 <section><h2>검사 한계</h2><ul>$($limRows -join "`n")</ul><p class="small">Windows $(Esc $report.observations.windows.name) · 검사 기간: $Days 일 · 생성 $(Esc $report.generatedAt)</p></section>

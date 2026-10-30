@@ -40,3 +40,8 @@
 8. 원본/보안: 기존 원본 index.html 이전 커밋에 보존. 히어로 이미지 base64 인라인 유지; 토큰·개인정보·고객 로그 없음. 실기기 수리 명령/부트 파티션 변경은 공개하지 않음.
 9. 다음 작업: PC CARE 실기기 진단 검증→WinRE·복구 VM 안전성 검증→무료 베타 다운로드 승인→익명 피드백 채널 구축. 완료 조건은 실제 기능 동작 및 회귀 테스트.
 10. 갱신: 2026-10-30 KST, 문서 기준 커밋은 실제 GitHub 생성 커밋으로 판단. Cloudflare Production 실환경 화면 미검증 항목은 분리 유지.
+
+## 2026-10-30 15:35 KST — PC CARE 제품 변경(작업 브랜치 전용)
+- GitHub: `hibi89/AX_MART` / `feature/pc-care-usb`. 변경 전 `4d48eb5f3078e1442410205923f89fc5b4a77207` (복구 기준). `main`/Cloudflare 사이트는 변경하지 않음.
+- 제품: PowerShell 5.1 BOM 보정, 로그 조회 실패·절단 수 표시 개선, 디스크 상태 불확실 시 승인형 수리 차단, WinRE 로그 안전 개선, Windows 실행 검증 스크립트·매트릭스 추가.
+- 로컬 Windows/VM/WinRE 및 실제 Production 재검증은 미완료. 판매/다운로드/자동 복구 해제 조건 불충족. 세부 10항: `products/pc-care/HANDOFF.md`.

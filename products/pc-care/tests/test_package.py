@@ -45,6 +45,35 @@ class PackageTests(unittest.TestCase):
         self.assertNotIn("bootrec /fix",text)
         self.assertNotIn("format ",text.lower())
 
+    def test_missing_event_data_is_not_reported_as_zero(self):
+        text = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("$observations['eventCollection']", text)
+        self.assertIn("'truncated'", text)
+        self.assertIn("if ($eventQueryFailed) { '확인 불가' }", text)
+        self.assertIn("Esc $bugCountLabel", text)
+        self.assertIn("Esc $storageCountLabel", text)
+
+    def test_unknown_storage_blocks_approved_repair(self):
+        text = (ROOT/'tools/repair.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("$disks.Count -eq 0", text)
+        self.assertIn("HealthStatus -ne 'Healthy'", text)
+        self.assertIn("Repair blocked (fail-closed)", text)
+        self.assertLess(text.index("Get-PhysicalDisk"), text.index("Read-Host 'Type BACKUP"))
+        self.assertLess(text.index("Read-Host 'Type REPAIR"), text.index("/RestoreHealth"))
+
+    def test_winre_log_failure_and_privacy_notice(self):
+        text = (ROOT/'recovery/WINRE_READ_ONLY.cmd').read_text()
+        self.assertIn('if errorlevel 1 goto VIEWONLY', text)
+        self.assertIn('manage-bde -status >>"%LOG%" 2>&1', text)
+        self.assertIn('bcdedit /enum >>"%LOG%" 2>&1', text)
+        self.assertIn("PRIVACY:", text)
+
+    def test_windows_parser_smoke_is_opt_in(self):
+        text = (ROOT/'tests/windows_smoke.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn('Parser]::ParseFile', text)
+        self.assertIn('[switch]$RunReadOnly', text)
+        self.assertNotIn('repair.ps1 -', text)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
         for name in ['tools/diagnose.ps1','tools/repair.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
