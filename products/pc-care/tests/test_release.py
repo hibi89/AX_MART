@@ -69,6 +69,8 @@ class ReleaseTests(unittest.TestCase):
             'tests/event_analysis.tests.ps1',
             'tools/diagnose.ps1',
             'tools/event_analysis.ps1',
+            'tools/report_io.ps1',
+            'tests/report_io.tests.ps1',
         }
         self.assertTrue(required.issubset(release.ALLOWLIST))
         archive, _ = release.build_internal(self.root, self.root / 'dist-internal')
