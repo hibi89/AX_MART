@@ -1,0 +1,58 @@
+# AXMART PC CARE — NEXT CHAT / AX_MART 총괄 인수인계
+
+**작성 기준:** 2026-10-30 KST  
+**제품 개발 저장소:** `hibi89/AX_MART`  
+**이 문서 브랜치:** `feature/pc-care-usb`  
+**변경 전 정확한 브랜치 HEAD:** `625e65da7da001c1a9e75013a547ae0ad3bd9477`  
+**운영 사이트 브랜치:** `main` (현재 브랜치와 분리)
+
+## 반드시 먼저 읽을 기준 파일
+1. [최종 기능·보안·시장 포지셔닝 설계](products/pc-care/docs/FINAL_SPEC_V2.md): Gemini 의견 두 건을 통합한 **v2.0** 5대 모듈·스택·수용 기준·로드맵.
+2. [제품 현재 상태](products/pc-care/STATUS.md) 및 [이전 작업 이력](products/pc-care/HANDOFF.md).
+3. [제품 실행법·제약](products/pc-care/README.md), [Windows 테스트 계획](products/pc-care/docs/WINDOWS_TEST_PLAN.md), [안전 원칙](products/pc-care/docs/SAFETY.md).
+4. 사이트 브랜드 정의는 `main`의 `BRAND_GUIDE.md`; **AXMART³ (AXMART CUBE)**는 사이트/플랫폼, **AXMART PC CARE**는 첫 제품이다. 'USB'는 사용 방식/내부 파일명일 뿐 소비자용 제품명 아님.
+
+## 사용자 합의와 최종 제품상
+- 사용자가 확정한 시안: 다크 퍼플·민트 미래형 PC 상태 대시보드/USB 포터블. 사이트 `main`의 디자인 프리뷰는 완성품이 아닌 가상 시안.
+- 제품의 가치: 근거 있는 PC 상태 진단 -> 블루스크린/저장장치/업데이트 사건 연계 -> 사용자가 이해할 한국어 원인 후보·한계 -> 수리점 제출용 1페이지 Print/PDF + 오프라인 QR -> 백업/수리 의사결정 및 제한적 복구.
+- 기술: Windows PowerShell 5.1 + CMD + 자급식 로컬 HTML/CSS/JS + JSON. 기본 비관리자·오프라인·로컬 보고서; 시스템 변경은 별도 관리자·백업·두 단계 명시적 승인.
+- 첫째 Gemini 안의 1페이지 보고서/WinRE 사용자 파일 백업 지원, 둘째 안의 QR 요약/Windows 최신 복구 가이드 및 중립적 수리점 체크리스트를 안전하게 결합했다.
+- **Release A:** 건강진단·증거 분석·1페이지 인쇄/PDF·QR·이력 및 **WinRE 읽기 전용** 안내/진단. 검증 후 무료 베타.
+- **Release B:** 잠김/암호화/물리 디스크 분리/용량/복사 완전성/중단/부분 실패 등 독립 안전 시험을 통과한 경우에만 WinRE 선택 파일 백업 공개. Release B가 미검증이면 백업 기능을 완성·출시했다고 표시하지 않는다.
+
+## 실제 코드가 있는 것 (Windows 실행 성공과 별개)
+- `products/pc-care/RUN_HEALTH_CHECK.cmd`, `tools/diagnose.ps1`: Windows OS/드라이브/저장장치/Defender/일부 이벤트·BugCheck 수집 후 HTML/JSON 보고서 생성 코드.
+- `RUN_SAFE_REPAIR.cmd`, `tools/repair.ps1`: 관리자 권한, 디스크 상태 확인, BACKUP/REPAIR 입력 후 DISM/SFC 제한 실행 경로.
+- `recovery/WINRE_READ_ONLY.cmd`: WinRE 수동 읽기 전용 Windows 설치·BitLocker·BCD/덤프 존재 여부 점검 보조.
+- `RUN_SELF_TEST.cmd`, `tests/windows_smoke.ps1`: PowerShell 문법 및 읽기 전용 진단 수동 Windows 테스트 진입점.
+- `tools/release.py`, `tests/test_release.py`: 사용자 데이터 제외 허용 목록·해시 검증·내부 시험 ZIP, 과거 Python fixture 테스트 6/6 PASS 보고.
+- 제품 브랜치의 기존 소스 및 기능 상태는 GitHub 파일에서 다시 검증. 위 설명은 **코드 존재**만 의미함.
+
+## 현재 미구현·미검증 (주장 금지)
+- Windows 10/11 실제 실행, 관리자/표준 권한 실기기, WinRE/BitLocker, DISM/SFC 복구 안전성 및 오류 분석 정확도 **미검증**.
+- 사건 중복 제거·시간축 상관관계, 업데이트/배터리 추가 수집·이력, 사용자가 선택한 다크 테크 정식 Windows UI, 인쇄/PDF 전용 1페이지, QR 생성, WinRE 복사/확인 기능 **미구현**.
+- 운영 URL `https://ax-mart.pages.dev/`는 이미 존재. Cloudflare `main`의 최근 리브랜딩 소스가 실제 Production에 반영됐는지/새 SHA로 배포됐는지는 별도 확인 필요.
+- 미검증 USB ZIP **공개 배포·판매 금지**, Cloudflare/main의 판매·다운로드 차단 유지. WinRE 자체 부팅 이미지나 Microsoft 소유 WinPE 이미지 포함 금지.
+
+## 다음 채팅 첫 작업: P0 (묻지 말고 가능한 범위에서 바로 진행)
+1. `feature/pc-care-usb` 최신 HEAD와 `FINAL_SPEC_V2.md`, 현재 `tools/diagnose.ps1`·테스트 확인.
+2. PowerShell 5.1 문법 및 수집 예외 처리 강화: 접근 거부, 저장장치 API/이벤트 없음, 장치 없는 컴퓨터, 잘린 로그, 보고서 저장 실패를 구분. 기본 진단에서 관리자 자동승격 금지.
+3. 분석 엔진의 **테스트 가능한 사건 공통 스키마**·로그 중복/시각 처리 규칙 마련 및 fixture 테스트. BugCheck 1001 시각≠크래시 발생 시각; 이벤트 41≠확정 BSOD.
+4. `@media print` 1페이지 수리점 요약에 필요한 최소 정보 모델·안전한 HTML 인코딩을 설계/구현하고, 오프라인 개인정보 최소 QR은 분리 구현.
+5. Windows 실제 실행 접근이 가능할 때 `RUN_SELF_TEST.cmd`로 read-only 진단 테스트 후 결과로 버그 수정. 실기기 없이 **Windows PASS 주장 금지**.
+6. WinRE 파일 복사는 검증 가능한 별도 디스크/BitLocker/파일시스템/용량/실패·중단 안전장치 구현 전에는 시작하지 않음. 어떠한 자동 복구/파일 삭제/잠금 해제도 실행하지 않음.
+7. 기능 단위로 커밋/푸시, 작업 결과는 PASS/미실행/실패를 구분, `STATUS.md`와 `HANDOFF.md` 갱신. CI가 다음 구현의 의존성이 아니면 지연 없이 다음 기능 진행.
+
+## 하드 세이프티 가드
+- 읽기 전용이란 **원본 Windows 시스템/개인 데이터 비변경**이며 로컬 보고서는 생성할 수 있음.
+- 물리 디스크 이상·불명·암호화된 볼륨 잠금이면 쓰기 복구/자동 파일 복사 차단. BitLocker 복구키 받거나 저장하지 않음.
+- 다른 드라이브 문자만으로 물리적으로 다른 백업 대상이라고 간주 금지. Robocopy /MIR /PURGE /MOVE /MOV 등 파괴적 옵션 금지. 종료 코드 0~7도 온전한 백업 보증 아님, 8 이상은 실패 포함.
+- 'SSD 수명 94%', '메인보드 교체 불필요', '수리비 사기 방지 인증', 'AI가 100% 복구' 등 검증 없는 문구 금지. QR에 사용자·장치 식별정보/원문 로그/경로/키 금지.
+- 사용자 PC에 Windows 기본 설치된 것 외의 런타임/유료 API 필수화 금지, QR 외부 CDN 금지.
+
+## 완료 판정과 시간
+- 최종 설계 기준 개발+실기기 검증 총합 **77~135시간 추정**(검증 환경 확보 가정). Release A/B 분리이므로 이 추정이 납기 보증은 아니다.
+- 실기기 Windows, WinRE, 보안·비상 백업 실패·재시작·장치 분리 등 게이트를 통과해야 무료 베타/상용 출시 검토 가능.
+
+## 새 채팅방에서 사용하는 첫 메시지 예시
+**“AX_MART 총괄, `feature/pc-care-usb`의 `NEXT_CHAT_PC_CARE.md`와 `products/pc-care/docs/FINAL_SPEC_V2.md` 읽고 P0부터 개발 이어가자. ㄱ”**
