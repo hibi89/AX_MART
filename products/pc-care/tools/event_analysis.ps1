@@ -25,9 +25,12 @@ function ConvertTo-PcCareEvidence {
         $recordId = 0L
         try { if ($null -ne $item.RecordId) { $recordId = [long]$item.RecordId } } catch {}
         $recordedAt = $when.ToString('yyyy-MM-ddTHH:mm:ss.fffK', [Globalization.CultureInfo]::InvariantCulture)
-        $dedup = if ($recordId -gt 0) { "$provider/$recordId" } else { "$provider/$id/$recordedAt" }
-        if ($seen.ContainsKey($dedup)) { continue }
-        $seen[$dedup] = $true
+        # Without RecordId, two distinct entries can share a provider, ID and timestamp.
+        if ($recordId -gt 0) {
+            $dedup = "$provider/$recordId"
+            if ($seen.ContainsKey($dedup)) { continue }
+            $seen[$dedup] = $true
+        }
         $stopCode = $null
         if ($kind -eq 'bugcheck_record') {
             try {
@@ -40,6 +43,7 @@ function ConvertTo-PcCareEvidence {
             eventId = $id
             provider = $provider
             recordedAt = $recordedAt
+            recordedUtc = $when.ToUniversalTime().ToString('o', [Globalization.CultureInfo]::InvariantCulture)
             timeBasis = 'event_recorded_time'
             stopCode = $stopCode
         }
@@ -50,11 +54,11 @@ function Group-PcCareShutdownSignals {
     [CmdletBinding()]
     param([object[]]$Evidence)
     # A 41/6008 pair can describe one outage. Grouping is heuristic, never a proven count.
-    $orderedSignals = @($Evidence | Where-Object { $null -ne $_ -and $_.kind -eq 'shutdown_signal' } | Sort-Object recordedAt)
+    $orderedSignals = @($Evidence | Where-Object { $null -ne $_ -and $_.kind -eq 'shutdown_signal' } | Sort-Object recordedUtc)
     $groups = New-Object 'System.Collections.Generic.List[object]'
     $current = $null
     foreach ($signal in $orderedSignals) {
-        try { $whenUtc = [datetimeoffset]::Parse([string]$signal.recordedAt).ToUniversalTime() }
+        try { $whenUtc = [datetimeoffset]::Parse([string]$signal.recordedUtc).ToUniversalTime() }
         catch { continue }
         if ($null -eq $current -or ($whenUtc - $current.lastUtc).TotalMinutes -gt 10) {
             $current = [pscustomobject]@{
