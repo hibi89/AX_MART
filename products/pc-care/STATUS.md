@@ -380,3 +380,10 @@
 - `tests/incident_analysis.tests.ps1`의 오판 기대값을 교정하고 실패·무결과·절단·정상 수집 경계 사례 추가. `tests/test_package.py`에 소스 계약/회귀 존재 검사 추가.
 - 원격 GitHub 파일 재조회 기준 정적 계약 **19/19 PASS**; 근거 `tests/evidence/incident_disk_provenance_static_qa_20261031.json`. **네이티브 PowerShell 5.1 및 전체 Python/Node/Windows·USB·QR/A4·WinRE/ZIP·CI NOT_RUN**.
 - 이전 기준 HEAD `009ac6b9fa1a81c313aae71b9d85190d4e036d16`; 운영 main·Cloudflare/고객 파일/OS/복구 불변. 다음: 전체 Windows에서 `RUN_RELEASE_QA.cmd`와 실제 read-only 보고서 출력 검증 후 H08 연결. 출시/실복사 금지.
+
+## 2026-10-31 KST — Release A 보고서 경로/SMART 안전성 개선
+- `tools/report_io.ps1`의 `FileBase`가 원래 입력값 그대로 `Join-Path`에 들어가 보고서 대상 폴더 외부 경로로 이어질 수 있었음. ASCII 영숫자·하이픈·언더스코어, 총 1~80자로 제한하고 `..`·슬래시·공백·절대경로 거부; 저장 작업 시작 전 검증. 기존 CreateNew, 두 파일 Move, 충돌 차단·대체 저장 경로 로직 유지.
+- `tools/telemetry_analysis.ps1` 기존 배포 포함 파일에 순수 센서 정규화 함수 `ConvertTo-PcCareStorageMetrics` 추가. `diagnose.ps1`에서 같은 모듈 1회 조기 로딩 후 사용. 마모율 1~100/온도 1~125의 정수 관측값 외에는 미지원 표시(0도 불확실). 불량 마모율 때문에 정상 온도가 가려지지 않음. 센서값은 남은 수명·고장 원인 확정 증거 아님.
+- `tests/report_io.tests.ps1` 경로 이탈/과도한 파일명 거부, `tests/telemetry_analysis.tests.ps1` 비정상·민감값·상한·독립 센서 테스트 및 `tests/test_package.py` 계약 보강.
+- 원격 소스·기존 ZIP allowlist/스모크 연결의 정적 검사 **24/24 PASS**. 증거 `tests/evidence/report_persistence_smart_source_static_qa_20261031.json`. Native Windows PowerShell 5.1 / Python·Node 전체 / 실제 ZIP / Windows·USB·QR·A4·WinRE·신규 CI **NOT_RUN**.
+- 이전 개발 HEAD `6d25db008c835ccf489940e9a3024f6b86c74ca9`. 운영 main·Cloudflare·사용자 파일·WinRE 실제 복사·수리·공개 다운로드 무변경. 다음 `RUN_RELEASE_QA.cmd` Windows 실행 및 JSON/HTML 경로/센서/이력 실제 확인.
