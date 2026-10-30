@@ -650,3 +650,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본/백업/민감정보: Git baseline `973faa92980e6c22e4748d2012ec346875f06872` 복구점. 테스트는 임시 합성 데이터만; 고객 REPORTS/OS·BitLocker·키/개인정보 접근·수정/외부 업로드·계정/배포/권한 변경 없음.
 9. 다음 우선순위·승인: 전체 실제 소스 ZIP `release.py` 검증→Windows 전체 `RUN_RELEASE_QA.cmd` (native PS5.1+Python+Node+ZIP)→명시적 read-only 실제 진단/저장/H08→USB·QR/A4→격리 WinRE 안전성. 실제 수리/백업 복사/상품 배포/결제 시 사전 승인.
 10. 갱신·근거: 2026-10-31 KST, 공식 네이티브 Python unittest 15/15 + 중복 합성 커스텀 14/14까지 확인. 그 외 NOT_RUN, 구형 runner 실패는 현 SHA 오류로 오판 금지.
+
+## 2026-10-31 KST — CUBE 볼륨 수집 완전성/진단 연속성 인수인계 10항
+1. 목표·기술: AXMART PC CARE USB Release A Windows 11 PS5.1/CMD·로컬 JSON/HTML·H08/오프라인 QR·A4. Release B WinRE 실제 복사/수리 별도 승인.
+2. 완료 기능·근거: Win32_LogicalDisk에서 직접 double 변환 중 NaN/Infinity/변환 오류가 전체 보고서 저장을 중단할 수 있어 기존 배포 `tools/telemetry_analysis.ps1`에 순수 `ConvertTo-PcCareVolumeSample` 추가. 문자·숫자·범위를 검증하고 문제가 있는 볼륨만 제외. `diagnose.ps1`은 유효한 볼륨 계속 처리, `volumeRejectedCount` 기록, `collectionStatus.volumes=incomplete`로 H08 비교 자동 제외. 기존 정상 용량 경고 임계값 유지.
+3. 테스트·검증: GitHub 변경 소스 원격 readback 계약 **23 PASS/0 FAIL**. 변경 PS 함수에 대한 native PowerShell 5.1 시험 및 전체 원본 Python/Node/실 ZIP·Windows/USB/QR/A4/WinRE/CI NOT_RUN. 기존 무변경 `release.py` 공식 local Python unittest 15/15 PASS(새 진단 코어 검증 아님). 테스트 소스 `tests/telemetry_analysis.tests.ps1`·`tests/test_package.py`와 evidence JSON.
+4. 상태: 코드·합성 fixture/정적 계약 반영 완료. Native Windows Release A 수용검증 대기. 제품 공개·권한 상승·Release B 백업/복구 차단.
+5. 오류·시도·대안: 원인 오류 가능성이 query 바깥 형변환과 비유한 수가 JSON/이력 판정까지 전파되는 구조. 로직을 기존 순수 helper로 격리, false-complete 표시 차단. PS5.1 없는 현 실행 환경에서는 정적 PASS를 네이티브 PASS로 대체 금지; CI runner 실패 같은 방식 반복 금지.
+6. GitHub 브랜치/경로/SHA: `hibi89/AX_MART@feature/pc-care-usb`, 변경 전 `328bcf1611d588b3c4c285cf773ac6540decdc40`. `tools/telemetry_analysis.ps1`, `tools/diagnose.ps1`, `tests/telemetry_analysis.tests.ps1`, `tests/test_package.py`, 증거 `tests/evidence/volume_metric_failclosed_source_qa_20261031.json`. 문서 기준 커밋 SHA 원격 확인.
+7. Production/환경: `https://ax-mart.pages.dev/`는 기존 Cloudflare main(이번 기능 미배포). 원본 Windows 11/PS5.1·Python≥3.11·Node. 개발용 `RUN_RELEASE_QA.cmd`는 합성 시험/임시 ZIP과 로컬 QA 영수증만 생성.
+8. 원본/백업/인증: Git 기준 이전 SHA 복원점. 고객 REPORTS·개인 경로/볼륨명·OS 설정·BitLocker·인증 토큰/키·실복구 미접근·미수정. 외부 데이터 업로드 및 자동 수리 없음.
+9. 후속 우선순위/승인·완료 기준: Windows checkout native `RUN_RELEASE_QA.cmd`→합성 PS5.1 오류 0건 확인→사용자가 명시 실행한 read-only 실제 진단 JSON·HTML/H08→USB 한글 폴더/Edge/QR·A4→WinRE 격리. 실복사·수리/배포·결제/권한 변경 사전 승인.
+10. 시점·검증 범위: 2026-10-31 KST, GitHub 원격 실소스 정적 계약 23개와 이전 ZIP Python suite만 확인. PS5.1 native·현 SHA CI·실 Windows/USB/WinRE 미검증. 최종 SHA는 작업 종료 시 재조회.
