@@ -1,0 +1,39 @@
+{
+  "date_kst": "2026-10-31",
+  "repo": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "previous_head": "6d25db008c835ccf489940e9a3024f6b86c74ca9",
+  "risk_fixes": [
+    "Save-PcCareReportPair previously appended unsanitized FileBase to selected candidate directory; a slash or '..' could redirect the target outside REPORTS.",
+    "diagnose.ps1 previously cast optional storage Wear and Temperature directly to [int], accepting sentinel/out-of-range readings and allowing a malformed metric to suppress an independently valid one."
+  ],
+  "implementation": {
+    "report_writer": "FileBase strictly ASCII alphanumeric/underscore/hyphen, length 1..80, no dot/slash/absolute/relative segments. Validation precedes filesystem operations. Existing names still non-overwritable.",
+    "storage": "Pure ConvertTo-PcCareStorageMetrics added to existing, ZIP-allowlisted telemetry_analysis.ps1. Independent wear 1..100 and temp 1..125 integral checks, invalid/zero/null unknown. diagnose.ps1 sources module once before accessing counters and no longer casts raw sensor values.",
+    "tests": "report_io.tests.ps1 negative path-traversal/overlength fixtures; telemetry_analysis.tests.ps1 independent numeric/sentinel/PII fixtures; test_package.py source contract guards. All synthetic until Windows execution."
+  },
+  "verified_blobs": {
+    "tools/report_io.ps1": "44b85ca9e363966725e8cb67e09d39283823d316",
+    "tests/report_io.tests.ps1": "ffcc435d175736af0242531a7556120d6e18418e",
+    "tools/telemetry_analysis.ps1": "667d3c8d217a684c48cb749623290722ffd35945",
+    "tests/telemetry_analysis.tests.ps1": "395acd7f3ef69efa80b8d9a6d425ef9115234070",
+    "tools/diagnose.ps1": "c7b9b584d4531aaa6291d8860a866a2ccbf3b170",
+    "tests/test_package.py": "8fe0c96b5596f025747615856f4e97b72cdbe935"
+  },
+  "verification": {
+    "github_remote_readback": true,
+    "static_source_safety_and_package_contract": {
+      "passed": 24,
+      "failed": 0
+    },
+    "PS51_native_execution": "NOT_RUN",
+    "Python_unit_tests": "NOT_RUN",
+    "Node_unit_tests": "NOT_RUN",
+    "Windows11_real_diagnosis": "NOT_RUN",
+    "ZIP_build_and_verify": "NOT_RUN",
+    "Edge_QR_A4_USB": "NOT_RUN",
+    "WinRE_recovery": "NOT_RUN",
+    "CI_current_SHA": "NOT_RUN"
+  },
+  "safety": "Feature branch only. No customer device/files touched, no repair or backup executed, no main/Cloudflare deployment."
+}
