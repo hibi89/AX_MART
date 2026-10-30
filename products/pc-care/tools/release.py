@@ -20,6 +20,7 @@ ALLOWLIST = (
     'tools/event_analysis.ps1',
     'tools/repair.ps1',
     'tests/windows_smoke.ps1',
+    'tests/event_analysis.tests.ps1',
     'recovery/WINRE_READ_ONLY.cmd',
     'docs/SAFETY.md',
     'docs/TROUBLESHOOTING.md',
