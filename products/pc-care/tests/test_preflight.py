@@ -38,6 +38,28 @@ class PreflightTests(unittest.TestCase):
                 result=preflight.run_qa(root,windows_synthetic=False)
             self.assertEqual(result['status'],'fail')
             self.assertEqual(result['stages'][-1]['status'],'not-run')
+    def test_status_requires_native_windows_stage(self):
+        classify = preflight.classify_qa_status
+        self.assertEqual(classify([]), 'fail')
+        self.assertEqual(classify([{'status':'pass'},{'status':'pass'}]), 'pass')
+        self.assertEqual(classify([{'status':'pass'},{'status':'not-run'}]), 'partial')
+        self.assertEqual(classify([{'status':'pass'},{'status':'blocked'}]), 'blocked')
+        self.assertEqual(classify([{'status':'fail'},{'status':'not-run'}]), 'fail')
+        self.assertEqual(classify([{'status':'unsupported'}]), 'fail')
+
+    def test_main_reports_partial_without_claiming_pass(self):
+        stages = [
+            {'name':'python-tests','status':'pass'},
+            {'name':'node-tests','status':'pass'},
+            {'name':'internal-zip','status':'pass'},
+            {'name':'windows-powershell-51-synthetic','status':'not-run'}
+        ]
+        result={'status':preflight.classify_qa_status(stages),
+                'stages':stages,'not_verified':preflight.NOT_VERIFIED,
+                'warning':'actual Windows/WinRE not verified'}
+        with patch.object(preflight,'run_qa',return_value=result):
+            self.assertEqual(preflight.main(['--root',str(MODULE_PATH.parent)]),2)
+
     def test_command_reports_failure_and_bounds_output(self):
         with TemporaryDirectory() as tmp:
             cmd=preflight.command('negative',[sys.executable,'-c',
