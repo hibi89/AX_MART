@@ -191,3 +191,13 @@
 - **제품/출시:** AXMART³ main/Cloudflare 미변경. 무료 공개/크몽 유료 서비스/사용자 다운로드 미실시. 전체 최종 설계 진척률 기존 약 30% 수준 추정(실제 장치·복구 QA 비중 큼); 테스트 산출물을 중복으로 완성률에 과도하게 더하지 않음.
 - **향후:** Windows 11 x64 PS5.1 실기기에서 CMD 실행기/USB 경로 스푸핑/표준 사용자 권한/저장된 JSON+HTML/한글 A4 및 QR 스캔 확인. 운영 환경에서 테스트/드라이버 설치/복구를 자동으로 시작하지 않음. WinRE 백업/안전 복구는 별도 VM + 승인 게이트 뒤 진행. `docs/WINDOWS_TEST_PLAN.md` 최신 수용조건 참조.
 
+## 2026-10-30 KST — P2 QR 공유 무효화·엄격한 증거 형식·Chromium 13조건 실측 (최신)
+
+- **결함 발견·해결:** 기존 QR UI에서 잘못된 재생성 입력(250바이트 초과 등)이 들어오면 QR 생성은 거부해도 이전 QR 이미지가 남아 실제 공유 문구와 QR 내용이 달라질 위험이 있었음. `ui/qr_ui.js`에 기존 이미지 clear 함수, input 수정 시 이미지 무효화 및 상태 안내, 모든 생성 시도 전 초기화 추가. 사용자 변경 뒤 오래된 QR 오인 공유 방지.
+- **개인정보·증거 무결성 강화:** QR 버튼 클릭 시 원래 250 UTF8 bytes+접두어만 검사하던 것을 고정된 **7줄** 공유 양식, 허용 평가 4종, 허용 위험 범주 6종(최대 2개+생략 개수), 검증된 기록 UTC 형식, '사고시간 아님', '원인 미확정', '백업후추가점검'으로 제한. 임의 추가 문장·장치명·원인 확정 문구를 QR 코드로 처리하지 않음. PowerShell 원본 비식별 모델과 같은 범주 유지.
+- **테스트 코드:** `tests/test_qr_ui.cjs` Node synthetic fixture를 **17개**로 늘려 이전 QR 클리어, 사용자 입력 변형, 부정확한 인과 메시지, unknown issue, 추가 문장, 허용 생략 문구 검증. `tests/test_package.py`에 데이터 필드 구조·클리어·오프라인 브라우저 test fixture 정적 의존성 추가.
+- **브라우저 실제 실행:** GitHub `ui/qr_ui.js`와 로컬 Chromium 테스트 입력 소스 Git blob **b0b06f527bed53f147e05e6512ee289608048de1** 일치 확인. Linux headless Chromium(Playwright)에서 **가짜 QR 생성자**를 사용해 클릭 전 미생성, 한국어 문구, UI 상태, 250 바이트 차단, 과거 이미지 클리어, 수정 시 안내, 변조 문구 차단, 허용 신호 생략, 외부 HTTP 요청 없음 등 **13/13 조건 실제 통과**. 이 테스트는 JS 버튼/상태/검증 로직 실측이며 MIT QR 라이브러리의 실제 심볼 렌더·실제 핸드폰/QR 디코더 스캔을 검증한 것이 아님.
+- **QR 실제 픽셀 검증 도구 추가:** `tests/qr_browser_smoke.py` (개발자 선택 실행, 사용자 ZIP 제외): 실제 `ui/qrcode.min.js`와 `qr_ui.js`를 로컬 Chromium에 로드해 QR bitmap 스크린샷→OpenCV QRCodeDetector로 디코딩→한글 UTF-8 원문 SHA256 정확 일치, 무네트워크, 수정 후 QR 제거·변조 차단 검증하도록 작성. `playwright`, `opencv-python`, Chromium 필요. 해당 스크립트는 **아직 미실행**; 스캐너 결과를 성공으로 표기 금지.
+- **검증 상태:** GitHub 관련 7파일 소스 cross-contract **21/21 정적 조건 충족**. 실제 Windows 11/PowerShell5.1/USB/WinRE·Edge/Chrome 실제 제품 HTML·QR 실픽셀/스마트폰 스캔·Python unittest·ZIP 빌드·A4 PDF 출력 **미검증**. GitHub Actions runner 미배정 문제는 그대로, 자동 재시도 금지/수동 workflow 유지.
+- **브랜치·배포:** hibi89/AX_MART feature/pc-care-usb만 변경. AXMART³ 무료판 출시/크몽 판매·Cloudflare main 배포 없음. 전체 예상 완성률 기존 약 30% 유지(테스트·Windows QA 큰 비중).
+
