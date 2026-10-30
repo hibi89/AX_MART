@@ -72,3 +72,11 @@
 - 마지막 정적 소스 검사 37/37 조건 충족, Windows/PowerShell 실제 테스트·Python unittest/ZIP 실행은 아직 없음. STATUS.md/HANDOFF.md 최신 항목 참조.
 - 다음 작업은 Windows 11 PS5.1 및 Python 테스트의 실측 가능 환경 우선 확인, 불가하면 P2 1페이지 Print/PDF 보고서의 안전한 정보 모델과 CSS 작업 진행. QR은 개인정보 최소·오프라인 스캔 실증 전 완성 표기 금지. WinRE 파일 복사/수리는 여전히 별도 게이트 전 금지.
 
+## 2026-10-30 KST — P2 consultation A4 checkpoint
+
+- Repo hibi89/AX_MART feature/pc-care-usb, main/Cloudflare production remains unchanged. Continue by reading products/pc-care/HANDOFF.md, STATUS.md, docs/FINAL_SPEC_V2.md and latest source.
+- New pure helper tools/consultation_report.ps1 creates a bounded consultation summary from the read-only diagnostic report; tools/consultation_render.ps1 builds escaped local HTML. diagnose.ps1 adds consultation JSON key, screen section and dedicated CSS @page A4 / @media print for browser Ctrl+P -> Save as PDF. Up to 4 recorded UTC events, 4 issue types, 3 standard repair questions, no raw names/logs/paths.
+- tests/consultation_report.tests.ps1 covers privacy, unknown data, recorded time, bounded output and HTML escaping. windows_smoke parses/runs fixture, internal ZIP/test_release/test_package source references updated. GitHub static contracts 37/37 checked, NOT Windows runtime or actual one-page PDF verified.
+- Windows real-device parser/synthetic tests and print preview remain release blockers; QR remains unimplemented. No public ZIP/free download or Kmong services until gates pass. AXMART³ free software/Kmong paid interpretation service is a business proposal, not an active listing.
+- Next ㄱ: actual Windows tests if runtime exists; otherwise continue with safe opt-in local share-text preview/QR payload model (not yet QR bitmap or final implementation), or print accessibility improvements. Do not call CSS one-page verified without browser PDF evidence.
+
