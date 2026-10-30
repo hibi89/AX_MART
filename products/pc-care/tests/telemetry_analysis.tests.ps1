@@ -41,4 +41,23 @@ Assert-Telemetry (@($evidence | Where-Object { $_.kind -eq 'update_installation_
 Assert-Telemetry (@($evidence | Where-Object { $_.kind -eq 'update_installation_success_record' }).Count -eq 1) 'Event 19 is installation success record'
 Assert-Telemetry ($evidence[0].timeBasis -eq 'event_recorded_time') 'No inferred update date'
 Assert-Telemetry (($evidence | ConvertTo-Json -Depth 6) -notmatch 'PRIVATE UPDATE NAME') 'Raw update messages must never be serialized'
+# Pure SMART fixture: no Get-PhysicalDisk or OS query is executed here.
+$validStorage = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear=18; Temperature=43; SerialNumber='PRIVATE-UNIT' })
+Assert-Telemetry ($validStorage.wearPercent -eq 18 -and $validStorage.temperatureC -eq 43) 'Valid bounded device readings'
+Assert-Telemetry (($validStorage | ConvertTo-Json -Compress) -notmatch 'PRIVATE') 'Serial identifier never reflected'
+$missingStorage = ConvertTo-PcCareStorageMetrics -Counter $null
+Assert-Telemetry ($null -eq $missingStorage.wearPercent -and $null -eq $missingStorage.temperatureC) 'Missing sensor does not imply healthy'
+$zeroStorage = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear=0; Temperature=0 })
+Assert-Telemetry ($null -eq $zeroStorage.wearPercent -and $null -eq $zeroStorage.temperatureC) 'Ambiguous zero means unknown'
+$sentinelStorage = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear=255; Temperature=65535 })
+Assert-Telemetry ($null -eq $sentinelStorage.wearPercent -and $null -eq $sentinelStorage.temperatureC) 'Reject sentinel and out-of-range readings'
+$negativeStorage = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear=-1; Temperature=-120 })
+Assert-Telemetry ($null -eq $negativeStorage.wearPercent -and $null -eq $negativeStorage.temperatureC) 'Reject invalid negative readings'
+$fractionalStorage = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear=12.5; Temperature=36.5 })
+Assert-Telemetry ($null -eq $fractionalStorage.wearPercent -and $null -eq $fractionalStorage.temperatureC) 'Reject uncertain decimal rounding'
+$independentStorage = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear='PRIVATE-SERIAL'; Temperature=37 })
+Assert-Telemetry ($null -eq $independentStorage.wearPercent -and $independentStorage.temperatureC -eq 37) 'Invalid wear must not hide valid temperature'
+Assert-Telemetry (($independentStorage | ConvertTo-Json -Compress) -notmatch 'PRIVATE') 'Reject raw private readings'
+$validWear = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear=100; Temperature='not-a-number' })
+Assert-Telemetry ($validWear.wearPercent -eq 100 -and $null -eq $validWear.temperatureC) 'Invalid temperature must not hide valid wear'
 Write-Host 'TELEMETRY FIXTURE PASS: absent/denied/invalid battery and scoped Windows update evidence.' -ForegroundColor Green
