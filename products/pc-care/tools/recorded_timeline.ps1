@@ -57,11 +57,12 @@ function Get-PcCareRecordedTimeline {
             causeConfirmed = $false
         })
     }
+    $resultStatus = if ($totalAccepted -gt $MaxEntries) { 'truncated' } else { 'collected' }
     [pscustomobject]@{
         schemaVersion = 1
         timeBasis = 'event_recorded_time_not_verified_incident_time'
         windowMinutes = $WindowMinutes
-        status = if ($totalAccepted -gt $MaxEntries) { 'truncated' } else { 'collected' }
+        status = $resultStatus
         acceptedCount = $totalAccepted
         returnedCount = $mostRecent.Count
         windows = @($output.ToArray())
