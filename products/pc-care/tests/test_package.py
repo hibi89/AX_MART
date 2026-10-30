@@ -340,6 +340,28 @@ class PackageTests(unittest.TestCase):
         self.assertTrue((ROOT/'tests/test_qr_ui.cjs').is_file())
         self.assertIn('node:test', (ROOT/'tests/test_qr_ui.cjs').read_text(encoding='utf-8'))
 
+    def test_qr_share_schema_and_optional_browser_gate(self):
+        qr_ui = (ROOT/'ui/qr_ui.js').read_text(encoding='utf-8')
+        node_fixture = (ROOT/'tests/test_qr_ui.cjs').read_text(encoding='utf-8')
+        browser_fixture = (ROOT/'tests/qr_browser_smoke.py').read_text(encoding='utf-8')
+        package = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        self.assertIn('hasExpectedShareFields', qr_ui)
+        self.assertIn('lines.length !== 7', qr_ui)
+        self.assertIn('allowed.indexOf(signals[i])', qr_ui)
+        self.assertIn('function clearPreviousQr()', qr_ui)
+        self.assertIn('source.addEventListener("input"', qr_ui)
+        self.assertIn('button.addEventListener("click"', qr_ui)
+        self.assertIn('bytes > 250', qr_ui)
+        self.assertIn('test("invalid regeneration clears a QR created for older text"', node_fixture)
+        self.assertIn('test("untrusted extra lines cannot be encoded as a QR"', node_fixture)
+        self.assertIn('cv2.QRCodeDetector().detectAndDecode', browser_fixture)
+        self.assertIn('utf8_qr_roundtrip_exact', browser_fixture)
+        self.assertIn('no_external_http_requests', browser_fixture)
+        self.assertIn('edit_clears_stale_qr', browser_fixture)
+        self.assertNotIn('tests/qr_browser_smoke.py', package)
+        self.assertNotIn('fetch(', qr_ui)
+        self.assertNotIn('XMLHttpRequest', qr_ui)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
         for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/pnp_analysis.ps1','tools/recorded_timeline.ps1','tools/consultation_report.ps1','tools/consultation_render.ps1','tools/share_payload.ps1','tools/share_preview.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/driver_timeline.tests.ps1','tests/consultation_report.tests.ps1','tests/share_payload.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
