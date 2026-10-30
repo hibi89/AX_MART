@@ -31,4 +31,12 @@ Assert-PcCare ($groups[0].evidenceCount -eq 2) 'Grouped signal must preserve evi
 Assert-PcCare ($groups[0].interpretation -eq 'possibly_related_shutdown_signals') 'No confirmed outage claims'
 Assert-PcCare (@(ConvertTo-PcCareEvidence -Events @()).Count -eq 0) 'Empty event set'
 Assert-PcCare (@(Group-PcCareShutdownSignals -Evidence @()).Count -eq 0) 'Empty grouping'
+$queryEmpty = Invoke-PcCareEventQuery -Query { @() } -MaxEvents 3
+Assert-PcCare ($queryEmpty.status -eq 'no matching events' -and $queryEmpty.returnedCount -eq 0) 'Empty event query'
+$queryDenied = Invoke-PcCareEventQuery -Query { throw 'Access denied' } -MaxEvents 3
+Assert-PcCare ($queryDenied.status -eq 'unavailable' -and $queryDenied.returnedCount -eq 0) 'Denied query must not become normal zero'
+$queryTruncated = Invoke-PcCareEventQuery -Query { 41; 6008; 1001 } -MaxEvents 3
+Assert-PcCare ($queryTruncated.status -eq 'truncated' -and $queryTruncated.returnedCount -eq 3) 'Capped event set'
+$queryPartial = Invoke-PcCareEventQuery -Query { 41; 6008 } -MaxEvents 3
+Assert-PcCare ($queryPartial.status -eq 'collected' -and $queryPartial.returnedCount -eq 2) 'Partial below cap'
 Write-Host 'EVENT FIXTURE PASS: normalization, provider filter, duplicate grouping, timestamps, privacy.' -ForegroundColor Green
