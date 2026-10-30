@@ -77,18 +77,35 @@ function Get-PcCareRecordedTimeline {
     }
     $output = New-Object 'System.Collections.Generic.List[object]'
     foreach ($w in $windows) {
+        # Only note bounded co-observation inside a time window; never infer causation.
+        $coObserved = New-Object 'System.Collections.Generic.List[string]'
+        $observedKinds = @($w.kinds.ToArray())
+        if ($observedKinds -contains 'bugcheck_record' -and $observedKinds -contains 'storage_signal') {
+            [void]$coObserved.Add('bugcheck_storage_proximity')
+        }
+        if ($observedKinds -contains 'shutdown_signal' -and $observedKinds -contains 'storage_signal') {
+            [void]$coObserved.Add('shutdown_storage_proximity')
+        }
+        if ($observedKinds -contains 'bugcheck_record' -and $observedKinds -contains 'update_installation_failure_record') {
+            [void]$coObserved.Add('bugcheck_update_proximity')
+        }
         [void]$output.Add([pscustomobject]@{
             firstRecordedUtc = $w.start.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
             lastRecordedUtc = $w.end.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
             evidenceCount = [int]$w.count
-            kinds = @($w.kinds.ToArray())
+            kinds = @($observedKinds)
+            coObserved = @($coObserved.ToArray())
             interpretation = 'recorded_timestamp_proximity_only'
             causeConfirmed = $false
         })
     }
-    $resultStatus = if ($totalAccepted -gt $MaxEntries -or
-                        $SystemCollectionStatus -eq 'truncated' -or
-                        $UpdateCollectionStatus -eq 'truncated') { 'truncated' } else { 'collected' }
+    $sourceUnavailable = ($SystemCollectionStatus -eq 'unavailable' -or $UpdateCollectionStatus -eq 'unavailable')
+    $sourceTruncated = ($SystemCollectionStatus -eq 'truncated' -or $UpdateCollectionStatus -eq 'truncated')
+    $resultStatus = if ($totalAccepted -gt $MaxEntries -or $sourceTruncated) { 'truncated' }
+                    elseif ($sourceUnavailable -and $totalAccepted -eq 0) { 'unavailable' }
+                    elseif ($sourceUnavailable) { 'incomplete' }
+                    elseif ($totalAccepted -eq 0) { 'no matching events' }
+                    else { 'collected' }
     [pscustomobject]@{
         schemaVersion = 1
         timeBasis = 'event_recorded_time_not_verified_incident_time'
@@ -98,9 +115,10 @@ function Get-PcCareRecordedTimeline {
             system = $SystemCollectionStatus
             update = $UpdateCollectionStatus
         }
+        coverageComplete = (-not $sourceUnavailable -and -not $sourceTruncated -and $totalAccepted -le $MaxEntries)
         acceptedCount = $totalAccepted
         returnedCount = $mostRecent.Count
         windows = @($output.ToArray())
-        note = '서로 가까운 이벤트 기록 시각을 묶었을 뿐이며, BugCheck 발생 시각·업데이트의 장애 원인·실제 종료 횟수를 입증하지 않습니다.'
+        note = '근접 신호는 같은 기록 시각 묶음에 포함된 종류만 표시합니다. 실제 장애 시각·원인·사건 횟수의 증거가 아니며 수집 실패·상한은 불완전으로 표시합니다.'
     }
 }
