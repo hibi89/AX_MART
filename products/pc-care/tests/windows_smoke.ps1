@@ -53,13 +53,43 @@ $json = Get-Content -LiteralPath $jsonFile -Raw -Encoding UTF8 | ConvertFrom-Jso
 if ($json.schemaVersion -ne 1 -or $json.mode -ne 'read-only' -or $json.version -notmatch 'alpha' -or $null -eq $json.observations.eventCollection -or $null -eq $json.observations.collectionStatus -or $null -eq $json.analysis -or $null -eq $json.observations.battery -or $null -eq $json.observations.windowsUpdate -or $null -eq $json.observations.driverDevices -or $null -eq $json.observations.recordedTimeline -or $null -eq $json.consultation -or $null -eq $json.sharePreview -or $null -eq $json.sharePreview.qrImageSupported) {
     throw 'Diagnostic output schema mismatch.'
 }
+# Validate the end-to-end timeline evidence contract in THIS run's local report.
+$timeReport = $json.observations.recordedTimeline
+if ($null -eq $timeReport -or $timeReport.status -notin @('collected','no matching events','truncated','incomplete','unavailable') -or
+    $null -eq $timeReport.coverageComplete -or $null -eq $timeReport.sourceCollection) {
+    throw 'Recorded timeline coverage schema missing.'
+}
+if ($timeReport.sourceCollection.system -ne $json.observations.eventCollection -or
+    $timeReport.sourceCollection.update -ne $json.observations.windowsUpdate.status) {
+    throw 'Recorded timeline input provenance differs from collectors.'
+}
+if ($timeReport.coverageComplete -and
+    ($timeReport.status -notin @('collected','no matching events') -or
+     $timeReport.sourceCollection.system -in @('unavailable','truncated') -or
+     $timeReport.sourceCollection.update -in @('unavailable','truncated'))) {
+    throw 'Timeline claims complete coverage despite missing or capped input.'
+}
+$allowedProximity = @('bugcheck_storage_proximity','shutdown_storage_proximity','bugcheck_update_proximity')
+foreach ($window in @($timeReport.windows)) {
+    if ($null -eq $window -or $window.causeConfirmed -ne $false -or
+        $window.interpretation -ne 'recorded_timestamp_proximity_only') {
+        throw 'Timeline reports causality instead of recorded-time grouping.'
+    }
+    foreach ($kind in @($window.coObserved)) {
+        if ([string]$kind -notin $allowedProximity) {
+            throw 'Unexpected or unfiltered timeline proximity code.'
+        }
+    }
+}
+Write-Host 'TIMELINE CONTRACT PASS: local collector provenance, coverage and no causal claims.' -ForegroundColor Green
 # Validate the saved static consultation report without executing JavaScript or initiating repair.
 $savedHtml = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
 if ($savedHtml -notmatch 'id="consultation-print"' -or
     $savedHtml -notmatch '@page\{size:A4 portrait' -or
     $savedHtml -notmatch 'main>:not\(#consultation-print\)' -or
     $savedHtml -notmatch 'aria-label="진단 보고서 바로가기"' -or
-    $savedHtml -notmatch 'share-panel') {
+    $savedHtml -notmatch 'share-panel' -or
+    $savedHtml -notmatch '근접 신호\(원인 확정 아님\)') {
     throw 'Saved HTML missing the private consultation/print/share sections.'
 }
 if ($json.sharePreview.payloadStoredInJson -ne $false -or
