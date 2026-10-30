@@ -5,6 +5,8 @@ function Get-PcCareIncidentAssessment {
     param(
         [object[]]$EventEvidence = @(),
         [object[]]$DiskObservations = @(),
+        [ValidateSet('collected','empty','truncated','unavailable')]
+        [string]$DiskCollectionStatus = 'unavailable',
         [object[]]$UpdateEvidence = @(),
         [object]$PnPSummary = $null,
         [ValidateSet('collected','no matching events','truncated','unavailable')]
@@ -12,25 +14,35 @@ function Get-PcCareIncidentAssessment {
         [ValidateSet('collected','no matching events','truncated','unavailable')]
         [string]$EventCollectionStatus = 'unavailable'
     )
-    $allEvents = @($EventEvidence | Where-Object { $null -ne $_ })
+    # Stale arrays can survive a failed collector. They are not usable evidence.
+    # Incomplete (truncated) collections retain observed signals with a caveat.
+    $allEvents = @()
+    if ($EventCollectionStatus -in @('collected','truncated')) {
+        $allEvents = @($EventEvidence | Where-Object { $null -ne $_ })
+    }
     $allDisks = @($DiskObservations | Where-Object { $null -ne $_ })
     $bugchecks = @($allEvents | Where-Object { $_.kind -eq 'bugcheck_record' })
     $shutdowns = @($allEvents | Where-Object { $_.kind -eq 'shutdown_signal' })
     $storageSignals = @($allEvents | Where-Object { $_.kind -eq 'storage_signal' })
-    $updateFailures = @($UpdateEvidence | Where-Object { $null -ne $_ -and $_.kind -eq 'update_installation_failure_record' })
+    $updateFailures = @()
+    if ($UpdateCollectionStatus -in @('collected','truncated')) {
+        $updateFailures = @($UpdateEvidence | Where-Object { $null -ne $_ -and $_.kind -eq 'update_installation_failure_record' })
+    }
     $diskWarnings = @($allDisks | Where-Object { $_.status -in @('Warning','Unhealthy') })
     $unknownDisks = @($allDisks | Where-Object { $_.status -notin @('Healthy','Warning','Unhealthy') })
     $pnpSamples = @()
     $pnpStatus = 'unavailable'
     if ($null -ne $PnPSummary) {
-        $pnpSamples = @($PnPSummary.samples | Where-Object { $null -ne $_ })
         $pnpStatus = [string]$PnPSummary.status
+        if ($pnpStatus -in @('collected','truncated')) {
+            $pnpSamples = @($PnPSummary.samples | Where-Object { $null -ne $_ })
+        }
     }
     $pnpActiveIssues = @($pnpSamples | Where-Object { $_.configurationCode -gt 0 -and $_.configurationCode -ne 22 })
     $pnpDisabled = @($pnpSamples | Where-Object { $_.configurationCode -eq 22 })
     $findings = New-Object 'System.Collections.Generic.List[object]'
     $caveats = New-Object 'System.Collections.Generic.List[string]'
-    $incomplete = $EventCollectionStatus -in @('truncated','unavailable')
+    $incomplete = ($EventCollectionStatus -in @('truncated','unavailable')) -or ($DiskCollectionStatus -ne 'collected')
     if ($EventCollectionStatus -eq 'unavailable') {
         [void]$caveats.Add('시스템 이벤트 조회 불가: 로그 부재나 장애 부재를 확인한 결과가 아닙니다.')
     } elseif ($EventCollectionStatus -eq 'truncated') {
@@ -47,7 +59,7 @@ function Get-PcCareIncidentAssessment {
         $incomplete = $true
         [void]$caveats.Add('PnP 장치 구성 코드는 일부만 수집되었거나 조회할 수 없습니다. 장치가 정상이라는 결론은 내릴 수 없습니다.')
     }
-    if ($allDisks.Count -eq 0 -or $unknownDisks.Count -gt 0) {
+    if ($DiskCollectionStatus -ne 'collected' -or $allDisks.Count -eq 0 -or $unknownDisks.Count -gt 0) {
         $incomplete = $true
         [void]$caveats.Add('물리 저장장치 상태의 일부 또는 전체를 확인하지 못했습니다.')
     }

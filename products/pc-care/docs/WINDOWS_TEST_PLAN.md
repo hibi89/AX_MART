@@ -317,3 +317,8 @@ Pending manual tests:
 - Extract exact 8 `Add-Issue` codes from `tools/diagnose.ps1`. Browser H08 and printed report must have exactly the same eight-code allowlist; other syntactically valid uppercase values are untrusted and MUST NOT enter the output.
 - Reports containing unknown/malformed codes must show **comparison unavailable**, never report zero warnings. Test via `node --test tests/test_history_*.cjs` (45 PASS, native Linux Node22), full existing print tests plus new tests (54 PASS V8), and static source contract `tests/test_package.py` (not run in full environment).
 - Actual Windows 11 / Edge file:// / A4 PDF / USB Unicode / WinRE / Python full suite and CI unverified; the new code does not enable Release B backup copying.
+
+## 2026-10-31 — Incident analysis provenance regression (source-only check)
+- Fake/stale System BugCheck or shutdown, Windows Update failure, PnP configuration error arrays MUST yield zero observations/findings if matching collection status is unavailable or no matching events/devices. For collected/truncated statuses, preserve actual observed findings with explicit incomplete caveats where applicable.
+- Disk collection unknown/empty/truncated must mark incident summary incomplete even if a Healthy device sample survives; real observed disk Warning should not disappear. `tests/incident_analysis.tests.ps1` new 15 assertions, `test_package.py` source contract check.
+- Source checks 22 PASS (V8 static checks), PS5.1 runtime and Windows11 hardware NOT RUN; no WinRE copying or production change. Test on Windows using `powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tests/windows_smoke.ps1` in product directory.

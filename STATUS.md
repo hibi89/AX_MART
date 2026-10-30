@@ -143,3 +143,9 @@
 - The actual remote repository tree has all 37 package allowlist members (none missing, empty or above 5MB; total 235361 bytes). All 20 PowerShell files in the allowlist have valid UTF-8 BOM.
 - Synthetic source fixture used to create and verify ZIP, not a full original production ZIP build. Full repo Python/Node, Windows 11/PS5.1, Edge file://, USB, QR, A4, WinRE, CI and Production remain **UNVERIFIED**. No customer files or repair commands accessed.
 - Evidence: products/pc-care/tests/evidence/native_package_preflight_qa_20261031.json. No changes to public main/Cloudflare; WinRE backup copying remains blocked.
+
+## 2026-10-31 KST — PC CARE 원인 후보 분석 신뢰성 수정
+- 기능 브랜치 기준 `3ef198b3266e7da7382db8fe9a36a4cccedbc5b7`. `tools/incident_analysis.ps1`이 조회 실패·빈 결과에도 남아 있을 수 있는 System/Windows Update/PnP 배열을 근거로 원인 후보를 생성하지 않도록 상태별 증거 게이트 적용.
+- `tools/diagnose.ps1`에서 물리 저장장치 전체 수집 상태를 전달. 불완전 수집은 전체 정상으로 간주하지 않고 incomplete 및 고지; 실제 관측된 Warning은 유지. `tests/incident_analysis.tests.ps1` 새 15개 합성 Assertion, `tests/test_package.py` 원본 계약 추가.
+- GitHub Blob 기반 **정적 계약 12/12 + 최종 10/10 PASS**. **Windows PowerShell 5.1/전체 Python/실제 ZIP·CI·실기기 실행은 아직 미실행**. QA `products/pc-care/tests/evidence/incident_provenance_qa_20261031.json`.
+- Release B 파일 복사는 여전히 차단, main `fbb32362455378b85bcdd0b5037d1f338055fb71`·Cloudflare `https://ax-mart.pages.dev/` 미변경. 출시/판매 금지.

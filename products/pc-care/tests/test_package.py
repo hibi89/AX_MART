@@ -346,6 +346,31 @@ class PackageTests(unittest.TestCase):
         self.assertNotIn('-Verb RunAs', diagnose)
         self.assertIn("['collectionStatus']", diagnose)
 
+    def test_incident_analysis_requires_evidence_provenance(self):
+        engine = (ROOT/'tools/incident_analysis.ps1').read_text(encoding='utf-8-sig')
+        collector = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        fixture = (ROOT/'tests/incident_analysis.tests.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("[string]$DiskCollectionStatus = 'unavailable'", engine)
+        self.assertIn("-DiskCollectionStatus ([string]$collectionStatus['physicalDisks'])", collector)
+        self.assertIn("$EventCollectionStatus -in @('collected','truncated')", engine)
+        self.assertIn("$UpdateCollectionStatus -in @('collected','truncated')", engine)
+        self.assertIn("$pnpStatus -in @('collected','truncated')", engine)
+        self.assertIn("$DiskCollectionStatus -ne 'collected'", engine)
+        self.assertIn("if ($DiskCollectionStatus -ne 'collected' -or $allDisks.Count -eq 0", engine)
+        self.assertLess(engine.index("if ($EventCollectionStatus -in @('collected','truncated'))"),
+                        engine.index("$allEvents = @($EventEvidence | Where-Object"))
+        self.assertLess(engine.index("if ($UpdateCollectionStatus -in @('collected','truncated'))"),
+                        engine.index("$updateFailures = @($UpdateEvidence | Where-Object"))
+        for sentinel in (
+            "Failed event lookup cannot report a stale BugCheck",
+            "Unavailable Windows Update query excludes stale update events",
+            "Unavailable PnP query excludes stale samples",
+            "Healthy disk sample with unavailable inventory cannot imply complete assessment",
+            "Truncated PnP retains actually observed sample",
+            "Observed disk warning is kept despite incomplete inventory",
+        ):
+            self.assertIn(sentinel, fixture)
+
     def test_incident_explanations_are_local_and_noncausal(self):
         module = (ROOT/'tools/incident_analysis.ps1').read_text(encoding='utf-8-sig')
         diagnostic = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')

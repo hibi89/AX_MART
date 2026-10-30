@@ -475,3 +475,15 @@
 8. Preservation: No user REPORTS, system settings, BitLocker, repair/WinRE, secrets, public deployment or billing modified; previous feature commit is rollback source.
 9. Next: Actual full repository Python/Node and ZIP build/verify in available PC/runner, then Windows PS5.1 + USB/Edge/QR/A4 validation; Release B physical disk identity and WinRE VM needed before any real copy or release.
 10. Checked at 2026-10-31 KST: 16 native unit tests + source inventory/BOM checks verified, all real Windows/production checks unverified; confirm updated SHA after push.
+
+## [Latest] 2026-10-31 KST — Incident provenance QA handoff (10 sections)
+1. Goal/tech: Prevent unsupported root-cause findings from unavailable Windows event/update/PNP sources, read-only Windows 11 PowerShell 5.1.
+2. Done/decision: Gate event/update/PNP evidence to collected or truncated; do not interpret stale arrays under unavailable/no matching. Explicitly pass disk collection state from Safe-Collect; incomplete inventories flag output while warning signs retained.
+3. Test commands/results: `tests/incident_analysis.tests.ps1` +15 assertions, `tests/test_package.py` new source contract. Remote source V8 static 12 PASS and 10 PASS; actual PS5.1, whole Python/Node, real internal ZIP, Windows CI unrun.
+4. Status: Code/fixtures finished, runtime acceptance pending; A/B launch incomplete, B file copying remains blocked.
+5. Failure evidence/alternatives: Raw stale arrays could be used when a query failed. Status gating now prevents these in incident engine; prior failed workflow `41034866482` not rerun without runner access.
+6. Repo/branch/SHA: `hibi89/AX_MART` / `feature/pc-care-usb`, prior `3ef198b3266e7da7382db8fe9a36a4cccedbc5b7`; code `tools/incident_analysis.ps1`, `tools/diagnose.ps1`, tests and evidence.
+7. Production/environment: `https://ax-mart.pages.dev/` main unchanged; Windows PowerShell 5.1 `tests/windows_smoke.ps1` required for actual fixture execution.
+8. Source/backups/credentials: Report data and system unchanged; feature previous commit recoverable; no credentials exposed, no forced Git rewrite.
+9. Next steps/acceptance/approval: Native PS5.1 synthetic, whole source Python/ZIP, USB/file://, real PDF/QR, WinRE physical backup gate, user approval before public release.
+10. Confirmed at 2026-10-31 KST; 22 remote source contract checks passed, all native Windows/Production checks unverified; re-read final Git commit after push.

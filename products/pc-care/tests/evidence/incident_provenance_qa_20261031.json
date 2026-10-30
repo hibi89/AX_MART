@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "atKST": "2026-10-31",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "baseline": "3ef198b3266e7da7382db8fe9a36a4cccedbc5b7",
+  "objective": "Prevent false root-cause findings from stale event/update/PnP arrays when collection failed; disclose incomplete physical disk inventory.",
+  "changes": [
+    "Get-PcCareIncidentAssessment ignores system event arrays unless EventCollectionStatus collected or truncated.",
+    "Windows Update evidence ignored unless UpdateCollectionStatus collected or truncated.",
+    "PnP samples ignored unless PnPSummary.status collected or truncated.",
+    "DiskCollectionStatus now explicitly passed from diagnose.ps1; unknown/empty/truncated inventory marks interpretation incomplete.",
+    "Actual observed Warning/Unhealthy disk signals remain visible with an explicit incompleteness caveat.",
+    "Existing outcome codes and interpretation text preserved."
+  ],
+  "checks": {
+    "staticSourceContract": {
+      "passed": 12,
+      "failed": 0,
+      "scope": "V8 string contracts, current GitHub blob code, not PowerShell execution"
+    },
+    "fixtureAssertionsAdded": 15,
+    "fixtureExecution": "NOT RUN — Windows PowerShell 5.1 unavailable",
+    "nativePythonNewSourceContract": "NOT RUN — full checked-out private repository unavailable",
+    "nativePythonReleasePreflightRegression": "Previous commit 3ef198b3 had 16/16 native Python tests; NOT rerun for this change.",
+    "CI": "NOT RUN — GitHub connector has no workflow_dispatch action, prior runner failure 41034866482",
+    "Windows11USBPDFQRWinRE": "UNVERIFIED"
+  },
+  "files": {
+    "products/pc-care/tools/incident_analysis.ps1": "659b7c792b95275bd098eeba15c9b34ba90d0a84",
+    "products/pc-care/tools/diagnose.ps1": "26f0280419cb545e99e0aee0e99af52f7872f73f",
+    "products/pc-care/tests/incident_analysis.tests.ps1": "6f746214e5346ffca0921e748ec86cdf4f975bac",
+    "products/pc-care/tests/test_package.py": "cd9014c88a2fa3acda27279d22f7386cfc8efabd"
+  },
+  "safety": "No system repair/Windows commands executed; no personal data read; WinRE copying remains permanently disabled until physical disk identity and failure-mode QA proved; main/Cloudflare not changed.",
+  "next": "Run tests/windows_smoke.ps1 on Windows PowerShell 5.1; run full Python source contract and internal ZIP build; real USB/QR/A4/WinRE VM acceptance before user-approved release."
+}

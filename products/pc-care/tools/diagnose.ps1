@@ -244,7 +244,7 @@ if ($null -ne $defender) {
 $observations['collectionStatus'] = $collectionStatus
 # Local evidence rules do not make a hardware diagnosis or confirm causality.
 . (Join-Path $PSScriptRoot 'incident_analysis.ps1')
-$incidentAssessment = Get-PcCareIncidentAssessment -EventEvidence $evidence -DiskObservations @($diskData.ToArray()) -EventCollectionStatus $eventResult.status -UpdateEvidence $updateEvidence -UpdateCollectionStatus $updateResult.status -PnPSummary $pnpSummary
+$incidentAssessment = Get-PcCareIncidentAssessment -EventEvidence $evidence -DiskObservations @($diskData.ToArray()) -DiskCollectionStatus ([string]$collectionStatus['physicalDisks']) -EventCollectionStatus $eventResult.status -UpdateEvidence $updateEvidence -UpdateCollectionStatus $updateResult.status -PnPSummary $pnpSummary
 
 $assessment = if (@($issues | Where-Object {$_.severity -eq 'high'}).Count -gt 0) { '위험 신호' }
               elseif (@($issues | Where-Object {$_.severity -eq 'medium'}).Count -gt 0) { '주의 필요' }
