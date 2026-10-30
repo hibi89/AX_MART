@@ -163,3 +163,15 @@
 - Repo: `hibi89/AX_MART`, `feature/pc-care-usb`, 복원 기준 `ad392a6d646f1e104c9ed20ba32ad43d26ed73c5`; QA `products/pc-care/tests/evidence/consultation_provenance_qa_20261031.json`.
 - 서비스: `https://ax-mart.pages.dev/` main/Cloudflare 무변경·미배포. 고객 REPORTS/개인 파일/BitLocker/WinRE/수리 수정 없음.
 - 다음: Windows 11 PowerShell 5.1 `tests/windows_smoke.ps1` 기본 합성 실행 → 전체 Python·Node·ZIP → 실제 표준 권한 진단 및 보고서 UI/USB/QR/PDF 검증 → Release B 별도 안전 승인. 확인일 2026-10-31 KST. 완료 판정 금지.
+
+## 2026-10-31 KST — AXMART CUBE H08 개인정보 안전성 개선 인계
+1. 목표: Release A JSON 비교 결과와 A4/PDF에 임의 대문자 코드가 그대로 노출되는 문제 차단; 오프라인 진단 기능 유지.
+2. 완료: `products/pc-care/ui/history_compare.js`·`ui/history_print.js`의 경고코드를 실제 `diagnose.ps1` 생성 8종으로 제한, 알 수 없는 값은 ‘비교 불가’로 fail-closed. 새 8개 Node 테스트와 기존 인쇄 1개 기대값 수정, Python whitelist 일치 계약, 개발 QA/Windows CI 목록 등록.
+3. 테스트: 로컬 원본 SHA 동일 Linux Node22 `node --test tests/test_history_*.cjs` **45 PASS/0 FAIL** + 구문 검사; V8 기존 인쇄 포함 총 **54 PASS/0 FAIL**, 진단기 소스 목록 대조 8/8. 전체 Python·ZIP·PowerShell5.1·Windows CI는 미실행.
+4. 상태: H08 비교·인쇄 코드 개선 완료, Windows USB/QR/A4 실제 확인 전 제품 미완료. WinRE 복사 비활성.
+5. 오류·원인/대안: 대문자 정규식만 허용하던 로직에서 공격자가 임의 코드로 식별정보를 표시 가능. allowlist 및 비교 불가 처리로 수정. 기존 Windows CI run 41034866482 runner 전 단계 실패, 동일 실행 반복 금지. 실제 Windows runner 가용 시 재검증.
+6. Git: `hibi89/AX_MART`, `feature/pc-care-usb`, 이전 복구 SHA `6db12369123a2902e55aad84809ee6ab5dc0c94d`. 새 `tests/test_history_issue_allowlist.cjs`, `tests/evidence/h08_issue_allowlist_qa_20261031.json` 및 기존 source/tests/docs.
+7. Production: Cloudflare `https://ax-mart.pages.dev/`, main `fbb32362455378b85bcdd0b5037d1f338055fb71`, 기능 브랜치 개발 상태·미배포. 개발 `node --test tests/test_history_*.cjs`.
+8. 보안/백업: 고객 파일·REPORTS/WinRE/BitLocker/복구 기능 변경 없음, Git SHA 복구 가능; 외부 API 비용·전송 없음, 승인 없는 제품 출시/판매 금지.
+9. 다음 작업/완료 조건: 전체 Python·내부 ZIP 검증, Windows 11 PowerShell5.1 합성 → USB 한글 경로·Edge file://·QR 실스캔·A4 PDF 인쇄 → WinRE VM 및 소스/대상 물리 디스크 분리 증명. 물리 분리 확인 전 실제 복사 코드 노출 금지.
+10. 갱신: 2026-10-31 KST, 네이티브 Node 45/45·V8 54/54·정적 계약 8/8 검증만 완료. Windows/CI/Production 미검증, 최종 feature SHA 푸시 후 확인.

@@ -312,3 +312,8 @@ Pending manual tests:
 - When `physicalDisks` observations contain only Healthy items but `collectionStatus.physicalDisks` is unavailable, truncated, empty or missing, the consultation summary MUST display `미확인`, not `Windows 정상 신호`. An actually observed Warning remains visible even on incomplete collection with an explicit limitation. Complete non-empty all-Healthy sample is allowed with `보증 아님` caveat.
 - A stale System `eventEvidence` or WindowsUpdate `evidence` under unavailable/no-match status MUST NOT appear as actual events. `truncated` may show partial records with limitation. Verify via `tests/consultation_report.tests.ps1` inside `tests/windows_smoke.ps1` (without `-RunReadOnly`) on Windows PowerShell 5.1.
 - V8 static contract 7/7 PASS. Real PS5.1, entire Python/ZIP, Windows/QR/PDF/USB/WinRE & CI **UNVERIFIED**.
+
+## 2026-10-31 KST H08 accepted warning codes regression
+- Extract exact 8 `Add-Issue` codes from `tools/diagnose.ps1`. Browser H08 and printed report must have exactly the same eight-code allowlist; other syntactically valid uppercase values are untrusted and MUST NOT enter the output.
+- Reports containing unknown/malformed codes must show **comparison unavailable**, never report zero warnings. Test via `node --test tests/test_history_*.cjs` (45 PASS, native Linux Node22), full existing print tests plus new tests (54 PASS V8), and static source contract `tests/test_package.py` (not run in full environment).
+- Actual Windows 11 / Edge file:// / A4 PDF / USB Unicode / WinRE / Python full suite and CI unverified; the new code does not enable Release B backup copying.

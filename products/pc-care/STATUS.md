@@ -315,3 +315,8 @@
 - 기존 건강한 장치 표본만 있고 전체 장치 조회가 실패해도 정상 신호로 잘못 표시될 수 있던 조건 수정: `collectionStatus.physicalDisks='collected'`+비어 있지 않은 전체 Healthy만 'Windows 정상 신호 (보증 아님)'. 관찰된 Warning/Unhealthy는 미완전 수집 상태라도 경고 표시 및 수집 한계 고지.
 - 이벤트·업데이트 상태가 `unavailable` 또는 `no matching events`인 경우 배열에 남은 이벤트를 실제 기록 근거로 표시하지 않음. `truncated` 부분 기록은 한계 고지와 함께 표시. 기존 테스트의 '조회 불가 업데이트 이벤트도 표시' 오류 기대값 수정.
 - PS 합성 픽스처에 신규 10개 Assert, Python 소스 계약 테스트 추가. 원본 GitHub Blob 안전 계약 V8 7 PASS / 0 FAIL; **PowerShell 런타임 테스트/전체 Python·Node·ZIP/CI/WinRE·실기기 미검증**. 사용자 배포 금지.
+
+## 2026-10-31 KST — H08 비교/인쇄 경고 코드 8종 화이트리스트
+- 기존 대문자 정규식은 임의 식별값 `USER_SECRET_1234`도 경고로 출력할 수 있었다. 비교·PDF 인쇄 각각 정확한 8개 `Add-Issue` 코드만 허용, 보고서의 알 수 없는 코드·누락 항목은 ‘비교 불가’로 처리. 실제 경고의 ‘없음’ 오판과 개인정보 노출을 방지.
+- 로컬 Native Node22 45 PASS, V8 54 PASS, collector/JS/print 정적 계약 8 PASS. `tests/test_history_issue_allowlist.cjs` 신규 8개, `tests/test_history_print.cjs` 기대값 정정. CI·preflight·`tests/test_package.py` 등록, QA `tests/evidence/h08_issue_allowlist_qa_20261031.json`.
+- 기존 기능·Release B 복사 차단 유지. 전체 Python/ZIP·Windows 11/Edge·QR/PDF·WinRE/CI/판매 공개 **미검증/미승인**. 이전 SHA `6db12369123a2902e55aad84809ee6ab5dc0c94d`.

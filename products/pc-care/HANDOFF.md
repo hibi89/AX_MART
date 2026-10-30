@@ -445,3 +445,15 @@
 8. **데이터·보안:** 고객 원본 보고서/물리 디스크/BitLocker/레지스트리·WinRE 복구/비밀 키 미변경. 기존 SHA로 안전 복구 가능. 원격 배포·판매 비활성.
 9. **다음 작업:** PowerShell 5.1 synthetic fixtures 테스트 → 전체 Python/Node·정식 내부 ZIP build/verify → Windows 표준권한 USB/file://·QR 실스캔·A4 PDF 확인 → WinRE 분리 실기기 QA. 물리 디스크 분리 증명 없는 Release B 실제 복사는 계속 금지. 공개/판매 승인 별도.
 10. **시각·검증범위:** 2026-10-31 KST, 검증은 V8 정적 계약 7개·Git blob 일치. Windows/WinRE/Production 미검증, 최종 SHA 푸시 후 확인.
+
+## [최신] 2026-10-31 KST — H08 화이트리스트/개인정보 방지 인계
+1. 목표·확정 기술: Win11/PS5.1 offline H08 화면+PDF에 지정된 경고 코드만 표시; 개인정보 최소화.
+2. 수정/결정: `history_compare.js`와 `history_print.js`의 단순 /^[A-Z_]+$/ 허용을 진단기 고정 8코드 whitelist로 변경. 새 알 수 없는 코드가 섞이면 경고 목록 전체 ‘비교 불가’로 보수적 처리.
+3. 테스트: Linux Node v22.16.0 `node --test tests/test_history_*.cjs` **45/45 PASS**, Node 구문 검사 PASS. GitHub 원본 소스 V8 어댑터 인쇄 포함 54/54 PASS, 8개 정적 계약 PASS. 전체 Python/ZIP/PS5.1 CI 미실행.
+4. 상태: Release A H08 소스·테스트 개선, 실제 Windows·USB·A4/QR·WinRE·출시 QA 대기.
+5. 오류·대안: 단순 대문자 필터가 식별자를 노출하는 위험을 없애기 위해 절대 whitelist 사용. 향후 새 진단 코드 등장 시 `test_history_warnings_use_exact_known_collector_codes`가 실패하도록 계약 추가. CI 41034866482 테스트 시작 전 실패, 불필요한 재시도 금지.
+6. 저장소/브랜치: `hibi89/AX_MART` / `feature/pc-care-usb`, 변경 전 SHA `6db12369123a2902e55aad84809ee6ab5dc0c94d`. `ui/history_compare.js`, `ui/history_print.js`, `tests/test_history_issue_allowlist.cjs`, CI/preflight/README, QA evidence.
+7. Production/실행: `https://ax-mart.pages.dev/` 기존 main 그대로, 이 변경 배포 미적용; QA는 제품 폴더에서 `node --test tests/test_history_*.cjs`.
+8. 원본/복구·안전: 사용자 JSON/로그 원본 불변, BitLocker/WinRE/시스템 변경 없음, Git 이전 SHA 복구. Release B 물리 분리 불확실성으로 복사 코드 차단·미배포 유지.
+9. 다음 우선순위/완료 기준: 전체 Python/ZIP 실제 생성→Windows PS5.1 합성 QA→Edge USB 한글 경로/A4 PDF/QR 실스캔→WinRE VM 물리 디스크 분리 검증→사용자 승인 전 출시 금지.
+10. 갱신 일시/범위: 2026-10-31 KST, 소스 SHA/Node/V8 정적 계약 확인, CI/Windows/Production 미검증. GitHub 최종 SHA는 커밋 푸시 후 검증.

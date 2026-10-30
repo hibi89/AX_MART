@@ -132,3 +132,8 @@
 - `feature/pc-care-usb` 기준 `ad392a6d646f1e104c9ed20ba32ad43d26ed73c5`에서 Release A `consultation_report.ps1`의 수집 근거 검사 강화. 장치 정상 표시에는 `collectionStatus.physicalDisks=collected` + 비어 있지 않은 전체 Healthy 장치 목록 필수. 경고 신호는 수집 불완전해도 표시하되 불확실성 고지. 이벤트/업데이트 `unavailable` 상태의 잔류 로그는 상담표에 포함하지 않음.
 - PS 합성 픽스처 `consultation_report.tests.ps1` 기대값 갱신 + 새 10개 안전 Assertion; Python 정적 테스트 계약 갱신. GitHub 원본을 사용한 V8 소스 계약 검사 7/7 PASS, **실제 PowerShell 5.1/Windows/전체 Python/ZIP/CI 미실행**. QA `products/pc-care/tests/evidence/consultation_provenance_qa_20261031.json`.
 - Release B WinRE 실제 복사는 물리 디스크 분리 증명과 안전성 실기기 검증 전까지 계속 차단. main/Cloudflare·고객 파일·수리 코드 불변.
+
+## 2026-10-31 KST — H08 경고코드 개인정보 유출 차단
+- `feature/pc-care-usb` 기준 SHA `6db12369123a2902e55aad84809ee6ab5dc0c94d`에서 코드형식만 대문자인 사용자 입력값을 경고 코드로 노출할 위험 수정. `ui/history_compare.js`와 `ui/history_print.js`는 실제 diagnose.ps1의 8개 경고코드만 인식하며, 나머지 JSON 경고는 **비교 불가** 처리(잘못된 '없음' 판단 방지). 기존 화면·오프라인 A4 출력 기능 보존.
+- Git Blob 일치 실제 Linux Node v22.16.0 H08 **45/45 PASS**, GitHub 원본 V8 합성 인쇄 포함 **54/54 PASS**, 진단기·JS·인쇄·CI whitelist 계약 8/8 PASS. Windows/WinRE·Python 전체·실제 ZIP·CI·Production 미검증. CI에 새 8건 테스트 등록.
+- Release B 원본/대상 물리 디스크 분리 증명 부재로 WinRE 실제 복사는 계속 차단. GitHub main `fbb32362455378b85bcdd0b5037d1f338055fb71`·Cloudflare 변경 금지. QA `products/pc-care/tests/evidence/h08_issue_allowlist_qa_20261031.json`.

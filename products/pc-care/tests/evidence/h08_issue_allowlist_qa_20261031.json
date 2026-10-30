@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "recordedAtKST": "2026-10-31",
+  "project": "AXMART PC CARE",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "baseline": "6db12369123a2902e55aad84809ee6ab5dc0c94d",
+  "goal": "Offline H08 history comparison / printable PDF must never reflect arbitrary untrusted uppercase issue codes.",
+  "changes": [
+    "Exactly eight issue codes whitelisted, matching Get-PcCareConsultationSummary and eight Add-Issue sites in tools/diagnose.ps1",
+    "Unsupported/malformed report issue codes fail closed to unavailable comparison rather than false 'no new warnings'",
+    "Printable history summary independently checks the same whitelist and returns unavailable for mixed trusted/untrusted codes",
+    "Preserves all supported warning labels and existing original read-only report/ZIP behavior; registers new 8-case regression suite"
+  ],
+  "executed": [
+    {
+      "command": "node --check ui/history_compare.js, ui/history_print.js and node --test tests/test_history_*.cjs",
+      "runtime": "Linux Node.js v22.16.0",
+      "suite": "existing H08 37 + new warning allowlist 8",
+      "pass": 45,
+      "fail": 0,
+      "nativeNode": true,
+      "source": "local files with Git SHA matching the staged remote source blobs"
+    },
+    {
+      "command": "V8 Node built-in API adapters evaluating exact GitHub JS/test blobs",
+      "runtime": "V8",
+      "suite": "existing H08 37 + existing print 9 + new allowlist 8",
+      "pass": 54,
+      "fail": 0,
+      "nativeNode": false
+    },
+    {
+      "command": "GitHub-source collector, comparator, print and runner static contract",
+      "checks": 8,
+      "pass": 8,
+      "fail": 0
+    }
+  ],
+  "blobIntegrity": {
+    "products/pc-care/ui/history_compare.js": "dc53da4a17201fc98340c8c2c36db17c73114b89",
+    "products/pc-care/ui/history_print.js": "da10814d5cec61b856957c2480a563cae0deecf5",
+    "products/pc-care/tests/test_history_compare.cjs": "18bcfdd93d1cefa582893000851e6e1ce8cd9601",
+    "products/pc-care/tests/test_history_issue_allowlist.cjs": "4e906cba4d44071a8d8b9e972b4e34e04b8efe10",
+    "products/pc-care/tests/test_history_print.cjs": "e099635fb027c3d6009b3c147f1115fd7e5c1d13"
+  },
+  "unverified": [
+    "Python full suite and new package static check on full private tree",
+    "Windows PowerShell 5.1",
+    "real Edge/Chrome file:// browser, QR scan, A4 PDF page count",
+    "Windows11 x64/USB/WinRE/BitLocker",
+    "GitHub Actions CI on this commit",
+    "Production"
+  ],
+  "releaseB": "Physical-disk source/target distinctness not proven. RESCUE_READINESS.cmd always returns BLOCKED, copies no data, unmodified.",
+  "deployment": "feature branch only, no production or public release."
+}

@@ -175,3 +175,9 @@ QR 이미지 생성 전 UTC 기록 시각을 **정규식 + 실제 달력 날짜*
 - 이 검사는 BitLocker 잠금 상태, 원본과 백업 대상의 물리디스크 분리, 백업 용량, FAT32 4GiB 제한, EFS/OneDrive/연결 폴더, 해시 검증 조건을 증명하지 못한다. 따라서 **항상 BLOCKED(종료 코드 3)** 를 반환한다. 실제 파일 복사·복구키 요구·볼륨 잠금해제·명령 실행·파일 작성·삭제·자동 백업 **없음**.
 - 이는 **Release B 전체 백업 기능이 아니라 첫 준비 단계**이다. 안전하게 다른 물리 디스크를 확인하고, WinRE·BitLocker·중단·공간 부족·손상 등 VM/실기기 검증을 통과하기 전에는 실제 복사 기능을 연결하지 않는다.
 - 개발용 Linux Python 3.13.5 정적 계약 `python -m unittest discover -s tests -p test_rescue_readiness.py -v` **4/4 PASS**. CMD 자체의 WinRE 실구동은 미검증. Microsoft 참조: `https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/manage-bde-status`.
+
+## 2026-10-31 H08 경고코드 신뢰성·개인정보 보호
+
+- 비교 화면과 A4/PDF 인쇄 요약은 진단기가 실제 생성하는 **8개 고정 경고코드만** 표시한다. 임의의 대문자 코드, 경로·사용자 이름·식별자를 코드로 삽입한 JSON은 **경고 목록 비교 불가**로 처리하며 안전·개인정보를 위해 원문을 표시하지 않는다.
+- 진단기 `tools/diagnose.ps1`의 실제 `Add-Issue` 코드 목록과 JS/인쇄 모듈 목록의 일치를 Python 정적 계약으로 검증한다. 새 `tests/test_history_issue_allowlist.cjs` 8개 테스트를 Windows CI 및 개발용 preflight에 추가.
+- Linux Node.js v22.16.0에서 기존/신규 H08 **45/45 PASS**, GitHub 소스 V8 호환 환경에서 인쇄 포함 **54/54 PASS**. 실제 Windows·Edge file://·A4 출력·원본 Python 전체/ZIP·WinRE/CI는 미검증. Release B 자동 파일 복사는 여전히 미구현·차단.

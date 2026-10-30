@@ -52,7 +52,7 @@ test("print builder drops arbitrary raw values and limits warning output",()=>{
  disks:null,diskComparable:false,signals:null});
  assert.doesNotMatch(s,/PRIVATE-SECRET|SECRET=user_name/);
  assert.match(s,/확인 불가/);
- assert.match(s,/외 84종/);
+ assert.match(s,/신규 경고  비교 불가/);
  assert.ok(s.length<1600);
 });
 test("print builder fails closed on missing and invalid numeric counts",()=>{

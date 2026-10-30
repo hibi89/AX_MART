@@ -7,9 +7,10 @@
    const statuses=["위험 신호","주의 필요","확인 불완전","관찰 범위 내 특이사항 없음"];
    const state=s=>statuses.includes(s)?s:"확인 불가";
    const integer=n=>Number.isSafeInteger(n)&&n>=0?n:null;
+   const issueCodes=new Set(["DISK_HEALTH","STORAGE_EVENTS","DISK_SPACE_CRITICAL","DISK_SPACE_LOW","BUGCHECK","UNEXPECTED_REBOOT","WINDOWS_UPDATE_FAILURE_RECORD","PNP_CONFIGURATION"]);
    const warnings=(arr)=>{
-     if (!Array.isArray(arr))return "비교 불가";
-     const safe=arr.filter(x=>typeof x==="string" && /^[A-Z][A-Z0-9_]{1,63}$/.test(x));
+     if (!Array.isArray(arr) || arr.some(x=>!issueCodes.has(x)))return "비교 불가";
+     const safe=arr;
      const excerpt=safe.slice(0,6).join(", ")||"없음";
      return excerpt+(safe.length>6?" 외 "+(safe.length-6)+"종":"");
    };

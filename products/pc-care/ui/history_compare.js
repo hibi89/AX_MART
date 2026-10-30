@@ -27,7 +27,18 @@ function compareReports(oldReport,newReport){
  const signals = signalApi && typeof signalApi.compareSignals === "function" ? signalApi.compareSignals(a.r,b.r) : null;
  if (signals) caution.push(...signals.notes);
  else caution.push("추가 관측 비교 모듈을 불러오지 못해 확장 비교를 생략했습니다.");
- const codeSet=x=>Array.isArray(x.r.issues)?new Set(x.r.issues.filter(v=>v&&typeof v.code==="string"&&/^[A-Z][A-Z0-9_]{1,63}$/.test(v.code)).map(v=>v.code)):null;
+ const issueCodes=new Set(["DISK_HEALTH","STORAGE_EVENTS","DISK_SPACE_CRITICAL","DISK_SPACE_LOW","BUGCHECK","UNEXPECTED_REBOOT","WINDOWS_UPDATE_FAILURE_RECORD","PNP_CONFIGURATION"]);
+ // A syntactically uppercase value is NOT necessarily a PC CARE warning.
+ // Unknown/malformed entries make the comparison incomplete, never "no warnings".
+ const codeSet=x=>{
+   if(!Array.isArray(x.r.issues))return null;
+   const known=new Set();
+   for(const issue of x.r.issues){
+     if(!issue||typeof issue.code!=="string"||!issueCodes.has(issue.code))return null;
+     known.add(issue.code);
+   }
+   return known;
+ };
  const prev=codeSet(a),next=codeSet(b);
  // Unknown issue lists must not be presented as "no warnings".
  const added=prev&&next?[...next].filter(x=>!prev.has(x)).sort():null;

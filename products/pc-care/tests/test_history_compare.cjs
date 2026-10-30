@@ -13,7 +13,7 @@ test("older/current order cannot be inverted or equal",()=>{assert.throws(()=>co
 test("no event comparisons when logs unavailable/truncated",()=>{for(const status of ["unavailable","truncated"])assert.equal(compareReports(a,{...b,observations:{...b.observations,eventCollection:status}}).eventCounts,null);});
 test("no event comparisons if windows differ or result is capped",()=>{assert.equal(compareReports(a,{...b,observations:{...b.observations,eventWindowDays:7}}).eventCounts,null);assert.equal(compareReports(a,{...b,observations:{...b.observations,bugchecks:Array(30).fill({})}}).eventCounts,null);});
 test("invalid or unequal capacity drives are rejected",()=>{for(const v of [{drive:"C:",sizeGB:120,remainingGB:4},{drive:"<script>",sizeGB:100,remainingGB:4}])assert.deepEqual(compareReports(a,{...b,observations:{...b.observations,volumes:[v]}}).drives,[]);});
-test("untrusted issue codes never enter output",()=>assert.deepEqual(compareReports(a,{...b,issues:[{code:"<script>"}]}).added,[]));
+test("untrusted issue codes never enter output",()=>assert.equal(compareReports(a,{...b,issues:[{code:"<script>"}]}).added,null));
 test("unknown disk is not healthy",()=>assert.equal(compareReports(a,{...b,observations:{...b.observations,physicalDisks:[{status:"Unknown"}]}}).disks.after.unknown,1));
 test("missing issue list does not produce false success",()=>{
  const result=compareReports(a,{...b,issues:null});

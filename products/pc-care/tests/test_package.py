@@ -155,6 +155,28 @@ class PackageTests(unittest.TestCase):
         self.assertIn('Only complete all-healthy list may show healthy observation', tests)
         self.assertIn('Warning remains visible despite incomplete inventory', tests)
 
+    def test_history_warnings_use_exact_known_collector_codes(self):
+        import json
+        collector = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        actual = set(re.findall(r"Add-Issue\s+(?:'[^']+'|\$severity)\s+'([A-Z_]+)'", collector))
+        self.assertEqual(len(actual), 8, "Collector issue codes changed: review H08 allowlist before release")
+        h08 = (ROOT/'ui/history_compare.js').read_text(encoding='utf-8')
+        printer = (ROOT/'ui/history_print.js').read_text(encoding='utf-8')
+        def whitelist(source):
+            match = re.search(r'const issueCodes=new Set\((\[[^\]]+\])\)', source)
+            self.assertIsNotNone(match, 'H08 issue allowlist missing')
+            return set(json.loads(match.group(1)))
+        self.assertEqual(whitelist(h08), actual)
+        self.assertEqual(whitelist(printer), actual)
+        self.assertIn('if(!issue||typeof issue.code!=="string"||!issueCodes.has(issue.code))return null', h08)
+        self.assertIn('arr.some(x=>!issueCodes.has(x))', printer)
+        new_test = (ROOT/'tests/test_history_issue_allowlist.cjs').read_text(encoding='utf-8')
+        self.assertIn('unknown uppercase code cannot appear', new_test)
+        qa = (ROOT/'tools/preflight.py').read_text(encoding='utf-8')
+        workflow = (ROOT.parent.parent/'.github/workflows/pc-care-windows-synthetic.yml').read_text(encoding='utf-8')
+        self.assertIn('tests/test_history_issue_allowlist.cjs', qa)
+        self.assertIn('tests/test_history_issue_allowlist.cjs', workflow)
+
     def test_normal_check_is_read_only(self):
         text = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
         # No change-enabling cmdlets or dangerous commands in scanner.
