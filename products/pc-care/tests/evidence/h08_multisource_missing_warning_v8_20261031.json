@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "baselineSha": "4eb938bd56fad61c35637860a57d6faa0b6bb6ca",
+  "scope": "GitHub actual source V8 wrapped official tests",
+  "officialTests": 44,
+  "passed": 44,
+  "failed": 0,
+  "testSuites": [
+    "tests/test_history_compare.cjs",
+    "tests/test_history_issue_allowlist.cjs",
+    "tests/test_history_evidence_integration.cjs"
+  ],
+  "newRegressionCases": 4,
+  "nativeNode": "NOT_RUN",
+  "nativeWindows": "NOT_RUN",
+  "python": "NOT_RUN",
+  "production": "UNCHANGED",
+  "release": "HOLD"
+}

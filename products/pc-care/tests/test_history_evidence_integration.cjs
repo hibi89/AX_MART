@@ -94,3 +94,17 @@ test("missing all System samples is an observed zero only after complete no-matc
  none.observations.collectionStatus.events="unavailable";
  assert.equal(compareReports(before,none).eventCounts,null);
 });
+
+test("Update and PnP warnings need validated zero/current inactive evidence before marked missing",()=>{
+ const older=copy(before);older.issues=[{code:"WINDOWS_UPDATE_FAILURE_RECORD"},{code:"PNP_CONFIGURATION"}];
+ assert.deepEqual(compareReports(older,after).missing,["PNP_CONFIGURATION","WINDOWS_UPDATE_FAILURE_RECORD"]);
+ const failed=copy(after);
+ failed.observations.collectionStatus.windowsUpdate="unavailable";
+ failed.observations.windowsUpdate.status="unavailable";
+ failed.observations.collectionStatus.driverDevices="unavailable";
+ failed.observations.driverDevices.status="unavailable";
+ assert.deepEqual(compareReports(older,failed).missing,[]);
+ const disabled=copy(before);disabled.generatedAt="2026-10-30 11:00:00 +09:00";
+ disabled.issues=[];disabled.observations.driverDevices.samples=[d(22)];
+ assert.deepEqual(compareReports(older,disabled).missing,["PNP_CONFIGURATION"]);
+});

@@ -61,7 +61,7 @@ function compareReports(oldReport,newReport){
  const currentVolumesComparable=volumeMap(b).size>0;
  // Unknown issue lists must not be presented as "no warnings".
  const added=prev&&next?[...next].filter(x=>!prev.has(x)).sort():null;
- const missing=prev&&next?[...prev].filter(x=>!next.has(x)&&
+ const missingCandidates=prev&&next?[...prev].filter(x=>!next.has(x)&&
    (!volumeIssueCodes.has(x)||currentVolumesComparable)).sort():null;
  if(prev&&next&&!currentVolumesComparable&&
     [...prev].some(x=>volumeIssueCodes.has(x)&&!next.has(x)))
@@ -132,6 +132,22 @@ function compareReports(oldReport,newReport){
    a.o.collectionStatus&&a.o.collectionStatus.physicalDisks==="collected"&&
    b.o.collectionStatus&&b.o.collectionStatus.physicalDisks==="collected");
  caution.push(diskComparable?"물리 저장장치 경고 건수는 장치 동일성이 확인되지 않은 집계입니다.":"저장장치 조회 상태·장치 수·미확인 값 때문에 경고 건수의 직접 비교를 보류합니다.");
+ // An absent warning is not evidence of repair: relevant collectors must be complete.
+ const sourceSupportsMissing=code=>{
+   switch(code){
+     case "BUGCHECK": return !!eventCounts && eventCounts.after[0]===0;
+     case "UNEXPECTED_REBOOT": return !!eventCounts && eventCounts.after[1]===0;
+     case "STORAGE_EVENTS": return !!eventCounts && eventCounts.after[2]===0;
+     case "WINDOWS_UPDATE_FAILURE_RECORD": return !!(signals && signals.updates) && signals.updates.after===0;
+     case "PNP_CONFIGURATION": return !!(signals && signals.devices) && !!b.o.driverDevices &&
+       Array.isArray(b.o.driverDevices.samples) && b.o.driverDevices.samples.every(d=>d.configurationCode===22);
+     case "DISK_HEALTH": return diskComparable && disks.after.warning===0;
+     default: return true; // Volume issues were already gated by currentVolumesComparable.
+   }
+ };
+ const missing=missingCandidates===null?null:missingCandidates.filter(sourceSupportsMissing);
+ if(missingCandidates && missing.length!==missingCandidates.length)
+   caution.push("수집 상태·증거가 불완전하거나 현재도 경고 신호가 관측되어 일부 과거 경고의 미관찰 여부를 판단하지 않습니다.");
  if(missing&&missing.length)caution.push("최근 기록에 보이지 않는 경고는 문제가 해결됐다는 뜻이 아닙니다.");
  if(!prev||!next)caution.push("경고 코드 배열을 읽지 못해 신규/미관찰 경고 비교를 건너뛰었습니다.");
  // Never echo arbitrary untrusted assessment text from a local JSON file.

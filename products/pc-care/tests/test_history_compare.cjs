@@ -38,7 +38,7 @@ test("incomplete volume data cannot erase a previous low-space warning",()=>{
    collectionStatus:{...b.observations.collectionStatus,volumes:status},
    volumes:[{drive:"C:",sizeGB:100,remainingGB:100}]}};
   const result=compareReports(previous,current);
-  assert.deepEqual(result.missing,["BUGCHECK"]);
+  assert.deepEqual(result.missing,[]); // Still observed in current validated log.
   assert.deepEqual(result.drives,[]);
   assert.ok(result.caution.some(note=>note.includes("경고의 미관찰 여부")));
  }
@@ -184,4 +184,32 @@ test("unrecognized assessment text never appears in comparison",()=>{
  assert.equal(result.afterAssessment,"확인 불가");
  assert.doesNotMatch(JSON.stringify(result),/SECRET DEVICE SERIAL/);
  assert.ok(result.caution.some(v=>v.includes("상태값")));
+});
+
+test("System warning cannot disappear when the current log collector fails",()=>{
+ const earlier={...a,issues:[{code:"BUGCHECK"},{code:"UNEXPECTED_REBOOT"},{code:"STORAGE_EVENTS"}]};
+ const latest={...b,issues:[],observations:{...b.observations,eventCollection:"unavailable",
+   collectionStatus:{...b.observations.collectionStatus,events:"unavailable"},
+   eventEvidence:[],bugchecks:[],unexpectedShutdowns:[],storageEvents:[]}};
+ const r=compareReports(earlier,latest);
+ assert.deepEqual(r.missing,[]);
+ assert.equal(r.eventCounts,null);
+ assert.ok(r.caution.some(s=>s.includes("미관찰 여부를 판단하지 않습니다")));
+});
+test("System warning absence requires complete validated no-match log",()=>{
+ const earlier={...a,issues:[{code:"BUGCHECK"}]};
+ const latest={...b,issues:[],observations:{...b.observations,
+   eventCollection:"no matching events",collectionStatus:{...b.observations.collectionStatus,events:"no matching events"},
+   eventEvidence:[],bugchecks:[],unexpectedShutdowns:[],storageEvents:[]}};
+ const r=compareReports(earlier,latest);
+ assert.deepEqual(r.missing,["BUGCHECK"]);
+ assert.deepEqual(r.eventCounts.after,[0,0,0]);
+});
+test("physical disk warning missing requires comparable complete disk inventory",()=>{
+ const earlier={...a,issues:[{code:"DISK_HEALTH"}],observations:{...a.observations,physicalDisks:[{status:"Warning"}]}};
+ const complete={...b,issues:[],observations:{...b.observations,physicalDisks:[{status:"Healthy"}]}};
+ assert.deepEqual(compareReports(earlier,complete).missing,["DISK_HEALTH"]);
+ const failed={...complete,observations:{...complete.observations,
+   collectionStatus:{...complete.observations.collectionStatus,physicalDisks:"unavailable"}}};
+ assert.deepEqual(compareReports(earlier,failed).missing,[]);
 });
