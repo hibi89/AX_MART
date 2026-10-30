@@ -141,3 +141,16 @@
 9. **다음 우선순위와 완료 조건:** ①Windows PS5.1 파서+모든 합성 fixture 실제 실행 ②표준 사용자 Windows 장치 코드·로그 수집 확인 ③USB 경로/권한·로그 실패, 101건 PnP cap/80건 timeline cap 확인 ④Python 정적 unittest/ZIP SHA 실제 실행 ⑤P1 오탐 회귀 보강 후 P2 한 장 수리 상담표·Print CSS/오프라인 QR 준비. 게이트 통과 전 실제 Windows PASS/제품 완성 주장 금지.
 10. **갱신 시각·범위·재시작 방법:** 2026-10-30 KST, GitHub source 정적 계약 37/37. 다른 작업방에서도 `NEXT_CHAT_PC_CARE.md`→`FINAL_SPEC_V2.md`→`STATUS.md`→본 파일 순서로 읽고 feature branch 최신 HEAD로 이어갈 것. 사용자 'ㄱ'에 묻지 말고 가능한 정적 독립 작업 계속; 실기기 검증 결과 없으면 완료 판정 보류.
 
+## [최신] 2026-10-30 KST — P2 수리 상담 A4 인쇄 요약 인수인계
+
+1. **목표·용도·확정 요구·기술:** AXMART PC CARE Release A R01/R02/R03/R05/R07: 기존 read-only Windows PowerShell 5.1 진단에서 수리점 상담용 객관적 1페이지 정보를 로컬 HTML/CSS와 브라우저 인쇄→PDF로 내보내기. P2 초기 개발 단계.
+2. **완료 기능·변경·결정 근거:** `tools/consultation_report.ps1`에서 상담표 데이터를 whitelist로 최소화. Event ID/기록 UTC/Windows build/상태/백업·질문, 고장 원인 미확정. `tools/consultation_render.ps1`에서 HTML encoding 후 A4 section 생성. `tools/diagnose.ps1`는 기존 JSON/HTML 보존하며 consultation 필드와 전용 print CSS 추가. 실제 프린트·PDF는 브라우저 수동 실행, 서버/API/외부폰트 없음. 기존 read-only 분석·기기 데이터 삭제/복구 없음.
+3. **테스트 명령·성공/실패·미검증:** 소스 간 정적 계약 37/37 조건 충족(실제 런타임 검증 아님). `tests/consultation_report.tests.ps1` 합성 개인정보 제거·악성 HTML escape·4건 상한·UTC·조회 실패 시나리오 작성, `tests/windows_smoke.ps1` 파서/fixture 등록. Python `tests/test_package.py`, `tests/test_release.py` ZIP 참조 수정, 실제 실행 0회. Windows PowerShell 5.1/인쇄/PDF/WinRE 실행 0회; CI 상태 별도 확인.
+4. **완료/진행/대기/차단:** P2 A4 CSS+요약 모델+상담표 HTML 초기 구현. QR·실제 A4 한 장/장치별 브라우저 QA·홈 UI 미완성. P0/P1 Windows 실기기 QA 미통과, Release A 공개 불가, Release B WinRE 파일 백업 출시 금지.
+5. **오류·원인·시도·중단·대안:** 이 환경에는 Windows PowerShell 및 GUI 프린터가 없어 한 페이지 출력과 PS5.1 parser 검증이 안 됨. 코드 정적 점검은 Windows 통과와 다르다. Windows VM/실기기에서 Ctrl+P PDF·실제 인쇄·긴 문자열·한글·USB 저장/권한 실패를 재현 후 최소 수정. 기존 검증 없는 출시 강행 금지.
+6. **저장소·브랜치·SHA·경로:** hibi89/AX_MART / feature/pc-care-usb, 시작 SHA 0c67459fa02b31271f7f4b9f2c295e22d0eb8c74. 핵심 `products/pc-care/tools/consultation_report.ps1`, `consultation_render.ps1`, `diagnose.ps1`, `tests/consultation_report.tests.ps1`, `windows_smoke.ps1`, `tools/release.py`, `tests/test_package.py`, `tests/test_release.py`, `docs/WINDOWS_TEST_PLAN.md`. 문서 이후 HEAD 확인.
+7. **Production URL·Vercel/Cloudflare·실행환경:** https://ax-mart.pages.dev/ 는 main Cloudflare Pages 운영, feature 코드는 미배포. Windows 11 x64+Windows PowerShell 5.1과 Edge/Chrome 브라우저 대상. Vercel 배포 대상 아님.
+8. **원본·백업·권한·수정 금지:** Git 기존 커밋으로 복구 가능, main 변경 없음. 기존 보고서·수리/WinRE 코드 변경 없음. 비밀번호·BitLocker 복구키·기기 식별자·민감 원문을 상담표/QR/외부 서버에 담지 않음. PDF 공유/인쇄는 사용자가 수동으로 실행.
+9. **다음 우선순위·완료 기준·승인:** Windows PS5.1 파서+synthetic fixture → Windows 11 read-only RUN_SELF_TEST.cmd → A4/한글/브라우저 PDF 실제 파일 검증 → 오류 수정 후 P2 QR 명시 생성·미리보기·용량·스캔/오프라인 검증. WinRE/복구 위험 기능은 별도 백업/안전 테스트 및 승인 필요. 무료 배포 및 크몽 19,900원부터 검토하는 분석 서비스 등록은 실제 출시 승인 전 보류.
+10. **KST·검증 범위·문서 기준:** 2026-10-30 KST. GitHub connector 소스 직접 검사, 정적 37/37. Windows·CI·실기기·인쇄/PDF·QR 런타임 검증 미실행. 본 문서 최신 커밋/feature HEAD 재확인.
+
