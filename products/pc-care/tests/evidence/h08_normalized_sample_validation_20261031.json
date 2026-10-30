@@ -1,0 +1,41 @@
+{
+  "date_kst": "2026-10-31",
+  "repo": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "initial_head": "209a3366ed841519c871be1aba3bdf84cf815d0b",
+  "defect": "H08 history_signals compared fabricated Windows Update and PnP counts from empty/invalid samples when length and declared counts matched.",
+  "correction": "Require update event kind/id/timeBasis/valid UTC and true failure/success counts; require PnP 1..55 configuration code and rootCauseConfirmed=false, even with matching sample count. Retain valid empty statuses as zero.",
+  "changed_paths": [
+    "ui/history_signals.js",
+    "tests/test_history_signals.cjs",
+    "tests/test_package.py"
+  ],
+  "source_blob_shas": {
+    "ui/history_signals.js": "906104fa1689424d547cd53a2b2034686480ec88",
+    "tests/test_history_signals.cjs": "20c38071d7ae893b9c033165ad8d1a5ede874045",
+    "tests/test_package.py": "045385dc0241cb5b540e145dd2e985da976530cf"
+  },
+  "verification": {
+    "initial_bug_reproduced": "Existing GitHub JS accepted [{},{}] as valid Windows Update evidence and [{}] PnP sample.",
+    "exact_actual_JS_V8_direct_scenarios": {
+      "passed": 12,
+      "failed": 0
+    },
+    "actual_GitHub_JS_plus_committed_node_test_source_V8_adapter": {
+      "passed": 25,
+      "failed": 0,
+      "details": "2 committed suites (test_history_signals.cjs & test_history_compare.cjs), evaluated in V8 with a minimal node:test/assert adapter, not native Node test harness"
+    },
+    "static_source_contract": {
+      "passed": 12,
+      "failed": 0
+    },
+    "native_Node_test": "NOT_RUN",
+    "native_Python_test": "NOT_RUN",
+    "Windows_11_PS51_USB": "NOT_RUN",
+    "real_Edge_file": "NOT_RUN",
+    "QR_A4_WinRE": "NOT_RUN",
+    "CI": "NOT_RUN"
+  },
+  "safety": "H08 UI remains manual local JSON-only, no disk write/delete, no network, no impact on user reports or system, no public release or main deploy."
+}
