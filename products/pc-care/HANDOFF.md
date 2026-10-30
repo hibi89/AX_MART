@@ -44,3 +44,8 @@
 - 검증: `tests/test_release.py` 임시 fixture 기반 6/6 PASS (Linux Python). Windows 실동작·실제품 ZIP·WinRE 검증은 미확인. 판매/공개는 여전히 금지.
 - 변경 전 GitHub 소스 기준 `5a0eb2d904c7877a149f04c3f99084ee2a1ed0e3`, `feature/pc-care-usb`. 기능·버전은 v0.1-alpha 유지, Cloudflare main 미변경.
 - 다음 작업: 실제 Windows PS5.1 진단 읽기/보고서·WinRE 테스트와 별도의 복구 VM 시나리오 통과. 검증된 SHA256 산출물만 무료 베타 후보.
+
+## 2026-10-30 KST — Windows 사용자 검증 진입점
+- 사용자 기기에서 내부 테스트 ZIP 압축 해제 후 `RUN_SELF_TEST.cmd` 1회 실행만으로 문법+읽기 전용 보고서 생성 여부 확인 가능. 별도의 수리 실행은 절대 금지.
+- README, 패키지 ALLOWLIST(11개), 정적 테스트 갱신. Python fixture 패키징 6/6 성공. 실기기·WinRE PASS 주장 금지.
+- 변경 전 HEAD `2ee12d9bf1fcf311ca40c7d4e129076d68ce96f0`; 다음 Windows 검증 실패 시 로그 및 명령/환경만 별도 정리하고 개인정보 공유 금지.

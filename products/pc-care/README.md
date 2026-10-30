@@ -44,3 +44,6 @@
 - `python3 tools/release.py --verify dist-internal/AXMART_PC_CARE_USB_v0.1-alpha_INTERNAL_TEST_ONLY.zip` — 허용 파일 목록·내부 SHA256·ZIP 무결성 재확인.
 - ZIP은 내부 개발·Windows 검증용으로만 사용한다. 사용자 파일/이벤트 로그는 패키지에 포함하지 않는다.
 - 실제 Windows 검사: 관리자 아닌 PowerShell 5.1에서 `powershell.exe -NoProfile -File tests/windows_smoke.ps1` (문법만), `-RunReadOnly` 추가 시 진단 실행. 디스크 수리는 실행하지 않는다.
+
+## Windows 초보자용 안전 시험 (공개 전 내부 전용)
+압축 해제한 USB 폴더에서 `RUN_SELF_TEST.cmd`를 더블클릭한다. PowerShell 문법 검사 후 **최근 1일에 대한 읽기 전용 검사**와 로컬 HTML/JSON 생성 여부만 검증한다. 시스템 파일 수리는 실행하지 않는다. 완료 화면의 PASS/FAILED와 종료 코드를 확인한다. 시험 중인 Windows 10/11에서만 사용하며, 개인정보가 포함될 수 있는 보고서를 그대로 외부에 공유하지 않는다. 결과가 PASS여도 WinRE·복구 기능 안전성은 별도 검증이 필요하다.

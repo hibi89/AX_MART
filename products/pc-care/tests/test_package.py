@@ -84,6 +84,18 @@ class PackageTests(unittest.TestCase):
         self.assertIn('if ($eventQueryFailed)', text)
         self.assertIn('마모율/온도는 드라이버 지원', text)
 
+    def test_self_test_is_read_only_and_bundled(self):
+        starter = (ROOT/'RUN_SELF_TEST.cmd').read_text(encoding='utf-8')
+        smoke = (ROOT/'tests/windows_smoke.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn('windows_smoke.ps1', starter)
+        self.assertIn('-RunReadOnly', starter)
+        self.assertNotIn('repair.ps1', starter.lower())
+        self.assertIn('Parser]::ParseFile', smoke)
+        self.assertNotIn('repair.ps1 -', smoke)
+        package = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        self.assertIn("'RUN_SELF_TEST.cmd'", package)
+        self.assertIn("'tests/windows_smoke.ps1'", package)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
         for name in ['tools/diagnose.ps1','tools/repair.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
