@@ -256,3 +256,8 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - 직전 미반영 사항도 확인: H08 볼륨 조회 실패·중복 드라이브 보수 처리, `tools/preflight.py` 비Windows native QA 미실행 `partial`/exit2, 손상 가능 센서 패키징 변경은 신규 fast-forward 롤백 SHA `2112c95c11edfbaa1584e16f0c881a2848017c9e`로 복원.
 - 최신 코드의 GitHub 실소스 + 커밋된 JS 테스트 3개 스위트 **V8 38 PASS / FAIL 0**. 네이티브 Windows PS5.1/Node/Python/USB/QR/PDF/WinRE/실 ZIP/신규 CI 아직 미검증. 이전 Actions 실패(run 41034866482)는 다른 SHA, runner 미배정.
 - 기존 `main`/Cloudflare 운영·개인 데이터·권한·복구·구매 흐름 불변. 개발 전 기준 `b568c942c00ee4cc32e24863e2608c93806df290`. 다음은 전체 Windows checkout `products/pc-care/RUN_RELEASE_QA.cmd`→실 read-only 생성 JSON/HTML→H08/Edge/USB/QR/A4, 그 후 WinRE 안전 검증. 제품 100%/배포 완료 주장 금지.
+
+## 2026-10-31 KST — AXMART CUBE 최신 저장장치 출처 검증 인수인계
+- `hibi89/AX_MART@feature/pc-care-usb`: 진단 코어의 `incident_analysis.ps1`에서 실패/무결과 물리 디스크 수집의 잔존 경고 표본을 배제. `collected/truncated` 실제 표본만 분석하고 절단은 불완전 표시. `tests/incident_analysis.tests.ps1` 및 `tests/test_package.py` 경계 회귀 보강.
+- GitHub 코드/파일 원격 재조회 기반 **19/19 정적 계약 PASS**, PS5.1/native Node·Python/실 Windows·USB·QR/A4/ZIP·WinRE·CI는 미실행. 근거 `products/pc-care/tests/evidence/incident_disk_provenance_static_qa_20261031.json`. 상세 10항은 `products/pc-care/HANDOFF.md`.
+- 변경 전 SHA `009ac6b9fa1a81c313aae71b9d85190d4e036d16`, 운영 main/Cloudflare·고객 OS/파일·복구·인증 변경 없음. 다음: Windows 전체 소스 `RUN_RELEASE_QA.cmd` 합성 실행→선택적 read-only 실제 보고서/H08 확인→USB/QR/A4→WinRE 별도 안전 게이트. 최종 SHA는 문서 커밋 후 확인.
