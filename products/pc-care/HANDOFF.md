@@ -114,3 +114,17 @@
 8. **원본/백업/권한·금지**: 이전 SHA로 롤백 가능. BitLocker 키/디스크 시리얼/원문 로그/사용자 개인 파일 GitHub 업로드 금지. 공개 테스트 ZIP/무료 베타·결제 중단 유지. 관리자 승격/삭제/파티션·부트 수정/무인 수리 금지.
 9. **다음 우선순위/완료조건/승인사항**: 실제 Windows 11 PS5.1 parser+event/report/incident synthetic fixture → 일반 계정 read-only 검사(JSON/HTML 일치와 기기별 unknown) → Python 정적/ZIP 테스트 → 테스트 VM에서 파일 경로·권한/로그 failure injection → P1 배터리·업데이트 지원과 1페이지/QR 점진 구현. 출시에는 별도 Windows/WinRE/보안 검증과 사용자 승인 필요.
 10. **KST·확인 시점·검증 범위·문서 기준**: 2026-10-30 KST. GitHub connector의 소스 점검과 커밋 확인, 정적 32/32. Windows/Python 제품 테스트 미실행. 문서 커밋 후 feature branch 실제 HEAD 확인.
+
+## [최신] 2026-10-30 KST — P1 배터리·Windows Update 관측 1차
+
+1. **목표·요구·스택:** FINAL_SPEC_V2.md H05/H06. AXMART PC CARE Release A의 비관리자·오프라인 PowerShell 5.1 배터리/업데이트 증거 수집과 분석 해설 구현. 사용자 기기·시스템 파일 변경 없음.
+2. **완료 변경·근거:** 신규 tools/telemetry_analysis.ps1로 Win32_Battery 조회값 정규화(없음/조회 불가/일부 수집, 현재 충전량 vs 배터리 건강도 구별, 설계/완충 용량 미지원 null), WindowsUpdateClient System 이벤트 19/20(기록 시각, 300건 상한, 원문/기기 식별 정보 미저장). tools/diagnose.ps1 JSON/HTML 및 tools/incident_analysis.ps1 보수적 업데이트 검토 규칙 연동.
+3. **실제 검증·명령·미검증:** GitHub 소스 9개 파일의 JS 정적 계약 검사 39/39 조건 충족. tests/telemetry_analysis.tests.ps1 신규, tests/incident_analysis.tests.ps1 확장, tests/windows_smoke.ps1에 파서/합성 fixture 추가, Python packaging/내부 ZIP 의존성 수정. 이 환경에 pwsh/PowerShell 없어 실제 PowerShell fixture 0회, Python unittest 및 ZIP 실제 생성 0회, Windows 실기기/VM 0회. 실행 명령: 제품 폴더에서 python3 tests/test_package.py, python3 tests/test_release.py; Windows 일반 사용자에서 powershell.exe -NoProfile -File tests/windows_smoke.ps1, 이후 명시적 -RunReadOnly 테스트.
+4. **진행/대기/차단:** P1 배터리·업데이트 기본 관측 코드 완성, 호환성·실측 QA 대기. Windows 11/10 기종별 자료 지원 상태/다른 Windows Update 로그 소스/드라이버 변경 정보 미확인. P0 read-only 실측 게이트 대기, P2 1페이지 Print/PDF·QR, WinRE Release B 미검증. 판매·공개 ZIP 차단.
+5. **오류·원인·대안/재시도:** Windows PowerShell 5.1 실기기 없음, 외부 컨테이너는 private GitHub DNS 불가. GitHub connector로 저장/정적 검증은 가능하지만 실제 런타임은 대체할 수 없음. 미실행 테스트를 PASS로 주장 금지. 이벤트 19/20의 원인 진단은 불가, '설치 기록'으로만 출력.
+6. **저장소/브랜치/SHA·파일:** hibi89/AX_MART, feature/pc-care-usb, 시작 SHA 9ca1bca478bed6ffb90ba7c1c67e52ee8cef99e3. 핵심 tools/telemetry_analysis.ps1, diagnose.ps1, incident_analysis.ps1, tests/telemetry_analysis.tests.ps1, incident_analysis.tests.ps1, windows_smoke.ps1, tools/release.py, tests/test_package.py, test_release.py, docs/WINDOWS_TEST_PLAN.md. 본 문서 커밋 후 HEAD 확인.
+7. **Production URL·환경:** Cloudflare Pages https://ax-mart.pages.dev/ 는 main 운영; feature 브랜치만 변경, 배포/실서비스 변경/확인 없음. Windows 11 x64 PS5.1 우선 검증, Windows 10 x64 제한 검증.
+8. **원본·백업·보안 금지:** 과거 Git 커밋으로 원본 소스 복구 가능. Windows 변경·관리자 자동 승격·WinRE 파일 복사·BitLocker 키 수집·원본 이벤트 메시지/배터리 일련번호 기록·원격 통신 금지. 공개 다운로드/결제 비활성 유지.
+9. **다음 우선순위와 종료조건:** (1) Windows 11 PS5.1 구문/합성 fixture 실제 실행 (2) 기본 사용자에서 배터리 없음/실배터리/이벤트 19·20 실제 수집 확인 (3) USB 경로/로그 거부/300 cap/저장 실패 재현 (4) Python unittest/내부 ZIP 체크섬 실검증 (5) 장치 드라이버 오류 수집 및 사건 상관 규칙, 1페이지 인쇄 준비. 실패는 최소 수정 후 반복, 실기기 없으면 P0·P1 완료 판정 보류.
+10. **갱신 일시/범위:** 2026-10-30 KST. GitHub 원격 소스와 39/39 정적 검사만 실제 수행. 실제 Windows/CI/ZIP/WinRE 테스트 미수행. 문서 기록 후 최신 feature HEAD 확인.
+
