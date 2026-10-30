@@ -87,3 +87,10 @@
 - New `tests/share_payload.tests.ps1`, Windows smoke parser/fixture, internal ZIP and Python static/release tests. Static GitHub source check 40/40 conditions satisfied but PowerShell/Windows/Python/ZIP/QR scan tests have NOT run.
 - Next work: acquire actual Windows 11 PS5.1 test execution / run fixtures if possible; choose small permissively licensed local QR encoder and verify physical scanning of generated Korean UTF8 codes. Offline encoder plus opt-in QR generation is necessary before calling QR complete. Continue P2 UI/PDF accessibility while Windows or CI wait; do not begin unsafe WinRE copy/repair.
 
+## 2026-10-30 KST — QR bitmap implementation checkpoint
+
+- hibi89/AX_MART `feature/pc-care-usb` only. Production main/Cloudflare untouched, public/free beta/Kmong listings blocked until actual QA.
+- Added offline, opt-in QR **image generation source**: `products/pc-care/ui/qrcode.min.js` (MIT, copyright davidshimjs), `ui/QR_CODE_LICENSE.txt`, `ui/qr_ui.js`. `tools/share_preview.ps1` displays generate button ONLY when verified local JS+license exist; `tools/diagnose.ps1` embeds local QR library, full MIT license and UI JS into the saved HTML; user explicitly clicks to encode the allowlisted 250-byte Korean UTF-8 share text. No network/CDN/auto generation/upload; existing manual text copy remains. Missing library gives text-only fallback.
+- Tests updated: `tests/share_payload.tests.ps1`, `tests/test_package.py`, `tests/test_release.py`, `tests/windows_smoke.ps1`; internal ZIP adds three UI files. GitHub static contract 40/40; Windows PS5.1/parser, Python unittest/ZIP build, QR actual image and Android/iOS scan NOT RUN. Docs/STATUS.md and HANDOFF.md have details.
+- Next ㄱ: obtain actual Windows/browser/smartphone scan test if possible; otherwise continue P2 UI/accessibility/error-case hardening and safe test harness. Test offline behavior when original USB is removed, Korean UTF-8 payload, quiet zone, QR scan roundtrip and 250-byte limit before QR declared complete. WinRE file copy/repair remains gated.
+
