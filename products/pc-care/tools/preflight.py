@@ -6,6 +6,7 @@ repairs, customer data collectors, Git mutations, or a public release.
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
@@ -13,6 +14,7 @@ import os
 import re
 from pathlib import Path
 import shutil
+import secrets
 import subprocess
 import sys
 import tempfile
@@ -146,9 +148,65 @@ def run_qa(root: Path, *, windows_synthetic: bool | None = None) -> dict:
                 warning='PASS covers synthetic/source QA only, NOT actual Windows/WinRE operation')
 
 
+def safe_qa_receipt(result: dict) -> dict:
+    """Shareable synthetic-QA receipt: no logs, paths, commands, or user data."""
+    allowed = {'pass', 'fail', 'blocked', 'partial', 'not-run'}
+    status = result.get('status')
+    if status not in allowed:
+        status = 'fail'
+    stages = []
+    for stage in result.get('stages', []):
+        name = stage.get('name', '')
+        name = name if isinstance(name, str) and re.fullmatch(r'[A-Za-z0-9_.:/-]{1,90}', name) else 'unknown'
+        state = stage.get('status')
+        if state not in allowed:
+            state = 'fail'
+        record = {'name': name, 'status': state}
+        count = stage.get('tests')
+        if isinstance(count, int) and not isinstance(count, bool) and 0 <= count <= 100000:
+            record['tests'] = count
+        stages.append(record)
+    return {
+        'schemaVersion': 1,
+        'product': 'AXMART PC CARE internal QA',
+        'scope': 'synthetic_only_no_live_diagnosis',
+        'status': status,
+        'stages': stages,
+        'unverified': list(NOT_VERIFIED),
+        'generatedUtc': datetime.now(timezone.utc).isoformat(timespec='seconds'),
+    }
+
+
+def write_qa_receipt(result: dict, directory: Path) -> Path:
+    """Create one private report without overwriting or serializing raw test output."""
+    directory = Path(directory)
+    if directory.is_symlink():
+        raise ValueError('QA receipt directory cannot be a symlink')
+    directory.mkdir(parents=True, exist_ok=True)
+    document = safe_qa_receipt(result)
+    data = (json.dumps(document, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
+    if len(data) > 16000:
+        raise ValueError('QA receipt size exceeded')
+    label = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+    filename = directory / f'pc-care-qa-{label}-{secrets.token_hex(4)}.json'
+    created = False
+    try:
+        with os.fdopen(os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'wb') as target:
+            created = True
+            target.write(data)
+            target.flush()
+            os.fsync(target.fileno())
+    except Exception:
+        if created:
+            filename.unlink(missing_ok=True)
+        raise
+    return filename
+
+
 def main(argv: list[str] | None = None) -> int:
     parser=argparse.ArgumentParser(description='AXMART internal offline QA, NOT a public release')
     parser.add_argument('--root',type=Path,default=ROOT,help='working product tree')
+    parser.add_argument('--receipt-dir', type=Path, help='Save a private, sanitized synthetic-QA receipt')
     args=parser.parse_args(argv)
     result=run_qa(args.root)
     for stage in result['stages']:
@@ -156,6 +214,13 @@ def main(argv: list[str] | None = None) -> int:
         if stage['status'] not in ('pass','not-run') and stage.get('output'):
             print(stage['output'][-1800:])
     print(json.dumps({k:v for k,v in result.items() if k!='stages'},ensure_ascii=False))
+    if args.receipt_dir is not None:
+        try:
+            receipt_path = write_qa_receipt(result, args.receipt_dir)
+            print(f'Local QA receipt: {receipt_path}')
+        except (OSError, ValueError) as exc:
+            print(f'QA RECEIPT FAILED: {type(exc).__name__}', file=sys.stderr)
+            return 1
     # Partial native coverage is not a PASS and must propagate a nonzero exit.
     return 0 if result['status']=='pass' else (2 if result['status']=='partial' else 1)
 
