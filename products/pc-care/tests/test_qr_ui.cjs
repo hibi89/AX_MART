@@ -162,6 +162,31 @@ test("unknown or malformed event UTC time is rejected", () => {
   assert.equal(ui.calls.length, 0);
 });
 
+test("impossible February date is blocked before QR generation", () => {
+  const ui = setup(valid.replace("기록UTC:2026-10-30 03:10", "기록UTC:2026-02-30 03:10"));
+  ui.click();
+  assert.equal(ui.calls.length, 0);
+  assert.match(ui.state.textContent, /차단/);
+});
+
+test("invalid leap day is blocked", () => {
+  const ui = setup(valid.replace("기록UTC:2026-10-30 03:10", "기록UTC:2026-02-29 03:10"));
+  ui.click();
+  assert.equal(ui.calls.length, 0);
+});
+
+test("valid leap-day timestamp is accepted", () => {
+  const ui = setup(valid.replace("기록UTC:2026-10-30 03:10", "기록UTC:2024-02-29 03:10"));
+  ui.click();
+  assert.equal(ui.calls.length, 1);
+});
+
+test("unknown recorded time remains an explicit accepted fallback", () => {
+  const ui = setup(valid.replace("기록UTC:2026-10-30 03:10", "기록UTC:미확인"));
+  ui.click();
+  assert.equal(ui.calls.length, 1);
+});
+
 test("missing DOM nodes leave QR disabled without a page-load exception", () => {
   const ui = setup(valid, {missing: "pc-care-generate-qr"});
   assert.equal(ui.attached(), false);
