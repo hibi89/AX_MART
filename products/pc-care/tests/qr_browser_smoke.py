@@ -91,6 +91,27 @@ def main() -> int:
                 page.locator("#pc-care-qr-canvas img").count() == 0
                 and "차단" in page.locator("#pc-care-qr-status").inner_text()
             )
+            # Date validation must be based on real calendar dates, not only shape.
+            for label, altered_date, should_render in (
+                ("invalid_february_30_rejected", "2026-02-30 03:10", False),
+                ("invalid_leap_day_rejected", "2026-02-29 03:10", False),
+                ("valid_leap_day_accepted", "2024-02-29 03:10", True),
+                ("unknown_record_time_accepted", "미확인", True),
+                ("invalid_month_rejected", "2026-13-01 03:10", False),
+            ):
+                replacement = SAMPLE.replace("2026-10-30 03:10", altered_date)
+                page.locator("#pc-care-share-text").evaluate(
+                    "(el, value) => {el.value=value; el.dispatchEvent(new Event('input', {bubbles:true}));}",
+                    replacement,
+                )
+                page.locator("#pc-care-generate-qr").click()
+                images = page.locator("#pc-care-qr-canvas img, #pc-care-qr-canvas canvas")
+                if should_render:
+                    images.first.wait_for(state="attached", timeout=5000)
+                    checks[label] = "만들었습니다" in page.locator("#pc-care-qr-status").inner_text()
+                else:
+                    checks[label] = (images.count() == 0 and
+                                     "차단" in page.locator("#pc-care-qr-status").inner_text())
         finally:
             browser.close()
     print(json.dumps({
