@@ -154,3 +154,7 @@
 - System/Update collector arrays now enter normalization only for collected/truncated status. Failed and no-match results cannot create incidents or timeline entries. PnP failed/no-match records similarly yield no samples.
 - Changed: tools/diagnose.ps1, tools/pnp_analysis.ps1, tests/driver_timeline.tests.ps1 (+4 assertions), tests/test_package.py (+1 contract). GitHub source static checks 14/14 PASS; native Windows, full suite, original ZIP and CI not run.
 - Evidence: tests/evidence/collector_provenance_qa_20261031.json. Source baseline a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Feature only; main and deployment unchanged.
+
+## 2026-10-31 KST — PC CARE native one-click release QA preparation
+- Developer-only `products/pc-care/RUN_RELEASE_QA.cmd` added (excluded from internal customer ZIP). Python >=3.11 + existing preflight runs Python/Node/temporary real internal ZIP integrity/Windows PS5.1 synthetic, no live diagnostics/repair. Added `tests/test_qa_launcher.py` 8 native Python tests. Linux 8 PASS/0 FAIL; incomplete-source QA exits 1 as required.
+- Verified Git source match; **full 37-file product ZIP, Windows CMD/PS5.1, CI, USB/QR/A4/WinRE remain unverified**. Prior HEAD `489f15a72e1581c68a708c2734cfe4fd0a840537`. New evidence `products/pc-care/tests/evidence/oneclick_qa_20261031.json`. Operating main unchanged.

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "project": "AXMART PC CARE",
+  "dateKST": "2026-10-31",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "baseSHA": "489f15a72e1581c68a708c2734cfe4fd0a840537",
+  "feature": "Development-only Windows offline QA one-click launcher, excluded from customer package",
+  "files": {
+    "products/pc-care/RUN_RELEASE_QA.cmd": "ca93847028c32d6fbc8ae4186a1733f492b9a9e3",
+    "products/pc-care/tests/test_qa_launcher.py": "8e2185f7a666ef43b064d9be348ed584269ad8de",
+    "products/pc-care/tools/release.py": "0c6de6cebc61ce82565e2d33bd28f6e3e4f68976",
+    "products/pc-care/tools/preflight.py": "278c7ca86d7057f44fceee4170a759099c6bf532"
+  },
+  "tested": {
+    "environment": "Linux Python 3.13.5",
+    "command": "python -m unittest discover -s /mnt/data/axmart_oneclick/tests -p 'test_qa_launcher.py' -v",
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "failureInjection": {
+      "scenario": "Incomplete source tree (missing actual ZIP allowlist and Node sources) to ensure launcher QA fails closed",
+      "command": "python tools/preflight.py --root .",
+      "expectedExitCode": 1,
+      "actualExitCode": 1,
+      "stages": [
+        "python-tests: pass, 8 tests",
+        "node-tests: blocked (missing files)",
+        "internal-zip-build: fail (missing README.md)",
+        "windows-powershell-51-synthetic: not-run on Linux"
+      ]
+    },
+    "gitBlobHashMatchedLocal": true
+  },
+  "remaining": [
+    "Windows CMD script was not actually executed",
+    "Full checkout native Windows PowerShell 5.1 synthetic fixtures not run",
+    "Whole original product ZIP not built",
+    "Full Node.js and Python product regression not run on complete repository",
+    "Production, real Windows USB Unicode paths, QR real camera, A4 PDF and WinRE not checked"
+  ],
+  "safety": "No real diagnosis, repairs, BitLocker, WinRE, customer data or network executed; no source overwrite. Launcher does not write reports, test package ZIP is temporary and removed."
+}

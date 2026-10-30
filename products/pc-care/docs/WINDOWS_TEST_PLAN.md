@@ -322,3 +322,7 @@ Pending manual tests:
 - Fake/stale System BugCheck or shutdown, Windows Update failure, PnP configuration error arrays MUST yield zero observations/findings if matching collection status is unavailable or no matching events/devices. For collected/truncated statuses, preserve actual observed findings with explicit incomplete caveats where applicable.
 - Disk collection unknown/empty/truncated must mark incident summary incomplete even if a Healthy device sample survives; real observed disk Warning should not disappear. `tests/incident_analysis.tests.ps1` new 15 assertions, `test_package.py` source contract check.
 - Source checks 22 PASS (V8 static checks), PS5.1 runtime and Windows11 hardware NOT RUN; no WinRE copying or production change. Test on Windows using `powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tests/windows_smoke.ps1` in product directory.
+
+## 2026-10-31 — One-click source-tree QA acceptance
+- Internal developer launcher: `RUN_RELEASE_QA.cmd`, excluded from customer ZIP. From full source checkout on Windows, it runs `tools/preflight.py --root .` and reports nonzero for missing Python >=3.11, missing synthetic dependencies, invalid ZIP or failed tests. It never adds `-RunReadOnly` and must not launch `RUN_HEALTH_CHECK.cmd`, `RUN_SAFE_REPAIR.cmd` or WinRE.
+- Current environment: Linux Python 3.13.5 **8/8 launcher static tests PASS**, incomplete-tree preflight returned exit **1**; real Windows batch execution is **NOT VERIFIED**. Actual full-product ZIP not built; do not release based on this check alone.

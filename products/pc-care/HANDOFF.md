@@ -494,3 +494,15 @@
 - Evidence: tests/evidence/collector_provenance_qa_20261031.json. Source baseline a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Feature only; main and deployment unchanged.
 
 Handoff: Objective—avoid untrusted stale observations; status—source checked, runtime pending. Restore SHA: a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Next—PowerShell 5.1 fixtures, full native Python/Node, original ZIP, USB/QR/PDF and WinRE VM. Customer files and credentials unchanged. Checked 2026-10-31 KST.
+
+## [2026-10-31] Developer one-click QA handoff
+1. Goal: full source-tree preflight for Release A, no unauthorized system actions.
+2. Implemented: internal `RUN_RELEASE_QA.cmd` invokes existing `tools/preflight.py --root .`; customer ZIP excludes the launcher.
+3. Verified: Linux Python 3.13.5 static tests 8 PASS, 0 FAIL; missing-source full QA exits 1. Actual Windows cmd.exe and whole source ZIP unverified.
+4. Status: code ready for native Windows validation, product release not ready.
+5. Blocker: full private GitHub tree cannot be materialized via accessible clone; use trusted Windows checkout as native acceptance environment.
+6. Repository: `hibi89/AX_MART` `feature/pc-care-usb`, prior SHA 489f15a72e1581c68a708c2734cfe4fd0a840537; evidence `tests/evidence/oneclick_qa_20261031.json`.
+7. Production: `https://ax-mart.pages.dev/` unchanged; developer cmd.exe, Python 3.11+, Node, PS5.1.
+8. Security: no user reports or Windows settings touched, WinRE backup disabled, prior Git SHA rollback available.
+9. Next: run one-click QA on full checkout, then USB/QR/A4 and WinRE VM before explicit release approval.
+10. Checked 2026-10-31 KST: Python tests/negative case only; Windows/runtime/production not verified. Final SHA to reconfirm.

@@ -214,3 +214,15 @@
 - Evidence: tests/evidence/collector_provenance_qa_20261031.json. Source baseline a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Feature only; main and deployment unchanged.
 
 Handoff: Objective—avoid untrusted stale observations; status—source checked, runtime pending. Restore SHA: a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Next—PowerShell 5.1 fixtures, full native Python/Node, original ZIP, USB/QR/PDF and WinRE VM. Customer files and credentials unchanged. Checked 2026-10-31 KST.
+
+## 2026-10-31 KST — PC CARE developer QA handoff
+1. **Objective/technical requirements:** Reduce manual Windows acceptance checks while maintaining zero live diagnosis, repair or automatic public distribution.
+2. **Implementation/decision:** Add `products/pc-care/RUN_RELEASE_QA.cmd` in full source tree only, calls existing Python `tools/preflight.py` for Python/Node/unit ZIP/PS5.1 synthetic checks, without `-RunReadOnly`; product archive allowlist unchanged.
+3. **Tests:** Linux Python3.13.5 native `python -m unittest discover -s tests -p test_qa_launcher.py -v` 8 PASS, 0 FAIL; missing source tree tested `python tools/preflight.py --root .` returns exit 1 (not PASS). Exact Git blob hash matched. Windows CMD/PS5.1 unrun.
+4. **Status:** One-click development QA code complete and statically tested; actual full-product ZIP, Windows acceptance and product release still pending.
+5. **Failure/evidence/alternatives:** Private GitHub files accessible individually but clone/full checkout blocked in this environment, so cannot prove complete product ZIP. Use source checkout on Windows to invoke one-click QA once; no costly repeated CI reruns. Existing run 41034866482 lacked completed test steps.
+6. **Repo/branch/rollback:** `hibi89/AX_MART`, `feature/pc-care-usb`, previous HEAD `489f15a72e1581c68a708c2734cfe4fd0a840537`. New files `products/pc-care/RUN_RELEASE_QA.cmd`, `tests/test_qa_launcher.py`, `tests/evidence/oneclick_qa_20261031.json`; STATUS/HANDOFF updated.
+7. **Production/environment:** `https://ax-mart.pages.dev/` main unchanged; Windows cmd.exe + Python 3.11+, Node, native PowerShell 5.1 needed for comprehensive full source QA.
+8. **Originals/backups/credentials:** No real customer files, system actions, WinRE copy, tokens, source overwrite, release deployment; rollback through prior Git commit.
+9. **Next/acceptance:** In complete Windows checkout run `RUN_RELEASE_QA.cmd`, inspect Python/Node/ZIP/PS5.1 stage results; then real USB, QR scan, A4 PDF and WinRE VM acceptance. Do not enable Release B real backup copying or distribute before user approval.
+10. **Updated 2026-10-31 KST:** eight Python native static tests and fail-closed partial tree exercised; full-product ZIP/Windows/production unverified. Confirm final feature SHA after commit.

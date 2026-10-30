@@ -181,3 +181,9 @@ QR 이미지 생성 전 UTC 기록 시각을 **정규식 + 실제 달력 날짜*
 - 비교 화면과 A4/PDF 인쇄 요약은 진단기가 실제 생성하는 **8개 고정 경고코드만** 표시한다. 임의의 대문자 코드, 경로·사용자 이름·식별자를 코드로 삽입한 JSON은 **경고 목록 비교 불가**로 처리하며 안전·개인정보를 위해 원문을 표시하지 않는다.
 - 진단기 `tools/diagnose.ps1`의 실제 `Add-Issue` 코드 목록과 JS/인쇄 모듈 목록의 일치를 Python 정적 계약으로 검증한다. 새 `tests/test_history_issue_allowlist.cjs` 8개 테스트를 Windows CI 및 개발용 preflight에 추가.
 - Linux Node.js v22.16.0에서 기존/신규 H08 **45/45 PASS**, GitHub 소스 V8 호환 환경에서 인쇄 포함 **54/54 PASS**. 실제 Windows·Edge file://·A4 출력·원본 Python 전체/ZIP·WinRE/CI는 미검증. Release B 자동 파일 복사는 여전히 미구현·차단.
+
+## 2026-10-31 — Developer-only Windows offline QA launcher
+- `RUN_RELEASE_QA.cmd` is only in the full source tree, **not in the customer/internal ZIP allowlist**. Run it from a trusted working copy. The launcher checks Python >=3.11, then invokes `tools/preflight.py --root .`; Node.js and PowerShell 5.1 are checked by preflight. No real diagnosis, repair, BitLocker action, WinRE, customer data collection or automatic upload.
+- `tools/preflight.py` executes the Python unittest suite, Node synthetic tests, temporary internal ZIP build plus SHA256 verification, and Windows PowerShell 5.1 synthetic fixtures (without `-RunReadOnly`). The temporary ZIP is destroyed. A missing test dependency causes a failure/blocked state, **not a passing release**.
+- Tested on Linux Python 3.13.5: `python -m unittest discover -s tests -p test_qa_launcher.py -v` **8 PASS / 0 FAIL**. Missing-source fault injection: `python tools/preflight.py --root .` returns **exit 1** (Node missing and ZIP build failed). Both source files match GitHub Blob hashes. **Windows CMD runtime, complete original product ZIP, Windows PowerShell 5.1, USB, QR/PDF, WinRE and live product remain UNVERIFIED**.
+- Evidence: `tests/evidence/oneclick_qa_20261031.json`. Baseline commit `489f15a72e1581c68a708c2734cfe4fd0a840537`, feature only, production main/Cloudflare unchanged.

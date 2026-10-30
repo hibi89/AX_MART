@@ -336,3 +336,7 @@
 - System/Update collector arrays now enter normalization only for collected/truncated status. Failed and no-match results cannot create incidents or timeline entries. PnP failed/no-match records similarly yield no samples.
 - Changed: tools/diagnose.ps1, tools/pnp_analysis.ps1, tests/driver_timeline.tests.ps1 (+4 assertions), tests/test_package.py (+1 contract). GitHub source static checks 14/14 PASS; native Windows, full suite, original ZIP and CI not run.
 - Evidence: tests/evidence/collector_provenance_qa_20261031.json. Source baseline a0548d62d18fbb7dd59c60399ccbe3290310c7d4. Feature only; main and deployment unchanged.
+
+## 2026-10-31 — Development-only QA entrypoint
+- `RUN_RELEASE_QA.cmd` (not in package allowlist) validates interpreter and invokes `tools/preflight.py` from full product source without live diagnosis; Python/Node/synthetic PowerShell/ephemeral internal ZIP SHA check, no repair or WinRE. The missing-source negative test fails closed (exit 1); Linux static tests 8/8 PASS.
+- Exact source ZIP/Windows batch/PS5.1/USB/QR/PDF still unverified. QA evidence `tests/evidence/oneclick_qa_20261031.json`. Baseline 489f15a72e1581c68a708c2734cfe4fd0a840537, no production change.
