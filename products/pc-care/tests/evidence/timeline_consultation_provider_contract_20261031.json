@@ -21,5 +21,12 @@
   "windows": "UNVERIFIED",
   "ci": "NOT_RUN",
   "production": "UNCHANGED",
-  "release": "HOLD"
+  "release": "HOLD",
+  "recoveredTimelineSha": "534061a712df3d48c48818e701405c2feb83a07d",
+  "firstAttemptCorruptedSha": "e08329de17edc4593ee1c6e614a40eabbc3dc3a6",
+  "firstAttemptStatus": "INVALID_REPLACEMENT_EXPANSION",
+  "recoveryStatus": "SOURCE_TEXT_VERIFIED_ONLY",
+  "remoteSourceReviewed": 7,
+  "windowsSynthetic": "NOT_RUN",
+  "note": "PowerShell runtime not executed; initial corrupted timeline source corrected from baseline via callback replacement; no release approval"
 }
