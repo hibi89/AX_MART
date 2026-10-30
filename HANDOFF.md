@@ -226,3 +226,9 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. **Originals/backups/credentials:** No real customer files, system actions, WinRE copy, tokens, source overwrite, release deployment; rollback through prior Git commit.
 9. **Next/acceptance:** In complete Windows checkout run `RUN_RELEASE_QA.cmd`, inspect Python/Node/ZIP/PS5.1 stage results; then real USB, QR scan, A4 PDF and WinRE VM acceptance. Do not enable Release B real backup copying or distribute before user approval.
 10. **Updated 2026-10-31 KST:** eight Python native static tests and fail-closed partial tree exercised; full-product ZIP/Windows/production unverified. Confirm final feature SHA after commit.
+
+## 2026-10-31 KST — AXMART CUBE 백엔드 우선 실행 인수인계
+- 중앙 해총 프로토콜에 따라 `feature/pc-care-usb`에서 현재 로컬 모듈을 재사용하고 새 프레임워크·서비스를 도입하지 않음. 기준선 `products/pc-care/docs/PRODUCT_AND_INTEGRATION_BASELINE.md`, 원본 목표 `products/pc-care/docs/FINAL_SPEC_V2.md`.
+- 수정: `tools/recorded_timeline.ps1` 입력 수집 상태·출처·종류/ID·UTC 검증, `tools/diagnose.ps1` 상태 연결, `tests/driver_timeline.tests.ps1` 실수집 실패/스푸핑·타임존 회귀 추가. 최초 코드 자동 치환 손상 발견 즉시 직전 Git 원본으로 재구성·정확한 정규식과 로직을 재검증하고 정상 소스로 재커밋. 사용자 원본·수리·WinRE·홈페이지 수정 없음.
+- 정적 계약 17 PASS/0 FAIL; PowerShell 5.1 파서/fixture·Windows 실제 실행·전체 Python/Node/내부 원본 ZIP·CI·USB·QR/PDF·WinRE는 NOT_RUN. 최종 릴리스 승인 대기. 기준 복구 SHA `dc53774703d1ea856599c599f3cf4b97418d885c`, 사이트 `https://ax-mart.pages.dev/` main 무변경.
+- 다음 핵심 경로: `RUN_RELEASE_QA.cmd` 전체 소스 Windows 검증→읽기전용 `RUN_SELF_TEST.cmd` 실보고서→Edge file://·USB 한국어 경로·오프라인 QR 실스캔·A4 PDF→WinRE 복사 독립 디스크/VM·보안 검증. 문서-only/CI 대기로 신규 핵심 개발 중단 금지.
