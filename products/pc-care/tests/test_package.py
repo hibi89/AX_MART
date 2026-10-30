@@ -380,6 +380,25 @@ class PackageTests(unittest.TestCase):
                      'valid_leap_day_accepted','unknown_record_time_accepted','invalid_month_rejected'):
             self.assertIn(term, browser)
 
+    def test_vendor_qr_reset_prevents_korean_ascii_byte_overflow(self):
+        vendor = (ROOT/'ui/qrcode.min.js').read_text(encoding='utf-8')
+        license_text = (ROOT/'ui/QR_CODE_LICENSE.txt').read_text(encoding='utf-8')
+        vendor_tests = (ROOT/'tests/test_qr_vendor.cjs').read_text(encoding='utf-8')
+        workflow = (ROOT.parent.parent/'.github/workflows/pc-care-windows-synthetic.yml').read_text(encoding='utf-8')
+        package = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        # Original minified byte parser incorrectly retained 3-byte suffixes
+        # when ASCII followed a Korean character. Keep this minimal MIT patch.
+        fixed = 'for(var b=[],d=0,e=this.data.length;e>d;d++){b=[];var f='
+        self.assertEqual(vendor.count(fixed), 1)
+        self.assertIn('The MIT License', license_text)
+        self.assertIn('actual vendor QR encoder handles mixed Korean and ASCII', vendor_tests)
+        self.assertIn('mixed Korean-ASCII transitions do not repeat leftover byte suffixes', vendor_tests)
+        self.assertIn('node --test tests/test_qr_ui.cjs tests/test_qr_vendor.cjs', workflow)
+        self.assertNotIn("'tests/test_qr_vendor.cjs'", package)
+        self.assertNotIn('</script', vendor.lower())
+        self.assertNotIn('XMLHttpRequest', vendor)
+        self.assertNotIn('fetch(', vendor)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
         for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/pnp_analysis.ps1','tools/recorded_timeline.ps1','tools/consultation_report.ps1','tools/consultation_render.ps1','tools/share_payload.ps1','tools/share_preview.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/driver_timeline.tests.ps1','tests/consultation_report.tests.ps1','tests/share_payload.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
