@@ -146,6 +146,18 @@ class PackageTests(unittest.TestCase):
         self.assertIn('tests/test_history_batch.cjs', qa.read_text(encoding='utf-8'))
         self.assertNotIn("'tools/preflight.py'", packager)
         self.assertNotIn("'tests/test_preflight.py'", packager)
+        self.assertNotIn("QA_RESULTS", packager)
+        preflight_src = qa.read_text(encoding='utf-8')
+        launch = (ROOT/'RUN_RELEASE_QA.cmd').read_text(encoding='utf-8')
+        gitignore = (ROOT.parent.parent/'.gitignore').read_text(encoding='utf-8')
+        self.assertIn('def safe_qa_receipt(', preflight_src)
+        self.assertIn('def write_qa_receipt(', preflight_src)
+        self.assertIn('os.O_EXCL', preflight_src)
+        self.assertIn("'scope': 'synthetic_only_no_live_diagnosis'", preflight_src)
+        self.assertIn("--receipt-dir", launch)
+        self.assertIn("products/pc-care/QA_RESULTS/", gitignore)
+        self.assertIn("test_sanitized_qa_receipt_contains_only_known_metadata",
+                      suite.read_text(encoding='utf-8'))
         self.assertIn('Verify actual internal-only QA ZIP', workflow)
         self.assertIn('python tools/release.py --verify', workflow)
 
