@@ -1,0 +1,66 @@
+﻿# Synthetic QR share-text tests. No network, image encoding, OS inspection, or repair.
+$ErrorActionPreference = 'Stop'
+. (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/share_payload.ps1')
+. (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/share_preview.ps1')
+function Assert-Share([bool]$Condition, [string]$Description) {
+    if (-not $Condition) { throw ('SHARE FIXTURE FAIL: ' + $Description) }
+}
+$summary = [pscustomobject]@{
+    assessment='위험 신호'
+    reviewItems=@('저장장치 상태 경고','BugCheck 관련 기록','Windows 업데이트 설치 실패 기록','장치 구성 코드 점검','PRIVATE-LOG')
+    recordedEvents=@([pscustomobject]@{
+        eventId=1001
+        recordedUtc='2026-10-30 03:10'
+        Message='PRIVATE-USERNAME'
+        DeviceID='PRIVATE-SERIAL'
+    })
+    windowsBuild='PRIVATE-DEVICE-ID'
+    limitations=@('PRIVATE-PATH')
+    advice='PRIVATE-SECRET'
+    serial='PRIVATE-SERIAL'
+}
+$payload = Get-PcCareSharePayload -Summary $summary
+Assert-Share ($payload.status -eq 'ready') 'Whitelisted input is ready for manual sharing'
+Assert-Share ($payload.byteCount -le 250) 'Default UTF-8 byte budget'
+Assert-Share ($payload.byteCount -eq [Text.Encoding]::UTF8.GetByteCount($payload.payloadText)) 'Actual UTF-8 byte count'
+Assert-Share ($payload.signalCount -eq 4 -and $payload.omittedSignals -eq 2) 'Signalled omission of extra categories'
+Assert-Share ($payload.payloadText -match '외 2종') 'No silent omission of signal categories'
+Assert-Share ($payload.payloadText -match '2026-10-30 03:10') 'Whitelisted UTC recording time'
+Assert-Share ($payload.payloadText -match '원인:미확정') 'Never claim a proven root cause'
+Assert-Share ($payload.payloadText -notmatch 'PRIVATE-') 'Never copy source names, paths or logs'
+Assert-Share (-not $payload.qrImageGenerated -and -not $payload.containsIdentifiers) 'No QR/image claim or identifier collection'
+$blocked = Get-PcCareSharePayload -Summary $summary -MaxUtf8Bytes 40
+Assert-Share ($blocked.status -eq 'too_large') 'Fail closed over byte limit'
+Assert-Share ($null -eq $blocked.payloadText) 'Do not truncate oversized payload'
+Assert-Share ($blocked.byteCount -gt 40) 'Report real bytes, not clipped size'
+$blockedHtml = ConvertTo-PcCareSharePreviewHtml -Share $blocked
+Assert-Share ($blockedHtml -notmatch '<textarea') 'Oversize data cannot be shared'
+$badTime = [pscustomobject]@{
+    assessment='PRIVATE-UNKNOWN'
+    reviewItems=@('PRIVATE-ISSUE')
+    recordedEvents=@(
+        [pscustomobject]@{ eventId=999; recordedUtc='2026-10-30 03:10' },
+        [pscustomobject]@{ eventId=41; recordedUtc='2026-10-30 99:10' },
+        [pscustomobject]@{ eventId=41; recordedUtc='<script>PRIVATE</script>' }
+    )
+}
+$invalid = Get-PcCareSharePayload -Summary $badTime
+Assert-Share ($invalid.payloadText -match '상태:확인 불완전') 'Untrusted assessment mapped to known fallback'
+Assert-Share ($invalid.payloadText -match '기록UTC:미확인') 'Malformed/unknown events excluded'
+Assert-Share ($invalid.payloadText -notmatch 'PRIVATE') 'Untrusted content excluded'
+$panel = ConvertTo-PcCareSharePreviewHtml -Share $payload
+Assert-Share ($panel -match '<details' -and $panel -match '<summary') 'User expands preview deliberately'
+Assert-Share ($panel -match 'readonly' -and $panel -match 'Ctrl\+C') 'Manual selection/copy only'
+Assert-Share ($panel -notmatch '<img' -and $panel -notmatch '<script') 'No fake QR image or external script'
+Assert-Share ($panel -notmatch 'PRIVATE') 'Preview excludes raw identifiers'
+$evil = [pscustomobject]@{
+    status='ready'
+    byteCount=50
+    maxUtf8Bytes=250
+    payloadText='<img src=x onerror=alert(1)>'
+    disclosure='<script>evil()</script>'
+}
+$escaped = ConvertTo-PcCareSharePreviewHtml -Share $evil
+Assert-Share ($escaped -notmatch '<img ' -and $escaped -notmatch '<script>') 'Untrusted text HTML-escaped'
+Assert-Share ($escaped -match '&lt;img' -and $escaped -match '&lt;script&gt;') 'Escaped literal text remains visible'
+Write-Host 'SHARE FIXTURE PASS: UTF-8 limit, no truncation, no identifiers, opt-in local preview.' -ForegroundColor Green
