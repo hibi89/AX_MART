@@ -373,3 +373,10 @@
 - 직전 `ㄱ` 미반영 이력도 통합: `collectionStatus.volumes`가 실패·미수집이거나 중복 드라이브이면 H08 용량 비교 보류; 실제 값은 유지. `tools/preflight.py`에서 비Windows host의 Windows QA 미실행은 `partial`/exit 2. 저장장치 센서 분리 시도는 패키지 미연결 위험으로 `2112c95c11edfbaa1584e16f0c881a2848017c9e`에서 롤백.
 - 실기기 Windows PowerShell 5.1/네이티브 Node·Python 전체/제품 ZIP·WinRE·USB·QR/PDF 및 현재 SHA CI **미검증**. `main`/Cloudflare 운영·고객 파일·수리 변경 없음.
 - 다음 P0: Windows 전체 체크아웃 `RUN_RELEASE_QA.cmd` 실실행 및 실제 읽기 전용 보고서 JSON→H08→인쇄 확인. Release B 실제 백업과 고객 배포는 승인/안전 QA 전 차단.
+
+## 2026-10-31 KST — 물리 저장장치 수집 출처 검증(P0)
+- 실제 코드 결함: `tools/incident_analysis.ps1`가 디스크 수집 결과 `unavailable/empty`인데도 잔존 `DiskObservations`의 Warning을 새로운 `STORAGE_FIRST` 근거로 사용 가능. 이벤트/PnP 등 다른 수집 채널은 이 사례를 이미 방어하고 있었음.
+- 수정: 디스크 표본은 `DiskCollectionStatus=collected/truncated`에만 허용; 실패/무결과 시 구형 표본 완전 배제. `truncated`의 관측된 경고는 유지하면서 `incomplete` 표기.
+- `tests/incident_analysis.tests.ps1`의 오판 기대값을 교정하고 실패·무결과·절단·정상 수집 경계 사례 추가. `tests/test_package.py`에 소스 계약/회귀 존재 검사 추가.
+- 원격 GitHub 파일 재조회 기준 정적 계약 **19/19 PASS**; 근거 `tests/evidence/incident_disk_provenance_static_qa_20261031.json`. **네이티브 PowerShell 5.1 및 전체 Python/Node/Windows·USB·QR/A4·WinRE/ZIP·CI NOT_RUN**.
+- 이전 기준 HEAD `009ac6b9fa1a81c313aae71b9d85190d4e036d16`; 운영 main·Cloudflare/고객 파일/OS/복구 불변. 다음: 전체 Windows에서 `RUN_RELEASE_QA.cmd`와 실제 read-only 보고서 출력 검증 후 H08 연결. 출시/실복사 금지.
