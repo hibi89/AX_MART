@@ -14,7 +14,7 @@ class PackageTests(unittest.TestCase):
     def test_normal_check_is_read_only(self):
         text = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
         # No change-enabling cmdlets or dangerous commands in scanner.
-        banned = [r'\bremove-item\b',r'\bset-itemproperty\b',r'\bformat-volume\b',r'\bdisable-bitlocker\b',r'\bstart-process\s+[^\r\n]*\bdism\.exe',r'\brestart-computer\b',r'\binvoke-webrequest\b',r'\binvoke-restmethod\b',r'\bset-mppreference\b',r'\bchkdsk\s+[a-z]:\s+/[frx]']
+        banned = [r'\bset-itemproperty\b',r'\bformat-volume\b',r'\bdisable-bitlocker\b',r'\bstart-process\s+[^\r\n]*\bdism\.exe',r'\brestart-computer\b',r'\binvoke-webrequest\b',r'\binvoke-restmethod\b',r'\bset-mppreference\b',r'\bchkdsk\s+[a-z]:\s+/[frx]']
         for pattern in banned:
             with self.subTest(pattern=pattern):
                 self.assertNotRegex(text.lower(), pattern)
@@ -26,6 +26,11 @@ class PackageTests(unittest.TestCase):
         normalizer = (ROOT/'tools/event_analysis.ps1').read_text(encoding='utf-8-sig')
         self.assertIn("NoMatchingEventsFound", normalizer)
         self.assertIn("mode='read-only'", text)
+        # The diagnostic may delete only its OWN generated temporary report pair
+        # after a failed save; no arbitrary source/system file deletion is permitted.
+        self.assertEqual(text.lower().count("remove-item"), 1)
+        self.assertIn("foreach ($owned in @($tempJson,$tempHtml,$finalJson,$finalHtml))", text)
+        self.assertIn("Remove-Item -LiteralPath $owned -Force -ErrorAction SilentlyContinue", text)
 
     def test_explicit_repair_approval_and_bounded_commands(self):
         text = (ROOT/'tools/repair.ps1').read_text(encoding='utf-8-sig')
