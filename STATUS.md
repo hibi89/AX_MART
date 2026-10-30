@@ -185,3 +185,8 @@
 - `tests/test_history_compare.cjs`·`tests/test_history_evidence_integration.cjs`·`tests/test_package.py` 계약 갱신.
 - GitHub 실제 JavaScript/커밋 테스트 V8 어댑터 38/38 통과. 네이티브 Node/Python/Windows PS5.1/실기기·USB·WinRE/QR/PDF·CI는 미검증. 기존 사용자 데이터·운영 main 변경 없음.
 - 이번 작업 전 개발 기준 SHA `b568c942c00ee4cc32e24863e2608c93806df290`. 다음: Windows 전체 checkout `RUN_RELEASE_QA.cmd` → 읽기 전용 결과 저장/비교/인쇄 실제 테스트.
+
+## 2026-10-31 KST — CUBE PC CARE 디스크 경고 근거 정합성
+- `feature/pc-care-usb` 실제 `incident_analysis.ps1`: 물리 디스크 조회 실패·무결과에 남은 Warning 표본을 새로운 고장 징후로 분석하던 오류 차단. 수집 정상/상한 도달 시 관측 표본은 유효하되 절단은 불완전 표시. 합성 PS fixture와 Python 소스 계약 동기화.
+- 원격 소스 계약 19/19 PASS. **Windows PS5.1/실장비/USB/ZIP/QR/PDF/WinRE/CI 및 native Python·Node NOT_RUN**. 증거 `products/pc-care/tests/evidence/incident_disk_provenance_static_qa_20261031.json`. 운영 main/Cloudflare/고객 파일·실제 수리 변경 없음.
+- 다음 P0: 전체 Windows `RUN_RELEASE_QA.cmd` 및 read-only 보고서→H08 실제 기능 검증. WinRE 복사와 고객 공개 차단 유지.
