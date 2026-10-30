@@ -401,3 +401,8 @@
 - 원격 GitHub 소스/연결 정적 계약 **26/26 PASS**. 동일 영수증 helper 수동 복사 격리 로컬 Python 3.13 스모크 **6/6 PASS**(GitHub 전체 native 테스트 아님). 증거 `tests/evidence/native_qa_receipt_update_provider_static_20261031.json`.
 - 전 개발 SHA `f604d2f4902dec82e3e58a0166f2dc94faa0e5ce`. **Windows PS5.1, 전체 Python/Node, 내부 ZIP, 실기기 진단/USB·QR/A4·WinRE·최신 CI 미실행**. 운영 main/Cloudflare/고객 파일·권한·복구·외부 데이터 전송 무변경.
 - 다음: Windows 전체 checkout `RUN_RELEASE_QA.cmd` 1회 실행하여 로컬 `QA_RESULTS`의 영수증 확인 → 실제 read-only 보고서 저장·H08→USB 한글/QR/A4→WinRE 안전 격리 검증. 영수증 PASS 자체가 제품 출시 승인은 아님.
+
+## 2026-10-31 KST — QA 4대 필수 단계 판정 보강
+- `tools/preflight.py`의 기존 generic 상태 집계는 PASS 단계 일부만 있어도 PASS 가능. `classify_full_qa_stages()` 추가하여 Python·Node·내부 ZIP·Windows PS5.1 네 단계 각각 1회 필수, 누락/중복·비정상 단계는 FAIL; 실제 비Windows 호스트 not-run은 PARTIAL. 실제 `run_qa` 및 개인정보 배제 로컬 영수증 판정에 적용.
+- 회귀: `tests/test_preflight.py`에서 정상/누락/중복/가짜 단계/Windows skip/Node 문법·ZIP verify 실패 검사. `tests/test_package.py` 계약 연동. 실제 GitHub 소스 함수 부분을 격리 복사한 Python 3.13 테스트 **10/10 PASS**. 전체 native Python/Node/PS5.1/ZIP·USB·QR·A4·WinRE·CI 미실행. 증거 `tests/evidence/qa_gate_matrix_20261031.json`.
+- 작업 전 SHA `c8ca0136a1ec65f2d3490e0d7245f2e6b97f81f3`; feature 브랜치만 변경. 운영 main·Cloudflare·사용자 자료·OS/수리/백업 불변. 다음 Windows `RUN_RELEASE_QA.cmd` 실제 실행/영수증 검토.
