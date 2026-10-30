@@ -128,3 +128,16 @@
 9. **다음 우선순위와 종료조건:** (1) Windows 11 PS5.1 구문/합성 fixture 실제 실행 (2) 기본 사용자에서 배터리 없음/실배터리/이벤트 19·20 실제 수집 확인 (3) USB 경로/로그 거부/300 cap/저장 실패 재현 (4) Python unittest/내부 ZIP 체크섬 실검증 (5) 장치 드라이버 오류 수집 및 사건 상관 규칙, 1페이지 인쇄 준비. 실패는 최소 수정 후 반복, 실기기 없으면 P0·P1 완료 판정 보류.
 10. **갱신 일시/범위:** 2026-10-30 KST. GitHub 원격 소스와 39/39 정적 검사만 실제 수행. 실제 Windows/CI/ZIP/WinRE 테스트 미수행. 문서 기록 후 최신 feature HEAD 확인.
 
+## [최신] 2026-10-30 KST — P1 드라이버·타임라인 인수인계
+
+1. **목표·확정 요구·스택:** AXMART PC CARE v2, 비관리자 Windows PowerShell 5.1/로컬 HTML+JSON/오프라인. P1 드라이버 ConfigManagerErrorCode와 과거 사건 기록 시각 간 제한적 관측. SYSTEM 변경 금지.
+2. **완료 기능·차이·근거:** `tools/pnp_analysis.ps1`은 문제 상태 코드(0 제외)와 화이트리스트 장치 범주만 반환하고 사용자 장치명/ID/시리얼을 저장하지 않는다. 코드 22는 의도된 비활성화 가능. `tools/recorded_timeline.ps1`은 다섯 이벤트 kind의 recordedUtc만 15분 윈도우/최신 80건으로 묶는다. 기록 시각 근접은 인과·실제 장애 시각 증거 아님. 공식 문서: https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-pnpentity.
+3. **수행 테스트·명령·실패·미검증:** GitHub 소스 9종 정적 계약 37/37 조건 충족. Windows PowerShell 파서·`tests/driver_timeline.tests.ps1`·Python unittest·ZIP 빌드 등 실제 런타임 **미실행**. 커넥터로 remote GitHub 소스 수정 가능, Linux 런타임에 Windows PowerShell 없음. Windows 테스트 진입점: `powershell.exe -NoProfile -File tests/windows_smoke.ps1`; 전체 읽기 전용 검사는 명시적 `-RunReadOnly` 또는 `RUN_SELF_TEST.cmd`.
+4. **완료/진행/대기/차단:** 코드 신규 2종과 합성 fixture 1종, diagnose/incident_analysis JSON·HTML 연동, ZIP 의존성 연결 완료. P0·P1 완료 판정은 Windows QA 대기. P2 1페이지/QR, WinRE Release B 및 실제 위험 복구 전부 미검증·공개 차단.
+5. **오류/원인/시도/다음 대안:** 장치 상태 코드 22는 고장 확정 위험이 있으므로 독립 비활성화 상태로 취급. 시각 UTC·+09:00 차이/1001 로그 기록 지연을 실제 장애 시각이라고 부르면 오진 위험이 있으므로 근접 그룹으로만 표시. Windows 실행이 없는 정적 검증 결과를 PASS 런타임으로 표시하지 않는다.
+6. **저장소·브랜치·SHA·주요 경로:** hibi89/AX_MART / feature/pc-care-usb. 시작 SHA 46db07771cdb45bbd733ef766919672801c2dc47. 주요 `products/pc-care/tools/pnp_analysis.ps1`, `recorded_timeline.ps1`, `diagnose.ps1`, `incident_analysis.ps1`, `tests/driver_timeline.tests.ps1`, `windows_smoke.ps1`, `tools/release.py`, `tests/test_package.py`, `tests/test_release.py`, `docs/WINDOWS_TEST_PLAN.md`. 문서 커밋 후 최종 SHA 확인.
+7. **Production·실행환경:** https://ax-mart.pages.dev/ 는 main/Cloudflare 운영 사이트; 이 브랜치 내용은 미배포. Windows 11 x64/PS5.1 우선, Win10 제한 호환성 검증 필수. Python 3.13.5는 본 도구 런타임에만 확인, 실제 사용자 배포에는 Python 필요 없음.
+8. **원본·백업·권한·금지:** Git 커밋으로 롤백 가능, main 변동 없음. 원본 이벤트 로그, 사용자 장치 ID/이름/키/경로 전송/커밋 금지, 관리자 자동승격·자동 드라이버 재설치·레지스트리·부트/파티션 수정·WinRE 파일 복사 금지. 공개 테스트 ZIP/판매 금지.
+9. **다음 우선순위와 완료 조건:** ①Windows PS5.1 파서+모든 합성 fixture 실제 실행 ②표준 사용자 Windows 장치 코드·로그 수집 확인 ③USB 경로/권한·로그 실패, 101건 PnP cap/80건 timeline cap 확인 ④Python 정적 unittest/ZIP SHA 실제 실행 ⑤P1 오탐 회귀 보강 후 P2 한 장 수리 상담표·Print CSS/오프라인 QR 준비. 게이트 통과 전 실제 Windows PASS/제품 완성 주장 금지.
+10. **갱신 시각·범위·재시작 방법:** 2026-10-30 KST, GitHub source 정적 계약 37/37. 다른 작업방에서도 `NEXT_CHAT_PC_CARE.md`→`FINAL_SPEC_V2.md`→`STATUS.md`→본 파일 순서로 읽고 feature branch 최신 HEAD로 이어갈 것. 사용자 'ㄱ'에 묻지 말고 가능한 정적 독립 작업 계속; 실기기 검증 결과 없으면 완료 판정 보류.
+
