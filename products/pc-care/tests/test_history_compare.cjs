@@ -3,7 +3,7 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const {compareReports,validateReport}=require("../ui/history_compare.js");
 function sample(at) {return {schemaVersion:1,product:"AXMART PC CARE",mode:"read-only",generatedAt:at,assessment:"주의 필요",
-issues:[{code:"DISK_SPACE_LOW"}],observations:{eventWindowDays:30,eventCollection:"collected",collectionStatus:{physicalDisks:"collected",events:"collected"},
+issues:[{code:"DISK_SPACE_LOW"}],observations:{eventWindowDays:30,eventCollection:"collected",collectionStatus:{physicalDisks:"collected",events:"collected",volumes:"collected"},
 eventEvidence:[{kind:"bugcheck_record",eventId:1001,timeBasis:"event_recorded_time",recordedUtc:"2026-10-28T01:00:00.0000000Z"}],
 bugchecks:[{time:"2026-10-28T10:00:00.000+09:00",stopCode:"0x0000000A"}],
 unexpectedShutdowns:[],storageEvents:[],volumes:[{drive:"C:",sizeGB:100,remainingGB:20}],
@@ -14,6 +14,26 @@ test("schema, mode, product, timestamp are mandatory",()=>{assert.ok(validateRep
 test("older/current order cannot be inverted or equal",()=>{assert.throws(()=>compareReports(b,a));assert.throws(()=>compareReports(a,a));});
 test("no event comparisons when logs unavailable/truncated",()=>{for(const status of ["unavailable","truncated"])assert.equal(compareReports(a,{...b,observations:{...b.observations,eventCollection:status}}).eventCounts,null);});
 test("no event comparisons if windows differ or result is capped",()=>{assert.equal(compareReports(a,{...b,observations:{...b.observations,eventWindowDays:7}}).eventCounts,null);assert.equal(compareReports(a,{...b,observations:{...b.observations,bugchecks:Array(30).fill({})}}).eventCounts,null);});
+test("failed/denied volume collection cannot fake free space change",()=>{
+ for(const status of ["unavailable","empty","truncated",null]){
+   const current={...b,observations:{...b.observations,collectionStatus:{...b.observations.collectionStatus,volumes:status},
+    volumes:[{drive:"C:",sizeGB:100,remainingGB:2}]}};
+   assert.deepEqual(compareReports(a,current).drives,[]);
+ }
+ const previous={...a,observations:{...a.observations,collectionStatus:{...a.observations.collectionStatus,volumes:"unavailable"}}};
+ assert.deepEqual(compareReports(previous,b).drives,[]);
+});
+test("duplicated logical drive letters reject ambiguous volume comparisons",()=>{
+ const current={...b,observations:{...b.observations,volumes:[
+  {drive:"C:",sizeGB:100,remainingGB:20},
+  {drive:"c:",sizeGB:100,remainingGB:1}
+ ]}};
+ assert.deepEqual(compareReports(a,current).drives,[]);
+});
+test("valid collected volumes still report bounded capacity delta",()=>{
+ const current={...b,observations:{...b.observations,volumes:[{drive:"C:",sizeGB:100,remainingGB:14}]}};
+ assert.equal(compareReports(a,current).drives[0].change,-6);
+});
 test("invalid or unequal capacity drives are rejected",()=>{for(const v of [{drive:"C:",sizeGB:120,remainingGB:4},{drive:"<script>",sizeGB:100,remainingGB:4}])assert.deepEqual(compareReports(a,{...b,observations:{...b.observations,volumes:[v]}}).drives,[]);});
 test("untrusted issue codes never enter output",()=>assert.equal(compareReports(a,{...b,issues:[{code:"<script>"}]}).added,null));
 test("unknown disk is not healthy",()=>assert.equal(compareReports(a,{...b,observations:{...b.observations,physicalDisks:[{status:"Unknown"}]}}).disks.after.unknown,1));
