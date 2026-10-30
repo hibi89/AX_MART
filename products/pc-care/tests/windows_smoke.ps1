@@ -34,4 +34,4 @@ if ($json.mode -ne 'read-only' -or $json.version -notmatch 'alpha' -or $null -eq
     throw 'Diagnostic output schema mismatch.'
 }
 Write-Host ('READ-ONLY TEST PASS: ' + $json.assessment) -ForegroundColor Green
-Write-Host 'No repair, disk writes, or boot configuration changes were initiated by this test.'
+Write-Host 'No disk repair or boot configuration changes were initiated. Local HTML/JSON report files WERE written.'
