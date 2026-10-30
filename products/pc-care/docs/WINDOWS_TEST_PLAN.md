@@ -165,3 +165,21 @@ Implementation now includes the vendored MIT library `ui/qrcode.min.js`, license
 
 No remote QR encoder, CDN, public upload, user identifier, automatic bitmap on page load, clipboard write or automatic network call was added. The local inline JS is read from the product folder when producing the report. No claim that QR scans successfully until real Windows browser/phone scans demonstrate it.
 
+## 2026-10-30 — launcher hijack protection / QR unit and offline HTML QA (not Windows-tested)
+
+Security change: all three double-click entrypoints `RUN_HEALTH_CHECK.cmd`, `RUN_SELF_TEST.cmd`, `RUN_SAFE_REPAIR.cmd` must call only `%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe` under quotes and fail closed if it is absent. Running `powershell.exe` via PATH after changing current directory to the USB could otherwise resolve an unexpected local executable. Keep the repair launcher approval gates unchanged. Validation: GitHub source review; Windows CMD execution and path-with-spaces test pending.
+
+Executable independent Node check performed on Linux Node v22.16.0 against a locally exact-matching GitHub `ui/qr_ui.js` source (FNV32 **3087562328**): **6/6** mocked DOM/constructor cases passed (no auto-generation; valid Korean payload generated only after click; 250-byte rejection; bad prefix; absent encoder/library; render failure). Also `node --check` passed. This is **not** a real QR bitmap scan, real Chromium/Edge session, or full GitHub test-suite execution.
+
+New `tests/test_qr_ui.cjs` in repo contains isolated Node built-in `node:test` cases for click-only behavior, UTF-8 limits, malformed/empty input, missing vendors and renderer fallback; it has NOT been executed through the GitHub runner. `tests/test_package.py` now checks all CMD launchers for trusted absolute execution, non-elevation, and the Node fixture. Manual-only `.github/workflows/pc-care-windows-synthetic.yml` includes a Node test step. Windows runners were unassigned in previous run 41034866482; no new Windows QA passed.
+
+`tests/windows_smoke.ps1 -RunReadOnly` now validates the **saved** HTML contract, consultation `@page`, QR capability vs bundled MIT copyright, metadata-only JSON, and no remote `script src` or `link href` dependencies. This reads a locally generated report pair. Confirm no user report contents or private path are uploaded to GitHub or shared with others.
+
+Pending manual tests:
+1. Windows 11 standard user, run `RUN_SELF_TEST.cmd` from folder name containing Korean text/spaces and from USB; confirm CMD selects system PowerShell and does not elevate.
+2. Simulate USB read-only/inaccessible location and confirm fallback to Documents, never overwrites an existing report.
+3. With an inert same-named `powershell.exe` in the USB folder, ensure launchers still call the trusted system path (do not run untrusted programs).
+4. Run PowerShell parser, existing synthetic fixtures, read-only report generation. Verify new HTML/JSON contract and no external assets.
+5. Open report in offline Edge/Chrome, compare printed A4 PDF and manually generated QR with source text in Android/iOS scanner; check Korean UTF-8 250-byte boundary and quiet zone.
+6. Test repair launcher **only inside explicitly authorized disposable VM**; approval gates, backup, error reporting, and no automatic elevation. WinRE requires separate isolated environment. Do not perform disk-changing verification on a real customer PC.
+
