@@ -154,3 +154,16 @@
 9. **다음 우선순위·완료 기준·승인:** Windows PS5.1 파서+synthetic fixture → Windows 11 read-only RUN_SELF_TEST.cmd → A4/한글/브라우저 PDF 실제 파일 검증 → 오류 수정 후 P2 QR 명시 생성·미리보기·용량·스캔/오프라인 검증. WinRE/복구 위험 기능은 별도 백업/안전 테스트 및 승인 필요. 무료 배포 및 크몽 19,900원부터 검토하는 분석 서비스 등록은 실제 출시 승인 전 보류.
 10. **KST·검증 범위·문서 기준:** 2026-10-30 KST. GitHub connector 소스 직접 검사, 정적 37/37. Windows·CI·실기기·인쇄/PDF·QR 런타임 검증 미실행. 본 문서 최신 커밋/feature HEAD 재확인.
 
+## [최신] 2026-10-30 KST — P2 QR용 로컬 공유 문구 인수인계
+
+1. **목표·용도·스택:** FINAL_SPEC_V2.md R04–R07. AXMART PC CARE 오프라인 QR 공유 준비를 위해 사용자 선택형 개인정보 최소 텍스트/미리보기 구현. Windows PowerShell 5.1/로컬 HTML, 무계정/무서버. 실제 QR 이미지는 **미구현**.
+2. **완료 기능·근거:** `tools/share_payload.ps1`가 A4 consultation 요약의 허용 상태·신호 범주·검증된 UTC 로그 기록 시각만 사용, 250 UTF8 byte 상한 검사, 초과 시 fail-closed. `tools/share_preview.ps1`가 `<details>`로 명시 펼치기, HTML encode+readonly textarea와 전체선택 버튼을 제공. 직접 Ctrl+C/공유는 사용자 실행. 시간은 사고 시각 아님, 원인 미확정 표시. 로그·장치명·일련번호·키/파일경로 복제 없음.
+3. **실제 테스트·명령·결과:** 원격 GitHub 소스 정적 교차 계약 40/40 충족(UTF8 BOM, 250byte, allowlist, HTML encode, 미리보기·ZIP 연동). `tests/share_payload.tests.ps1` 신규 합성 fixture는 아직 Windows PS5.1 실행 안 됨. `tests/windows_smoke.ps1`에 parser·fixture 및 JSON schema 연결. `tools/release.py` internal-testing, `tests/test_release.py`·`tests/test_package.py` 반영했으나 Python unittest/ZIP 실제 실행 0회. 실제 Windows/Edge/Chrome·QR 스캔 미실행.
+4. **상태·대기·차단:** P2 QR **텍스트 모델과 미리보기 구현**, QR bitmap/이미지/스캔 미완료. A4 인쇄 한 페이지 검증 대기. P0/P1 실기기 런타임, Release B WinRE 파일 복사, 복구 안전성 QA도 미완료. 무료 베타/크몽 유료 등록/Cloudflare 제품 다운로드 금지.
+5. **이슈·안전·대안:** 개인정보 문구는 진단 JSON에 넣지 않고 `sharePreview` 바이트·상태·bitmap 미생성만 기록. 로컬 HTML 안에는 미리보기가 펼치기 전에도 텍스트로 포함될 수 있으므로 HTML 전체 공유는 위험 안내. 과대 UTF8 payload 무단 자르기 금지. QR 실제 인코더는 라이선스·오프라인·스마트폰 스캔 QA 확보 전 추가하지 않음. 외부 QR URL/전송 금지.
+6. **저장소·브랜치·SHA·파일:** hibi89/AX_MART / feature/pc-care-usb. 시작 SHA 2684cd3b55f9186921e630fe4a672be4c27ad1e6. 변경 files: `products/pc-care/tools/share_payload.ps1`, `share_preview.ps1`, `diagnose.ps1`, `tests/share_payload.tests.ps1`, `windows_smoke.ps1`, `tools/release.py`, `tests/test_package.py`, `test_release.py`, `README.md`, `docs/WINDOWS_TEST_PLAN.md`. 문서 커밋 후 최종 HEAD 확인.
+7. **Production·환경:** https://ax-mart.pages.dev/ 는 main/Cloudflare Pages의 운영 사이트; feature 브랜치만 변경, 실제 공개 제품 적용/판매 기능 없음. Windows 11 x64+Windows PowerShell 5.1 우선 대상. Win10 제한 지원/WinRE 별도.
+8. **보안·원본·백업·금지:** Git SHA로 롤백 가능. 사용자 Windows 읽기 전용 진단과 로컬 보고서 저장 외 OS/개인 파일 수정 없음. 원문 로그/DeviceID/계정/BitLocker 키·복구키 전송 금지. 관리자 자동승격, 실제 드라이버 설치, 데이터 복사·삭제·파티션/BCD 변경, 원격 URL 없는 QR 클라우드 사용 금지.
+9. **다음 우선순위·완료조건:** Windows PS5.1 parser 및 synthetic fixture 실행 → Windows USB에서 실제 read-only 진단 및 상담표·공유 미리보기 작동 확인 → 로컬 QR 인코더의 라이선스·무네트워크 검사·UTF8 250byte/QR scannability 실증 → A4/PDF 1페이지/한글 테스트 → 베타 게이트. CI 없으면 그 자체가 성공이 아니며 다음 독립 작업은 지연하지 않는다.
+10. **갱신 시각·검증 범위:** 2026-10-30 KST. GitHub source 정적 검사 40/40, PS5.1/QR/Python/ZIP/Windows 실측 0회. 다음 ㄱ은 브랜치 확인 후 남은 작업을 이어가고 완료/검증 여부를 구별.
+
