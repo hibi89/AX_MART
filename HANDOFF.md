@@ -50,3 +50,10 @@
 - `hibi89/AX_MART` / `feature/pc-care-usb`, 이전 SHA `5a0eb2d904c7877a149f04c3f99084ee2a1ed0e3`, 소스 `products/pc-care/`.
 - 내부 시험 패키징 도구 `tools/release.py` 및 `tests/test_release.py` 추가. REPORTS 자동 제외 및 무결성 검사, Linux fixture 6/6 PASS.
 - Windows 10/11/WinRE·수리 실증 미검증, Cloudflare main과 배포 파일 미수정. 다음은 Windows 실기기/VM 확인 후 출시에 대한 별도 판단.
+
+## 2026-10-30 KST — 새 채팅/테스트 인수인계 확정
+- 대상 `hibi89/AX_MART` / `feature/pc-care-usb`; 변경 전 소스 SHA `9a0edbdc33d36a02af11552e8f2cb95e8176651a`. 관련 변경은 `products/pc-care/`에 저장, Cloudflare `main` 변경 없음.
+- 구현: 실제 보고서에 디스크 상태·일부 SMART 표시·BugCheck 상세 추가, 승인형 수리 fail-closed, WinRE 로그 개선, 내부 ZIP/무결성/개인정보 제외, 초보자 `RUN_SELF_TEST.cmd` 제공.
+- 검증: Python 임시 fixture 패키징 테스트 6/6 PASS, GitHub 소스 조건 17/17 확인; Windows 런타임·BSOD 원인 검증·WinRE·수리·배포는 미검증. 코드가 있어도 무료 공개/판매 불가.
+- 다음: Windows 실제 PC에서 `RUN_SELF_TEST.cmd`를 실행해 화면 종료 코드 확인(고객의 원본 리포트 외부 공유 금지) → 문제 보정 → WinRE/BitLocker 및 별도 스냅샷 복구 VM에서 승인형 수리 검증 → 최종 릴리스 승인.
+- 보안: 제품 ZIP은 내부 시험용이며 공개 링크 없음. 원본 보존·로그 로컬, ZIP 결정적 허용 목록. KST 기준 2026-10-30.

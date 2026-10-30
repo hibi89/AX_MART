@@ -49,3 +49,8 @@
 ## 2026-10-30 KST — 제품 브랜치 시험 ZIP 작업
 - `feature/pc-care-usb`: 내부 시험 ZIP 제작·검증 파이프라인 및 실제 보고서 세부항목 개선. 제품의 GitHub 소스만 변경.
 - `main` Cloudflare 무료 다운로드/유료 결제는 계속 비활성. Windows 실기기 검증 전 상품 공개 금지.
+
+## 2026-10-30 KST — 최종 USB 사용자 검증 준비
+- 제품 브랜치에 `RUN_SELF_TEST.cmd` 추가: Windows에서 문법 검사+읽기 전용 1일 진단/HTML·JSON 생성 확인. 설치/서버/수리 작업 없음.
+- `tools/release.py` 내부 시험 ZIP 허용 파일 11개+manifest, 보고서 자동 제외, SHA256 무결성 검증.
+- 실기기 Windows 10/11, WinRE, BitLocker, 승인형 수리는 **미검증/검증 대기**. `main` 사이트 무료 다운로드는 계속 차단.
