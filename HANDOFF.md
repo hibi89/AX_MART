@@ -283,3 +283,8 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - `hibi89/AX_MART@feature/pc-care-usb`: 개발 QA 4대 필수 단계(Python/Node/ZIP/PS5.1)가 하나라도 누락/중복되면 전체 PASS가 나오지 않도록 `classify_full_qa_stages` 구현. `run_qa`와 프라이빗 JSON 영수증 공통 적용, 기존 일반 상태 분류와 분리. 테스트 `test_preflight.py`/소스 계약 `test_package.py` 갱신.
 - 실제 원격 소스 readback·격리 로컬 Python 3.13 10/10 PASS. **전체 native Python/Node/PS5.1/실 ZIP·Windows·USB/QR/A4·WinRE·CI 미검증**. 증거 `products/pc-care/tests/evidence/qa_gate_matrix_20261031.json`. 자세한 10항은 `products/pc-care/HANDOFF.md`.
 - 기준 변경 전 SHA `c8ca0136a1ec65f2d3490e0d7245f2e6b97f81f3`, 운영 main/Cloudflare·개인자료·OS/복구/결제 불변. 다음 Windows `RUN_RELEASE_QA.cmd` 실제 검증 후 영수증 확인, 출시 승인 이전 고객 배포 금지. 최종 SHA는 원격 재조회.
+
+## 2026-10-31 KST — CUBE PC CARE ZIP QA 인수인계
+- `hibi89/AX_MART@feature/pc-care-usb`: 개발 ZIP의 `tools/release.py`가 해시 sidecar 링크로 타 파일을 덮어쓸 가능성을 제거. ZIP·해시 동시 임시 생성/게시, 임시파일 충돌 시 타 파일 보존. 실제 정상 재빌드 유지. `tests/test_release.py` + `tests/test_package.py` 회귀 보강.
+- GitHub 원격 소스와 코드 지문 일치(2561문자/FNV1a `21f4b696`)한 `build_internal` 격리 Python 3.13 합성 테스트 **9/9 PASS**. 네이티브 전체 repo unittest·실 ZIP/Windows PS5.1/Node·USB·QR/PDF·WinRE·CI **미검증**. 증거 `products/pc-care/tests/evidence/zip_sidecar_atomic_native_qa_20261031.json`.
+- 개발 전 복원 SHA `51ffdc2695e88a7491ff903653b8fab5b303aba5`, 운영 main/Cloudflare·원본 고객 파일/OS·인증·수리·결제/배포 변경 없음. 상세 10항 `products/pc-care/HANDOFF.md`. 다음 Windows 전체 소스 `RUN_RELEASE_QA.cmd` native QA→읽기 전용 실제 진단·H08·USB/QR/A4→WinRE 별도 위험 검증.
