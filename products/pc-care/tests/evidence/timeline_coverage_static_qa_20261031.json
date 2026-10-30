@@ -1,0 +1,44 @@
+{
+  "evidenceType": "source-static-contract",
+  "evaluatedAtKST": "2026-10-31",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "rollbackBaseline": "dfe918e3c1860aaa6fe9bd1deeaf1e8eb2fc1274",
+  "purpose": "Release A time-axis provenance, output completeness and recorded-time proximity evidence",
+  "sourceBlobs": {
+    "tools/recorded_timeline.ps1": "e51800ab847808a3d54ee5d71e7631613ff739cd",
+    "tools/diagnose.ps1": "1c281fb16fc68094652fed88fd8b267a6df1f7ad",
+    "tests/driver_timeline.tests.ps1": "86023672d389569262903d4ac4eb50523477e025",
+    "tests/test_package.py": "ea1f79cadbbf54caf9ea1e861172ce6fdcdbcb2b",
+    "tests/windows_smoke.ps1": "f961eb91a3cb7586e92b63728b758c8fd728693d"
+  },
+  "result": {
+    "staticChecks": 32,
+    "passed": 32,
+    "failed": 0,
+    "method": "GitHub exact-branch source readback and contract predicates",
+    "nativePowerShell51": "NOT_RUN",
+    "nativePython": "NOT_RUN",
+    "nativeNode": "NOT_RUN",
+    "originalSourceZip": "NOT_RUN",
+    "Windows11USB": "NOT_RUN",
+    "WinRE": "NOT_RUN",
+    "actualQRorPDF": "NOT_RUN",
+    "production": "NOT_APPLICABLE"
+  },
+  "verifiedScope": [
+    "System/Update collection statuses gate timeline evidence",
+    "Windows event kind/eventId and ISO UTC offset strictness",
+    "No source-origin spoofing or raw identifiers",
+    "Time-window proximity codes are bounded, explicitly noncausal",
+    "Coverage state labels distinguish unavailable, incomplete, truncated and successful no-match",
+    "Diagnostic HTML escapes proximity output and explains limitations",
+    "Synthetic fixture and native Windows smoke source are wired"
+  ],
+  "warnings": [
+    "Static source checks are NOT execution of Windows PowerShell or true end-to-end validation.",
+    "CI availability not established; no new runner claim.",
+    "main and Cloudflare production were not changed.",
+    "Public distribution and unsafe WinRE copy remain blocked."
+  ]
+}
