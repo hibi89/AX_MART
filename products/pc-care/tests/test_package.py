@@ -159,11 +159,39 @@ class PackageTests(unittest.TestCase):
         self.assertIn("'tools/incident_analysis.ps1'", allowlist)
         self.assertIn("'tests/incident_analysis.tests.ps1'", allowlist)
         self.assertIn('INCIDENT FIXTURE PASS', fixture)
+        self.assertIn('UPDATE_FAILURE_REVIEW', module)
         for blocked in ['Invoke-RestMethod','Invoke-WebRequest','Start-Process','RestoreHealth','scannow']:
             self.assertNotIn(blocked, module)
 
+    def test_readonly_battery_and_update_source_wiring(self):
+        telemetry = (ROOT/'tools/telemetry_analysis.ps1').read_text(encoding='utf-8-sig')
+        diagnose = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        smoke = (ROOT/'tests/windows_smoke.ps1').read_text(encoding='utf-8-sig')
+        release = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        fixture = (ROOT/'tests/telemetry_analysis.tests.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn('ConvertTo-PcCareBatterySnapshot', telemetry)
+        self.assertIn('ConvertTo-PcCareUpdateEvidence', telemetry)
+        self.assertIn("status='not_present'", telemetry)
+        self.assertIn("status='unavailable'", telemetry)
+        self.assertIn('event_recorded_time', telemetry)
+        self.assertIn('Get-CimInstance -ClassName Win32_Battery', diagnose)
+        self.assertIn("ProviderName='Microsoft-Windows-WindowsUpdateClient'", diagnose)
+        self.assertIn('Get-WinEvent -FilterHashtable', diagnose)
+        self.assertIn('telemetry_analysis.ps1', diagnose)
+        self.assertIn("['battery']", diagnose)
+        self.assertIn("['windowsUpdate']", diagnose)
+        self.assertIn("(Esc $batteryNote)", diagnose)
+        self.assertIn("(Esc $updateLabel)", diagnose)
+        self.assertIn('telemetry_analysis.tests.ps1', smoke)
+        self.assertIn("'tools/telemetry_analysis.ps1'", release)
+        self.assertIn("'tests/telemetry_analysis.tests.ps1'", release)
+        self.assertIn('TELEMETRY FIXTURE PASS', fixture)
+        self.assertNotIn('Invoke-WebRequest', telemetry)
+        self.assertNotIn('Invoke-RestMethod', telemetry)
+        self.assertNotIn('Start-Process', telemetry)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
-        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/report_io.tests.ps1']:
+        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
 
 if __name__ == '__main__':
