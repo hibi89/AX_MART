@@ -183,3 +183,13 @@ Pending manual tests:
 5. Open report in offline Edge/Chrome, compare printed A4 PDF and manually generated QR with source text in Android/iOS scanner; check Korean UTF-8 250-byte boundary and quiet zone.
 6. Test repair launcher **only inside explicitly authorized disposable VM**; approval gates, backup, error reporting, and no automatic elevation. WinRE requires separate isolated environment. Do not perform disk-changing verification on a real customer PC.
 
+
+## 2026-10-30 P2 QR stale-image prevention & strict-schema acceptance
+
+- Fixed: `ui/qr_ui.js` now clears any previous QR on `input` and before each attempted generation. Previously an invalid regenerated payload could leave a stale image that no longer matched the visible text.
+- QR generation is allowed only for exact seven-line records produced by the whitelist-based PowerShell payload model. Allowed diagnosis levels/signals, recorded UTC timestamp shape, 'incident time not verified', 'cause not confirmed' and backup advice are verified again in the browser. Extra lines or unknown diagnostic/source strings are rejected.
+- Updated `tests/test_qr_ui.cjs` to 17 synthetic Node cases. `tests/test_package.py` now checks the schema, stale QR prevention, and optional browser scanner harness.
+- **Local runtime evidence:** Linux Chromium via Playwright with the exact committed `ui/qr_ui.js` checked 13/13 synthetic DOM/QR-constructor behaviors (no onload QR, click Korean payload, 250 bytes, invalid regeneration clearing, input edit clearing, strict schema, no external HTTP requests). No vendor bitmap or phone scanner involved in those 13 checks; source identity confirmed by Git blob SHA. Browser script `tests/qr_browser_smoke.py` newly committed but not run with the real vendored QR code due unavailable source in this container.
+- **Required acceptance:** Run `python tests/qr_browser_smoke.py` in an offline developer environment with local Chromium, `playwright`, `opencv-python` installed; verify strict QR text round trip from the real vendored QR library, exact Korean UTF-8 hash, quiet zone, no network, generated image clearing on edit, no extra free text. Next run on actual Windows 11/Edge/Chrome then Android/iOS camera scanner.
+- Continue to prohibit public beta/QR-verified claim/paid listing until all real Windows/USB/Print/WinRE gates are passed.
+
