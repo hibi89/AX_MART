@@ -99,7 +99,7 @@ const products = [
 ];
 const $=sel=>document.querySelector(sel);
 const money=n=>'₩'+n.toLocaleString('ko-KR');
-const icon=id=>`<svg class="ico"><use href="/assets/icons.svg#${id}"/></svg>`;
+const icon=id=>`<svg class="ico"><use href="#${id}"/></svg>`;
 const toast=$('#toast');let toastTimeout;
 function notify(message){toast.textContent=message;toast.classList.add('visible');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>toast.classList.remove('visible'),3500)}
 let currentCategory='전체';let cart=[];
