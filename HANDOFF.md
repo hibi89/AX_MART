@@ -1,3 +1,5 @@
+> **2026-10-31 총괄 인수인계 추가 — 개발 가속 지시 공시:** [해총 48h 핵심 코어·구성요소 기준선·CI 병렬 프로토콜](https://github.com/hibi89/hackathon-command-center-2026/blob/main/docs/strategy/20261031_OWNER_BACKEND_FIRST_48H_EXECUTION_PROTOCOL.md) 수신. 대상: AXMART³ CUBE 총괄, `hibi89/AX_MART@feature/pc-care-usb` / `products/pc-care`. 후속 `ㄱ`: `FINAL_SPEC_V2.md`와 실제 모듈/스택/인터페이스 대비 핵심 Windows 진단·결과·승인형 복구 경로의 누락을 묶어 구현하고 로컬 스모크 실행→CI 기록/비차단 독립 개발→필수 실Windows/WinRE·보안/원본 보호 검증. 48시간은 집중 목표, 3/5/7 최종 품질 관리 유지. `main`/Cloudflare Production 및 실기기·판매·정식 배포 **변경 없음**; 이 변경은 공시 문서만이며 기존 테스트 결과·완성률 갱신 아님.
+
 # AXMART HANDOFF — 2026-10-30 KST
 
 1. 목표/요구/기술: 선택된 귀여운 다크 해커 AXMART 사이트를 Cloudflare Pages Git 연동 가능하게 준비. 정적 HTML/CSS/JS, Node 18+ 외부 의존성 없는 build, 실제 결제 제외.
