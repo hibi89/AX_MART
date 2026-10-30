@@ -73,9 +73,10 @@ function Get-PcCareIncidentAssessment {
     if ($findings.Count -eq 0) {
         [void]$caveats.Add('확인한 범위에 명확한 원인 후보가 없습니다. 하드웨어 정상 또는 고장 없음의 증거가 아닙니다.')
     }
+    $statusLabel = if ($incomplete) { 'incomplete' } else { 'limited_observations' }
     [ordered]@{
         schemaVersion = 1
-        status = if ($incomplete) { 'incomplete' } else { 'limited_observations' }
+        status = $statusLabel
         causeConfirmed = $false
         eventCollection = $EventCollectionStatus
         observedCounts = [ordered]@{
