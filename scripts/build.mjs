@@ -5,7 +5,7 @@ import { dirname, resolve, join } from 'node:path';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const html = await readFile(join(root, 'index.html'), 'utf8');
 if (!html.toLowerCase().includes('<!doctype html>') || !html.includes('AXMART')) throw new Error('AXMART index.html missing');
-if (!html.includes('실제 거래는 아직 지원하지 않습니다')) throw new Error('Prototype disclosure missing');
+if (!html.includes('판매·다운로드는 아직 지원하지 않습니다') || !html.includes('Windows 실기기 미검증')) throw new Error('Prototype disclosure missing');
 const out = join(root, 'dist');
 await mkdir(out, { recursive: true });
 await copyFile(join(root, 'index.html'), join(out, 'index.html'));

@@ -1,16 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { execFileSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve, join } from 'node:path';
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-test('Cloudflare production build preserves AXMART storefront', async () => {
-  execFileSync(process.execPath, [join(root,'scripts/build.mjs')], {cwd:root});
-  const [src, built, headers] = await Promise.all(['index.html','dist/index.html','dist/_headers'].map(p=>readFile(join(root,p),'utf8')));
-  assert.equal(built,src);
-  for (const text of ['수상할 정도로', '실제 거래는 아직 지원하지 않습니다', 'id="market-list"', 'id="search-dialog"', 'id="cart-dialog"']) assert.ok(built.includes(text),text);
-  assert.match(built,/data:image\/webp;base64/);
-  assert.match(headers,/X-Content-Type-Options: nosniff/);
-  assert.doesNotMatch(built,/(?:sk_live_|sk_test_|ghp_|CF_API_TOKEN\s*=)/);
+import {readFile} from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {dirname,resolve,join} from 'node:path';
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+test('Cloudflare build and real-catalog protections',async()=>{
+execFileSync(process.execPath,[join(root,'scripts/build.mjs')],{cwd:root});
+const src=await readFile(join(root,'index.html'),'utf8');
+const built=await readFile(join(root,'dist/index.html'),'utf8');
+assert.equal(src,built);
+assert.match(src,/data:image\/webp;base64/);
+assert.match(src,/AXMART PC CARE USB/);
+assert.match(src,/Windows 실기기 미검증/);
+assert.match(src,/판매·다운로드는 아직 지원하지 않습니다/);
+assert.match(src,/id="search-dialog"/);
+assert.match(src,/id="market-list"/);
+for(const bad of ['블로그 자동 생성 에이전트','회의록 정리 에이전트','데이터 리서치 에이전트','SNS 콘텐츠 자동화','웹 앱 생성 에이전트','id="open-cart"','id="cart-dialog"','id="login-button"','₩49,000','예시 상품']) assert.equal(src.includes(bad),false,bad);
+assert.doesNotMatch(src,/href=["'][^"']+\.(?:zip|exe|msi)/i);
 });

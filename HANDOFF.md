@@ -27,3 +27,16 @@
 - **배포 정책/미구현:** 클라우드 정적 프론트엔드 단계. 결제·로그인·DB·실판매·SMAX² API는 미구현. 실제 판매와 보안·약관·정산 설계는 별도 승인 후.
 - **다음 우선순위:** ①운영 URL 모바일·상품 검색·필터·장바구니 실조작 점검 ②실제 제품/가격 검수 ③서비스 상용화 설계 시 결제·데이터 보안·판매/환불 정책 검토. 소스 수정 없이 문서만 최신화했으며 직전 정상 소스로 롤백 가능.
 - **검증 기준:** 2026-10-30 14:43 KST 사용자 제공 Chrome 스크린샷과 연결된 Browser 읽기 결과; 현재 문서 커밋은 이 업데이트 이후 변경된 SHA를 기준으로 함.
+
+
+## 2026-10-30 사이트 실제 제품 전환 인수인계 (최신)
+1. 목표/요구/기술: AXMART에 허위 상품/가격을 없애고 실제 개발 소프트웨어만 노출. 기존 정적 HTML+JS/CSS, Node 정적 빌드, Cloudflare Pages 유지.
+2. 완료/근거: 5개 예시 카드를 제거하고 AXMART PC CARE USB v0.1-alpha 카드 1개로 대체. 상태를 '개발 중, Windows 실기기 미검증'으로 표시. 가짜 플랜/결제·로그인 모형을 삭제. 기존 마스코트 보존.
+3. 검증: 로컬 npm test 3/3 PASS 및 npm run build PASS; Playwright 브라우저에서 데스크톱·390px 모바일 제품 1개/검색/상세/모바일 메뉴/가로 넘침 0/JS 오류 0. USB 정적 패키지 테스트 5/5 PASS. 실제 Windows 작동은 미검증.
+4. 상태: 사이트 소스 구현·로컬 테스트 완료; Cloudflare Git 자동 배포 트리거 후 배포 SHA/실운영 콘텐츠 재확인 필요. PC CARE 기능은 알파이며 미완료.
+5. 장애: Windows 실기기 부재 및 복구 검증 없음. 결제·다운로드 제공 금지, 무인 수리 금지. 브라우저 테스트는 시스템 Chromium 경로를 사용해 로컬 검증, Production 검증으로 대체 불가.
+6. 저장소/브랜치/SHA/경로: hibi89/AX_MART main, 이번 커밋에서 index.html, scripts/build.mjs, tests/site.test.mjs 및 문서 변경. 이전 HEAD d37a005354f925b1e261e8c278ca082249e3b8cc 복구 가능.
+7. 운영: Cloudflare Pages ax-mart / https://ax-mart.pages.dev ; build 'npm run build', output dist, GitHub main 자동 배포. 실제 Production SHA 검증 대기.
+8. 원본/보안: 기존 원본 index.html 이전 커밋에 보존. 히어로 이미지 base64 인라인 유지; 토큰·개인정보·고객 로그 없음. 실기기 수리 명령/부트 파티션 변경은 공개하지 않음.
+9. 다음 작업: PC CARE 실기기 진단 검증→WinRE·복구 VM 안전성 검증→무료 베타 다운로드 승인→익명 피드백 채널 구축. 완료 조건은 실제 기능 동작 및 회귀 테스트.
+10. 갱신: 2026-10-30 KST, 문서 기준 커밋은 실제 GitHub 생성 커밋으로 판단. Cloudflare Production 실환경 화면 미검증 항목은 분리 유지.
