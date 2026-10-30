@@ -125,3 +125,11 @@
 - Independent Python QR encoder + OpenCV (not vendored qrcodejs) confirmed a leading BOM returns U+FEFF when decoded; vendor source contains BOM insertion. Actual vendored bitmap/phone decode unverified. Do not say QR complete until vendor + phone scan passes.
 - Next ㄱ priority actual vendor QR scanner proof, then Windows RUN_SELF_TEST.cmd and offline HTML/JSON, A4 PDF print, WinRE backup gates. Preserve report data and no autonomous repair.
 
+## 2026-10-30 KST — True vendored QR Korean UTF-8 overflow fixed
+
+- Repo `hibi89/AX_MART` branch `feature/pc-care-usb`. Main Cloudflare production unchanged; no public downloads/Kmong listings.
+- Critical new finding: exact old `ui/qrcode.min.js` Git blob `993e88f396640f881b69f98db7a4d17401ef83ca` failed to generate a valid **195-byte** Korean 7-line QR, `code length overflow. (2180>1728)`, because per-character byte buffer was reused after 3-byte Korean chars. **Fixed by inserting `b=[];` (5 chars) at the start of vendor UTF-8 loop**; MIT license preserved.
+- Tested *actual patched vendor*, not the fake QR constructor: 6/6 mixed Korean/ASCII exact UTF-8 data bytes (plus 3 BOM bytes for Unicode), 57×57 QR modules, three finder patterns correct. Exported same vendor matrix to Python OpenCV: QR detected and decoded **U+FEFF + exact Korean source text**, report BOM explicitly. Vendor browser canvas / Android+iOS phone scans NOT tested.
+- Created `products/pc-care/tests/test_qr_vendor.cjs` (6 Node built-in cases against real vendor), wired into manual-only Windows workflow with existing `tests/test_qr_ui.cjs`, added Python package static check. GitHub Actions runner unassigned earlier, so these new Node fixture files haven't executed in CI.
+- Next ㄱ: run real vendor in local headless Chromium + QR decoder if tooling permits, Windows PowerShell 5.1 tests and PDF/USB/WinRE gates after. Never remove the vendor 5-character fix without replacement tests. Read HANDOFF.md → STATUS.md → spec → current source first.
+
