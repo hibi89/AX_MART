@@ -150,6 +150,13 @@ class PackageTests(unittest.TestCase):
         preflight_src = qa.read_text(encoding='utf-8')
         launch = (ROOT/'RUN_RELEASE_QA.cmd').read_text(encoding='utf-8')
         gitignore = (ROOT.parent.parent/'.gitignore').read_text(encoding='utf-8')
+        self.assertIn('def classify_full_qa_stages(', preflight_src)
+        self.assertIn("status = classify_full_qa_stages(stages)", preflight_src)
+        self.assertIn("status != classify_full_qa_stages(result.get('stages', []))", preflight_src)
+        self.assertIn("len(stages) != 4", preflight_src)
+        self.assertIn("slot in slots", preflight_src)
+        self.assertIn("test_required_qa_matrix_prevents_missing_or_duplicate_passes",
+                      suite.read_text(encoding='utf-8'))
         self.assertIn('def safe_qa_receipt(', preflight_src)
         self.assertIn('def write_qa_receipt(', preflight_src)
         self.assertIn('os.O_EXCL', preflight_src)
