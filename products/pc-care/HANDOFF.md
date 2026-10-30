@@ -301,15 +301,3 @@
 ## 2026-10-30 KST — 자가검사 receipt 블록 구문 복구
 - 이전 2c83634 커밋의 windows_smoke.ps1에 중복된 JSON 검사와 잘린 정규식 문장이 발견되어 정상 실행을 방해할 위험이 있었다. 해당 블록을 단일 유효 구조로 교체, [.]json filename 매칭 및 경로/파일 검증 보강, 정적 테스트 동기화.
 - 실제 Windows PowerShell 5.1 실행·VM/USB/WinRE/QR/A4 검증 여전히 대기. 2c83634 이전 소스 기준 복구 가능. 운영 main/Cloudflare 미변경.
-
-## [최신] 2026-10-30 KST — 공급자 이름 오탐 방지 인수인계
-1. 목표/스택: PC CARE Windows/PS5.1 오프라인 오류 증거의 신뢰도 개선과 JSON 버전 명시.
-2. 변경: 이벤트 1001/41/6008/스토리지 소스 이름을 앵커 화이트리스트로 제한; JSON 루트 schemaVersion=1; fixture·스모크·정적 가드 추가.
-3. 테스트: 소스 기반 14개 regex 경계 사례 교차검증, Windows PowerShell5.1/전체 테스트/USB/QR/PDF **미수행**.
-4. 상태: 코드·테스트 소스 완료, 실기기 및 OEM 공급자 테스트 대기, 배포 미승인.
-5. 위험/대안: 부분문자열은 오탐 가능, 엄격 필터는 OEM 누락 가능. 실제 공급자명+EventID로 보정; 원본 개인정보 공유 불필요.
-6. GitHub: `hibi89/AX_MART` `feature/pc-care-usb`, 수정 전 `092864ccbedd7b185176e262bf54a51814fea7f4`; `products/pc-care/tools/event_analysis.ps1` 및 테스트·보고서 파일.
-7. Production: https://ax-mart.pages.dev/ 운영 main 미변경/feature 미배포.
-8. 보안/복원: 이전 SHA 복구 가능, 시스템 변경·원본 사용자 데이터·BitLocker 키·외부 네트워크 다루지 않음.
-9. 다음: Windows PS5.1 fixture, 실장치 공급자 확인 → 로컬 A4/QR/USB 검증 → 격리 VM WinRE 승인형 QA.
-10. 기준: 2026-10-30 KST, GitHub 코드·V8 정규식 모델; Windows OS 런타임 미검증.

@@ -252,8 +252,3 @@
 ## 2026-10-30 KST — 자가검사 receipt 블록 구문 복구
 - 이전 2c83634 커밋의 windows_smoke.ps1에 중복된 JSON 검사와 잘린 정규식 문장이 발견되어 정상 실행을 방해할 위험이 있었다. 해당 블록을 단일 유효 구조로 교체, [.]json filename 매칭 및 경로/파일 검증 보강, 정적 테스트 동기화.
 - 실제 Windows PowerShell 5.1 실행·VM/USB/WinRE/QR/A4 검증 여전히 대기. 2c83634 이전 소스 기준 복구 가능. 운영 main/Cloudflare 미변경.
-
-## 2026-10-30 KST — 이벤트 오탐/버전 스키마
-- `event_analysis.ps1` supplier regex anchored to expected provider names; malicious lookalikes may no longer masquerade as BugCheck/storage observations. `diagnose.ps1` root schemaVersion=1; Windows smoke validates it. Five synthetic negative event fixtures and Python static regression added.
-- Source-check and V8 pattern cases only; Windows PowerShell5.1/OEM provider, USB/WinRE/QR/PDF and full tests remain unverified. Operational main/Cloudflare and repair feature unchanged.
-- Baseline SHA `092864ccbedd7b185176e262bf54a51814fea7f4`; beta/sale prohibited until real QA.

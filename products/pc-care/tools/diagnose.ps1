@@ -251,7 +251,7 @@ $assessment = if (@($issues | Where-Object {$_.severity -eq 'high'}).Count -gt 0
               elseif ($limits.Count -gt 0) { '확인 불완전' }
               else { '관찰 범위 내 특이사항 없음' }
 $report = [ordered]@{
-    schemaVersion=1; product='AXMART PC CARE'; version='0.1.0-alpha'; mode='read-only'
+    product='AXMART PC CARE'; version='0.1.0-alpha'; mode='read-only'
     generatedAt=(Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz')
     assessment=$assessment; observations=$observations
     analysis=$incidentAssessment

@@ -84,7 +84,3 @@
 ## 2026-10-30 KST — 자가검사 receipt 블록 구문 복구
 - 이전 2c83634 커밋의 windows_smoke.ps1에 중복된 JSON 검사와 잘린 정규식 문장이 발견되어 정상 실행을 방해할 위험이 있었다. 해당 블록을 단일 유효 구조로 교체, [.]json filename 매칭 및 경로/파일 검증 보강, 정적 테스트 동기화.
 - 실제 Windows PowerShell 5.1 실행·VM/USB/WinRE/QR/A4 검증 여전히 대기. 2c83634 이전 소스 기준 복구 가능. 운영 main/Cloudflare 미변경.
-
-## 2026-10-30 — PC CARE 공급자 소스 검증 인계
-- hibi89/AX_MART feature/pc-care-usb baseline `092864ccbedd7b185176e262bf54a51814fea7f4`; EventID/provider allowlist·JSON root schemaVersion=1·5개 위조 공급자 fixtures·스모크 정적 검사 추가.
-- Windows PowerShell5.1/실기기 OEM 공급자 확인·USB/WinRE/QR/A4 PDF 미검증, main·Cloudflare·공개다운로드·판매 변경 없음. 세부 `products/pc-care/HANDOFF.md`.
