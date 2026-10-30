@@ -82,6 +82,8 @@ foreach ($v in $volumes) {
 $observations['volumes'] = @($volData.ToArray())
 
 # Storage provider may not expose NVMe SMART. Unknown is not Healthy.
+# Load the already packaged pure telemetry helpers before using disk metrics.
+. (Join-Path $PSScriptRoot 'telemetry_analysis.ps1')
 $disks = @(Safe-Collect { @(Get-PhysicalDisk -ErrorAction Stop) } '저장장치 건강 상태' 'physicalDisks')
 $diskData = New-Object 'System.Collections.Generic.List[object]'
 foreach ($disk in $disks) {
@@ -92,8 +94,9 @@ foreach ($disk in $disks) {
         $counter = $disk | Get-StorageReliabilityCounter -ErrorAction Stop
         if ($null -ne $counter) {
             $item.reliabilityStatus = 'collected'
-            if ($null -ne $counter.Wear -and $counter.Wear -ne 0) { $item.wearPercent=[int]$counter.Wear }
-            if ($null -ne $counter.Temperature -and $counter.Temperature -ne 0) { $item.temperatureC=[int]$counter.Temperature }
+            $metrics = ConvertTo-PcCareStorageMetrics -Counter $counter
+            $item.wearPercent = $metrics.wearPercent
+            $item.temperatureC = $metrics.temperatureC
         } else { $item.reliabilityStatus = 'empty' }
     } catch {
         # Optional device-dependent telemetry; an unsupported API is not proof of health.
@@ -167,7 +170,6 @@ $storageCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsT
 
 # Optional, strictly read-only battery and Windows Update observations.
 # A missing battery on a desktop is normal; a denied CIM query is NOT absence.
-. (Join-Path $PSScriptRoot 'telemetry_analysis.ps1')
 $batteryRaw = @()
 $batteryQueryStatus = 'unavailable'
 try {
