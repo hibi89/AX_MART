@@ -578,3 +578,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본·백업·인증: 사용자 고객 REPORTS/시스템 설정·파일/토큰·BitLocker 키 무접근·무수정. Git 이전 HEAD 복원점. 원본과 정상 기능·인증 설정 변경/외부 업로드 없음.
 9. 다음 우선순위·절차·승인: Windows 전체 소스 QA/PS5.1 fixture → 명시적 read-only 실제 JSON/HTML 결과 → H08/Edge file://·한글 USB→QR/A4·해시 ZIP→WinRE 격리 VM 안전 증명. 실제 수리·WinRE 복사·고객 배포/유료화는 사전 승인.
 10. 갱신: 2026-10-31 KST, GitHub 실제 원격 소스/정적 검사 19개까지만 확인. 정적 PASS를 native/E2E PASS라고 기록하지 않음. 최종 SHA 원격 확인 후 보고.
+
+## 2026-10-31 KST — CUBE 저장 보고서/SMART QA 인수인계 10항
+1. 목표·기술: 최종 v2.0 Release A의 오프라인 Windows PS5.1/CMD 진단 → 증거/상태 → JSON+HTML 저장 → H08/QR/A4; Release B WinRE 실제 백업은 별도 위험 게이트.
+2. 변경·결정: 보고서 파일 기본이름을 쓰기 전에 `^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$`로 검사해 경로 이탈 금지. 기존 보고서 충돌 보존·대체 저장 유지. 배포 allowlist에 이미 들어있는 `telemetry_analysis.ps1`에 순수 SMART 마모율/온도 정규화 추가하고 `diagnose.ps1` 조기 1회 소싱; 별도 모듈/새 의존성 없음.
+3. 테스트: GitHub 원격 readback 및 보안·패키지 정적 계약 **24 PASS / 0 FAIL**. 별도 합성 PS fixture와 패키지 계약 테스트는 코드 반영만. **Windows PS5.1 실제 실행, native Python/Node, 실 ZIP/USB/QR/A4/WinRE/CI NOT_RUN**.
+4. 상태: 피처 코드·회귀 테스트·정적 QA 근거 완료; Release A Windows 실기기 수용 검증 대기, 고객 배포와 Release B 실제 복사는 여전히 차단.
+5. 실패·원인·재시도 금지·대안: 이전 코드 `FileBase` 경로 미검사와 저장장치 `Wear/Temperature`의 원시 정수 변환이 근본 원인. 과거 별도 센서 파일과 ZIP 변경 동기화 실패를 반복하지 않고 기존 배포 포함 텔레메트리 모듈 활용. Windows 실행이 검증되지 않았다는 사실을 정적 PASS로 대체하지 말 것.
+6. 저장소·브랜치·경로·복구 SHA: `hibi89/AX_MART@feature/pc-care-usb`. 수정 전 `6d25db008c835ccf489940e9a3024f6b86c74ca9`; 파일 `tools/report_io.ps1`, `tools/telemetry_analysis.ps1`, `tools/diagnose.ps1`, `tests/report_io.tests.ps1`, `tests/telemetry_analysis.tests.ps1`, `tests/test_package.py`. 증거 `tests/evidence/report_persistence_smart_source_static_qa_20261031.json`.
+7. Production·실행 환경: `https://ax-mart.pages.dev/` 운영 main은 무변경. Windows 11 x64 + PS5.1, Python 3.11+, Node; 전체 소스의 `RUN_RELEASE_QA.cmd`, 선택적 실제 read-only 검사는 `RUN_SELF_TEST.cmd` 사용자 명시 실행.
+8. 원본·보안: 고객 REPORTS/원시 로그·개인 파일·OS/BitLocker·복구·환경변수/키·Cloudflare 인증 무접근·무수정. 이전 SHA로 복원. 외부 데이터 업로드/무인 파일 삭제·포맷·복사·수리 없음.
+9. 다음 우선순위·절차·승인: Windows 개발 체크아웃 합성 PS 파싱/fixture 및 native Python/Node+ZIP→사용자 승인한 read-only 실제 진단 JSON/HTML 저장→H08/USB 한글 경로/QR 실스캔/A4→WinRE 격리 VM 백업 안전 시험. 실복사·고권한 수리/배포/비용 지출 시 별도 승인.
+10. 기록: 2026-10-31 KST, GitHub 원격 소스·정적 24개 검증만 확인. 최종 SHA/CI 상태는 본문 작성 뒤 GitHub에서 재확인. 현재 문서를 제품 완성/판매 승인으로 간주하지 않는다.
