@@ -62,4 +62,30 @@ Assert-Telemetry ($null -eq $independentStorage.wearPercent -and $independentSto
 Assert-Telemetry (($independentStorage | ConvertTo-Json -Compress) -notmatch 'PRIVATE') 'Reject raw private readings'
 $validWear = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear=100; Temperature='not-a-number' })
 Assert-Telemetry ($validWear.wearPercent -eq 100 -and $null -eq $validWear.temperatureC) 'Invalid temperature must not hide valid wear'
+# Logical disk fixtures are pure. A single malformed CIM sample cannot abort the scan.
+$validVolume = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{ DeviceID='C:'; Size=(100 * 1GB); FreeSpace=(4 * 1GB); VolumeName='PRIVATE-NAME' })
+Assert-Telemetry ($validVolume.drive -eq 'C:' -and $validVolume.remainingGB -eq 4 -and $validVolume.sizeGB -eq 100 -and $validVolume.freePercent -eq 4) 'Valid disk sample and percentage'
+Assert-Telemetry (($validVolume | ConvertTo-Json -Compress) -notmatch 'PRIVATE') 'Do not serialize volume labels'
+$fullVolume = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{ DeviceID='D:'; Size=(20 * 1GB); FreeSpace=0 })
+Assert-Telemetry ($fullVolume.drive -eq 'D:' -and $fullVolume.remainingGB -eq 0 -and $fullVolume.freePercent -eq 0) 'A full disk must not be rejected as an invalid sensor'
+$invalidVolumes = @(
+    [pscustomobject]@{ DeviceID='C:\\Private'; Size=(100 * 1GB); FreeSpace=(5 * 1GB) },
+    [pscustomobject]@{ DeviceID='PRIVATE'; Size=(100 * 1GB); FreeSpace=(5 * 1GB) },
+    [pscustomobject]@{ DeviceID='C:'; Size=0; FreeSpace=0 },
+    [pscustomobject]@{ DeviceID='C:'; Size='NaN'; FreeSpace=1 },
+    [pscustomobject]@{ DeviceID='C:'; Size='Infinity'; FreeSpace=1 },
+    [pscustomobject]@{ DeviceID='C:'; Size='PRIVATE-VALUE'; FreeSpace=1 },
+    [pscustomobject]@{ DeviceID='C:'; Size=(10 * 1GB); FreeSpace=-1 },
+    [pscustomobject]@{ DeviceID='C:'; Size=(10 * 1GB); FreeSpace=(11 * 1GB) },
+    [pscustomobject]@{ DeviceID='C:'; Size=(10 * 1GB); FreeSpace='NaN' },
+    [pscustomobject]@{ DeviceID='C:'; Size=$null; FreeSpace=1 }
+)
+foreach ($invalidVolume in $invalidVolumes) {
+    $badVolume = ConvertTo-PcCareVolumeSample -Volume $invalidVolume
+    Assert-Telemetry ($null -eq $badVolume) 'Invalid logical disk data must return unknown, not throw or leak raw fields'
+}
+Assert-Telemetry ($null -eq (ConvertTo-PcCareVolumeSample -Volume $null)) 'Missing volume remains unknown'
+$followupVolume = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{ DeviceID='E:'; Size=(40 * 1GB); FreeSpace=(24 * 1GB) })
+Assert-Telemetry ($followupVolume.freePercent -eq 60) 'Good disk after malformed disk still evaluates'
+
 Write-Host 'TELEMETRY FIXTURE PASS: absent/denied/invalid battery and scoped Windows update evidence.' -ForegroundColor Green
