@@ -30,6 +30,49 @@ test("duplicated logical drive letters reject ambiguous volume comparisons",()=>
  ]}};
  assert.deepEqual(compareReports(a,current).drives,[]);
 });
+test("incomplete volume data cannot erase a previous low-space warning",()=>{
+ const previous={...a,issues:[{code:"DISK_SPACE_LOW"},{code:"BUGCHECK"}]};
+ for(const status of ["incomplete","unavailable","truncated"]){
+  const current={...b,issues:[],observations:{...b.observations,
+   volumeRejectedCount:1,
+   collectionStatus:{...b.observations.collectionStatus,volumes:status},
+   volumes:[{drive:"C:",sizeGB:100,remainingGB:100}]}};
+  const result=compareReports(previous,current);
+  assert.deepEqual(result.missing,["BUGCHECK"]);
+  assert.deepEqual(result.drives,[]);
+  assert.ok(result.caution.some(note=>note.includes("경고의 미관찰 여부")));
+ }
+});
+test("forged collected volume status with rejected records cannot fake recovered free space",()=>{
+ for(const bad of [1,2,"0",null]){
+  const result=compareReports(a,{...b,issues:[],observations:{...b.observations,
+   volumeRejectedCount:bad,
+   collectionStatus:{...b.observations.collectionStatus,volumes:"collected"},
+   volumes:[{drive:"C:",sizeGB:100,remainingGB:70}]}});
+  assert.deepEqual(result.missing,[]);
+  assert.deepEqual(result.drives,[]);
+ }
+});
+test("malformed current volume rows cannot erase an old disk-space warning",()=>{
+ for(const volumes of [[],null,
+   [{drive:"C:",sizeGB:100,remainingGB:30},{drive:"c:",sizeGB:100,remainingGB:40}],
+   [{drive:"PRIVATE",sizeGB:100,remainingGB:40}]]){
+  const result=compareReports(a,{...b,issues:[],observations:{...b.observations,volumes}});
+  assert.deepEqual(result.missing,[]);
+ }
+});
+test("complete volume evidence preserves normal issue comparisons",()=>{
+ const complete={...b,issues:[],observations:{...b.observations,volumeRejectedCount:0,
+  volumes:[{drive:"C:",sizeGB:100,remainingGB:25}]}};
+ const result=compareReports(a,complete);
+ assert.deepEqual(result.missing,["DISK_SPACE_LOW"]);
+ assert.equal(result.drives[0].change,5);
+ const observed={...b,issues:[{code:"DISK_SPACE_CRITICAL"}],observations:{
+   ...b.observations,volumeRejectedCount:1,collectionStatus:{...b.observations.collectionStatus,volumes:"incomplete"}}};
+ const partial=compareReports(a,observed);
+ assert.deepEqual(partial.added,["DISK_SPACE_CRITICAL"]);
+ assert.deepEqual(partial.missing,[]);
+});
 test("valid collected volumes still report bounded capacity delta",()=>{
  const current={...b,observations:{...b.observations,volumes:[{drive:"C:",sizeGB:100,remainingGB:14}]}};
  assert.equal(compareReports(a,current).drives[0].change,-6);
