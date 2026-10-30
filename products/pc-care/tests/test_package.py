@@ -398,6 +398,9 @@ class PackageTests(unittest.TestCase):
         self.assertIn("$UpdateCollectionStatus -in @('collected','truncated')", engine)
         self.assertIn("$pnpStatus -in @('collected','truncated')", engine)
         self.assertIn("$DiskCollectionStatus -ne 'collected'", engine)
+        self.assertIn("if ($DiskCollectionStatus -in @('collected','truncated'))", engine)
+        self.assertLess(engine.index("if ($DiskCollectionStatus -in @('collected','truncated'))"),
+                        engine.index("$allDisks = @($DiskObservations | Where-Object"))
         self.assertIn("if ($DiskCollectionStatus -ne 'collected' -or $allDisks.Count -eq 0", engine)
         self.assertLess(engine.index("if ($EventCollectionStatus -in @('collected','truncated'))"),
                         engine.index("$allEvents = @($EventEvidence | Where-Object"))
@@ -409,7 +412,10 @@ class PackageTests(unittest.TestCase):
             "Unavailable PnP query excludes stale samples",
             "Healthy disk sample with unavailable inventory cannot imply complete assessment",
             "Truncated PnP retains actually observed sample",
-            "Observed disk warning is kept despite incomplete inventory",
+            "Failed inventory cannot create a warning from stale disk observations",
+            "Successful empty inventory excludes stale warnings",
+            "Truncated but observed warning is retained",
+            "Collected valid warning still reported",
         ):
             self.assertIn(sentinel, fixture)
 
