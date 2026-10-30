@@ -91,3 +91,33 @@ function ConvertTo-PcCareUpdateEvidence {
         }
     }
 }
+
+# Device-dependent counters do not establish SSD remaining life or hardware health.
+# Keep raw device data out of reports; invalid/sentinel values become unknown.
+function ConvertTo-PcCareStorageMetrics {
+    [CmdletBinding()]
+    param([object]$Counter)
+    $wear = $null
+    $temperature = $null
+    if ($null -ne $Counter) {
+        try {
+            if ($null -ne $Counter.Wear) {
+                $candidate = [double]$Counter.Wear
+                if (-not [double]::IsNaN($candidate) -and -not [double]::IsInfinity($candidate) -and
+                    $candidate -gt 0 -and $candidate -le 100 -and $candidate -eq [math]::Truncate($candidate)) {
+                    $wear = [int]$candidate
+                }
+            }
+        } catch {}
+        try {
+            if ($null -ne $Counter.Temperature) {
+                $candidate = [double]$Counter.Temperature
+                if (-not [double]::IsNaN($candidate) -and -not [double]::IsInfinity($candidate) -and
+                    $candidate -gt 0 -and $candidate -le 125 -and $candidate -eq [math]::Truncate($candidate)) {
+                    $temperature = [int]$candidate
+                }
+            }
+        } catch {}
+    }
+    return [pscustomobject]@{ wearPercent=$wear; temperatureC=$temperature }
+}
