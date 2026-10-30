@@ -1,0 +1,29 @@
+{
+  "dateKst": "2026-10-31",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "baseSha": "c8ca0136a1ec65f2d3490e0d7245f2e6b97f81f3",
+  "defect": "classify_qa_status returned PASS for any nonempty subset of passing stages, even if a required Windows/ZIP/Node/Python gate was missing or duplicated.",
+  "fix": "classify_full_qa_stages requires exactly four unique stages (python-tests, node-tests/node-syntax, internal-zip/build/verify, windows-powershell-51-synthetic). run_qa and safe_qa_receipt now use it. Generic classify_qa_status remains a standalone per-stage aggregator.",
+  "sourceBlobs": {
+    "tools/preflight.py": "ef6e3bf911de58da1af3a1c5f588f84060ce7f11",
+    "tests/test_preflight.py": "0b00f43705576f612bb0533a2e48cf8ec2615e6a",
+    "tests/test_package.py": "065cfb3f0a6587ef4d966083653f7041b9e0bf22"
+  },
+  "verification": {
+    "isolatedNativePython313": {
+      "pass": 10,
+      "fail": 0,
+      "scope": "Manually copied exact two QA classification function bodies from current GitHub into local isolated module; limited JS_SCRIPTS stub, not the full checkout or integrated tests."
+    },
+    "remoteGitHubCodeAndTestReadback": true,
+    "fullPythonUnittest": "NOT_RUN",
+    "nativeNode": "NOT_RUN",
+    "WindowsPowershell51": "NOT_RUN",
+    "actualReleaseZip": "NOT_RUN",
+    "USB_QR_A4_WinRE": "NOT_RUN",
+    "CI_CurrentHead": "NOT_RUN"
+  },
+  "security": "No user data or Windows host accessed. No production/main modification, restore/repair, publishing, workflow dispatch or billing changes.",
+  "next": "Windows full repo checkout: RUN_RELEASE_QA.cmd; inspect ignored QA_RESULTS/pc-care-qa-*.json. Then opt-in read-only PC report JSON/HTML+H08, USB+QR+A4, WinRE isolated VM approval."
+}
