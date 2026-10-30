@@ -662,3 +662,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본/백업/인증: Git 기준 이전 SHA 복원점. 고객 REPORTS·개인 경로/볼륨명·OS 설정·BitLocker·인증 토큰/키·실복구 미접근·미수정. 외부 데이터 업로드 및 자동 수리 없음.
 9. 후속 우선순위/승인·완료 기준: Windows checkout native `RUN_RELEASE_QA.cmd`→합성 PS5.1 오류 0건 확인→사용자가 명시 실행한 read-only 실제 진단 JSON·HTML/H08→USB 한글 폴더/Edge/QR·A4→WinRE 격리. 실복사·수리/배포·결제/권한 변경 사전 승인.
 10. 시점·검증 범위: 2026-10-31 KST, GitHub 원격 실소스 정적 계약 23개와 이전 ZIP Python suite만 확인. PS5.1 native·현 SHA CI·실 Windows/USB/WinRE 미검증. 최종 SHA는 작업 종료 시 재조회.
+
+## 2026-10-31 KST — H08 불완전 볼륨 경고의 허위 해소 차단 / 10항
+1. 목표·기술: PC CARE Release A 오프라인 Windows 11 PS5.1 진단·JSON/HTML 생성·H08 이력 비교, USB/QR/A4; Release B WinRE 안전 게이트 분리.
+2. 완료·근거: H08에서 최신 `collectionStatus.volumes=incomplete` 상태로 이전 디스크 공간 부족 경고가 `missing` 처리되는 오판 재현·수정. 기존 볼륨 검증 맵을 경고 비교 전에 사용하고 최신 정상 수집 미확인이면 디스크 공간 경고의 미관찰 판정만 보류. 명시적 한계 문구 노출, 다른 경고/신규 관찰 경고 유지, 필드 없는 레거시 보고서 하위호환.
+3. 검증: 실제 GitHub `ui/history_compare.js`·`ui/history_signals.js`·`tests/test_history_compare.cjs`를 V8 호환 `node:test`·`assert` 래퍼에서 **26 PASS/0 FAIL**. 별도 직접 17/17(일부 중복), 원격 정적 계약 16/16. **Node 실제 러너·Windows PS5.1·실 브라우저·전체 Python/ZIP/USB·QR/A4·WinRE·현 CI NOT_RUN**.
+4. 상태: H08 불완전 디스크 이력 오류의 코드·회귀 등록 완료. Windows/실제 보고서/E2E 수용 검증은 대기. 공개 판매·고권한 수리·WinRE 복사 금지.
+5. 오류·원인·시도·대안: `codeSet` 비교가 `collectionStatus.volumes`를 보지 않고 `issues=[]`를 경고 미관찰로 해석. 데이터 공급 중 오류 시 정상 증거 없이 경고가 사라지는 문제. 공급자 검증 결과를 코드별로 적용. V8 실행기 최초에 `./history_signals.js` 모듈 라우팅 누락으로 실패했으나 래퍼 수정 후 26/26, 제품 코드 오류 아님. CI 이전 runner 미배정 상태 반복 호출하지 않음.
+6. 저장소·브랜치·경로/SHA: `hibi89/AX_MART@feature/pc-care-usb` 작업 시작 SHA `d2eaf480df274ac21c0eb4470cf795b35cbe933d`; `ui/history_compare.js`, `tests/test_history_compare.cjs`, `tests/test_package.py`. 증거 `tests/evidence/h08_volume_warning_provenance_v8_20261031.json`; 최종 커밋 SHA는 GitHub readback.
+7. Production/실행: `https://ax-mart.pages.dev/`은 운영 main 전용, 이번 H08 버그 수정 프로덕션 미적용. 개발 Windows 11/PowerShell5.1·Python 3.11+·Node; `RUN_RELEASE_QA.cmd`는 합성 테스트/임시 ZIP·로컬 영수증만 생성.
+8. 원본/백업·인증: Git baseline SHA는 코드 복구점. 사용자 REPORTS·OS/저장장치·BitLocker·개인정보/토큰 미접근·무수정. 외부 API 호출/자동 수리·배포/권한 변경 없음.
+9. 다음 작업/승인: 실제 전체 Windows 체크아웃 `RUN_RELEASE_QA.cmd`로 Node/PS5.1/Python/ZIP → 사용자 명시 read-only 로컬 JSON·HTML/H08 비교/한글 USB/QR·A4 → WinRE는 격리 실장치 안전성 검증. 실제 복사·복구·수리·공개 배포·비용/권한 변경 사전 승인.
+10. 갱신: 2026-10-31 KST. 현재 검증은 원본 JS를 V8에서 실행한 호환 테스트와 원격 정적 검사까지. 실제 Windows·Node/CI 미검증이며 제품 출시 완료 아님.
