@@ -1,0 +1,36 @@
+{
+  "date_kst": "2026-10-31",
+  "repo": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "base_commit": "63ca3c8513d921bfa990dbdec813118f2372e9b2",
+  "defect": "A 'collected' timeline could silently discard malformed/non-normalized event rows and then claim complete coverage or no matching events, masking loss of evidence.",
+  "fixes": [
+    "Get-PcCareRecordedTimeline checks timeBasis='event_recorded_time', event kind/EventID, and parseable offset-aware recorded timestamp before accepting a record; invalid rows increase a bounded rejection counter without copying raw content.",
+    "Any rejected row invalidates coverageComplete and, when no higher-priority source failure/truncation applies, sets status='incomplete' instead of 'no matching events'.",
+    "diagnose.ps1 adds an accurate normalization-limitations note and displays rejectedCount in offline HTML without mistaking validation failures for OS event-log access denial.",
+    "Windows smoke and synthetic fixture enforce rejectedCount, genuine clean-record coverage and no causal claims; Python source contracts updated."
+  ],
+  "source_sha": {
+    "tools/recorded_timeline.ps1": "629854ca97a6aac168eb0871704a1b2d29969996",
+    "tools/diagnose.ps1": "6bf9302321248801e4cf9d9e2f8de60de1306882",
+    "tests/driver_timeline.tests.ps1": "56cee9f78b61877b90c0eb2389ea5f120578eee3",
+    "tests/windows_smoke.ps1": "0b75e32a4ce5102dfbe4056a967732867fd917f6",
+    "tests/test_package.py": "7be75e1853c97ec01d93ab687f48d144c6201b8d"
+  },
+  "validation": {
+    "GitHub_remote_source_contract": {
+      "pass": 25,
+      "fail": 0
+    },
+    "PS51_native": "NOT_RUN",
+    "Node_native": "NOT_RUN",
+    "Python_native": "NOT_RUN",
+    "Windows11_physical_E2E": "NOT_RUN",
+    "USB_QR_A4": "NOT_RUN",
+    "Zip_package": "NOT_RUN",
+    "WinRE": "NOT_RUN",
+    "Current_SHA_GitHub_CI": "NOT_RUN"
+  },
+  "safety": "Only feature/pc-care-usb was changed. No OS repair, Windows event log read, local customer reports, production deployment or user data mutation.",
+  "next": "Full Windows checkout RUN_RELEASE_QA.cmd native Python/Node/PS5.1 synthetic, then opt-in RUN_SELF_TEST.cmd read-only real report, H08/Edge/USB and QR/A4, WinRE separately."
+}
