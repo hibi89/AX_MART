@@ -263,6 +263,16 @@ $report = [ordered]@{
 . (Join-Path $PSScriptRoot 'consultation_report.ps1')
 $consultationSummary = Get-PcCareConsultationSummary -Report $report
 $report['consultation'] = $consultationSummary
+# QR-compatible share TEXT only; do not copy the payload into diagnostic JSON.
+. (Join-Path $PSScriptRoot 'share_payload.ps1')
+$sharePayload = Get-PcCareSharePayload -Summary $consultationSummary
+$report['sharePreview'] = [ordered]@{
+    status = $sharePayload.status
+    byteCount = $sharePayload.byteCount
+    maxUtf8Bytes = $sharePayload.maxUtf8Bytes
+    qrImageGenerated = $false
+    payloadStoredInJson = $false
+}
 $jsonText = $report | ConvertTo-Json -Depth 10
 
 $cards = New-Object 'System.Collections.Generic.List[string]'
@@ -357,6 +367,8 @@ $color = if ($assessment -eq '위험 신호') {'#ff6a8a'} elseif ($assessment -e
 # Separate, bounded consultation renderer; browser print/PDF uses CSS only.
 . (Join-Path $PSScriptRoot 'consultation_render.ps1')
 $consultationHtml = ConvertTo-PcCareConsultationHtml -Summary $consultationSummary
+. (Join-Path $PSScriptRoot 'share_preview.ps1')
+$sharePreviewHtml = ConvertTo-PcCareSharePreviewHtml -Share $sharePayload
 # Static local HTML: all dynamic fields encoded, no remote scripts, fonts, or data requests.
 $html = @"
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -384,6 +396,11 @@ footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-heig
 .consult-table{width:100%;table-layout:fixed;border-collapse:collapse}.consult-table th,.consult-table td{border-bottom:1px solid #484051;padding:6px;text-align:left;font-size:11px;overflow-wrap:anywhere}
 .consult-bottom{border-top:1px solid #484051;margin-top:10px;padding-top:10px;font-size:10px;line-height:1.5;color:#b9b1c4}
 .screen-help{font-size:12px;color:#b9b1c4}
+.share-panel{padding:22px;margin:18px 0;background:#171520;border:1px solid #454052;border-radius:16px}
+.share-panel h2{margin:0 0 8px}.share-panel summary{cursor:pointer;color:#b7f2d6;font-weight:700;padding:12px 0}
+.share-disclosure textarea{display:block;width:100%;margin:8px 0 12px;padding:12px;border:1px solid #60506e;border-radius:8px;background:#101019;color:#f2f1f6;font-family:'Malgun Gothic',monospace;font-size:12px;line-height:1.5;resize:vertical}
+.share-select{background:#6f53a0;border:0;border-radius:8px;color:white;padding:10px 14px;cursor:pointer;font-weight:700}
+.share-select:focus-visible,.share-panel summary:focus-visible{outline:2px solid #a1edc8;outline-offset:3px}
 @page{size:A4 portrait;margin:10mm}
 @media print{
   html,body{background:#fff!important;color:#161616!important;font-family:'Malgun Gothic',Arial,sans-serif!important;color-scheme:light!important}
@@ -412,6 +429,7 @@ footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-heig
 <div class="status">$(Esc $assessment)</div>
 <p class="screen-help">수리점 제출용 1페이지 요약은 아래에서 확인하세요. 브라우저에서 Ctrl+P → PDF로 저장하면 요약표만 인쇄됩니다. 별도 서버 전송은 없습니다.</p>
 $consultationHtml
+$sharePreviewHtml
 <div class="grid"><div class="tile"><div class="small">블루스크린 관련 기록</div><strong>$(Esc $bugCountLabel)</strong></div><div class="tile"><div class="small">비정상 종료 이벤트</div><strong>$(Esc $shutdownCountLabel)</strong></div><div class="tile"><div class="small">저장장치 오류 이벤트</div><strong>$(Esc $storageCountLabel)</strong></div><div class="tile"><div class="small">발견한 주요 주의사항</div><strong>$($issues.Count)건</strong></div></div>
 <section><h2>진단 결과와 권장 조치</h2>$($cards -join "`n")</section>
 <section><h2>원인 후보와 확인 한계</h2><p class="small">자동 규칙 해설이며 고장 원인 확정, 부품 교체 판정 또는 수리 보증이 아닙니다.</p>$($analysisCards -join "`n")</section>
