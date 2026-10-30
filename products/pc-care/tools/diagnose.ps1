@@ -160,6 +160,47 @@ $bugCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsTrunc
 $shutdownCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsTruncated) { '{0}건 신호 (수집분)' -f $unexpected.Count } else { '{0}건 신호 (중복 가능)' -f $unexpected.Count }
 $storageCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsTruncated) { '{0}건 (수집분)' -f $storageErrors.Count } else { '{0}건' -f $storageErrors.Count }
 
+# Optional, strictly read-only battery and Windows Update observations.
+# A missing battery on a desktop is normal; a denied CIM query is NOT absence.
+. (Join-Path $PSScriptRoot 'telemetry_analysis.ps1')
+$batteryRaw = @()
+$batteryQueryStatus = 'unavailable'
+try {
+    $batteryRaw = @(Get-CimInstance -ClassName Win32_Battery -ErrorAction Stop | Where-Object { $null -ne $_ })
+    $batteryQueryStatus = if ($batteryRaw.Count -gt 0) { 'collected' } else { 'empty' }
+} catch {
+    [void]$limits.Add('배터리: Windows 관리 인터페이스 조회 불가. 배터리가 없다는 판정은 아닙니다.')
+}
+$batterySnapshot = ConvertTo-PcCareBatterySnapshot -Batteries $batteryRaw -QueryStatus $batteryQueryStatus
+$observations['battery'] = $batterySnapshot
+$collectionStatus['battery'] = $batterySnapshot.status
+
+# Official WindowsUpdateClient installation records 19/20 from the System log.
+# Recorded event timestamps are not proof that a specific update caused any crash.
+$updateResult = Invoke-PcCareEventQuery -MaxEvents 300 -Query {
+    Get-WinEvent -FilterHashtable @{ LogName='System'; ProviderName='Microsoft-Windows-WindowsUpdateClient'; Id=19,20; StartTime=$start } -MaxEvents 300 -ErrorAction Stop
+}
+$updateEvidence = @(ConvertTo-PcCareUpdateEvidence -Events @($updateResult.events))
+$updateFailures = @($updateEvidence | Where-Object { $_.kind -eq 'update_installation_failure_record' })
+$updateSuccesses = @($updateEvidence | Where-Object { $_.kind -eq 'update_installation_success_record' })
+$observations['windowsUpdate'] = [ordered]@{
+    status = $updateResult.status
+    scope = 'System/WindowsUpdateClient installation event IDs 19/20 only'
+    evidence = @($updateEvidence | Select-Object -First 300)
+    installationFailureRecords = [int]$updateFailures.Count
+    installationSuccessRecords = [int]$updateSuccesses.Count
+    timeBasis = 'event_recorded_time'
+}
+$collectionStatus['windowsUpdate'] = $updateResult.status
+if ($updateResult.status -eq 'unavailable') {
+    [void]$limits.Add('Windows 업데이트 설치 이벤트 조회 불가. 설치 기록이 없다고 판단하지 않습니다.')
+} elseif ($updateResult.status -eq 'truncated') {
+    [void]$limits.Add('Windows 업데이트 이벤트 300건 조회 한도에 도달했습니다. 전체 기간을 대표하지 않습니다.')
+}
+if ($updateFailures.Count -gt 0) {
+    Add-Issue 'medium' 'WINDOWS_UPDATE_FAILURE_RECORD' 'Windows 업데이트 설치 실패 기록' ("최근 {0}일간 설치 실패 관련 이벤트 {1}건(확인된 수집분)" -f $Days,$updateFailures.Count) 'Windows 업데이트 기록을 확인하세요. 이 이벤트만으로 블루스크린이나 고장 원인을 확정할 수 없습니다.'
+}
+
 # Optional indication; third-party AV users must not be labeled unprotected.
 $defender = Safe-Collect { Get-MpComputerStatus -ErrorAction Stop } 'Microsoft Defender' 'defender'
 if ($null -ne $defender) {
@@ -229,6 +270,31 @@ if ($crashRows.Count -eq 0) {
                     else { '확인한 System 이벤트 범위에서 BugCheck 기록이 없었습니다. 블루스크린이 없었다는 보증은 아닙니다.' }
     [void]$crashRows.Add(('<tr><td colspan="2">{0}</td></tr>' -f (Esc $crashMessage)))
 }
+$batteryNote = if ($batterySnapshot.status -eq 'not_present') { '배터리 장치 미감지(데스크톱일 수 있음)' }
+               elseif ($batterySnapshot.status -eq 'unavailable') { '배터리 데이터 조회 불가(배터리 없음이 아님)' }
+               else { ('배터리 {0}개 보고됨' -f $batterySnapshot.batteryCount) }
+$batteryRows = New-Object 'System.Collections.Generic.List[string]'
+foreach ($batterySample in $batterySnapshot.samples) {
+    $chargeLabel = if ($null -eq $batterySample.chargeRemainingPercent) { '확인 불가' } else { ('{0}% (현재 충전량)' -f $batterySample.chargeRemainingPercent) }
+    $designLabel = if ($null -eq $batterySample.designCapacityMWh) { '미지원' } else { ('{0} mWh' -f $batterySample.designCapacityMWh) }
+    $fullLabel = if ($null -eq $batterySample.fullChargeCapacityMWh) { '미지원' } else { ('{0} mWh' -f $batterySample.fullChargeCapacityMWh) }
+    [void]$batteryRows.Add(('<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>' -f (Esc $chargeLabel),(Esc $designLabel),(Esc $fullLabel)))
+}
+if ($batteryRows.Count -eq 0) {
+    [void]$batteryRows.Add(('<tr><td colspan="3">{0}</td></tr>' -f (Esc $batteryNote)))
+}
+$updateLabel = if ($updateResult.status -eq 'unavailable') { '조회 불가' }
+               elseif ($updateResult.status -eq 'truncated') { '수집 일부 (300건 제한)' }
+               elseif ($updateResult.status -eq 'no matching events') { '해당 기간 내 일치 기록 없음 (정상 보증 아님)' }
+               else { '조회됨' }
+$updateRows = New-Object 'System.Collections.Generic.List[string]'
+foreach ($updateItem in @($updateEvidence | Select-Object -First 30)) {
+    $eventLabel = if ($updateItem.kind -eq 'update_installation_failure_record') { '설치 실패 기록' } else { '설치 성공 기록' }
+    [void]$updateRows.Add(('<tr><td>{0}</td><td>{1}</td></tr>' -f (Esc $updateItem.recordedAt),(Esc $eventLabel)))
+}
+if ($updateRows.Count -eq 0) {
+    [void]$updateRows.Add(('<tr><td colspan="2">{0}</td></tr>' -f (Esc $updateLabel)))
+}
 $limRows = New-Object 'System.Collections.Generic.List[string]'
 foreach ($l in $report.limitations) { [void]$limRows.Add('<li>'+(Esc $l)+'</li>') }
 if ($limRows.Count -eq 0) { [void]$limRows.Add('<li>보고된 접근 제한이 없습니다. 다만 검사 범위 밖의 문제는 있을 수 있습니다.</li>') }
@@ -257,6 +323,8 @@ footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-heig
 <section><h2>원인 후보와 확인 한계</h2><p class="small">자동 규칙 해설이며 고장 원인 확정, 부품 교체 판정 또는 수리 보증이 아닙니다.</p>$($analysisCards -join "`n")</section>
 <section><h2>드라이브 공간</h2><div class="scroll-table"><table><thead><tr><th>드라이브</th><th>여유 공간</th><th>여유 비율</th></tr></thead><tbody>$($rows -join "`n")</tbody></table></div></section>
 <section><h2>물리 저장장치 상태</h2><p class="small">Windows에서 제공한 상태 신호이며 실제 SSD/HDD 수명 또는 정상 작동을 보증하지 않습니다. 마모율/온도는 드라이버 지원 기기에서만 표시됩니다.</p><div class="scroll-table"><table><thead><tr><th>장치</th><th>상태 신호</th><th>마모율</th><th>온도</th></tr></thead><tbody>$($diskRows -join "`n")</tbody></table></div></section>
+<section><h2>배터리 정보</h2><p class="small">$(Esc $batteryNote). 현재 충전량은 배터리 수명이나 건강도가 아닙니다. 용량 데이터는 기기/Windows 지원 여부에 따라 누락될 수 있습니다.</p><div class="scroll-table"><table><thead><tr><th>현재 충전량</th><th>설계 용량</th><th>완충 용량</th></tr></thead><tbody>$($batteryRows -join [Environment]::NewLine)</tbody></table></div></section>
+<section><h2>Windows 업데이트 설치 기록</h2><p class="small">System WindowsUpdateClient 이벤트 19/20에 한정합니다. 기록 시각은 설치 작업의 기록 시각이며 블루스크린 발생 시각·원인이 아닙니다. $(Esc $updateLabel).</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>관측 상태</th></tr></thead><tbody>$($updateRows -join [Environment]::NewLine)</tbody></table></div></section>
 <section><h2>최근 블루스크린 상세</h2><p class="small">Windows System 로그 중 BugCheck 관련 기록 최대 15건입니다. 표의 시각은 이벤트가 기록된 시간이며 실제 충돌 시각이 아닐 수 있습니다. STOP 코드는 원인을 확정하지 않습니다.</p><div class="scroll-table"><table><thead><tr><th>기록 시각</th><th>STOP 코드(추출값)</th></tr></thead><tbody>$($crashRows -join "`n")</tbody></table></div></section>
 <section><h2>검사 한계</h2><ul>$($limRows -join "`n")</ul><p class="small">Windows $(Esc $report.observations.windows.name) · 검사 기간: $Days 일 · 생성 $(Esc $report.generatedAt)</p></section>
 <footer>AXMART PC CARE v0.1 테스트용 제품. 하드웨어 자체 검사, 메모리 덤프 분석, 악성코드 전수 검사, 수리 성공 보증은 제공하지 않습니다. BitLocker 복구키는 절대 입력하거나 이 도구에 저장하지 마세요.<br>결과는 이 기기에만 저장하며 인터넷으로 전송하지 않습니다. 판매 준비 전 실제 Windows 환경 검증이 필요합니다.</footer></main></body></html>
