@@ -1,6 +1,5 @@
 ﻿# AXMART PC CARE: pure, read-only System event normalization (PowerShell 5.1).
 # Recorded times are NOT guaranteed crash/outage times.
-Set-StrictMode -Version 2.0
 
 function ConvertTo-PcCareEvidence {
     [CmdletBinding()]
