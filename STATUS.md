@@ -164,3 +164,8 @@
 - `recorded_timeline.ps1`: 수집 상태 실패·무결과 시 과거 잔류 배열 차단; System/Update 소스 분리, 이벤트 종류·ID 검증, 명시적 UTC 시차 요구, 수집 절단 여부 전달. `diagnose.ps1` 연결과 회귀 fixture 확장. 변경 전 Git SHA `dc53774703d1ea856599c599f3cf4b97418d885c` 복구점.
 - 원격 재조회 후 정적 계약 **17/17 PASS**, 원본 치환 과정의 손상은 원본 SHA로 재구성 후 원격 재검증하여 복구. **Windows PowerShell5.1·전체 Python/Node·실제 ZIP·CI·USB·QR·A4·WinRE NOT_RUN**. `main`·Cloudflare·고객 데이터 무변경, 무료/유료 배포 금지.
 - 다음: Windows 11 전체 소스 `RUN_RELEASE_QA.cmd` → PS5.1 합성/읽기 전용 보고서 확인 → USB·QR·PDF → 별도 WinRE VM 안전 게이트. CI 이전 runner 미배정 재시도 없음.
+
+## 2026-10-31 KST — CUBE PC CARE Release A 시간축 완전성/근접 관측 반영
+- 해총 Backend-first 지침에 따라 `feature/pc-care-usb`에서 수집 출처/실패/절단 상태를 근거 시간축까지 전달하고, 원인 미확정 근접 신호 3종을 JSON/오프라인 HTML에 표시. 회귀 fixture + 전체 Windows 저장 보고서 검증 계약 추가.
+- GitHub 원격 소스 기준 32/32 정적 조건 PASS. **PowerShell5.1 native·Windows·USB·QR·PDF·WinRE·full ZIP·CI 미검증**. 기준 evidence `products/pc-care/tests/evidence/timeline_coverage_static_qa_20261031.json`. `main`/Cloudflare Production·사용자 파일 불변.
+- 다음은 Windows 전체 소스 `RUN_RELEASE_QA.cmd` 실실행과 저장 보고서·프린트·QR 검증. Release B 파일 복사/공개·결제는 승인 전 금지.
