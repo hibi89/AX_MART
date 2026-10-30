@@ -337,3 +337,15 @@
 8. **원본/백업·보안:** 이전 HEAD로 소스 복구 가능. 원본 보고서/개인 정보 전송 없음, 디스크·레지스트리·BitLocker/수리 변경 없음. Chromium 정책 우회 시도 금지.
 9. **다음 우선순위/완료 기준:** Windows 실장치 Edge file:// 두 JSON 선택/네트워크 0·콘솔 오류 0 확인→CMD 메뉴5/0·PowerShell5.1 fixtures→한글 USB·QR 실 스캔/A4 PDF→WinRE 격리. 공개·유료 배포는 사용자 승인 전 보류.
 10. **갱신 KST·검증 범위:** 2026-10-30, SHA 확인된 GitHub 원본 JS/fixture를 Node 실제 실행; 브라우저 접근 실패는 환경 정책. 최종 HEAD 커밋 후 재확인.
+
+## [최신] 2026-10-30 KST — H08 관측값 미확인·불완전 비교 오판 차단
+1. **목표·기술:** AXMART PC CARE Release A H08, JS/Node 오프라인 진단 비교의 불완전 근거를 오류 없이 표현. 보고서 `schemaVersion=1`, `observations.collectionStatus.physicalDisks` 계약 활용.
+2. **완료/설계:** 경고 목록 없는 JSON은 기존 빈 배열처럼 '없음' 표시하지 않고 null=비교 불가. 저장장치 건수 비교는 양쪽 결과가 collected이고, 비어 있지 않고, 장치 수가 같고, 미확인 상태가 없을 때만 허용. 하드웨어 추적용 시리얼/식별자를 추가하지 않으며 물리적 동일성 보증 없음.
+3. **검증 명령/결과:** Linux Node v22.16.0 `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **18 PASS/0 FAIL**, 실제 프로세스 exit 0. JS 및 두 테스트 Git hash-object SHA 각각 `56ecd3f0`, `d94edc31`, `958b5a68`; GitHub Blob readback 확인. 테스트 증빙 `tests/evidence/history_fail_closed_qa_20261030.json`.
+4. **상태:** H08 수동 반복 비교 안전성 보강 완료(전체 제품은 부분 완료). 자동 보관/검색/삭제 기능 미구현. Windows·USB·WinRE 실기기 QA 대기, 일반 배포/판매 중단.
+5. **원인·재시도 금지·대안:** 이전 빈 physicalDisks 배열이 경고 0건으로 해석되는 오탐과 `issues` 누락이 '없음'으로 표시되는 오탐. 개인 시리얼 수집 대신 fail-closed 비교. 기존 Chromium file:///localhost 관리자 정책 차단 `ERR_BLOCKED_BY_ADMINISTRATOR`로 제품 정상/오류 판정 불가, 우회·무의미한 재시도 금지.
+6. **GitHub:** `hibi89/AX_MART`, `feature/pc-care-usb`, 이전 정상 SHA `712db3ab8d70dda8f3ad61604668747d816dcb98`; `products/pc-care/ui/history_compare.js`, tests 및 docs.
+7. **Production/환경:** `https://ax-mart.pages.dev/` 운영 `main` 불변·미배포; Windows 메뉴 5→로컬 HTML, QA는 Linux Node22.
+8. **원본·백업·보안:** 이전 커밋으로 코드 복원 가능, 실제 PC 고객 로그/BitLocker 키/시스템 수정·권한 상승·외부 통신 없음. 보고서 자동 읽기/삭제 없음.
+9. **다음 우선순위/완료:** Windows11 PowerShell5.1 실제 보고서 생성→같은 PC 2회 JSON을 Edge/Chrome `file://`에서 비교 및 Network/Console 무오류→USB 한글/특수문자→QR/A4 PDF→VM WinRE/Release B 승인형 안전 시험. 공개/판매 사용자 별도 승인 필수.
+10. **갱신/검증 범위:** 2026-10-30 KST, Node 18/18 및 Git SHA만 검증. 전체 Python/ZIP, Windows/Production 미검증. 변경 후 GitHub HEAD 재조회.

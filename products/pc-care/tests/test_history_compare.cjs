@@ -3,7 +3,7 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const {compareReports,validateReport}=require("../ui/history_compare.js");
 function sample(at) {return {schemaVersion:1,product:"AXMART PC CARE",mode:"read-only",generatedAt:at,assessment:"주의 필요",
-issues:[{code:"DISK_SPACE_LOW"}],observations:{eventWindowDays:30,eventCollection:"collected",bugchecks:[{}],
+issues:[{code:"DISK_SPACE_LOW"}],observations:{eventWindowDays:30,eventCollection:"collected",collectionStatus:{physicalDisks:"collected"},bugchecks:[{}],
 unexpectedShutdowns:[],storageEvents:[],volumes:[{drive:"C:",sizeGB:100,remainingGB:20}],
 physicalDisks:[{status:"Healthy"}]}};}
 const a=sample("2026-10-29 11:00:00 +09:00"), b=sample("2026-10-30 11:00:00 +09:00");
@@ -15,4 +15,24 @@ test("no event comparisons if windows differ or result is capped",()=>{assert.eq
 test("invalid or unequal capacity drives are rejected",()=>{for(const v of [{drive:"C:",sizeGB:120,remainingGB:4},{drive:"<script>",sizeGB:100,remainingGB:4}])assert.deepEqual(compareReports(a,{...b,observations:{...b.observations,volumes:[v]}}).drives,[]);});
 test("untrusted issue codes never enter output",()=>assert.deepEqual(compareReports(a,{...b,issues:[{code:"<script>"}]}).added,[]));
 test("unknown disk is not healthy",()=>assert.equal(compareReports(a,{...b,observations:{...b.observations,physicalDisks:[{status:"Unknown"}]}}).disks.after.unknown,1));
-test("missing issue list does not produce false success",()=>assert.ok(compareReports(a,{...b,issues:null}).caution.some(v=>v.includes("경고 코드"))));
+test("missing issue list does not produce false success",()=>{
+ const result=compareReports(a,{...b,issues:null});
+ assert.equal(result.added,null);assert.equal(result.missing,null);
+ assert.ok(result.caution.some(v=>v.includes("경고 코드")));
+});
+test("missing/empty/unsupported physical disk evidence is not a zero-warning claim",()=>{
+ for(const observations of [
+   {...b.observations,physicalDisks:[]},
+   {...b.observations,physicalDisks:null},
+   {...b.observations,physicalDisks:[{status:"Unknown"}]},
+   {...b.observations,collectionStatus:{physicalDisks:"unavailable"}},
+   {...b.observations,physicalDisks:[{status:"Healthy"},{status:"Warning"}]}
+ ]) assert.equal(compareReports(a,{...b,observations}).diskComparable,false);
+});
+test("complete same-count storage observations remain comparable, with identity caveat",()=>{
+ const result=compareReports(a,{...b,observations:{...b.observations,physicalDisks:[{status:"Warning"}]}});
+ assert.equal(result.diskComparable,true);
+ assert.equal(result.disks.before.warning,0);
+ assert.equal(result.disks.after.warning,1);
+ assert.ok(result.caution.some(s=>s.includes("동일성이 확인되지 않은")));
+});

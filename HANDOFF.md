@@ -94,3 +94,8 @@
 - 저장소/브랜치: hibi89/AX_MART feature/pc-care-usb, 시작 SHA `518413d3def107633b1215eeddf5f30be067e4e8`. H08 `ui/history_compare.js` 읽는 중 파일 선택 변경 시 stale 결과/오류 무시(`selectionRevision`), `tests/test_history_dom.cjs` 가상 DOM 5개 새로 추가, 수동 CI·정적 테스트 갱신.
 - 검증: GitHub 소스 blob SHA와 로컬 복제본 일치. Linux Node v22.16.0 `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **14 PASS, 0 FAIL**. Chromium 144 file:// 및 localhost 모두 환경 관리자 정책 `ERR_BLOCKED_BY_ADMINISTRATOR`: 실제 브라우저 결과 불명, 접근 우회 금지.
 - Production https://ax-mart.pages.dev/ main 불변/기능 배포 미적용, 사용자 시스템/원본 리포트 수정·삭제 없음. 실제 Windows Edge/Chrome 파일 선택/USB, PowerShell5.1, QR 스캔/A4, WinRE 미검증. 새 H08 자동 저장·삭제 미구현, 무료/유료 출시 차단. 상세 products/pc-care/HANDOFF.md 최신 단락 참고.
+
+## 2026-10-30 KST — PC CARE H08 증거 누락 fail-closed 인계
+- 저장소 `hibi89/AX_MART`, 브랜치 `feature/pc-care-usb`, 이전 SHA `712db3ab8d70dda8f3ad61604668747d816dcb98`. H08 JSON 비교에서 `issues` 미수집과 `physicalDisks` 누락/빈배열/조회 실패/수량 변경을 '경고 없음' 아닌 비교 불가로 처리. 사용자 개인정보 수집·원본 저장·무인 삭제/수리 추가하지 않음.
+- Linux Node 22 실제 단위 및 가상 DOM 테스트 **18 PASS/0 FAIL**, 소스 SHA `56ecd3f0`, 회귀 `d94edc31`/`958b5a68`. 증빙 `products/pc-care/tests/evidence/history_fail_closed_qa_20261030.json`. Windows/USB/WinRE/QR/A4/브라우저 실제 환경과 전체 Python/ZIP 미검증, Cloudflare main 무변경, 공개/판매 차단.
+- 다음은 사용자 Windows 11 표준권한 진단/Edge file:// 로컬 두 보고서 비교/USB 한글 경로·네트워크 0 검사; 이후 QR/A4/VM WinRE 별도 게이트. 상세 제품 `products/pc-care/HANDOFF.md` / STATUS 기준.

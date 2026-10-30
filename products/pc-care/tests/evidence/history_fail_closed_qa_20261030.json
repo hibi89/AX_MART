@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "project": "AXMART PC CARE",
+  "component": "Release A H08 fail-closed history comparison",
+  "testedDateKST": "2026-10-30",
+  "branch": "feature/pc-care-usb",
+  "parentSHA": "712db3ab8d70dda8f3ad61604668747d816dcb98",
+  "objective": "Reject misleading zero-warning comparisons when report issue list or device telemetry is missing, unknown or from a changed device count.",
+  "approach": "Strict evidence-completeness comparison without collecting hardware identifiers; no automatic disk/file deletion or network access.",
+  "tests": {
+    "command": "node --test tests/test_history_compare.cjs tests/test_history_dom.cjs",
+    "runtime": "Node.js v22.16.0, Linux container",
+    "source": "GitHub-backed source mirrored to container, blob SHA equality checked",
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "cancelled": 0,
+    "exitCode": 0,
+    "includes": [
+      "missing issue list",
+      "empty physical disk data",
+      "unavailable collection",
+      "unknown physical disk state",
+      "different number of detected disks",
+      "known same-count disk evidence",
+      "real DOM mock unknown status",
+      "existing async selection race guards"
+    ]
+  },
+  "blobs": {
+    "products/pc-care/ui/history_compare.js": "56ecd3f033559ecaaeda69dc46929ccaf0b82d79",
+    "products/pc-care/tests/test_history_compare.cjs": "d94edc319235879a4a48b6283f51297488cac441",
+    "products/pc-care/tests/test_history_dom.cjs": "958b5a68caa366c50fc3a6adb0a693a3a745aee2"
+  },
+  "limitations": [
+    "Windows 11 PowerShell 5.1 unverified",
+    "Windows Edge/Chrome file:// UI unverified",
+    "USB unicode path unverified",
+    "QR camera scan and A4/PDF print unverified",
+    "WinRE and recovery unverified",
+    "Full Python test suite and internal ZIP smoke unverified",
+    "Production deployment not applicable"
+  ],
+  "security": "Synthetic JSON only; no real customer logs or system changes; product release stays blocked."
+}

@@ -275,3 +275,9 @@ Pending manual tests:
 - Reconstructed exact GitHub original files by comparing Git blob SHA, then ran `node --test tests/test_history_compare.cjs`: 9 PASS.
 - Fixed a late asynchronous File.text() response overwriting newer file-choice output: selectionRevision guard in JS plus new DOM fixture (5 tests). Actual Node 22 combined suite 14 PASS/0 FAIL; exact new JS blob bd793bb5cf1dabbbb82ba4210faade3b7f22994a and DOM fixture 93679760ea7e090bb33af0e07846e9040d7c3605.
 - Linux Chromium 144 refused both file:///... and local HTTP://127.0.0.1/... with net::ERR_BLOCKED_BY_ADMINISTRATOR. Do not assert the product works or fails in real browsers based on this environment policy. No further policy bypass. Real Windows11 standard-user Edge file:// + QR/A4, USB, PowerShell5.1, WinRE remain UNVERIFIED.
+
+## 2026-10-30 H08 fail-closed comparison acceptance
+- Given missing `issues`, UI must say '비교 불가 (경고 목록 누락)' instead of '없음'.
+- Given empty/missing `physicalDisks`, `collectionStatus.physicalDisks=unavailable`, unknown storage status or changed disk count, UI must not show '0 → 0' warnings. Report '비교 불가'; never infer a repaired drive.
+- Even when both complete statuses and counts match, warning totals are not device-identity proof. Continue avoiding hardware serials/IDs and automatic history deletion.
+- Real Node v22: `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs`: 18 tests, 18 pass, 0 fail; reference evidence file tests/evidence/history_fail_closed_qa_20261030.json. Python static/ZIP, Windows PS5.1, Edge/Chrome file://, QR/PDF, USB and WinRE still unverified.

@@ -61,6 +61,18 @@ test("DOM flow: invalid JSON fails without showing raw source",async()=>{
   assert.match(a.output.textContent,/올바른 JSON 파일이 아닙니다/);
   assert.doesNotMatch(a.output.textContent,/SECRET_SENSITIVE/);
 });
+test("DOM flow: missing issue list displays unknown, not none",async()=>{
+  const a=setup();a.choose("previous-json",file(earlier));a.choose("current-json",file({...later,issues:null}));
+  await a.click();
+  assert.match(a.output.textContent,/비교 불가 \(경고 목록 누락\)/);
+  assert.doesNotMatch(a.output.textContent,/최근 관찰되지 않은 경고 코드: 없음/);
+});
+test("DOM flow: unknown disk evidence does not claim zero warnings",async()=>{
+  const a=setup();a.choose("previous-json",file(earlier));a.choose("current-json",file({...later,observations:{...later.observations,physicalDisks:[]}}));
+  await a.click();
+  assert.match(a.output.textContent,/저장장치 경고 집계: 수집 상태 또는 장치 수가 달라 비교 불가/);
+  assert.doesNotMatch(a.output.textContent,/저장장치 경고 집계: 0 → 0/);
+});
 test("DOM flow: file changed during reading never displays stale result",async()=>{
   const a=setup();let finish;
   a.choose("previous-json",{name:"old.json",size:100,text:()=>new Promise(resolve=>{finish=resolve;})});

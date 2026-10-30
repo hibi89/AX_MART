@@ -89,3 +89,7 @@
 - feature/pc-care-usb: 새 이력 비교 UI의 선택 변경 비동기 경합 수정, Node 가상 DOM fixture 5개 추가. 정확한 GitHub JS 원본/fixture SHA를 로컬 Node 22에 확인 후 `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` 실행 **14/14 PASS**.
 - Linux Chromium 144: file://와 localhost 모두 `ERR_BLOCKED_BY_ADMINISTRATOR` 환경 차단. 브라우저/Windows/USB/QR/PDF/WinRE 실기기 동작 미검증; 관리자 정책 우회·동일 환경 재시도 금지.
 - 운영 main/Cloudflare 및 수리·원본 데이터 불변; H08 자동 이력 삭제 미구현. 공개/유료 배포 차단. 변경 전 GitHub `518413d3def107633b1215eeddf5f30be067e4e8`; 세부 제품 HANDOFF/STATUS 기록.
+
+## 2026-10-30 KST — PC CARE H08 불완전 데이터 비교 차단
+- `feature/pc-care-usb`: 누락된 경고 목록·저장장치 조회 실패·장치 수 변화가 정상/경고 0으로 오인되지 않도록 JS 판정 가드 및 DOM 회귀 보강. 로컬 Node v22 `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **18/18 PASS**, GitHub blob·실행 파일 SHA 일치.
+- 시작 SHA `712db3ab8d70dda8f3ad61604668747d816dcb98`; 수정 범위 제품 JS/tests/문서 및 QA 증빙만. 운영 main/Cloudflare, 제품 공개·유료 결제/시스템 수리 변경 없음. Windows PS5.1/USB/QR/PDF/WinRE/실제 브라우저 QA 미검증.

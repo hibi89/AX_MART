@@ -12,8 +12,9 @@ function compareReports(oldReport,newReport){
  const caution=["동일한 PC의 보고서인지는 판별하지 못합니다. 다른 PC 기록을 비교하지 마세요.","이 결과는 관측치 비교이며 수리 성공이나 고장 해결을 증명하지 않습니다."];
  const codeSet=x=>Array.isArray(x.r.issues)?new Set(x.r.issues.filter(v=>v&&typeof v.code==="string"&&/^[A-Z][A-Z0-9_]{1,63}$/.test(v.code)).map(v=>v.code)):null;
  const prev=codeSet(a),next=codeSet(b);
- const added=prev&&next?[...next].filter(x=>!prev.has(x)).sort():[];
- const missing=prev&&next?[...prev].filter(x=>!next.has(x)).sort():[];
+ // Unknown issue lists must not be presented as "no warnings".
+ const added=prev&&next?[...next].filter(x=>!prev.has(x)).sort():null;
+ const missing=prev&&next?[...prev].filter(x=>!next.has(x)).sort():null;
  const complete=x=>["collected","no matching events"].includes(x.o.eventCollection);
  const names=["bugchecks","unexpectedShutdowns","storageEvents"];
  const counts=x=>names.map(n=>Array.isArray(x.o[n])?x.o[n].length:null);
@@ -28,10 +29,16 @@ function compareReports(oldReport,newReport){
  if(drives.length)caution.push("같은 드라이브 문자·용량이어도 같은 물리 저장장치라는 보장은 없습니다.");
  const diskSummary=x=>!Array.isArray(x.o.physicalDisks)?null:{count:x.o.physicalDisks.length,warning:x.o.physicalDisks.filter(d=>d&&["Warning","Unhealthy"].includes(d.status)).length,unknown:x.o.physicalDisks.filter(d=>!d||!["Healthy","Warning","Unhealthy"].includes(d.status)).length};
  const disks={before:diskSummary(a),after:diskSummary(b)};
- if(disks.before&&disks.after)caution.push("물리 저장장치 경고 건수는 장치 동일성이 확인되지 않은 합계입니다.");
- if(missing.length)caution.push("최근 기록에 보이지 않는 경고는 문제가 해결됐다는 뜻이 아닙니다.");
+ // Missing data, unsupported device status, or a changing number of detected
+ // disks cannot support a meaningful warning-count comparison.
+ const diskComparable=!!(disks.before&&disks.after&&disks.before.count>0&&
+   disks.before.count===disks.after.count&&disks.before.unknown===0&&disks.after.unknown===0&&
+   a.o.collectionStatus&&a.o.collectionStatus.physicalDisks==="collected"&&
+   b.o.collectionStatus&&b.o.collectionStatus.physicalDisks==="collected");
+ caution.push(diskComparable?"물리 저장장치 경고 건수는 장치 동일성이 확인되지 않은 집계입니다.":"저장장치 조회 상태·장치 수·미확인 값 때문에 경고 건수의 직접 비교를 보류합니다.");
+ if(missing&&missing.length)caution.push("최근 기록에 보이지 않는 경고는 문제가 해결됐다는 뜻이 아닙니다.");
  if(!prev||!next)caution.push("경고 코드 배열을 읽지 못해 신규/미관찰 경고 비교를 건너뛰었습니다.");
- return {beforeTime:a.r.generatedAt,afterTime:b.r.generatedAt,beforeAssessment:String(a.r.assessment||"확인 불가"),afterAssessment:String(b.r.assessment||"확인 불가"),added,missing,eventCounts,drives,disks,caution};
+ return {beforeTime:a.r.generatedAt,afterTime:b.r.generatedAt,beforeAssessment:String(a.r.assessment||"확인 불가"),afterAssessment:String(b.r.assessment||"확인 불가"),added,missing,eventCounts,drives,disks,diskComparable,caution};
 }
   const api = { validateReport, compareReports };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
@@ -65,13 +72,14 @@ function compareReports(oldReport,newReport){
         const lines = ["AXMART PC CARE — 오프라인 반복 검사 비교 (고장 확정 아님)",
           "과거: " + result.beforeTime, "현재: " + result.afterTime,
           "상태: " + result.beforeAssessment + " → " + result.afterAssessment,
-          "새로 관찰된 경고 코드: " + (result.added.join(", ") || "없음"),
-          "최근 관찰되지 않은 경고 코드: " + (result.missing.join(", ") || "없음")];
+          "새로 관찰된 경고 코드: " + (result.added===null ? "비교 불가 (경고 목록 누락)" : result.added.join(", ") || "없음"),
+          "최근 관찰되지 않은 경고 코드: " + (result.missing===null ? "비교 불가 (경고 목록 누락)" : result.missing.join(", ") || "없음")];
         if (result.eventCounts) ["BugCheck 기록","종료 신호","저장장치 이벤트"].forEach((s,i) => lines.push(s+": "+result.eventCounts.before[i]+" → "+result.eventCounts.after[i]+" (각 "+result.eventCounts.days+"일 조회)"));
         else lines.push("이벤트 수: 비교 조건 불일치 / 미확인");
         if (result.drives.length) for (const d of result.drives) lines.push(d.drive+" 여유 공간: "+d.before+"GB → "+d.after+"GB (변화 "+d.change+"GB)");
         else lines.push("드라이브 용량 변화: 비교 가능한 관측값 없음");
-        if (result.disks.before && result.disks.after) lines.push("저장장치 경고 집계: "+result.disks.before.warning+" → "+result.disks.after.warning);
+        if (result.diskComparable) lines.push("저장장치 경고 집계: "+result.disks.before.warning+" → "+result.disks.after.warning);
+        else lines.push("저장장치 경고 집계: 수집 상태 또는 장치 수가 달라 비교 불가");
         lines.push("", "검사 한계:", ...result.caution.map(s => "- "+s));
         output.textContent = lines.join("\n");
       } catch (err) {

@@ -269,3 +269,8 @@
 - 비교 중 파일 선택 변경시 이전 결과·오류가 뒤늦게 덮어쓰는 문제 예방: `ui/history_compare.js` selectionRevision 가드. 가상 DOM Node fixture 5개 추가, 수정된 JS 정확한 Blob SHA `bd793bb5cf1dabbbb82ba4210faade3b7f22994a`, 테스트 Blob `93679760ea7e090bb33af0e07846e9040d7c3605`. 통합 **14/14 PASS**.
 - Chromium 144의 file:// 및 127.0.0.1 로컬 테스트 URL 모두 관리자 정책 `ERR_BLOCKED_BY_ADMINISTRATOR`에 차단: 브라우저 정상/장애 판정 불가, 추가 우회 시도 금지. Windows PS5.1, Edge/Chrome/USB 실제 기능·QR/A4/WinRE **미검증**.
 - 수동 CI workflow에 5개 UI 회귀 추가; runner 미배정으로 workflow dispatch는 하지 않음. 운영 main/Cloudflare 변경 없음, 출시 차단 유지. QA 시작 HEAD 518413d3def107633b1215eeddf5f30be067e4e8.
+
+## 2026-10-30 KST — H08 불완전한 관측값 오판 방지 (18/18 Node PASS)
+- `ui/history_compare.js`: JSON `issues` 누락 시 신규/미관찰 경고를 '없음'이 아닌 '비교 불가'로 표시. `physicalDisks` 조회 실패·빈 결과·미확인 상태·장치 수 변화는 0→0 경고라고 표기하지 않고 비교 불가 처리. 알려진 장치 수/수집상태가 일치할 때도 같은 물리 디스크라는 보장은 하지 않음.
+- Node 합성 회귀 기존 14개 + 보강 4개 = **18/18 PASS**, fail 0. 실제 로컬 Node v22.16.0 실행 및 Git blob SHA 교차검증. 테스트 파일 `test_history_compare.cjs`·`test_history_dom.cjs`, 정적 계약 `test_package.py` 갱신. 증빙 `tests/evidence/history_fail_closed_qa_20261030.json`.
+- 기준 브랜치 SHA `712db3ab8d70dda8f3ad61604668747d816dcb98`. Windows11 PowerShell5.1/USB, Edge 실제 `file://`/QR/A4/WinRE/전체 Python·ZIP **미검증**. 기존 main/Cloudflare·수리·사용자 보고서 불변, 무료·유료 공개 차단 유지.
