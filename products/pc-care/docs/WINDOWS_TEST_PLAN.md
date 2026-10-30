@@ -201,3 +201,11 @@ Pending manual tests:
 - `tests/test_qr_ui.cjs`: 총 21개 synthetic Node 회귀 테스트 작성(이 네 가지는 GitHub CI에서 미실행). `tests/qr_browser_smoke.py`에도 실제 QR vendor + OpenCV 디코딩 이후 날짜 5종 acceptance checks 코드 추가(스크립트 미실행).
 - **미해결:** Windows 11 PS5.1/브라우저 실제 QR 이미지/UTF-8 한글 디코딩/스마트폰 스캔, Windows USB, A4 인쇄, 실제 ZIP 테스트. 라이브러리 직접 로컬 복사가 이번 컨테이너에서 불가능해 벤더 스캔 성공 주장 금지. 개발자 PC에서 `python tests/qr_browser_smoke.py --chromium <설치경로>` 실행하도록 후속.
 
+## 2026-10-30 — UTF-8 BOM/QR payload scanning gate
+
+- Bundled qrcodejs source inspection: its UTF-8 encoding code prepends EF BB BF when the text contains non-ASCII characters. Thus a QR generated from Korean text can decode to a string beginning with Unicode U+FEFF, rather than a byte-exact copy of the seven-line visible text. This is not personal data, but it changes the raw bytes and may affect scanning or sharing on some devices.
+- Independent Linux Python `qrcode` + OpenCV `QRCodeDetector` reference experiment using synthetic Korean text (not the bundled JS): without BOM, encoded string decoded exactly; with BOM inserted, OpenCV returned a leading U+FEFF and raw string comparison failed. This demonstrates the *decoder behavior*, NOT actual bundled qrcodejs scanner performance.
+- `tests/qr_browser_smoke.py` now reports `leading_utf8_bom_detected`, explicitly accepts only zero or exactly one leading U+FEFF for canonical text equality, compares normalized content SHA-256, and rejects all other prefixes/suffixes. Do not silently strip arbitrary characters or present BOM-aware canonical equality as byte-identical raw encoding.
+- Required before release: run the actual bundled library in offline Chromium, capture the PNG, decode and compare canonical text, record whether BOM is present and check smartphone camera behavior. If BOM causes customer-visible artifacts, consider an alternative standards-compliant ECI/UTF-8 QR encoder and retest license/bytes/scan; do not patch the vendored minified library without its own regression tests.
+- Actual QR scanner script not yet executed, no Windows/PowerShell/WinRE tests. Local Chromium QR *UI mocked* checks 20/20 on the exact GitHub JS blob 13faebe44753b73f2a1cf9c99308aab220745276. GitHub runner still not assigned and workflow remains manual-only.
+
