@@ -217,3 +217,8 @@
 - `feature/pc-care-usb` 내부 개발 ZIP 저장 시 `.sha256` 링크/타 실행 임시 파일을 잘못 덮거나 삭제할 수 있는 결함 수정. 기존 결정적 ZIP/manifest 검증 유지하며 전용 exclusive 임시파일 + 안전 교체 적용. `tests/test_release.py`·`tests/test_package.py` 보강.
 - 원격 GitHub `build_internal` 실소스 함수와 일치하는 격리 Python 3.13 테스트 **9/9 PASS**(합성 단일 파일 입력/대체 verifier). 실제 전체 Python suite/제품 allowlist ZIP/Windows PS5.1·Node·USB·QR/PDF·WinRE/CI는 미검증. `products/pc-care/tests/evidence/zip_sidecar_atomic_native_qa_20261031.json`.
 - main/Cloudflare·고객 데이터·OS/복구·출시 불변. 다음 Windows 전체 checkout `RUN_RELEASE_QA.cmd`.
+
+## 2026-10-31 KST — CUBE PC CARE 원본 ZIP Python 네이티브 QA
+- `feature/pc-care-usb`: 원격 Git blob SHA까지 맞춰 복원한 `products/pc-care/tools/release.py` + `tests/test_release.py`를 실제 Python 3.13.5로 실행. 공식 unittest **15/15 PASS**, 별도 합성 ZIP 안전 시험 **14/14 PASS**(중복 항목 존재). `products/pc-care/tests/evidence/release_actual_python_native_20261031.json`.
+- 실제 제품 파일 ZIP·전체 repo Python/Node·Windows PS5.1/실기기·USB/QR/A4·WinRE·CI는 여전히 **미검증**. 이번엔 코드 수정을 필요로 하는 오류가 발견되지 않아 증빙 및 상태만 갱신. main/Cloudflare/사용자 원본/OS·수리·출시 불변.
+- 다음 P0: 실제 제품 전체 체크아웃 Windows `RUN_RELEASE_QA.cmd` 및 생성 결과 `QA_RESULTS` 확인.
