@@ -28,9 +28,12 @@ class PackageTests(unittest.TestCase):
         self.assertIn("mode='read-only'", text)
         # The diagnostic may delete only its OWN generated temporary report pair
         # after a failed save; no arbitrary source/system file deletion is permitted.
-        self.assertEqual(text.lower().count("remove-item"), 1)
-        self.assertIn("foreach ($owned in @($tempJson,$tempHtml,$finalJson,$finalHtml))", text)
-        self.assertIn("Remove-Item -LiteralPath $owned -Force -ErrorAction SilentlyContinue", text)
+        self.assertEqual(text.lower().count("remove-item"), 4)
+        self.assertIn("foreach ($owned in @($tempJson,$tempHtml))", text)
+        self.assertIn("if ($movedJson) { Remove-Item -LiteralPath $finalJson", text)
+        self.assertIn("if ($movedHtml) { Remove-Item -LiteralPath $finalHtml", text)
+        self.assertIn("Report filename collision:", text)
+        self.assertNotIn("foreach ($owned in @($tempJson,$tempHtml,$finalJson,$finalHtml))", text)
 
     def test_explicit_repair_approval_and_bounded_commands(self):
         text = (ROOT/'tools/repair.ps1').read_text(encoding='utf-8-sig')
