@@ -308,6 +308,22 @@ class PackageTests(unittest.TestCase):
         self.assertNotIn('http:', qr_ui)
         self.assertNotIn('https:', qr_ui)
 
+    def test_report_local_navigation_has_safe_anchors(self):
+        import re
+        diagnostic = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn('aria-label="진단 보고서 바로가기"', diagnostic)
+        self.assertIn('class="skip-link"', diagnostic)
+        self.assertIn('class="quicknav"', diagnostic)
+        self.assertIn('quicknav a:focus-visible', diagnostic)
+        self.assertIn('@media(max-width:650px)', diagnostic)
+        ids = set(re.findall(r'id="([a-z-]+)"', diagnostic))
+        links = re.findall(r'<a href="#([a-z-]+)">', diagnostic)
+        self.assertTrue(links)
+        self.assertTrue(set(links).issubset(ids), (links, ids))
+        self.assertIn('main>:not(#consultation-print){display:none!important}', diagnostic)
+        self.assertNotIn('<script src="http', diagnostic)
+        self.assertNotIn('<script src="https', diagnostic)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
         for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/pnp_analysis.ps1','tools/recorded_timeline.ps1','tools/consultation_report.ps1','tools/consultation_render.ps1','tools/share_payload.ps1','tools/share_preview.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/driver_timeline.tests.ps1','tests/consultation_report.tests.ps1','tests/share_payload.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
