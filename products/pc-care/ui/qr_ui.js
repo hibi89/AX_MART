@@ -11,7 +11,17 @@
   var state = document.getElementById("pc-care-qr-status");
   if (!button || !source || !target || !state) return;
   var encoder = null;
+  function clearPreviousQr() {
+    target.textContent = "";
+    encoder = null;
+  }
+  // Any edit invalidates the previously generated symbol, so a stale QR cannot be shared.
+  source.addEventListener("input", function () {
+    clearPreviousQr();
+    state.textContent = "공유 문구가 변경되었습니다. 새 QR을 만들려면 내용을 다시 확인하고 버튼을 누르세요.";
+  });
   button.addEventListener("click", function () {
+    clearPreviousQr();
     try {
       if (typeof QRCode !== "function" || typeof TextEncoder !== "function") {
         state.textContent = "QR 생성이 지원되지 않습니다. 위의 공유 텍스트를 직접 복사하세요.";
@@ -24,7 +34,6 @@
         return;
       }
       // No network: constructor renders directly inside the current local HTML.
-      target.textContent = "";
       encoder = new QRCode(target, {
         text: text,
         width: 256,
