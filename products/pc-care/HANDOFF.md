@@ -518,3 +518,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 보안/원본: 로그/경로/식별자 외부 전송 없음; 사용자 REPORTS·OS·수리·BitLocker·WinRE 복사 변경 없음. 원본 기존 SHA에서 복원 가능. UI/QR 자동 업로드 및 무인 수리 금지.
 9. 다음/완료 게이트: PS5.1 네이티브 합성 → 실제 표준 권한 보고서 생성/JSON·HTML → 한글 USB 경로/Edge file://·QR 스마트폰 스캔·A4 PDF → WinRE 격리 VM 물리 디스크 분리/용량/BitLocker 실패 테스트. 출시/복사 활성화 별도 승인.
 10. 갱신: 2026-10-31 KST, 소스 정적 17개만 확인, CI 상태 체크 없음·Windows 미실행. 문서 기준은 본 업데이트 시점의 `feature/pc-care-usb` HEAD 및 위 사전 SHA.
+
+## 2026-10-31 KST — CUBE Release A time-axis evidence contract / 10항
+1. 목표·기술: PC CARE `FINAL_SPEC_V2.md` HEALTH/ANALYZE/REPORT 로컬 Windows PowerShell5.1/CMD/HTML/JSON 코어 실증, 기록 시간축의 근거 완전성 및 원인 오판 방지.
+2. 구현: `recorded_timeline.ps1` 출처/시간/ID 확인에 더해 수집 결과 `collected`, `no matching events`, `truncated`, `incomplete`, `unavailable` 구분, coverageComplete, 기록 시각 15분 이내 근접 조합 3종(인과 판정 금지). `diagnose.ps1` HTML/JSON 표시·한계 반영.
+3. 검증: GitHub 원격 파일 readback 후 정적 소스 계약 **32/32 PASS**. Windows PS5.1 native parser/fixture, 전체 Python/Node/ZIP, 실제 Windows·USB·QR·PDF·WinRE와 CI **NOT_RUN**.
+4. 단계: 코드 소스·fixture·Windows 실행기 검증 계약 GitHub 반영. Release A/B 실제 사용 적합성과 판매/무료 배포는 차단 유지.
+5. 오류·재시도 정책: 직전 턴의 정규식 치환 문제는 앞선 `ce390930354e38bf267f716f3043e401c3ec613a`에서 복구됨. 본 묶음은 치환 함수형 패치로 원격 내용 재조회. 기존 러너 미배정 작업을 무작정 재실행하지 않음. 런타임 없으면 NOT_RUN.
+6. Git: `hibi89/AX_MART@feature/pc-care-usb`의 `tools/recorded_timeline.ps1`, `tools/diagnose.ps1`, `tests/driver_timeline.tests.ps1`, `tests/test_package.py`, `tests/windows_smoke.ps1`, `tests/evidence/timeline_coverage_static_qa_20261031.json`. 변경 전 rollback `dfe918e3c1860aaa6fe9bd1deeaf1e8eb2fc1274`.
+7. 실행/배포: `RUN_RELEASE_QA.cmd`·`tests/windows_smoke.ps1`; Windows 11/PS5.1 필요. Cloudflare `https://ax-mart.pages.dev/`는 `main` 상점이며 이 기능 미배포.
+8. 원본·보안: REPORTS/BitLocker 키/고객 로그·개인 파일/복구·Windows 설정·공개 사이트 무변경. 데이터 외부 전송·자동 수리/삭제·WinRE 실제 복사 없음. Source snapshot Git SHA로 복원 가능.
+9. 다음: Windows 11 전체 소스 QA→PS5.1 fixture→읽기 전용 보고서→한글 USB·Edge file://·오프라인 QR 스마트폰·A4 PDF→격리 WinRE VM·실제 물리 디스크 분리/잠금/용량/중단 안전 검증. 판매/복사 활성화 별도 승인.
+10. 갱신: 2026-10-31 KST, 원격 정적 계약만 검증. 근거 `tests/evidence/timeline_coverage_static_qa_20261031.json`; 최종 feature SHA는 이번 문서 커밋 후 원격 확인하여 사용자에게 보고.
