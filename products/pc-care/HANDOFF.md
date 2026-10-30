@@ -233,3 +233,16 @@
 9. **다음 순서/완료조건:** ①실제 `qrcode.min.js` 로컬 Chromium 렌더 + QRCodeDetector & BOM 여부 확인(필요시 QR 인코더 비교) ②Windows PowerShell 5.1 테스트 및 보고서 저장/USB 안전성 ③A4 PDF/폰카 iOS·Android 스캔 ④WinRE 승인형 복구 분리 QA. 결과와 ZIP SHA 매칭 후 출시 평가.
 10. **갱신 일시/검증 범위:** 2026-10-30 KST. 정확한 GitHub source 검증, headless Chromium mocked QR UI 20/20, 독립 Python reference QR decoding 성공; **벤더 QR/Windows 실제 QA는 미실행**. 본 문서가 다음 ㄱ의 기준.
 
+## [최신] 2026-10-30 KST — QR UTF-8 원본 엔진 오류 수정 및 실제 모듈 디코딩 인수인계
+
+1. **목표/용도/확정 요구/스택:** AXMART PC CARE Release A P2 개인정보 최소 오프라인 한글 QR 안정화, 7줄 상담 요약, 원인 미확정·로그 기록 시각 표시, 사용자 버튼 명시 생성. Windows PowerShell 5.1, HTML/CSS, 로컬 JS qrcodejs(MIT), Python/OpenCV는 개발 QA 전용.
+2. **구현 완료·근거:** 동봉 `ui/qrcode.min.js`가 한글 이후 ASCII에서 이전 UTF-8 3바이트 버퍼를 재사용해 QR code length overflow 유발. 미니파이된 벤더의 단 하나 substring에 `b=[];` (5문자) 초기화 추가. 핵심 제품 설계/관리자 승인/로컬 HTML/보호 데이터 로직 변경 없음. 원본 MIT `ui/QR_CODE_LICENSE.txt` 그대로 보존.
+3. **실제 테스트·증거:** 원본 벤더 `ui/qrcode.min.js` Git blob `993e88f396640f881b69f98db7a4d17401ef83ca`, V8에서 상담 문구(195 UTF8 bytes) QR 인코딩 시 `Error: code length overflow. (2180>1728)` 확인. 수정본 실제 vendor V8 실행 한글+ASCII 5종 및 ASCII 1종 **6/6 byte array 값 정확**, Unicode BOM EF BB BF 표기, 57×57 모듈/3개 finder 정상. 이 실제 QR module matrix를 Python OpenCV에 넘겨 **실제 디코딩 성공**; 텍스트는 한 글자 선행 `U+FEFF` 뒤 7줄 원문과 일치(원시 바이트 동일 아님). `tests/test_qr_vendor.cjs` 6개 Node 실제 vendor 테스트 작성하고 수동 CI 연결; GitHub Actions에서 신규 Node test 파일 자체는 러너 미배정으로 아직 미실행. Python 패키징 전체 suite/ZIP 실제 생성도 미실행.
+4. **진행/대기/차단:** QR 용량 overflow 문제 수정 및 QR 행렬 데이터 복원 증명. 벤더 라이브러리 실제 브라우저 캔버스·Chromium/Edge/휴대전화 QR 읽기, A4 PDF 한 페이지/Windows 실행·USB/WinRE 안전성·스마트폰 BOM 사용성은 별도 미검증, 출시 전 차단. 전체 약 30% 보수적 추정.
+5. **오류/원인/시도·금지 재시도/대안:** 이전 모의 QR constructor만으로 'QR 성공'이라고 단정하는 방법 반복 금지; 반드시 실제 vendor `ui/qrcode.min.js`를 이용. 5문자 최소 수정을 덮어쓰는 upstream 갱신 금지, 원본 SHA와 비교/Node regression 없이 재벤더링 금지. BOM은 원본 인코더의 특성으로 남아 있어 휴대폰 스캔 시 눈에 보이는지 확인; 필요할 때만 라이선스 명확한 대체 인코더 검토. 외부 QR API 전송 불허.
+6. **저장소/브랜치/SHA/경로:** `hibi89/AX_MART` `feature/pc-care-usb` (시작 SHA `f775961a0e8a6bb840fa9af1be8c472c8be3b48d`). 주요 `products/pc-care/ui/qrcode.min.js`, `ui/QR_CODE_LICENSE.txt`, `tests/test_qr_vendor.cjs`, `tests/test_qr_ui.cjs`, `tests/qr_browser_smoke.py`, `tests/test_package.py`, `.github/workflows/pc-care-windows-synthetic.yml`. 최신 HEAD는 본 문서 이후 다시 확인.
+7. **Production·Vercel/Cloudflare·명령/환경:** `https://ax-mart.pages.dev/` Cloudflare Pages main 운영 불변, feature 미배포. 로컬 QR QA `node --test products/pc-care/tests/test_qr_vendor.cjs` (개발용), `python products/pc-care/tests/qr_browser_smoke.py --chromium /path/to/chromium` (추가 playwright/opencv 및 원본 vendor 필요). Windows 실기기 `RUN_SELF_TEST.cmd` 우선. Vercel 적용 없음.
+8. **원본/백업·권한/금지:** Git feature 커밋에서 최소 패치 revert 가능, 기존 전체 보고서/기기 데이터/운영 main 변경 안 함. BITLOCKER 복구키·로그 원문·개인 식별자를 QR/네트워크로 보내지 않음. 고객 기기 시스템 파일/디스크·부트로더 무단 변경 금지. 실제 Android/iOS 촬영 전 QR 내용 민감성 안내.
+9. **다음 작업 우선순위·절차·완료 기준/승인:** QR 실제 브라우저 렌더 및 스캐너 시각 검증, BOM 사용자 체험 확인 → Windows PS5.1 전체 read-only fixture와 HTML/JSON 저장, USB·한글 경로·출력 실패 테스트 → A4 한 장 PDF → WinRE/백업 승인과 무변경 회귀 → 종합 QA 후 제품 무료 배포/크몽 서비스 등록은 사용자 승인. Windows Actions run 41034866482 실패(러너 0·steps[]), 수동-only 유지.
+10. **갱신 일시·검증 범위·문서 기준:** 2026-10-30 KST. GitHub connector 소스 직접 실행(V8 QR 인코더), Python OpenCV 실모듈 디코딩 **PASS**, 신규 Node/Windows 자체 테스트 runner 실행 **미수행**. STATUS.md/README.md/docs/WINDOWS_TEST_PLAN.md와 동기화; 본 문서 커밋 후 GitHub feature HEAD 재검사.
+
