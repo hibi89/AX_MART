@@ -96,18 +96,13 @@ $observations['physicalDisks'] = @($diskData.ToArray())
 # Keep evidence normalization independent of OS collection so synthetic fixtures can test it.
 . (Join-Path $PSScriptRoot 'event_analysis.ps1')
 $start = (Get-Date).AddDays(-$Days)
-$eventQueryFailed = $false
-$events = @()
-try {
-    $events = @(Get-WinEvent -FilterHashtable @{ LogName='System'; StartTime=$start; Id=41,6008,1001,7,51,55,129,153,157 } -MaxEvents 1500 -ErrorAction Stop)
-} catch {
-    if ($_.FullyQualifiedErrorId -match 'NoMatchingEventsFound' -or $_.Exception.Message -match 'No events were found|조건에 맞는 이벤트') {
-        $events = @() # A successful empty query is different from denied access.
-    } else {
-        $events = @()
-        $eventQueryFailed = $true
-        [void]$limits.Add('시스템 이벤트: 로그 조회 실패 또는 접근 권한 부족. 조회 결과가 0건이라고 판단하지 않습니다.')
-    }
+$eventResult = Invoke-PcCareEventQuery -MaxEvents 1500 -Query {
+    Get-WinEvent -FilterHashtable @{ LogName='System'; StartTime=$start; Id=41,6008,1001,7,51,55,129,153,157 } -MaxEvents 1500 -ErrorAction Stop
+}
+$events = @($eventResult.events)
+$eventQueryFailed = ($eventResult.status -eq 'unavailable')
+if ($eventQueryFailed) {
+    [void]$limits.Add('시스템 이벤트: 로그 조회 실패 또는 접근 권한 부족. 조회 결과가 0건이라고 판단하지 않습니다.')
 }
 $evidence = @(ConvertTo-PcCareEvidence -Events $events)
 $crashes = @($evidence | Where-Object { $_.kind -eq 'bugcheck_record' } | ForEach-Object {
@@ -120,7 +115,7 @@ $shutdownGroups = @(Group-PcCareShutdownSignals -Evidence $evidence)
 $storageErrors = @($evidence | Where-Object { $_.kind -eq 'storage_signal' } | ForEach-Object {
     @{ time=$_.recordedAt; eventId=$_.eventId; source=$_.provider }
 })
-$eventsTruncated = ($events.Count -ge 1500)
+$eventsTruncated = ($eventResult.status -eq 'truncated')
 if ($eventsTruncated) {
     [void]$limits.Add('시스템 이벤트 1,500건 조회 상한 도달: 검사 기간 전체를 확인하지 못했을 가능성이 있습니다.')
 }
@@ -140,7 +135,7 @@ $observations['unexpectedShutdowns'] = @($unexpected | Select-Object -First 30)
 $observations['shutdownGroups'] = @($shutdownGroups | Select-Object -First 30)
 $observations['storageEvents'] = @($storageErrors | Select-Object -First 30)
 $observations['eventEvidence'] = @($evidence | Select-Object -First 1500)
-$observations['eventCollection'] = if ($eventQueryFailed) { 'unavailable' } elseif ($eventsTruncated) { 'truncated' } elseif ($events.Count -eq 0) { 'no matching events' } else { 'collected' }
+$observations['eventCollection'] = $eventResult.status
 $collectionStatus['events'] = $observations['eventCollection']
 $observations['eventCollectionLimit'] = 1500
 $observations['eventTimeMeaning'] = 'System event recorded time, not verified incident time'
