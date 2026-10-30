@@ -424,3 +424,9 @@
 - 누락 건수 `observations.volumeRejectedCount` 기록, 수집 중 잘못된 값이 하나라도 있으면 `collectionStatus.volumes=incomplete` 처리. H08는 collected일 때만 공간 비교하므로 부분 관측을 '정상/개선'으로 판단하지 않음. `tests/telemetry_analysis.tests.ps1` 정상/가득 참/NaN·Infinity·음수·비정상 문자/후속 정상값 및 `tests/test_package.py` 소스 회귀 갱신.
 - 실제 원격 GitHub 정적 QA **23/23 PASS**. 기존 `release.py`/공식 `test_release.py` 로컬 Python 테스트 **15/15 PASS**(이번에 바뀐 PowerShell 코드와 무관). 변경된 PS5.1 fixture/Windows 진단/전체 Python·Node/제품 전체 ZIP·USB/QR/A4/WinRE/현 SHA CI **NOT_RUN**. `tests/evidence/volume_metric_failclosed_source_qa_20261031.json`.
 - 수정 전 GitHub HEAD `328bcf1611d588b3c4c285cf773ac6540decdc40`. 운영 main/Cloudflare·고객 파일·OS·자동 복구/출시 불변. 다음 Windows 개발 체크아웃 `RUN_RELEASE_QA.cmd` 네이티브 검증→명시적 읽기전용 JSON·HTML/H08→USB·QR/A4·WinRE 격리 시험.
+
+## 2026-10-31 KST — H08 수집 불완전한 디스크 경고 소멸 오판 수정
+- 실제 `ui/history_compare.js` 실행 재현: 새 보고서 `collectionStatus.volumes=incomplete`·`volumeRejectedCount=1`, `issues=[]`인데 과거 `DISK_SPACE_LOW`를 `missing`으로 반환. 실제 수집 증거가 없으므로 기존 경고가 더는 관찰되지 않는다고 판단하면 안 됨.
+- 기존 `volumeMap`의 값·드라이브 중복/크기 검증을 경고 차이 산출보다 먼저 적용. 신규 데이터가 비교 가능한 볼륨 수집이 아닐 때만 `DISK_SPACE_LOW`·`DISK_SPACE_CRITICAL` 경고의 `missing` 출력을 보류하고 이유를 주의 문구로 표시. 다른 경고의 비교 및 최신 보고서에서 실제 관찰된 신규 디스크 경고는 유지. `volumeRejectedCount`가 존재할 때 0 이외 값은 비교 금지; 과거 필드 없는 보고서는 기존 호환 유지.
+- `tests/test_history_compare.cjs`에 신규 회귀 4건 + `tests/test_package.py` 소스 계약 반영. GitHub 최신 전체 JS 3파일(`history_compare.js`, `history_signals.js`, 공식 test)을 V8에서 Node test/assert 호환 래퍼로 실행 **26/26 PASS**, 별도 직접 재현 **17/17 PASS**(중복 범위 존재), 정적 연결 **16/16 PASS**. 증거 `tests/evidence/h08_volume_warning_provenance_v8_20261031.json`.
+- **실제 Node 러너, Windows PS5.1, 실제 JSON/HTML/H08 브라우저, 전체 ZIP, USB/QR/A4/WinRE, 최신 CI NOT_RUN**. 운영 `main`/Cloudflare·고객 보고서/OS/수리/출시 무변경. 다음 Windows 개발 체크아웃에서 `RUN_RELEASE_QA.cmd`로 원본 QA 네이티브 실행.
