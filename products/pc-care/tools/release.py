@@ -161,8 +161,11 @@ def build_internal(root: Path, output: Path) -> tuple[Path, str]:
         raise ValueError('Refusing symlink temp target')
     if pending.exists() or checksum_pending.exists():
         raise ValueError('Existing incomplete internal build; manual review required')
+    owned_zip_temp = False
+    owned_checksum_temp = False
     try:
         with pending.open('xb') as stream:
+            owned_zip_temp = True
             with zipfile.ZipFile(stream, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
                 for name, data in sorted(contents.items()):
                     zip_member(archive, name, data)
@@ -171,18 +174,22 @@ def build_internal(root: Path, output: Path) -> tuple[Path, str]:
         verify_archive(pending)
         checksum = file_digest(pending)
         with checksum_pending.open('x', encoding='ascii', newline='\n') as target:
+            owned_checksum_temp = True
             target.write(f'{checksum}  {zip_path.name}\n')
         # Never follow a symlink when publishing these two owned output names.
         if zip_path.is_symlink() or sidecar.is_symlink():
             raise ValueError('Refusing symlink output target')
         os.replace(pending, zip_path)
+        owned_zip_temp = False
         os.replace(checksum_pending, sidecar)
+        owned_checksum_temp = False
         if verify_archive(zip_path, require_sidecar=True) != checksum:
             raise ValueError('Post-write checksum verification failed')
     finally:
-        if pending.exists() and not pending.is_symlink():
+        # Never delete someone else's colliding temporary artifact.
+        if owned_zip_temp and pending.exists() and not pending.is_symlink():
             pending.unlink()
-        if checksum_pending.exists() and not checksum_pending.is_symlink():
+        if owned_checksum_temp and checksum_pending.exists() and not checksum_pending.is_symlink():
             checksum_pending.unlink()
     return zip_path, checksum
 
