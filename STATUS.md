@@ -41,3 +41,10 @@
 - 제품 코드 로컬 작업본은 유료 출시 전까지 비공개 관리, 미검증 무료 ZIP을 사이트에 배포하지 않음.
 - 배포 계통: Cloudflare Pages https://ax-mart.pages.dev 자동 배포(main); 새로운 소스 커밋은 별도 GitHub SHA로 확인, 최종 Production 동일 SHA·익명 접근/브라우저 렌더는 추가 확인.
 - 이전 정상 Production 소스 복구점: GitHub main 이전 HEAD d37a005354f925b1e261e8c278ca082249e3b8cc.
+
+
+## [최신 검증] 2026-10-30 USB 원본 GitHub 저장 완료
+- `main`의 실제 상품 전환 커밋: `ca6c312bf69216b19a4235166edd2695ec81aa98`. 예시/가상 상품을 제거하고 `PC CARE USB v0.1-alpha`의 **개발 중** 카드만 노출. Cloudflare Pages URL `https://ax-mart.pages.dev/`, 이 버전의 실제 배포 성공/브라우저 렌더는 재확인 필요.
+- `feature/pc-care-usb`의 `products/pc-care/` 폴더에 실제 15개 제품 코드·문서·정적 테스트 파일 업로드 검증. 최초 업로드 SHA `5bd374badbb63b1c6bb0aa911f9e2fd1412d36d1`. 제품 브랜치의 `STATUS.md`, `HANDOFF.md`는 최신 추가 갱신됨.
+- 진단 실행: Windows 10/11 실제 기기 미검증, 수리/WinRE 실제 실행 미검증. 공개 다운로드/유료 판매 금지. 무료 베타 및 익명 선택 피드백은 테스트 이후.
+- 새 채팅방 인계용 상세사항은 루트 `NEXT_CHAT_PC_CARE_USB.md` 참고. GitHub 코드 저장 완료 ≠ Windows 기능 완료.
