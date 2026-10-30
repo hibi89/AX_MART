@@ -83,6 +83,7 @@ class ReleaseTests(unittest.TestCase):
             'ui/qr_ui.js',
             'ui/history_compare.html',
             'ui/history_compare.js',
+            'ui/history_signals.js',
             'tests/incident_analysis.tests.ps1',
             'tests/telemetry_analysis.tests.ps1',
             'tests/driver_timeline.tests.ps1',

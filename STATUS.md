@@ -98,3 +98,8 @@
 - `feature/pc-care-usb`에서 비표준 브라우저 `Date.parse` 기반 비교를 Windows PS5.1 진단 형식 `yyyy-MM-dd HH:mm:ss zzz`의 캘린더+UTC 오프셋 엄격 검증으로 교체. 유효하지 않은 날짜·시간·시차 및 예상 외 진단 상태 문자열을 fail-closed 처리.
 - 개발 환경 Node v22.16.0에서 `node --check`, `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **22/22 PASS**, 원격 Git blob SHA=로컬 실행 파일 확인. 제품 문서·회귀/evidence 최신화. Windows/USB/QR/PDF/WinRE 전체 실기기 미검증, H08 자동 이력관리 미구현.
 - 운영 main/Cloudflare/사이트/원본 사용자 데이터/수리·WinRE 코드·상품 다운로드/결제 변경 없음. 기준 HEAD `4af8e8b0ffaccf78fb5d90898d19017d8b8c9dc7`.
+
+## 2026-10-30 KST — AXMART CUBE 총괄 속도 운영 / PC CARE 기능 묶음
+- 사용자 요청에 따라 반복 소규모 수정보다 **연관 기능 일괄 개발→Node/정적 검증→안전한 GitHub 커밋→CI 상태 별도 확인**을 원칙으로 채택. CI가 차단 조건이 아니면 다른 개발 계속, runner 미배정 반복 재시도 금지.
+- PC CARE `feature/pc-care-usb` 이전 SHA `04d9979b89739c4dfaad336875489aaeca9b02c3`. 기존 진단 JSON을 활용한 H08 추가 비교(Windows 빌드/Windows Update 실패 이벤트/장치 구성 상태) 구현 및 패키지·CI 테스트 등록. Node22 독립 신호 테스트 **7/7 PASS**, GitHub 원본 통합 V8 비교 합성 PASS. Windows CI 새 실행 불가(연결 권한에 dispatch 없음, 이전 런 41034866482는 runner 이전 단계 실패)로 **미실행**.
+- 운영 main `fbb32362455378b85bcdd0b5037d1f338055fb71` / Cloudflare https://ax-mart.pages.dev/ 그대로, 실제 Windows/USB/QR/A4/WinRE 미검증. 판매·무료 배포 보류.

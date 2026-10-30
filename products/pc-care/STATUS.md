@@ -280,3 +280,8 @@
 - `assessment`에 예상 외 문자열이 포함되면 내용을 화면에 그대로 반영하지 않고 `확인 불가`로 표시. 기존 비교/선택 경합/개인정보 보호 동작 유지.
 - 실제 로컬 Node v22.16.0 `node --check` PASS; `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **22 PASS/0 FAIL**. GitHub blob SHA `c57d4fd2`(JS), `5c533efe`(unit) 및 DOM `958b5a68`이 로컬 테스트 복제본과 일치. 증빙 `tests/evidence/history_date_offset_qa_20261030.json`.
 - Windows 11 PowerShell5.1 실제 JSON·Edge/Chrome `file://`·USB·QR/A4 PDF·WinRE·전체 Python/ZIP 실검증 **대기**. 운영 main, 수리 코드 및 고객 실제 보고서 미변경. 이전 feature HEAD `4af8e8b0ffaccf78fb5d90898d19017d8b8c9dc7`. 무료 공개/유료 판매 불가 유지.
+
+## 2026-10-30 KST — 집중 개발 H08 추가 신호 3종
+- `ui/history_signals.js` 새 순수 JS 로컬 모듈 추가. 비교 전제: 양쪽 보고서의 완전 수집 상태, 동일한 업데이트 조회 기간(최대 90일), 300개 업데이트 이벤트/30개 PnP 표본 상한 미도달 등. Windows 빌드·업데이트 실패 기록·장치 구성 코드 관측 건수 추가로 표시. 동일 PC·원인 고장 확정 금지.
+- `ui/history_compare.html/js`, `tools/release.py`, `tests/test_release.py`, `tests/test_package.py`, `.github/workflows/pc-care-windows-synthetic.yml`, README 갱신. Linux Node22 실제 신규 테스트 **7/7 PASS**, V8 기존 비교 함수+신규 모듈 합성 통합 PASS; 전체 Node/Python/Windows/ZIP 별도 실행 미수행. QA 증빙 `tests/evidence/h08_extended_signals_qa_20261030.json`.
+- 새 CI dispatch 실행 권한 미제공. 이전 failed run 41034866482는 runner 미배정으로 테스트 결과가 아님; 비차단 기록 후 개발 진행. 이전 GitHub `04d9979b89739c4dfaad336875489aaeca9b02c3`, main/Cloudflare 불변, 공개/판매 차단.

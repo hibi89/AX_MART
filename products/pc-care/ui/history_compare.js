@@ -22,6 +22,11 @@ function compareReports(oldReport,newReport){
  const a=validateReport(oldReport),b=validateReport(newReport);
  if(b.stamp<=a.stamp)throw Error("현재 보고서는 과거 보고서보다 나중에 생성되어야 합니다.");
  const caution=["동일한 PC의 보고서인지는 판별하지 못합니다. 다른 PC 기록을 비교하지 마세요.","이 결과는 관측치 비교이며 수리 성공이나 고장 해결을 증명하지 않습니다."];
+ // Compare additional already-collected, bounded Windows signals without new OS reads.
+ const signalApi = (typeof module !== "undefined" && module.exports) ? require("./history_signals.js") : root.PcCareHistorySignals;
+ const signals = signalApi && typeof signalApi.compareSignals === "function" ? signalApi.compareSignals(a.r,b.r) : null;
+ if (signals) caution.push(...signals.notes);
+ else caution.push("추가 관측 비교 모듈을 불러오지 못해 확장 비교를 생략했습니다.");
  const codeSet=x=>Array.isArray(x.r.issues)?new Set(x.r.issues.filter(v=>v&&typeof v.code==="string"&&/^[A-Z][A-Z0-9_]{1,63}$/.test(v.code)).map(v=>v.code)):null;
  const prev=codeSet(a),next=codeSet(b);
  // Unknown issue lists must not be presented as "no warnings".
@@ -53,7 +58,7 @@ function compareReports(oldReport,newReport){
  // Never echo arbitrary untrusted assessment text from a local JSON file.
  const safeAssessment=r=>["위험 신호","주의 필요","확인 불완전","관찰 범위 내 특이사항 없음"].includes(r.assessment)?r.assessment:"확인 불가";
  if(safeAssessment(a.r)==="확인 불가"||safeAssessment(b.r)==="확인 불가")caution.push("진단 상태값을 인식하지 못해 확인 불가로 표시합니다.");
- return {beforeTime:a.r.generatedAt,afterTime:b.r.generatedAt,beforeAssessment:safeAssessment(a.r),afterAssessment:safeAssessment(b.r),added,missing,eventCounts,drives,disks,diskComparable,caution};
+ return {beforeTime:a.r.generatedAt,afterTime:b.r.generatedAt,beforeAssessment:safeAssessment(a.r),afterAssessment:safeAssessment(b.r),added,missing,eventCounts,drives,disks,diskComparable,signals,caution};
 }
   const api = { validateReport, compareReports };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
@@ -95,6 +100,12 @@ function compareReports(oldReport,newReport){
         else lines.push("드라이브 용량 변화: 비교 가능한 관측값 없음");
         if (result.diskComparable) lines.push("저장장치 경고 집계: "+result.disks.before.warning+" → "+result.disks.after.warning);
         else lines.push("저장장치 경고 집계: 수집 상태 또는 장치 수가 달라 비교 불가");
+        if (result.signals) {
+          const s=result.signals;
+          lines.push("Windows 빌드: "+(s.windows ? s.windows.before+" → "+s.windows.after+(s.windows.changed?" (변경 관찰)":" (변경 없음)") : "비교 불가"));
+          lines.push("Windows 업데이트 설치 실패 기록: "+(s.updates ? s.updates.before+" → "+s.updates.after+" (각 "+s.updates.days+"일 이동 조회)" : "비교 불가"));
+          lines.push("장치 구성 코드 관측: "+(s.devices ? s.devices.before+" → "+s.devices.after+" (장치 고장 확정 아님)" : "비교 불가"));
+        } else lines.push("추가 관측값: 로컬 확장 모듈 미사용");
         lines.push("", "검사 한계:", ...result.caution.map(s => "- "+s));
         output.textContent = lines.join("\n");
       } catch (err) {

@@ -1,0 +1,54 @@
+"use strict";
+// Local-only, privacy-bounded H08 signal comparisons. Never reads files or calls APIs.
+(function(root){
+  const completeStatus = s => s === "collected" || s === "no matching events";
+  const validCount = n => Number.isSafeInteger(n) && n >= 0;
+  function compareSignals(before, after) {
+    const a = before.observations || {}, b = after.observations || {};
+    const result = {windows:null,updates:null,devices:null,notes:[]};
+    // Build is a Windows observation, not proof these reports came from one PC.
+    const build = o => o.collectionStatus && o.collectionStatus.windows === "collected" &&
+      o.windows && typeof o.windows.build === "string" && /^\d{4,6}$/.test(o.windows.build) ? o.windows.build : null;
+    const oldBuild=build(a), newBuild=build(b);
+    if(oldBuild !== null && newBuild !== null)
+      result.windows={before:oldBuild,after:newBuild,changed:oldBuild !== newBuild};
+    else result.notes.push("Windows 빌드를 수집하지 못했거나 값이 유효하지 않아 변화 여부를 판단하지 않습니다.");
+
+    // Same moving lookback window, complete WindowsUpdateClient 19/20 event collection.
+    const update = o => {
+      const v=o.windowsUpdate;
+      if(!v || !completeStatus(v.status) || !o.collectionStatus || o.collectionStatus.windowsUpdate !== v.status ||
+        !Array.isArray(v.evidence) || v.evidence.length >= 300 ||
+        !validCount(v.installationFailureRecords) || !validCount(v.installationSuccessRecords) ||
+        v.installationFailureRecords+v.installationSuccessRecords !== v.evidence.length ||
+        (v.status === "no matching events" && v.evidence.length !== 0)) return null;
+      return v.installationFailureRecords;
+    };
+    const days=a.eventWindowDays;
+    const oldUpdates=update(a),newUpdates=update(b);
+    if(Number.isSafeInteger(days) && days >=1 && days<=90 && days===b.eventWindowDays &&
+      oldUpdates !== null && newUpdates !== null)
+      result.updates={before:oldUpdates,after:newUpdates,days};
+    else result.notes.push("업데이트 실패 기록은 수집 상태·조회 기간·표시 상한이 일치하지 않아 비교하지 않습니다.");
+
+    // PnP query is capped by source at 30 samples; never treat truncation as zero.
+    const devices = o => {
+      const v=o.driverDevices;
+      if(!v || !["collected","no matching devices"].includes(v.status) || !o.collectionStatus ||
+        o.collectionStatus.driverDevices !== v.status || !validCount(v.observedCount) ||
+        v.observedCount>=30 || !Array.isArray(v.samples) || v.samples.length !== v.observedCount ||
+        (v.status === "no matching devices" && v.observedCount !== 0)) return null;
+      return v.observedCount;
+    };
+    const oldDevices=devices(a),newDevices=devices(b);
+    if(oldDevices !== null && newDevices !== null)
+      result.devices={before:oldDevices,after:newDevices};
+    else result.notes.push("장치 구성 코드는 수집 실패·조회 상한·불완전 표본 때문에 비교할 수 없습니다.");
+    result.notes.push("업데이트 기록 수는 이동하는 조회 기간의 관측치이며 업데이트가 장애를 일으켰다는 의미가 아닙니다.");
+    result.notes.push("장치 구성 코드 건수 변화는 장치·드라이버 고장 여부를 확정하지 않습니다.");
+    return result;
+  }
+  const api={compareSignals};
+  if(typeof module !== "undefined" && module.exports) module.exports=api;
+  root.PcCareHistorySignals=api;
+})(typeof globalThis !== "undefined" ? globalThis : this);

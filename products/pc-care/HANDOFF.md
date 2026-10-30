@@ -361,3 +361,15 @@
 8. **원본/보안·백업:** 기존 REPORTS/컴퓨터 설정/BitLocker/관리자 수리 및 개인 데이터 수정·전송 없음. 원래 브랜치 SHA를 복원 지점으로 보유, Git 강제 기록 수정 금지.
 9. **다음 우선순위·완료 기준:** Windows11 PS5.1 구문·읽기전용 진단 실제 실행→Edge `file://`에서 같은 PC 2회 JSON 비교(윤년·다른 시차 synthetic 포함)→한글 USB/QR 실제 스캔/A4 PDF/WinRE VM 안전성 검증. 사용자 승인 없는 다운로드·판매 금지.
 10. **갱신 시점·검증 범위:** 2026-10-30 22:27 KST. Node·소스 해시만 확인; 전체 Python/ZIP/실기기 OS·브라우저·Production 미검증. 최종 HEAD는 커밋 후 원격 재확인.
+
+## [최신] 2026-10-30 KST — H08 확장 신호 3종 / CI 비차단 운영 인계
+1. **목표·기술:** AXMART PC CARE Release A H08의 실질적인 변화 탐지 확대. 오프라인 두 리포트 비교에 Windows build, WindowsUpdateClient 설치 실패 이벤트, PnP 구성 코드 관측 건수 추가. 기존 WinPS5.1 생성 JSON/HTML/CMD에 새 권한 없음.
+2. **구현·설계:** 순수 JS 모듈 `ui/history_signals.js`를 별도 파일로 분리하고 기존 `history_compare.js/html`에 연결. 상태/표본/조회기간 완전한 때만 비교, 오염·누락·상한 도달이면 '비교 불가'. 동작상 비교 신호는 원인 확정이 아니며 개인정보/디스크 ID 추적 추가 없음. Python 패키지 allowlist와 Windows CI Node suite 연동.
+3. **실행 테스트:** Linux Node v22.16.0 `node --test tests/test_history_signals.cjs` 신규 7/7 PASS/0 FAIL; GitHub 원본을 사용한 V8 단일 통합 시나리오 PASS. 새 모듈 Blob `f4d47bd2f0bb9850019b0fd3feb81a0dfd50c1fe`; 회귀 Blob `5b0d3a4db182314371c56d0aa9fcc0db2426a316`. 변경 후 과거 22개 suite / Windows CI / 전체 Python / ZIP 실제 실행은 미검증.
+4. **현상태:** H08 수동 비교 필드 확대 완료, Release A 전체 및 실제 Windows QA 미완료, H08 자동 저장·삭제 미구현. 출시/판매 차단 유지.
+5. **CI 실패·원인/재시도 금지:** Actions run 41034866482 failure, job에 steps 비어 있어 테스트 실행 증거 없음. GitHub 연결 기능에 신규 workflow_dispatch가 없고, runner 미배정 원인 재현·확정 불가. 무의미한 rerun 반복 금지; 새 실행 권한/runner 이용가능 상태일 때 별도 1회 확인. 내부 로컬 테스트 우선.
+6. **저장소·브랜치:** `hibi89/AX_MART`, `feature/pc-care-usb`, 기준 `04d9979b89739c4dfaad336875489aaeca9b02c3`. 새 파일 `products/pc-care/ui/history_signals.js`, `tests/test_history_signals.cjs`, `tests/evidence/h08_extended_signals_qa_20261030.json`; 기존 JS/HTML/ZIP CI/tests/docs 변경.
+7. **Production/실행:** `https://ax-mart.pages.dev/` Cloudflare main 불변; 제품은 `START_PC_CARE.cmd` 메뉴 5 또는 `ui/history_compare.html`, 브라우저 로컬 JS, 데이터 업로드 없음. Node는 개발용 QA만 사용.
+8. **원본·백업/보안:** 전 feature SHA로 복원 가능, 실제 사용자 데이터/Windows 설정/BitLocker/WinRE/수리 코드/게시 상품 불변. Git secret 없음, source는 읽기 전용.
+9. **다음 실행 계획:** 개별 CI 실패를 막힘으로 취급하지 않고 남은 Release A(오프라인 보고서·이력 관리·QR/PDF)의 기능 완성 병렬 진행. Windows 표준권한 실증 → file:// UTF-8/USB → 1페이지 PDF·휴대폰 QR → WinRE 별도 VM/승인 Gate. 완료 전 판매 금지.
+10. **확인·검증:** 2026-10-30 KST GitHub 원격 원본 JS/Blob 무결성 + Node 신규 7 tests + V8 통합. Windows/Edge/USB/WinRE·전체 CI 등 **미검증**; 커밋 후 최종 SHA 재확인.

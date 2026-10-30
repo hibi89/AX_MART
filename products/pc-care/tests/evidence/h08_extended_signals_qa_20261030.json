@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "product": "AXMART PC CARE",
+  "component": "H08 extended comparison",
+  "dateKST": "2026-10-30",
+  "repository": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "parentSHA": "04d9979b89739c4dfaad336875489aaeca9b02c3",
+  "changes": [
+    "Windows build change from source windows.build when collectionStatus.windows=collected",
+    "WindowsUpdateClient installation failure event records with consistent 30/90-day lookback and 300 event cap",
+    "PnP configuration-code records with strict collection status and 30-device sample limit",
+    "Offline JS UI + internal ZIP allowlist + static Python tests + Windows CI Node command"
+  ],
+  "executed": [
+    {
+      "type": "local-node",
+      "command": "node --test /mnt/data/axmart_staging/tests/test_history_signals.cjs",
+      "runtime": "Linux Node 22.16.0",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "type": "GitHub-source V8",
+      "scenario": "existing history_compare.js + new history_signals.js + synthetic report pair",
+      "passed": true,
+      "details": "three independent signal fields built from reported JSON all match expected"
+    },
+    {
+      "type": "GitHub-source V8 mock DOM",
+      "scenario": "async file input click, local-only display; no browser or filesystem",
+      "passedChecks": 5,
+      "failedChecks": 0
+    }
+  ],
+  "blobs": {
+    "products/pc-care/ui/history_signals.js": "f4d47bd2f0bb9850019b0fd3feb81a0dfd50c1fe",
+    "products/pc-care/tests/test_history_signals.cjs": "5b0d3a4db182314371c56d0aa9fcc0db2426a316",
+    "products/pc-care/ui/history_compare.js": "14395910d4278ac516e57048a59acf098f341bd9"
+  },
+  "ci": {
+    "previousRun": 41034866482,
+    "previousResult": "failure; job returned no step records",
+    "currentDispatch": "not supported by current GitHub connector; not triggered",
+    "suiteAdded": true,
+    "doNotRetryBlockedRun": true
+  },
+  "notVerified": [
+    "Windows 11 PS 5.1",
+    "Windows Edge/Chrome file://",
+    "full legacy Node 22 test suite after integration",
+    "Python full suite",
+    "Internal release ZIP",
+    "USB, QR camera scan, PDF A4",
+    "WinRE/recovery",
+    "Production"
+  ],
+  "security": "Local read-only reports; no customer data collected or transmitted; no system repair or public release."
+}

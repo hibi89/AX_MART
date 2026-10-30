@@ -287,3 +287,8 @@ Pending manual tests:
 - Only the four known Korean assessment strings may be shown directly; unsupported strings display '확인 불가' rather than copying arbitrary JSON content into UI. Preserve textContent-only rendering.
 - Actual Node 22 command `node --check ui/history_compare.js && node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **22/22 PASS, zero failed**. GitHub source SHA and locally executed files identical. Evidence `tests/evidence/history_date_offset_qa_20261030.json`.
 - Not Windows proof: check real PowerShell5.1 output timezone, Edge/Chrome file://, Unicode USB paths and QR/A4/WinRE separately. No automatic release or destructive operations.
+
+## H08 expanded signals (2026-10-30)
+- Existing report JSON carries `observations.windows.build`, `windowsUpdate.installationFailureRecords`, and `driverDevices.observedCount`. Browser module `history_signals.js` now compares them only when collection state, source counts, and bounds are valid; no new system reads/permissions.
+- Negative QA: unavailable/truncated update or PnP queries; mismatched lookback days; 300 event / 30 device sample caps; invalid build; inconsistent evidence; absent devices must all render **comparison unavailable**, never zero successes.
+- New Linux Node fixture `node --test tests/test_history_signals.cjs` **7/7 PASS**; one GitHub-source V8 integration scenario PASS. Real Edge file://, Windows PowerShell5.1, USB, PDF/QR, WinRE, entire Python and ZIP unverified.

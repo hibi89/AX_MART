@@ -32,6 +32,7 @@ ALLOWLIST = (
     'ui/qr_ui.js',
     'ui/history_compare.html',
     'ui/history_compare.js',
+    'ui/history_signals.js',
     'tools/report_io.ps1',
     'tools/repair.ps1',
     'tests/windows_smoke.ps1',

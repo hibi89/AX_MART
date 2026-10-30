@@ -104,3 +104,10 @@
 - 저장소 `hibi89/AX_MART`, 브랜치 `feature/pc-care-usb`, 기준 SHA `4af8e8b0ffaccf78fb5d90898d19017d8b8c9dc7`. HTML 로컬 두-JSON 비교 JS에서 PowerShell `yyyy-MM-dd HH:mm:ss zzz`을 캘린더/시차 엄격 검사, 임의 `assessment` 텍스트는 허용 상태 외 `확인 불가`. 기존 수동 파일 선택·조회 상태 차단·경합 가드 유지.
 - Git 원본과 로컬 SHA 일치한 Node 22 `node --check` + `node --test tests/test_history_compare.cjs tests/test_history_dom.cjs` **22 PASS/0 FAIL**, 테스트 증빙 `products/pc-care/tests/evidence/history_date_offset_qa_20261030.json`. 실 Windows PowerShell 5.1, 브라우저 file://, USB, QR 스캔/A4, WinRE, 내부 ZIP/전체 Python 미검증.
 - 복구는 baseline feature HEAD로 가능. 생산 `main`·Cloudflare `https://ax-mart.pages.dev/` 미수정, 코드 서명/정식 출시 미승인, 고객 데이터 저장/전송·자동 수리/삭제 없음. 다음은 Windows 현장 읽기진단 및 H08 실브라우저 검증, 이어 QR/A4/USB/WinRE 안전 QA. 상세 인계는 `products/pc-care/HANDOFF.md` 기준.
+
+## 2026-10-30 KST — AXMART CUBE 총괄 H08 핵심 변화 비교 기능 인수인계
+- 저장소 `hibi89/AX_MART`, 기능 브랜치 `feature/pc-care-usb`, 변경 전 SHA `04d9979b89739c4dfaad336875489aaeca9b02c3`. 운영 main/Cloudflare 불변.
+- 구현: `ui/history_signals.js`를 `history_compare.js/html`에 연결. 양쪽 JSON의 Windows 빌드, 동일 이동 조회기간의 WindowsUpdateClient 19/20 설치 실패 건수, PnP 구성 코드 관측 개수. 사용자 파일 자동 검색·삭제·계정·네트워크·추가 Windows 권한 없음. 불완전 데이터·캡·상태 불일치는 비교 불가.
+- 검증: Linux Node v22.16.0 `node --test tests/test_history_signals.cjs` **7/7 PASS**. 기존 compareReports와 new module을 GitHub 소스로 결합한 순수 V8 통합 합성 PASS. 새 JS 원본 Blob `f4d47bd2f0bb9850019b0fd3feb81a0dfd50c1fe`, 테스트 Blob `5b0d3a4db182314371c56d0aa9fcc0db2426a316` 및 Blob readback 확인. 이전 22개 Node 회귀 테스트는 이 변경에 대해 **재실행하지 않음**.
+- CI: workflow_dispatch-only `.github/workflows/pc-care-windows-synthetic.yml`에 새 Node 테스트 등록. 기존 Actions 41034866482는 failed/테스트 단계·runner 기록 없음. GitHub 연결에 신규 workflow dispatch 권한·도구가 없어 **이번 CI 실행 미수행**, 성공이라 표기 금지. 불필요한 기존 실패 러너 재시도 금지.
+- 검증 대기: 전체 Python/ZIP, Windows PS5.1/11, Edge/Chrome file:// USB, QR 실제 스캔/A4 PDF, WinRE VM/복구. 제품별 `products/pc-care/HANDOFF.md` 참조. 사용자 승인 없는 공개 다운로드·유료 판매 금지.

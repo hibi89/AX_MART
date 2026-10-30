@@ -37,6 +37,15 @@ class PackageTests(unittest.TestCase):
         self.assertIn(r'start "" "%PC_CARE_ROOT%ui\history_compare.html"', home)
         self.assertIn("connect-src 'none'", html)
         self.assertIn("selectionRevision", js)
+        self.assertIn('src="./history_signals.js" defer', html)
+        self.assertLess(html.index('src="./history_signals.js"'), html.index('src="./history_compare.js"'))
+        signals = (ROOT/'ui/history_signals.js').read_text(encoding='utf-8')
+        self.assertIn("function compareSignals(before, after)", signals)
+        self.assertIn('signalApi.compareSignals(a.r,b.r)', js)
+        for forbidden in ("fetch(", "XMLHttpRequest", "localStorage", "sessionStorage", "innerHTML"):
+            self.assertNotIn(forbidden, signals)
+        new_test = (ROOT/'tests/test_history_signals.cjs').read_text(encoding='utf-8')
+        self.assertIn("three complete independent signals compared", new_test)
         self.assertIn('calendar.getUTCDate()!==day', js)
         self.assertIn('offHours>14', js)
         self.assertIn('safeAssessment=r=>', js)
@@ -66,6 +75,7 @@ class PackageTests(unittest.TestCase):
             self.assertNotIn(forbidden, js)
         self.assertIn("'ui/history_compare.html'", packager)
         self.assertIn("'ui/history_compare.js'", packager)
+        self.assertIn("'ui/history_signals.js'", packager)
 
     def test_normal_check_is_read_only(self):
         text = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
