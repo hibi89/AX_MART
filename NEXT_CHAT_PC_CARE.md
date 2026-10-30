@@ -110,3 +110,10 @@
 - GitHub Action 41034866482 failed before runner assigned; workflow remains manual-only with Node QA step. Source checks **21/21**; actual Windows CMD/PowerShell, GitHub runner, Python full suite/ZIP, browser/A4/phone QR, WinRE still unverified. See STATUS.md, HANDOFF.md and docs/WINDOWS_TEST_PLAN.md.
 - Next ㄱ: prioritize real Windows standard-user validation and issue fixes. Do not automatically run repair, overwrite reports, or publish free/paid downloads. Windows testing can be done from internal ZIP via RUN_SELF_TEST.cmd with no repair, but carefully review local logs before sharing.
 
+## 2026-10-30 KST — QR stale-image fix / strict data validation
+
+- hibi89/AX_MART `feature/pc-care-usb` only, main unchanged; no user beta/paid listings.
+- `products/pc-care/ui/qr_ui.js` now clears previous QR on edits and before regeneration, rejects malformed or expanded arbitrary share strings by enforcing 7-line whitelist schema and <=250 UTF-8 bytes. `tests/test_qr_ui.cjs` has 17 synthetic tests; `tests/test_package.py` adds static coverage; `tests/qr_browser_smoke.py` optional real vendored QR/Chromium/OpenCV UTF-8 exact decode gate (not yet run; requires playwright + opencv + Chromium on developer machine).
+- **Evidence:** Linux Chromium Playwright with fake QR constructor and exact current GitHub JS blob b0b06f527bed53f147e05e6512ee289608048de1: 13/13 real browser DOM/validation/network-mock checks passed. No actual QR library bitmap or phone scan verified. GitHub cross-file static 21/21. Windows/PS5.1/USB/ZIP/WinRE QA pending, GitHub Actions runner unassigned and manual-only.
+- Next ㄱ: run real QR encoder scanner fixture in available developer environment or fix its failures, then Windows read-only self-test and A4 PDF/phone scans. Continue real code changes, preserve main, update docs, never claim Windows/QR decoder complete without evidence.
+
