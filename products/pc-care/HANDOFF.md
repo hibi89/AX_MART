@@ -101,3 +101,16 @@
 8. 원본/보안: 원본 소스는 기존 Git 커밋으로 추적 및 되돌리기 가능. 보고서 저장 로직은 원본 사용자 파일을 삭제·수정할 의도 없음. WinRE 쓰기 복구·DISM/SFC·파티션/BitLocker 자동 변경 금지. GitHub에 진단 로그/개인정보/키 업로드 금지.
 9. 다음 작업: Python 정적/ZIP 테스트 → Windows 11 Parser 및 synthetic event/report fixture → 일반 사용자 진단 및 1일 JSON/HTML 쌍 → Windows VM에서 이름 충돌/쓰기 실패/폴백 테스트 → Win10 제한 호환성 및 복구 안전성 별도 검증. 실제 증거가 확보될 때만 P0 완료 판정.
 10. 갱신 일시/범위: 2026-10-30 KST. GitHub 코드 직접 검토, 교차 정적 계약 16/16. Windows·CI·Production 실제 기능 검증은 미확인. 본 문서 최종 반영 후 SHA 확인.
+
+## [최신] 2026-10-30 KST — P1 증거 해설 1차 인수인계
+
+1. **목표/용도/확정 요구/기술**: AXMART PC CARE v2의 증거 기반, 비확정적 장애 해설. Windows PowerShell 5.1, 단일 로컬 JSON/HTML, 오프라인, 원본 데이터 비변경.
+2. **완료·변경·근거**: tools/incident_analysis.ps1 순수 규칙 엔진, 41-only/1001/storage Warning/truncated/unknown을 분리. 원인 확인 true 주장 금지. diagnostics의 analysis 필드/HTML 읽기용 해설 연동, tests/incident_analysis.tests.ps1 및 내부 ZIP·Windows smoke 참조 반영. P1의 나머지 배터리/Windows Update/이력은 미완성.
+3. **테스트 명령·성공/실패·미검증**: GitHub 파일 교차 정적 점검 32/32 조건 충족. 실제 Python unittest/Win PS5.1 Parser/새 fixture/제품 ZIP 실행 0회, Windows 10/11 및 WinRE/수리 0회; 결과 미검증. 사용 명령: 제품 폴더 python3 tests/test_package.py, python3 tests/test_release.py; Windows 표준 사용자 powershell.exe -NoProfile -File tests/windows_smoke.ps1 (기본 파서+합성 fixture, 실제 진단은 명시 선택).
+4. **완료/진행/대기/차단**: P0 정적 보강 완료 후 Windows 검증 대기, P1 초기 분석 규칙·JSON/HTML 연동 진행, P1 배터리·업데이트·추가 연계/오탐 QA 대기. P2 print/QR, P3 Rescue, WinRE 복사 출시 금지.
+5. **오류·근거·원인·시도·대안**: Linux 컨테이너는 pwsh/powershell.exe가 없고 GitHub private repo를 DNS로 가져올 수 없음. GitHub connector에서 커밋 및 정적 교차 점검만 가능. Windows/VM 분리 실측 후 오류 최소 수정. 수행하지 않은 테스트를 PASS 처리하지 않는다.
+6. **저장소·브랜치·SHA·주요 경로**: hibi89/AX_MART / feature/pc-care-usb. 변경 시작 SHA ec065d00f031d3e1689ece951945c2a58d9bda63. 핵심 파일 products/pc-care/tools/incident_analysis.ps1, tools/diagnose.ps1, tests/incident_analysis.tests.ps1, tests/windows_smoke.ps1, tools/release.py, tests/test_package.py, tests/test_release.py, docs/WINDOWS_TEST_PLAN.md. 본 문서 변경 뒤 HEAD 확인.
+7. **Production/URL/실행환경**: Cloudflare Pages https://ax-mart.pages.dev/ 의 main 운영 소스/배포는 이번 턴 변경하지 않음(미적용). Windows x64 PowerShell 5.1 기준, 사용자 Windows 실측/Console·Network/실서비스 신규 기능 검증은 해당 없음·대기.
+8. **원본/백업/권한·금지**: 이전 SHA로 롤백 가능. BitLocker 키/디스크 시리얼/원문 로그/사용자 개인 파일 GitHub 업로드 금지. 공개 테스트 ZIP/무료 베타·결제 중단 유지. 관리자 승격/삭제/파티션·부트 수정/무인 수리 금지.
+9. **다음 우선순위/완료조건/승인사항**: 실제 Windows 11 PS5.1 parser+event/report/incident synthetic fixture → 일반 계정 read-only 검사(JSON/HTML 일치와 기기별 unknown) → Python 정적/ZIP 테스트 → 테스트 VM에서 파일 경로·권한/로그 failure injection → P1 배터리·업데이트 지원과 1페이지/QR 점진 구현. 출시에는 별도 Windows/WinRE/보안 검증과 사용자 승인 필요.
+10. **KST·확인 시점·검증 범위·문서 기준**: 2026-10-30 KST. GitHub connector의 소스 점검과 커밋 확인, 정적 32/32. Windows/Python 제품 테스트 미실행. 문서 커밋 후 feature branch 실제 HEAD 확인.
