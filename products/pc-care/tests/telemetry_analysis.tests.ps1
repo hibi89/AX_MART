@@ -66,6 +66,8 @@ Assert-Telemetry ($validWear.wearPercent -eq 100 -and $null -eq $validWear.tempe
 $validVolume = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{ DeviceID='C:'; Size=(100 * 1GB); FreeSpace=(4 * 1GB); VolumeName='PRIVATE-NAME' })
 Assert-Telemetry ($validVolume.drive -eq 'C:' -and $validVolume.remainingGB -eq 4 -and $validVolume.sizeGB -eq 100 -and $validVolume.freePercent -eq 4) 'Valid disk sample and percentage'
 Assert-Telemetry (($validVolume | ConvertTo-Json -Compress) -notmatch 'PRIVATE') 'Do not serialize volume labels'
+$lowerVolume = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{ DeviceID='c:'; Size=(10 * 1GB); FreeSpace=(3 * 1GB) })
+Assert-Telemetry ($lowerVolume.drive -eq 'C:' -and $lowerVolume.freePercent -eq 30) 'Lowercase drive letter is normalized'
 $fullVolume = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{ DeviceID='D:'; Size=(20 * 1GB); FreeSpace=0 })
 Assert-Telemetry ($fullVolume.drive -eq 'D:' -and $fullVolume.remainingGB -eq 0 -and $fullVolume.freePercent -eq 0) 'A full disk must not be rejected as an invalid sensor'
 $invalidVolumes = @(
