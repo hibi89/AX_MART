@@ -267,3 +267,8 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - PS5.1 합성 fixture `report_io.tests.ps1`·`telemetry_analysis.tests.ps1`와 `test_package.py` 소스 계약 보강. **실제 GitHub 파일 원격 정적 검사 24/24 PASS**, native PS5.1/Node/Python/실 Windows·USB·ZIP·QR/PDF·WinRE/CI **미실행**. 증빙 `products/pc-care/tests/evidence/report_persistence_smart_source_static_qa_20261031.json`.
 - 변경 전 복구 SHA `6d25db008c835ccf489940e9a3024f6b86c74ca9`. 운영 `main`/Cloudflare, 고객 파일·OS·복구·키·결제 미수정. 최신 detailed HANDOFF 10항 `products/pc-care/HANDOFF.md`.
 - 다음: Windows `RUN_RELEASE_QA.cmd` native QA→명시적 read-only 실제 진단/JSON·HTML·H08→한글 USB/Edge/QR/A4→WinRE 격리 VM과 출시 안전 승인. 최종 SHA 원격 확인 필수.
+
+## 2026-10-31 KST — CUBE PC CARE 정규화 시간축 최신 인수인계
+- `hibi89/AX_MART@feature/pc-care-usb`의 `tools/recorded_timeline.ps1`에서 거부된 이벤트 kind/ID/UTC/timeBasis 입력을 추적, `rejectedCount>0`이면 완전 수집/정상 0건 주장 금지. `tools/diagnose.ps1` 보고서 JSON/HTML에 거부 기록 수와 정확한 제한 설명 추가. 기존 타임라인 근접 관측은 원인 확정이 아님.
+- `tests/driver_timeline.tests.ps1`, `tests/windows_smoke.ps1`, `tests/test_package.py` 회귀 갱신. GitHub 원격 실제 소스 정적 **25/25 PASS**, 네이티브 Windows/PS5.1/Node·Python 전체·USB·QR/PDF·WinRE·ZIP·CI 미실행. 증거 `products/pc-care/tests/evidence/timeline_rejected_evidence_static_qa_20261031.json`.
+- 변경 전 SHA `63ca3c8513d921bfa990dbdec813118f2372e9b2`; 운영 main/Cloudflare·고객 REPORTS·OS·BitLocker·복구·결제·공개 불변. 상세 10항 `products/pc-care/HANDOFF.md`; 다음 Windows 전체 체크아웃 `RUN_RELEASE_QA.cmd`→선택적 read-only 실제 보고서/H08/USB/QR/A4→WinRE 별도 안전 게이트. 최종 SHA 재조회 필요.
