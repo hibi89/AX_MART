@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "project": "AXMART PC CARE",
+  "dateKST": "2026-10-30",
+  "branch": "feature/pc-care-usb",
+  "baseline": "a7bfc292fff36b4088698fb82440397cd7538388",
+  "scope": "H08 V8 regression and internal ZIP archive verification hardening",
+  "checks": [
+    {
+      "type": "V8 Node API-compatible harness",
+      "source": "GitHub HEAD H08 modules and five test files",
+      "total": 46,
+      "passed": 46,
+      "failed": 0,
+      "note": "Not native Node.js or real Windows/browser"
+    },
+    {
+      "type": "Native Python 3.13.5 isolated zip-safety implementation",
+      "path": "/mnt/data/axmart_zip_qa.py",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "note": "Representative algorithm, not full repository Python suite"
+    }
+  ],
+  "sourceChanges": [
+    "ZIP file-size and manifest metadata checked before archive.open()",
+    "Bounded member read cap and ZIP symlink entry rejection",
+    "Optional mandatory SHA256 sidecar for explicit --verify command",
+    "Streaming archive SHA256 instead of path.read_bytes()",
+    "Reject parent directory symlink during allowlisted source packaging"
+  ],
+  "regressionsAddedToRepo": [
+    "test_rejects_zip_member_with_oversized_decompressed_size",
+    "test_verify_cli_requires_sha256_sidecar",
+    "test_symlinked_source_parent_is_rejected",
+    "test_oversized_manifest_rejected_before_reading",
+    "static test_zip_verifier_bounds_before_decompressing"
+  ],
+  "unverified": [
+    "Full native Python test_release.py against exact remote code",
+    "Real internal ZIP build using full private source",
+    "Native Node.js H08 suite on exact latest source",
+    "Windows PS5.1/USB/Edge file://, QR camera scan, PDF page count, WinRE",
+    "CI (manual workflow_dispatch not available)",
+    "Production"
+  ],
+  "security": "GitHub feature branch only; no repairs, no customer data, no main/public release."
+}

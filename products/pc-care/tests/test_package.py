@@ -114,6 +114,20 @@ class PackageTests(unittest.TestCase):
         self.assertIn('Verify actual internal-only QA ZIP', workflow)
         self.assertIn('python tools/release.py --verify', workflow)
 
+    def test_zip_verifier_bounds_before_decompressing(self):
+        source = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        self.assertNotIn('archive.testzip()', source)
+        self.assertIn('infos = archive.infolist()', source)
+        self.assertLess(source.index('for info in infos:'), source.index("with archive.open(f'{FOLDER}/{name}'"))
+        self.assertIn('info.file_size > limit', source)
+        self.assertIn('stream.read(MAX_FILE_BYTES + 1)', source)
+        self.assertIn('stat.S_ISLNK', source)
+        self.assertIn('verify_archive(args.verify, require_sidecar=True)', source)
+        self.assertIn('for part in Path(name).parts[:-1]', source)
+        tests = (ROOT/'tests/test_release.py').read_text(encoding='utf-8')
+        self.assertIn('test_rejects_zip_member_with_oversized_decompressed_size', tests)
+        self.assertIn('test_verify_cli_requires_sha256_sidecar', tests)
+
     def test_normal_check_is_read_only(self):
         text = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
         # No change-enabling cmdlets or dangerous commands in scanner.

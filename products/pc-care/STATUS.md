@@ -300,3 +300,8 @@
 ## 2026-10-30 — H08 A4 요약 인쇄·PDF 버튼
 - 비교 성공한 시점에만 `print-history` 활성. 사용자가 직접 누르면 표준 브라우저 인쇄 대화상자를 표시하며 PDF 저장은 사용자 선택. `history_print.js` 안전 상태·관측 이벤트·경고 코드·한계만 선택, 원본 JSON 파일명/경로/시리얼/메시지·파일 선택 패널은 인쇄하지 않음. 파일/비교 대상 변경과 오류 시 이전 인쇄 자료 초기화.
 - 신규 V8 DOM 통합 6/6, `test_history_print.cjs` 9/9 V8 어댑터 PASS, 원격 Blob readback. 테스트·내부 ZIP allowlist·개발 preflight/수동 Windows CI 등록. 네이티브 Node 전체 회귀, 실제 Windows A4 PDF·USB·QR/WinRE **미검증**, 사용자 배포 차단. 이전 SHA `2a4a6bef056f9ffb1ba14b10a218d802cb98d9eb`. QA `tests/evidence/history_print_qa_20261030.json`.
+
+## 2026-10-30 KST — ZIP 검증 fail-closed 및 H08 전체 합성 회귀
+- `tools/release.py` ZIP 검증 순서를 변경해 ZIP 엔트리명·중복·암호화·symlink·원본 크기/manifest 크기를 먼저 검사한 후에만 제한적으로 압축 해제. ZIP 자체 checksum은 streaming으로 계산. `--verify`에 필수 `.sha256` 파일 누락 시 실패. `source_files` 허용 파일의 상위 폴더가 symlink인 경우 차단. 내부 시험 ZIP allowlist·표준 빌드 경로 불변.
+- 전체 H08 46 V8 호환 시나리오 통과(기존 37+인쇄9); 로컬 Python 5/5 독립 ZIP 안전 테스트 통과. 실제 GitHub Python suite·ZIP 생성·네이티브 Node/Windows CI와 실기기 USB/QR/A4/WinRE는 여전히 미검증. `tests/test_release.py` 회귀 4건 + 정적 1건 추가, 실행 전 QA 증빙 `tests/evidence/zip_bounded_security_qa_20261030.json`.
+- 기준 feature `a7bfc292fff36b4088698fb82440397cd7538388`, 운영 main/Cloudflare 불변, 고객 공개/판매 차단.

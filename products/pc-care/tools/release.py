@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import os
+import stat
 from pathlib import Path
 import sys
 import zipfile
@@ -58,10 +59,25 @@ def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def file_digest(path: Path) -> str:
+    # Never read an external archive fully into memory just to hash it.
+    sha = hashlib.sha256()
+    with path.open('rb') as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+            sha.update(chunk)
+    return sha.hexdigest()
+
+
 def source_files(root: Path) -> dict[str, bytes]:
     content = {}
     for name in ALLOWLIST:
         path = root / name
+        # Parent symlinks can escape root even if the leaf is a regular file.
+        current = root
+        for part in Path(name).parts[:-1]:
+            current = current / part
+            if current.is_symlink():
+                raise ValueError(f'Symlinked source directory: {name}')
         if path.is_symlink() or not path.is_file():
             raise ValueError(f'Missing, unsafe, or symlinked source: {name}')
         if path.stat().st_size > MAX_FILE_BYTES:
@@ -87,30 +103,45 @@ def zip_member(archive: zipfile.ZipFile, name: str, data: bytes) -> None:
     archive.writestr(info, data, compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
 
 
-def verify_archive(path: Path) -> str:
+def verify_archive(path: Path, *, require_sidecar: bool = False) -> str:
+    """Bounded, fail-closed archive verification before any bulk decompression."""
     with zipfile.ZipFile(path, 'r') as archive:
-        if archive.testzip() is not None:
-            raise ValueError('Bad archive CRC')
-        names = archive.namelist()
+        infos = archive.infolist()
         expected = {f'{FOLDER}/{x}' for x in ALLOWLIST} | {f'{FOLDER}/{MANIFEST}'}
-        if len(names) != len(expected) or set(names) != expected:
+        if len(infos) != len(expected) or {info.filename for info in infos} != expected:
             raise ValueError('Unexpected, duplicate, or missing ZIP member')
-        actual = {name: archive.read(f'{FOLDER}/{name}') for name in ALLOWLIST}
-        for name, data in actual.items():
-            if len(data) > MAX_FILE_BYTES:
-                raise ValueError(f'Archive member too large: {name}')
+        manifest_limit = max(4096, len(ALLOWLIST) * 160)
+        for info in infos:
+            limit = manifest_limit if info.filename == f'{FOLDER}/{MANIFEST}' else MAX_FILE_BYTES
+            if info.is_dir() or info.flag_bits & 1 or info.file_size < 1 or info.file_size > limit:
+                raise ValueError('Unsafe or oversized ZIP member: ' + info.filename)
+            if info.create_system == 3 and stat.S_ISLNK(info.external_attr >> 16):
+                raise ValueError('Symlink ZIP member rejected: ' + info.filename)
+        hashes = {}
+        for name in ALLOWLIST:
+            with archive.open(f'{FOLDER}/{name}', 'r') as stream:
+                data = stream.read(MAX_FILE_BYTES + 1)
+                if len(data) > MAX_FILE_BYTES or stream.read(1):
+                    raise ValueError('Archive member too large: ' + name)
             if name.endswith('.ps1') and not data.startswith(b'\xef\xbb\xbf'):
                 raise ValueError(f'Missing PowerShell BOM in package: {name}')
-        if archive.read(f'{FOLDER}/{MANIFEST}') != manifest_bytes(actual):
+            hashes[name] = digest(data)
+        with archive.open(f'{FOLDER}/{MANIFEST}', 'r') as stream:
+            manifest = stream.read(manifest_limit + 1)
+            if len(manifest) > manifest_limit or stream.read(1):
+                raise ValueError('Manifest too large')
+        wanted = ''.join(f'{hashes[name]}  {name}\n' for name in sorted(hashes)).encode('ascii')
+        if manifest != wanted:
             raise ValueError('Internal manifest does not match archive')
-    actual_digest = digest(path.read_bytes())
+    actual_digest = file_digest(path)
     checksum_file = Path(str(path) + '.sha256')
+    if require_sidecar and not checksum_file.is_file():
+        raise ValueError('Required SHA256 sidecar is missing')
     if checksum_file.is_file():
         expected_line = f'{actual_digest}  {path.name}\n'
         if checksum_file.read_text(encoding='ascii') != expected_line:
             raise ValueError('SHA256 sidecar does not match ZIP')
     return actual_digest
-
 
 def build_internal(root: Path, output: Path) -> tuple[Path, str]:
     contents = source_files(root)
@@ -130,7 +161,7 @@ def build_internal(root: Path, output: Path) -> tuple[Path, str]:
         # Validate contents before exposing the completed file name.
         verify_archive(pending)
         os.replace(pending, zip_path)
-        checksum = digest(zip_path.read_bytes())
+        checksum = file_digest(zip_path)
         Path(str(zip_path) + '.sha256').write_text(f'{checksum}  {zip_path.name}\n', encoding='ascii')
         if verify_archive(zip_path) != checksum:
             raise ValueError('Post-write checksum verification failed')
@@ -150,7 +181,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.verify:
-            checksum = verify_archive(args.verify)
+            checksum = verify_archive(args.verify, require_sidecar=True)
             print(f'INTEGRITY PASS (NOT WINDOWS RUNTIME VERIFIED): {checksum}')
         else:
             zip_path, checksum = build_internal(args.root, args.output or args.root / 'dist-internal')

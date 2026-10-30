@@ -137,3 +137,13 @@
 - 상태/오류: 인쇄 내용 보안/명시적 승인 동작 확인, Windows 실제 프린트/A4 PDF 1페이지 검증 전. 이전 CI 41034866482 러너 실패, 신규 dispatch 미지원·재시도 반복 금지.
 - 코드 저장소: `hibi89/AX_MART`, `feature/pc-care-usb`, 복구 기준 `2a4a6bef056f9ffb1ba14b10a218d802cb98d9eb`. Cloudflare `https://ax-mart.pages.dev/`와 운영 main 변경 없음. 개인정보 파일·수리/WinRE/권한 변경 없음.
 - 다음: 실제 Windows 11 표준권한 2회 JSON→Edge USB/file:// 비교→인쇄 PDF 페이지·한글 렌더링→QR 실스캔/WinRE VM→정식 공개 별도 승인. 갱신 2026-10-30 KST, 검증 범위 V8·Git blob, Production 미적용.
+
+## 2026-10-30 KST — AXMART CUBE ZIP 안전 검증 인수인계
+- 목적: 기존 PC CARE 기능/비용/품질을 유지하면서 외부 ZIP 검증에서 과다 압축 해제·체크섬 누락·경로 symlink 위험을 차단.
+- 구현: `products/pc-care/tools/release.py`에서 manifest/ZIP 엔트리 metadata size/암호화/심볼릭 링크 검사 후 제한된 읽기 및 CRC+manifest 검증; ZIP SHA streaming; 명시적 `--verify`에 sidecar 필수; source 디렉터리 symlink 거부. `tests/test_release.py` 신규 4개·`tests/test_package.py` 정적 1개·QA 증빙·문서 갱신.
+- 테스트: GitHub 소스 H08 5개 JS suite **46/46 V8 호환 실행 통과**, 로컬 Python 3.13.5 별도 ZIP 안전 알고리즘 **5/5 통과**. 전체 GitHub 저장소 Python/네이티브 Node/실제 ZIP·Windows CI는 **미검증**.
+- 문제/대안: ZIP 검증기가 `testzip()`으로 크기 검증 전 전체 해제하던 위험을 제거; 외부 ZIP metadata 상한 우선. CI 과거 `41034866482` 테스트 단계 실패, 신규 dispatch 도구 없음, 동일 실패 반복 금지. 전체 소스가 있는 Windows 개발기/runner에서 `python tools/preflight.py`로 일괄 회귀.
+- GitHub: `hibi89/AX_MART` `feature/pc-care-usb`, 기준 `a7bfc292fff36b4088698fb82440397cd7538388`; 운영 main과 `https://ax-mart.pages.dev/` 그대로, 제품 배포 미적용. Git 기존 SHA로 복구, force push 금지.
+- 데이터·안전: 실제 고객 데이터/REPORTS/Windows 설정/수리/WinRE와 비밀정보 불변; 내부 시험용 ZIP만 테스트, 자동 공개 불가.
+- 다음: 네이티브 Python 전체 회귀+실제 내부 ZIP 생성/재검증, Node QA → Windows 11 기본 진단/한글 USB/Edge file://·QR 실스캔/A4 PDF→WinRE VM, 출시 전 별도 승인.
+- 갱신 2026-10-30 KST. 이번 검증은 V8 호환 JS + 로컬 ZIP 알고리즘만. 커밋 후 최종 SHA 확인.

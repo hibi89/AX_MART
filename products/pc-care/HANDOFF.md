@@ -409,3 +409,15 @@
 8. 원본/백업/보안: 변경 전 SHA 복원 가능; 사용자 REPORTS·BitLocker·수리·WinRE 코드/실제 데이터 미변경, 강제 push 없음.
 9. 다음 작업: 기존 37+9 Node 테스트를 한 번에 실행 후 Windows 실제 `file://`, USB 한글 경로, 인쇄 PDF 1페이지, QR 카메라, WinRE VM 안전성 체크. 완료/출시는 승인 후.
 10. 시점/범위: 2026-10-30 KST, Git blob과 V8 합성 15 checks only, 네이티브 실행/실사용·Production 미검증.
+
+## [최신] 2026-10-30 KST — ZIP bounded verification / H08 regression
+1. **목표·기술:** PC CARE Release A/B 내부 ZIP 검증 무결성과 메모리 안전성 강화, H08 전체 합성 퇴행 방지. Python 표준 라이브러리 `zipfile/hashlib`, 기존 오프라인 설계 유지.
+2. **구현·근거:** `tools/release.py`에서 archive metadata(중복·예상 파일·member size·암호화·symlink) 먼저 검사; MAX_FILE_BYTES+1 범위로 읽은 뒤 manifest/CRC 검사. SHA256 streaming. `--verify` 시 `.sha256` sidecar 의무화, symlink 부모 디렉터리 포함 금지. 기존 build_internal/파일 목록 보존.
+3. **테스트:** GitHub H08 소스 기반 V8 호환 단위/가상 DOM 46 PASS/0 FAIL; 별도 로컬 Python 3.13.5 ZIP 구현 5 PASS/0 FAIL. `tests/test_release.py` 신규 4개 회귀 및 `test_package.py` 정적 계약 1개 추가. 새 GitHub Python suite/실제 ZIP/네이티브 Node 전체는 미실행. 증빙 `tests/evidence/zip_bounded_security_qa_20261030.json`.
+4. **상태:** ZIP 보안 수정 구현, 제품 전체/Release A 실기기 QA 미완료. QA 테스트 실행 권한 복구 대기. 일반 배포 미승인.
+5. **문제·시도/대안:** 기존 `archive.testzip()`은 크기 제한 확인 전에 압축을 풀어 악성 아카이브 메모리 위험. bounded read/metadata-before-decompression으로 전환. CI run 41034866482는 runner/step 테스트 증거 없음, 권한·runner 문제 먼저 해결할 때까지 무의미한 재시도 금지. 로컬에서 Zip safety 대표 구현 native 5/5 검증.
+6. **저장소/브랜치/SHA/경로:** `hibi89/AX_MART`, `feature/pc-care-usb`, 변경 전 `a7bfc292fff36b4088698fb82440397cd7538388`. `tools/release.py`, `tests/test_release.py`, `tests/test_package.py`, QA evidence, docs.
+7. **Production/실행:** `https://ax-mart.pages.dev/`은 Cloudflare main 자동배포, feature 이번 변경 미적용. 제품 QA `python tools/preflight.py`; 검증 전 다운로드/판매 불가.
+8. **원본/백업·인증:** Git 이전 SHA 보존, user REPORTS, Windows 수리/WinRE/BitLocker/권한/토큰·환경변수 미변경. Force push 없음.
+9. **다음 작업:** full source Python/Node/ZIP 일괄 실제 실행, Windows11 표준/USB/Edge·PDF·QR, WinRE 가상머신 별도 검증 및 사용자 승인. 완료 기준은 실기기 기능·안전·정식 배포 검증 모두.
+10. **갱신:** 2026-10-30 KST, 검증은 V8 호환 테스트 및 고립 Python 구현 5개만; GitHub Actions, native full repo ZIP, Production 미검증. 최종 SHA는 원격 재확인.

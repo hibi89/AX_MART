@@ -61,6 +61,51 @@ class ReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'sidecar'):
             release.verify_archive(path)
 
+    def test_rejects_zip_member_with_oversized_decompressed_size(self):
+        archive, _ = release.build_internal(self.root, self.root / 'dist-internal')
+        with zipfile.ZipFile(archive) as source:
+            entries = [(info.filename, source.read(info)) for info in source.infolist()]
+        malicious = self.root / 'malicious-bomb.zip'
+        with zipfile.ZipFile(malicious, 'w', compression=zipfile.ZIP_DEFLATED) as output:
+            for name, data in entries:
+                if name == f'{release.FOLDER}/README.md':
+                    data = b'x' * (release.MAX_FILE_BYTES + 1)
+                output.writestr(name, data)
+        with self.assertRaisesRegex(ValueError, 'oversized ZIP member'):
+            release.verify_archive(malicious)
+
+    def test_verify_cli_requires_sha256_sidecar(self):
+        archive, checksum = release.build_internal(self.root, self.root / 'dist-internal')
+        Path(str(archive) + '.sha256').unlink()
+        self.assertEqual(release.verify_archive(archive), checksum)
+        with self.assertRaisesRegex(ValueError, 'sidecar'):
+            release.verify_archive(archive, require_sidecar=True)
+        self.assertEqual(release.main(['--verify', str(archive)]), 1)
+
+    def test_symlinked_source_parent_is_rejected(self):
+        tools = self.root / 'tools'
+        outside = self.root / 'outside-tools'
+        tools.rename(outside)
+        try:
+            tools.symlink_to(outside, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            self.skipTest('Directory symlinks not permitted on this Windows environment')
+        with self.assertRaisesRegex(ValueError, 'Symlinked source directory'):
+            release.build_internal(self.root, self.root / 'dist-internal')
+
+    def test_oversized_manifest_rejected_before_reading(self):
+        archive, _ = release.build_internal(self.root, self.root / 'dist-internal')
+        with zipfile.ZipFile(archive) as source:
+            entries = [(info.filename, source.read(info)) for info in source.infolist()]
+        tampered = self.root / 'malicious-manifest.zip'
+        with zipfile.ZipFile(tampered, 'w', compression=zipfile.ZIP_DEFLATED) as output:
+            for name, data in entries:
+                if name.endswith('/' + release.MANIFEST):
+                    data = b'X' * (max(4096, len(release.ALLOWLIST)*160) + 1)
+                output.writestr(name, data)
+        with self.assertRaisesRegex(ValueError, 'oversized ZIP member'):
+            release.verify_archive(tampered)
+
     def test_internal_zip_includes_transitive_self_test_dependencies(self):
         """An internal ZIP must include every script the read-only launcher loads."""
         required = {

@@ -117,3 +117,8 @@
 ## 2026-10-30 — PC CARE H08 비교 요약 A4/PDF 인쇄 지원
 - `feature/pc-care-usb`(기준 `2a4a6bef056f9ffb1ba14b10a218d802cb98d9eb`) 사용자 화면에 유효한 비교 후만 활성화되는 명시적 인쇄/PDF 버튼과 개인정보 최소 A4 인쇄 요약 구현. 기존 2파일·25파일 비교 기능 유지, 인쇄용 스크립트 ZIP 포함/Node CI·QA 등록.
 - V8 통합 6/6, 신규 9개 시나리오 V8 실행 9/9 PASS (Node API adapter, Native Node 미실행). 실제 Windows Edge/Chrome PDF 페이지 수, 이전 37개 Node 전체 회귀, Python/ZIP/CI 및 USB·WinRE·QR 실기기 **미검증**. 운영 main/Cloudflare 변경 없음; 판매·공개 금지 유지.
+
+## 2026-10-30 KST — AXMART CUBE ZIP 검증 안전성 강화
+- H08 기존 단위·DOM/인쇄 시나리오를 GitHub 현행 소스 V8 호환 환경에서 **46/46 PASS** 재검증(네이티브 Node/실 브라우저 대체 불가).
+- PC CARE 개발용 내부 ZIP 검증기를 수정: 압축 해제 전 member 크기·암호화·symlink·manifest 크기 검사, stream bounded read 및 SHA256 스트리밍, 외부 `--verify`는 sha256 sidecar 필수, 패키지 source parent symlink 차단. 기존 허용 파일 목록/제품 기능 유지.
+- 분리 Python 3.13.5 안전성 알고리즘 5/5 PASS; 저장소 신규 회귀 4건 + 정적 1건 추가. 전체 GitHub 원본 Python test_release/실제 ZIP·CI·Windows/USB/QR/PDF/WinRE **미실행**. 운영 main/Cloudflare 불변·공개/판매 금지. 이전 feature `a7bfc292fff36b4088698fb82440397cd7538388`; 자세한 증빙 `products/pc-care/tests/evidence/zip_bounded_security_qa_20261030.json`.
