@@ -97,7 +97,7 @@ function Invoke-PcCareEventQuery {
     $items = @()
     $status = 'unavailable'
     try {
-        $items = @(& $Query | Where-Object { $null -ne $_ })
+        $items = @(& $Query | Where-Object { $null -ne $_ } | Select-Object -First $MaxEvents)
         if ($items.Count -ge $MaxEvents) {
             $status = 'truncated'
         } elseif ($items.Count -eq 0) {
