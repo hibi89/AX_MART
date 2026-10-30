@@ -8,7 +8,17 @@ function Assert-Report([bool]$Condition, [string]$Reason) {
 $sandbox = Join-Path ([System.IO.Path]::GetTempPath()) ('axmart-pc-care-fixture-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $sandbox -ErrorAction Stop | Out-Null
 try {
+    # No arbitrary path from FileBase may escape the nominated report directory.
     $normal = Join-Path $sandbox 'normal'
+    foreach ($badBase in @('../escaped', '..\escaped', '/absolute', 'C:\outside', '.hidden', 'nested/name', '', ('x' * 81))) {
+        $blocked = $false
+        try {
+            Save-PcCareReportPair -JsonText 'X' -HtmlText 'Y' -Candidates @($normal) -FileBase $badBase | Out-Null
+        } catch { $blocked = ([string]$_.Exception.Message -match 'Invalid report file base') }
+        Assert-Report $blocked ('Unsafe report file base accepted: ' + $badBase)
+    }
+    Assert-Report (-not (Test-Path -LiteralPath (Join-Path $sandbox 'escaped.json'))) 'Traversal wrote a JSON file outside REPORTS'
+    Assert-Report (-not (Test-Path -LiteralPath (Join-Path $sandbox 'escaped.html'))) 'Traversal wrote an HTML file outside REPORTS'
     $first = Save-PcCareReportPair -JsonText '{"mode":"read-only"}' -HtmlText '<html>local only</html>' -Candidates @($normal) -FileBase 'fixture-one'
     Assert-Report ((Test-Path -LiteralPath $first.json) -and (Test-Path -LiteralPath $first.html)) 'Both outputs must exist'
     Assert-Report (([System.IO.File]::ReadAllText($first.json)) -eq '{"mode":"read-only"}') 'JSON bytes do not match'
