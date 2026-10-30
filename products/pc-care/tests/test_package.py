@@ -190,8 +190,35 @@ class PackageTests(unittest.TestCase):
         self.assertNotIn('Invoke-RestMethod', telemetry)
         self.assertNotIn('Start-Process', telemetry)
 
+    def test_pnp_and_timeline_are_scoped_noncausal_and_bundled(self):
+        pnp = (ROOT/'tools/pnp_analysis.ps1').read_text(encoding='utf-8-sig')
+        timeline = (ROOT/'tools/recorded_timeline.ps1').read_text(encoding='utf-8-sig')
+        diag = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        engine = (ROOT/'tools/incident_analysis.ps1').read_text(encoding='utf-8-sig')
+        smoke = (ROOT/'tests/windows_smoke.ps1').read_text(encoding='utf-8-sig')
+        package = (ROOT/'tools/release.py').read_text(encoding='utf-8')
+        test = (ROOT/'tests/driver_timeline.tests.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn('ConvertTo-PcCarePnPSummary', pnp)
+        self.assertIn('device_disabled', pnp)
+        self.assertIn('Get-PcCareRecordedTimeline', timeline)
+        self.assertIn('recorded_timestamp_proximity_only', timeline)
+        self.assertIn('causeConfirmed = $false', timeline)
+        self.assertIn("Get-CimInstance -ClassName Win32_PnPEntity", diag)
+        self.assertIn("['driverDevices']", diag)
+        self.assertIn("['recordedTimeline']", diag)
+        self.assertIn('-PnPSummary $pnpSummary', diag)
+        self.assertIn('PNP_CONFIG_REVIEW', engine)
+        self.assertIn('driver_timeline.tests.ps1', smoke)
+        self.assertIn("'tools/pnp_analysis.ps1'", package)
+        self.assertIn("'tools/recorded_timeline.ps1'", package)
+        self.assertIn("'tests/driver_timeline.tests.ps1'", package)
+        self.assertIn('DRIVER/TIMELINE FIXTURE PASS', test)
+        for source in [pnp,timeline]:
+            for forbidden in ['Invoke-WebRequest','Invoke-RestMethod','Set-ItemProperty','Start-Process','Remove-Item']:
+                self.assertNotIn(forbidden, source)
+
     def test_ps1_utf8_bom_for_windows_powershell_51(self):
-        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/report_io.tests.ps1']:
+        for name in ['tools/diagnose.ps1','tools/repair.ps1','tools/event_analysis.ps1','tools/incident_analysis.ps1','tools/telemetry_analysis.ps1','tools/pnp_analysis.ps1','tools/recorded_timeline.ps1','tools/report_io.ps1','tests/event_analysis.tests.ps1','tests/incident_analysis.tests.ps1','tests/telemetry_analysis.tests.ps1','tests/driver_timeline.tests.ps1','tests/report_io.tests.ps1']:
             self.assertTrue((ROOT/name).read_bytes().startswith(b'\xef\xbb\xbf'))
 
 if __name__ == '__main__':
