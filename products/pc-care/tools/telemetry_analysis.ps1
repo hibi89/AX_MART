@@ -121,3 +121,35 @@ function ConvertTo-PcCareStorageMetrics {
     }
     return [pscustomobject]@{ wearPercent=$wear; temperatureC=$temperature }
 }
+
+# Pure Win32_LogicalDisk volume normalization. Invalid provider data must not
+# terminate an otherwise useful diagnosis or produce NaN/Infinity in JSON.
+function ConvertTo-PcCareVolumeSample {
+    [CmdletBinding()]
+    param([object]$Volume)
+    if ($null -eq $Volume) { return $null }
+    try {
+        $drive = [string]$Volume.DeviceID
+        if ($drive -cnotmatch '^[A-Z]:$') { return $null }
+        if ($null -eq $Volume.Size -or $null -eq $Volume.FreeSpace) { return $null }
+        $capacity = [double]$Volume.Size
+        $remaining = [double]$Volume.FreeSpace
+        if ([double]::IsNaN($capacity) -or [double]::IsInfinity($capacity) -or
+            [double]::IsNaN($remaining) -or [double]::IsInfinity($remaining) -or
+            $capacity -le 0 -or $remaining -lt 0 -or $remaining -gt $capacity) {
+            return $null
+        }
+        $pct = [math]::Round(($remaining / $capacity) * 100, 1)
+        $gb = [math]::Round($remaining / 1GB, 1)
+        $sizeGB = [math]::Round($capacity / 1GB, 1)
+        return [pscustomobject]@{
+            drive = $drive
+            remainingGB = $gb
+            freePercent = $pct
+            sizeGB = $sizeGB
+            capacityBytes = $capacity
+        }
+    } catch {
+        return $null
+    }
+}
