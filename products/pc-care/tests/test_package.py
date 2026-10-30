@@ -23,7 +23,8 @@ class PackageTests(unittest.TestCase):
         self.assertIn("Get-WinEvent", text)
         self.assertIn("Get-PhysicalDisk", text)
         self.assertIn("Get-CimInstance", text)
-        self.assertIn("NoMatchingEventsFound", text)
+        normalizer = (ROOT/'tools/event_analysis.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("NoMatchingEventsFound", normalizer)
         self.assertIn("mode='read-only'", text)
 
     def test_explicit_repair_approval_and_bounded_commands(self):
@@ -95,6 +96,7 @@ class PackageTests(unittest.TestCase):
         package = (ROOT/'tools/release.py').read_text(encoding='utf-8')
         self.assertIn("'RUN_SELF_TEST.cmd'", package)
         self.assertIn("'tests/windows_smoke.ps1'", package)
+        self.assertIn("'tests/event_analysis.tests.ps1'", package)
 
     def test_offline_event_normalization_and_fixture_wiring(self):
         normalizer = (ROOT/'tools/event_analysis.ps1').read_text(encoding='utf-8-sig')
