@@ -6,16 +6,8 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 if ($Days -lt 1 -or $Days -gt 90) { throw 'Days must be between 1 and 90.' }
 $root = Split-Path -Parent $PSScriptRoot
-$reportDir = Join-Path $root 'REPORTS'
-try { New-Item -ItemType Directory -Path $reportDir -Force -ErrorAction Stop | Out-Null }
-catch {
-    $reportDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'AXMART-PC-CARE-Reports'
-    New-Item -ItemType Directory -Path $reportDir -Force -ErrorAction Stop | Out-Null
-}
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $base = 'pc-care-{0}-{1}' -f $stamp, ([guid]::NewGuid().ToString('N').Substring(0,8))
-$jsonPath = Join-Path $reportDir ($base + '.json')
-$htmlPath = Join-Path $reportDir ($base + '.html')
 $issues = New-Object 'System.Collections.Generic.List[object]'
 $limits = New-Object 'System.Collections.Generic.List[string]'
 $observations = [ordered]@{}
@@ -82,65 +74,59 @@ foreach ($disk in $disks) {
 if ($diskData.Count -eq 0) { [void]$limits.Add('장치별 SMART/저장장치 상태를 확인하지 못했습니다.') }
 $observations['physicalDisks'] = @($diskData.ToArray())
 
-# Event 1001 is a BSOD only when its provider reports a bugcheck.
+# Keep evidence normalization independent of OS collection so synthetic fixtures can test it.
+. (Join-Path $PSScriptRoot 'event_analysis.ps1')
 $start = (Get-Date).AddDays(-$Days)
 $eventQueryFailed = $false
+$events = @()
 try {
     $events = @(Get-WinEvent -FilterHashtable @{ LogName='System'; StartTime=$start; Id=41,6008,1001,7,51,55,129,153,157 } -MaxEvents 1500 -ErrorAction Stop)
 } catch {
     if ($_.FullyQualifiedErrorId -match 'NoMatchingEventsFound' -or $_.Exception.Message -match 'No events were found|조건에 맞는 이벤트') {
-        $events = @()
+        $events = @() # A successful empty query is different from denied access.
     } else {
         $events = @()
         $eventQueryFailed = $true
-        [void]$limits.Add('시스템 이벤트: 데이터 접근이 제한되었습니다. 블루스크린 유무를 판단할 수 없습니다.')
+        [void]$limits.Add('시스템 이벤트: 로그 조회 실패 또는 접근 권한 부족. 조회 결과가 0건이라고 판단하지 않습니다.')
     }
 }
-$crashes = New-Object 'System.Collections.Generic.List[object]'
-$unexpected = New-Object 'System.Collections.Generic.List[object]'
-$storageErrors = New-Object 'System.Collections.Generic.List[object]'
-foreach ($e in $events) {
-    if ($null -eq $e) { continue }
-    $provider = [string]$e.ProviderName
-    $when = ([datetime]$e.TimeCreated).ToString('yyyy-MM-dd HH:mm')
-    if ($e.Id -eq 1001 -and ($provider -match 'BugCheck|SystemErrorReporting')) {
-        $code = '확인 불가'
-        try {
-            if ([string]$e.Message -match '(?i)0x[0-9a-f]{8}') { $code = $matches[0].ToUpperInvariant() }
-        } catch { }
-        [void]$crashes.Add(@{ time=$when; stopCode=$code })
-    }
-    elseif (($e.Id -eq 41 -and $provider -match 'Kernel-Power') -or ($e.Id -eq 6008 -and $provider -match 'EventLog')) {
-        [void]$unexpected.Add(@{ time=$when; eventId=[int]$e.Id })
-    }
-    elseif (($e.Id -in @(7,51,55,129,153,157)) -and ($provider -match 'disk|stor|nvme|ntfs|volmgr|iaStor')) {
-        [void]$storageErrors.Add(@{ time=$when; eventId=[int]$e.Id; source=$provider })
-    }
-}
-# Logs are capped to keep the tool responsive; warn if the query may be truncated.
+$evidence = @(ConvertTo-PcCareEvidence -Events $events)
+$crashes = @($evidence | Where-Object { $_.kind -eq 'bugcheck_record' } | ForEach-Object {
+    @{ time=$_.recordedAt; stopCode=$(if ($null -eq $_.stopCode) { '확인 불가' } else { $_.stopCode }); timeBasis='recorded_not_crash_time' }
+})
+$unexpected = @($evidence | Where-Object { $_.kind -eq 'shutdown_signal' } | ForEach-Object {
+    @{ time=$_.recordedAt; eventId=$_.eventId }
+})
+$shutdownGroups = @(Group-PcCareShutdownSignals -Evidence $evidence)
+$storageErrors = @($evidence | Where-Object { $_.kind -eq 'storage_signal' } | ForEach-Object {
+    @{ time=$_.recordedAt; eventId=$_.eventId; source=$_.provider }
+})
 $eventsTruncated = ($events.Count -ge 1500)
 if ($eventsTruncated) {
-    [void]$limits.Add('시스템 이벤트는 최근 1,500건까지만 수집했습니다. 전체 검사 기간의 이벤트를 모두 확인한 결과가 아닐 수 있습니다.')
+    [void]$limits.Add('시스템 이벤트 1,500건 조회 상한 도달: 검사 기간 전체를 확인하지 못했을 가능성이 있습니다.')
 }
-# 41 and 6008 can refer to the same outage, hence no false 'X crashes' diagnosis.
 if ($crashes.Count -gt 0) {
     $severity = if ($crashes.Count -ge 3) { 'high' } else { 'medium' }
-    Add-Issue $severity 'BUGCHECK' '최근 블루스크린 기록 발견' ("최근 {0}일간 BugCheck 기록 {1}건" -f $Days,$crashes.Count) 'STOP 코드를 확인하고 최근 설치한 드라이버·업데이트 변경 이력과 연관성을 조사하세요. 단일 원인으로 단정하지 않습니다.'
+    Add-Issue $severity 'BUGCHECK' '블루스크린 관련 로그 발견' ("최근 {0}일간 BugCheck 기록 {1}건 (기록 시각은 실제 충돌 시각과 다를 수 있음)" -f $Days,$crashes.Count) 'STOP 코드를 확인하고 복수 원인을 비교하세요. 이벤트 1001의 기록 시간만으로 장애 발생 시각을 확정하지 마세요.'
 }
 if ($unexpected.Count -gt 0) {
-    Add-Issue 'medium' 'UNEXPECTED_REBOOT' '비정상 종료 기록 발견' ("최근 {0}일간 이벤트 {1}건(중복 종료 가능)" -f $Days,$unexpected.Count) '정전, 강제 종료, 과열, 드라이버 오류 등 여러 원인을 점검하세요. 41번 이벤트만으로 블루스크린 확정 불가.'
+    Add-Issue 'medium' 'UNEXPECTED_REBOOT' '비정상 종료 신호 발견' ("이벤트 41/6008 총 {0}건, 시간 근접 그룹 {1}개(중복 가능, 실제 종료 횟수 아님)" -f $unexpected.Count,$shutdownGroups.Count) '41/6008은 한 번의 종료를 함께 가리킬 수 있습니다. 해당 기록만으로 블루스크린이나 원인을 확정할 수 없습니다.'
 }
 if ($storageErrors.Count -gt 0) {
-    Add-Issue 'high' 'STORAGE_EVENTS' '저장장치 관련 오류 이벤트 발견' ("최근 {0}일간 저장장치/파일시스템 이벤트 {1}건" -f $Days,$storageErrors.Count) '중요 데이터 우선 백업. 물리 장애 가능성이 있으면 CHKDSK 복구 옵션을 무작정 실행하지 마세요.'
+    Add-Issue 'high' 'STORAGE_EVENTS' '저장장치 관련 오류 기록 발견' ("최근 {0}일간 저장장치/파일시스템 이벤트 {1}건" -f $Days,$storageErrors.Count) '데이터를 먼저 백업하세요. 장치 이상 시 쓰기 복구 명령을 무작정 실행하지 마세요.'
 }
 $observations['eventWindowDays'] = $Days
-$observations['bugchecks'] = @($crashes.ToArray())
-$observations['unexpectedShutdowns'] = @($unexpected.ToArray() | Select-Object -First 30)
-$observations['storageEvents'] = @($storageErrors.ToArray() | Select-Object -First 30)
+$observations['bugchecks'] = @($crashes | Select-Object -First 30)
+$observations['unexpectedShutdowns'] = @($unexpected | Select-Object -First 30)
+$observations['shutdownGroups'] = @($shutdownGroups | Select-Object -First 30)
+$observations['storageEvents'] = @($storageErrors | Select-Object -First 30)
+$observations['eventEvidence'] = @($evidence | Select-Object -First 1500)
 $observations['eventCollection'] = if ($eventQueryFailed) { 'unavailable' } elseif ($eventsTruncated) { 'truncated' } elseif ($events.Count -eq 0) { 'no matching events' } else { 'collected' }
-# Never show zero as a verified count when the System log could not be read.
+$observations['eventCollectionLimit'] = 1500
+$observations['eventTimeMeaning'] = 'System event recorded time, not verified incident time'
+# Zero is not verified when logs are unavailable, nor complete when capped.
 $bugCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsTruncated) { '{0}건 (수집분)' -f $crashes.Count } else { '{0}건' -f $crashes.Count }
-$shutdownCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsTruncated) { '{0}건 (수집분)' -f $unexpected.Count } else { '{0}건' -f $unexpected.Count }
+$shutdownCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsTruncated) { '{0}건 신호 (수집분)' -f $unexpected.Count } else { '{0}건 신호 (중복 가능)' -f $unexpected.Count }
 $storageCountLabel = if ($eventQueryFailed) { '확인 불가' } elseif ($eventsTruncated) { '{0}건 (수집분)' -f $storageErrors.Count } else { '{0}건' -f $storageErrors.Count }
 
 # Optional indication; third-party AV users must not be labeled unprotected.
@@ -164,7 +150,7 @@ $report = [ordered]@{
     privacy='보고서에는 사용자 이름, 디스크 일련번호, 이벤트 원문을 의도적으로 수집하지 않습니다. 로컬에만 저장됩니다.'
     caution='진단은 제한적인 신호 검사이며 하드웨어 정상 보증 또는 자동 수리 성공 보증이 아닙니다.'
 }
-$report | ConvertTo-Json -Depth 8 | Out-File -LiteralPath $jsonPath -Encoding utf8 -Force
+$jsonText = $report | ConvertTo-Json -Depth 10
 
 $cards = New-Object 'System.Collections.Generic.List[string]'
 foreach ($i in $report.issues) {
@@ -227,7 +213,41 @@ footer{color:#a7a0b4;font-size:12px;line-height:1.7;margin-top:30px}li{line-heig
 <section><h2>검사 한계</h2><ul>$($limRows -join "`n")</ul><p class="small">Windows $(Esc $report.observations.windows.name) · 검사 기간: $Days 일 · 생성 $(Esc $report.generatedAt)</p></section>
 <footer>AXMART PC CARE v0.1 테스트용 제품. 하드웨어 자체 검사, 메모리 덤프 분석, 악성코드 전수 검사, 수리 성공 보증은 제공하지 않습니다. BitLocker 복구키는 절대 입력하거나 이 도구에 저장하지 마세요.<br>결과는 이 기기에만 저장하며 인터넷으로 전송하지 않습니다. 판매 준비 전 실제 Windows 환경 검증이 필요합니다.</footer></main></body></html>
 "@
-[System.IO.File]::WriteAllText($htmlPath, $html, (New-Object System.Text.UTF8Encoding($false)))
+# Do not report success until both outputs are safely persisted.
+# A writable directory is not guaranteed by New-Item; a USB may be read-only.
+function Save-PcCareReportPair {
+    param([string]$JsonText, [string]$HtmlText, [string[]]$Candidates, [string]$FileBase)
+    $utf8 = New-Object System.Text.UTF8Encoding($false)
+    foreach ($folder in $Candidates) {
+        if ([string]::IsNullOrWhiteSpace($folder)) { continue }
+        $tempJson = Join-Path $folder ($FileBase + '.json.partial')
+        $tempHtml = Join-Path $folder ($FileBase + '.html.partial')
+        $finalJson = Join-Path $folder ($FileBase + '.json')
+        $finalHtml = Join-Path $folder ($FileBase + '.html')
+        try {
+            New-Item -ItemType Directory -Path $folder -Force -ErrorAction Stop | Out-Null
+            [System.IO.File]::WriteAllText($tempJson, $JsonText, $utf8)
+            [System.IO.File]::WriteAllText($tempHtml, $HtmlText, $utf8)
+            Move-Item -LiteralPath $tempJson -Destination $finalJson -ErrorAction Stop
+            Move-Item -LiteralPath $tempHtml -Destination $finalHtml -ErrorAction Stop
+            return @{ json=$finalJson; html=$finalHtml }
+        } catch {
+            Write-Warning ('보고서 저장 위치 사용 불가: {0} ({1})' -f $folder,$_.Exception.GetType().Name)
+            foreach ($owned in @($tempJson,$tempHtml,$finalJson,$finalHtml)) {
+                Remove-Item -LiteralPath $owned -Force -ErrorAction SilentlyContinue
+            }
+        }
+    }
+    throw '보고서 JSON/HTML 저장에 실패했습니다. 원본 시스템에는 변경을 가하지 않았습니다. 저장 공간 및 쓰기 권한을 확인하세요.'
+}
+$reportCandidates = @(Join-Path $root 'REPORTS')
+$documents = [Environment]::GetFolderPath('MyDocuments')
+if (-not [string]::IsNullOrWhiteSpace($documents)) {
+    $reportCandidates += (Join-Path $documents 'AXMART-PC-CARE-Reports')
+}
+$savedFiles = Save-PcCareReportPair -JsonText $jsonText -HtmlText $html -Candidates $reportCandidates -FileBase $base
+$jsonPath = $savedFiles.json
+$htmlPath = $savedFiles.html
 Write-Host ('Assessment: ' + $assessment) -ForegroundColor Green
 Write-Host ('Saved JSON : ' + $jsonPath)
 Write-Host ('Saved report: ' + $htmlPath)
