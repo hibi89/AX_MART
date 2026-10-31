@@ -6,9 +6,12 @@ const fs = require("node:fs");
 const path = require("node:path");
 const script = fs.readFileSync(path.join(__dirname,"../ui/history_compare.js"),"utf8");
 function sample(time,code) {
+  const critical=code==="DISK_SPACE_CRITICAL";
   return { schemaVersion:1,product:"AXMART PC CARE",mode:"read-only",generatedAt:time,
     assessment:"주의 필요",issues:[{code}],observations:{eventCollection:"collected",eventWindowDays:30,
-    bugchecks:[],unexpectedShutdowns:[],storageEvents:[],volumes:[],physicalDisks:[]}};
+    collectionStatus:{events:"collected",volumes:"collected",physicalDisks:"collected"},eventEvidence:[],volumeRejectedCount:0,
+    bugchecks:[],unexpectedShutdowns:[],storageEvents:[],volumes:[{drive:"C:",sizeGB:100,remainingGB:critical?4:10}],
+    physicalDisks:[{status:"Healthy"}]}};
 }
 const earlier = sample("2026-10-29 11:00:00 +09:00","DISK_SPACE_LOW");
 const later = sample("2026-10-30 11:00:00 +09:00","DISK_SPACE_CRITICAL");
@@ -45,7 +48,7 @@ test("DOM flow: successful offline comparison displays only user-facing summary"
   const a=setup();a.choose("previous-json",file(earlier));a.choose("current-json",file(later));
   await a.click();
   assert.match(a.output.textContent,/DISK_SPACE_CRITICAL/);
-  assert.match(a.output.textContent,/DISK_SPACE_LOW/);
+  assert.doesNotMatch(a.output.textContent,/DISK_SPACE_LOW/);
   assert.equal(a.button.disabled,false);
 });
 test("DOM flow: oversized file is rejected without invoking text()",async()=>{

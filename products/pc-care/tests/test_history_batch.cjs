@@ -9,8 +9,18 @@ function fakeFile(obj,name="sensitive-user-path.json") {
   const raw=JSON.stringify(obj);
   return {name,size:raw.length,text:async()=>raw};
 }
-function report(time,code="DISK_SPACE_LOW") {return {schemaVersion:1,product:"AXMART PC CARE",mode:"read-only",generatedAt:time,
-  assessment:"주의 필요",issues:[{code}],observations:{eventWindowDays:30,eventCollection:"collected",collectionStatus:{physicalDisks:"collected"},bugchecks:[],unexpectedShutdowns:[],storageEvents:[],volumes:[],physicalDisks:[{status:"Healthy"}]}};}
+function report(time,code="DISK_SPACE_LOW") {
+ const bugcheck=code==="BUGCHECK",update=code==="WINDOWS_UPDATE_FAILURE_RECORD";
+ const eventEvidence=bugcheck?[{kind:"bugcheck_record",provider:"BugCheck",eventId:1001,timeBasis:"event_recorded_time",recordedUtc:"2026-10-29T01:00:00.0000000Z"}]:[];
+ const updateEvidence=update?[{kind:"update_installation_failure_record",provider:"Microsoft-Windows-WindowsUpdateClient",eventId:20,timeBasis:"event_recorded_time",recordedUtc:"2026-10-29T01:00:00.0000000Z"}]:[];
+ const freeGB=code==="DISK_SPACE_LOW"?10:20;
+ return {schemaVersion:1,product:"AXMART PC CARE",mode:"read-only",generatedAt:time,
+  assessment:"주의 필요",issues:[{code}],observations:{eventWindowDays:30,eventCollection:"collected",
+   collectionStatus:{physicalDisks:"collected",events:"collected",volumes:"collected",windowsUpdate:"collected"},
+   eventEvidence,bugchecks:bugcheck?[{time:"2026-10-29T10:00:00.000+09:00",stopCode:"0x0000000A"}]:[],unexpectedShutdowns:[],storageEvents:[],
+   volumes:[{drive:"C:",sizeGB:100,remainingGB:freeGB}],volumeRejectedCount:0,physicalDisks:[{status:"Healthy"}],
+   windowsUpdate:{status:"collected",evidence:updateEvidence,installationFailureRecords:update?1:0,installationSuccessRecords:0}}};
+}
 const dates=["2026-10-27 09:00:00 +09:00","2026-10-29 09:00:00 +09:00","2026-10-30 09:00:00 +09:00"];
 function setup() {
  const callbacks=new Map();

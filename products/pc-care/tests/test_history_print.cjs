@@ -77,7 +77,10 @@ test("successful comparison builds private summary and prints only on click",asy
  await f.click();
  const s=f.elements["history-print-text"].textContent;
  assert.equal(f.elements["print-history"].disabled,false);
- assert.match(s,/STORAGE_EVENTS/);
+ // The fixture has no validated storage-event evidence, so an issue code alone
+ // must not become a customer-facing warning in the printable summary.
+ assert.match(s,/신규 경고  없음/);
+ assert.doesNotMatch(s,/STORAGE_EVENTS/);
  assert.doesNotMatch(s,/PRIVATE_John_Doe|user.name|serial.number/i);
  assert.equal(f.counts.print,0);
  await f.print();

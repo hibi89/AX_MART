@@ -186,8 +186,8 @@ function ConvertTo-PcCareVolumeSample {
     }
 }
 
-// Compute warning thresholds from unrounded byte counts, never display-rounded
-// remainingGB/freePercent. Rounding can hide a 4.96 GB/4.96% critical disk.
+# Compute warning thresholds from unrounded byte counts, never display-rounded
+# remainingGB/freePercent. Rounding can hide a 4.96 GB/4.96% critical disk.
 function Get-PcCareVolumeRisk {
     [CmdletBinding()]
     param([object]$Sample)

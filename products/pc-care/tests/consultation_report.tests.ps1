@@ -21,6 +21,7 @@ $report = [ordered]@{
     observations=[ordered]@{
         windows=[ordered]@{ name='PRIVATE-DEVICE'; build='26100' }
         eventCollection='truncated'
+        collectionStatus=[ordered]@{ physicalDisks='collected' }
         eventEvidence=@($privateEvent)
         windowsUpdate=[ordered]@{
             status='unavailable'
