@@ -133,24 +133,10 @@ function ConvertTo-PcCareStorageMetrics {
     $wear = $null
     $temperature = $null
     if ($null -ne $Counter) {
-        try {
-            if ($null -ne $Counter.Wear) {
-                $candidate = [double]$Counter.Wear
-                if (-not [double]::IsNaN($candidate) -and -not [double]::IsInfinity($candidate) -and
-                    $candidate -gt 0 -and $candidate -le 100 -and $candidate -eq [math]::Truncate($candidate)) {
-                    $wear = [int]$candidate
-                }
-            }
-        } catch {}
-        try {
-            if ($null -ne $Counter.Temperature) {
-                $candidate = [double]$Counter.Temperature
-                if (-not [double]::IsNaN($candidate) -and -not [double]::IsInfinity($candidate) -and
-                    $candidate -gt 0 -and $candidate -le 125 -and $candidate -eq [math]::Truncate($candidate)) {
-                    $temperature = [int]$candidate
-                }
-            }
-        } catch {}
+        $candidate = ConvertTo-PcCareIntegralValue -Value $Counter.Wear -Minimum 1 -Maximum 100
+        if ($null -ne $candidate) { $wear = [int]$candidate }
+        $candidate = ConvertTo-PcCareIntegralValue -Value $Counter.Temperature -Minimum 1 -Maximum 125
+        if ($null -ne $candidate) { $temperature = [int]$candidate }
     }
     return [pscustomobject]@{ wearPercent=$wear; temperatureC=$temperature }
 }
@@ -165,6 +151,7 @@ function ConvertTo-PcCareVolumeSample {
         $drive = ([string]$Volume.DeviceID).ToUpperInvariant()
         if ($drive -cnotmatch '^[A-Z]:$') { return $null }
         if ($null -eq $Volume.Size -or $null -eq $Volume.FreeSpace) { return $null }
+        if ($Volume.Size -is [bool] -or $Volume.FreeSpace -is [bool]) { return $null }
         $capacity = [double]$Volume.Size
         $remaining = [double]$Volume.FreeSpace
         if ([double]::IsNaN($capacity) -or [double]::IsInfinity($capacity) -or

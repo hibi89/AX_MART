@@ -94,6 +94,8 @@ $negativeStorage = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ W
 Assert-Telemetry ($null -eq $negativeStorage.wearPercent -and $null -eq $negativeStorage.temperatureC) 'Reject invalid negative readings'
 $fractionalStorage = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear=12.5; Temperature=36.5 })
 Assert-Telemetry ($null -eq $fractionalStorage.wearPercent -and $null -eq $fractionalStorage.temperatureC) 'Reject uncertain decimal rounding'
+$booleanStorage = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear=$true; Temperature=$true })
+Assert-Telemetry ($null -eq $booleanStorage.wearPercent -and $null -eq $booleanStorage.temperatureC) 'Boolean sensor values stay unknown'
 $independentStorage = ConvertTo-PcCareStorageMetrics -Counter ([pscustomobject]@{ Wear='PRIVATE-SERIAL'; Temperature=37 })
 Assert-Telemetry ($null -eq $independentStorage.wearPercent -and $independentStorage.temperatureC -eq 37) 'Invalid wear must not hide valid temperature'
 Assert-Telemetry (($independentStorage | ConvertTo-Json -Compress) -notmatch 'PRIVATE') 'Reject raw private readings'
@@ -115,6 +117,8 @@ $invalidVolumes = @(
     [pscustomobject]@{ DeviceID='C:'; Size='Infinity'; FreeSpace=1 },
     [pscustomobject]@{ DeviceID='C:'; Size=(100 * 1GB) + 0.5; FreeSpace=(5 * 1GB) },
     [pscustomobject]@{ DeviceID='C:'; Size=(100 * 1GB); FreeSpace=(5 * 1GB) + 0.5 },
+    [pscustomobject]@{ DeviceID='C:'; Size=$true; FreeSpace=1 },
+    [pscustomobject]@{ DeviceID='C:'; Size=(10 * 1GB); FreeSpace=$true },
     [pscustomobject]@{ DeviceID='C:'; Size='PRIVATE-VALUE'; FreeSpace=1 },
     [pscustomobject]@{ DeviceID='C:'; Size=(10 * 1GB); FreeSpace=-1 },
     [pscustomobject]@{ DeviceID='C:'; Size=(10 * 1GB); FreeSpace=(11 * 1GB) },
