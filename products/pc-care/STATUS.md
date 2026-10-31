@@ -578,3 +578,10 @@
 - H08 per-file and aggregate boundaries are tested exactly and at +1 byte; 25-report batch accepted.
 - Latest full runner: Python 81 (78 PASS/3 SKIP), Node 117 PASS, internal ZIP PASS, Windows PowerShell 5.1 synthetic PASS. Standalone share fixture passed after final description-only edit.
 - Actual browser, QR decode, printed A4/PDF, physical USB, live diagnosis and WinRE remain UNVERIFIED; Release A HOLD. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — Unicode path follow-up
+- QA receipt path output uses safe console encoding. Strict CP949 + emoji directory regression passes.
+- CMD full runner works from a Korean+space directory; all four gates pass.
+- Python 82 total (79 PASS/3 SKIP), Node 117 PASS, internal ZIP PASS, Windows PowerShell 5.1 synthetic PASS after receipt fix.
+- Browser/file://, QR camera, A4/PDF, physical USB, live device and WinRE remain unverified. Release A HOLD.

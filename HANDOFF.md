@@ -540,3 +540,11 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - Full offline QA on this source change: cmd.exe /d /c products\pc-care\RUN_RELEASE_QA.cmd exit 0; Python 81 total / 78 PASS / 3 SKIP; Node 117 PASS; internal ZIP integrity/manifest/SHA256 PASS; Windows PowerShell 5.1 synthetic PASS. After the final assertion-description-only test edit, tests/share_payload.tests.ps1 also passed directly.
 - Code/test commits: 7607a15ae22411bf6efe8698a091abc0fd1f1787 (QR/H08 boundaries), 17114e572342d84596f023e5e00ece5a53674ffd (share alias dedupe fixture). Latest branch HEAD will be the following handoff commit; main remains fbb32362455378b85bcdd0b5037d1f338055fb71.
 - Edge/file:// automation, physical QR decoding, A4/PDF print, removable USB, real Windows diagnosis and WinRE remain unverified. Release A remains HOLD. Original local project, user data and production unchanged. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — Unicode path and receipt output follow-up
+- Windows CMD full QA launcher was run from an isolated copy in a Korean directory containing spaces; Python, Node, ZIP and PowerShell 5.1 gates all passed. The receipt file was created and parsed successfully there.
+- That run exposed mojibake in the receipt-path console line under a legacy Korean code page. Updated preflight to route receipt output through safe_console_text; added strict CP949 regression using a directory name containing an emoji. Python targeted tests 2/2 PASS.
+- Latest Python suite: 82 total / 79 PASS / 3 SKIP. Latest full QA after the fix, in the normal isolated path: exit 0; Node 117 PASS, internal ZIP PASS, Windows PowerShell 5.1 synthetic PASS. Last full QA in the Korean+space path was before this final console-line adjustment; that run also passed all four gates.
+- Code commit 54f92ced99796f3791d9ed28d0d4d8f3916c1b9f follows QR/H08 commits 7607a15..., 17114e5.... Latest remote branch head will be the docs commit; main remains fbb32362455378b85bcdd0b5037d1f338055fb71.
+- Original local project and user data untouched; no live diagnosis, repairs, USB hardware, WinRE or deployment. Browser/camera/A4 PDF acceptance remains unverified. Updated 2026-10-31 KST.

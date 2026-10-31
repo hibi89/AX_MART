@@ -420,3 +420,11 @@ Node 18 compatibility follow-up: removed the Node 18.15+ TAP reporter option; bo
 - Full runner exit 0: Python 81 (78 PASS/3 SKIP), Node 117 PASS, ZIP PASS, Windows PowerShell 5.1 synthetic PASS. Standalone share fixture passed after the final wording-only test update.
 - Commits: QR/H08 fix 7607a15ae22411bf6efe8698a091abc0fd1f1787; alias dedupe fixture 17114e572342d84596f023e5e00ece5a53674ffd. main/production unchanged.
 - Browser/camera/A4-PDF/USB hardware/live diagnosis/WinRE remain UNVERIFIED. Release A HOLD. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — Latest independent QA
+- Fixed receipt path console output to use safe host-encoding escaping; regression test runs with strict CP949 output and an emoji-named result folder.
+- Korean+space path copy ran the CMD full QA launcher: all 4 stages PASS. Receipt JSON was present and parsed (Python 81, 3 SKIP; Node 117).
+- After receipt-output fix: Python suite 82 total / 79 PASS / 3 SKIP. Full runner exit 0: Node 117 PASS, internal ZIP PASS, Windows PowerShell 5.1 synthetic PASS.
+- Code commit: 54f92ced99796f3791d9ed28d0d4d8f3916c1b9f on feature/pc-care-usb. main unchanged.
+- Real browser/file://, QR camera, A4/PDF, removable USB, live diagnosis, WinRE and distribution remain UNVERIFIED. Release A HOLD.

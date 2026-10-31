@@ -837,3 +837,7 @@ Code commit 7607a15ae22411bf6efe8698a091abc0fd1f1787 on feature/pc-care-usb tigh
 
 ## 2026-10-31 KST — Final QR/H08 follow-up
 QR omission count and displayed-signal rules are now consistent with the six-category PowerShell producer; duplicate storage aliases are tested and deduplicated. H08 tests cover exact 2 MB and 12 MB boundaries plus 25 selected files. Saved consultation HTML external-resource check passes. Full QA: Python 78 PASS/3 SKIP, Node 117 PASS, ZIP and Windows PowerShell 5.1 synthetic PASS. Commits 7607a15 and 17114e5 are on feature/pc-care-usb. Real browser/QR camera/A4/PDF/USB/live-device/WinRE validation remains outstanding; Release A HOLD.
+
+
+## 2026-10-31 KST — Unicode receipt-path verification
+Final code commit 54f92ced99796f3791d9ed28d0d4d8f3916c1b9f ensures QA receipt paths print safely on legacy code pages and adds a CP949 strict regression with Unicode directory names. Python suite: 82 total / 79 PASS / 3 SKIP; full runner exit 0 with Node 117 PASS, ZIP PASS and Windows PowerShell 5.1 synthetic PASS. The CMD runner also passed from a Korean+space copy. Browser, QR camera, A4/PDF, physical USB/live-device and WinRE checks remain unverified; Release A HOLD. See root HANDOFF.md for full details.
