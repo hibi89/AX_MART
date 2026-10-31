@@ -765,3 +765,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본/보안: 사용자 리포트·로그·원본 손대지 않음. 수리·BitLocker·실파일 백업·자동 전송·권한 변경 없음. 기존 소스 SHA로 비교·복구 가능.
 9. 다음: Windows 환경에서 `RUN_RELEASE_QA.cmd` → `QA_RESULTS`에서 SHA 일치 결과 → 읽기 전용 실진단 → QR/A4/USB → 별도 승인 WinRE. 필수 QA 불합격·미실행 시 공개 금지.
 10. 기준: 2026-10-31 KST, GitHub 파일 원본/CI 메타데이터 확인. 문서 갱신 커밋은 실제 GitHub HEAD로 확인하며 WinPS5.1/실기기 검증은 미완료.
+
+## 2026-10-31 KST — CUBE QA 판정 및 수리 로그 경계 수정 인수인계
+1. 목표·요구·기술: AXMART PC CARE Release A의 안전한 로컬 Windows 진단→분석→보고서와 승인형 수리; PowerShell 5.1/CMD/Python/JS, `products/pc-care/docs/FINAL_SPEC_V2.md` 확정 범위.
+2. 완료·결정: `preflight.py`의 Node 문법-only/ZIP 빌드-only 성공을 전체 단계 PASS 처리할 수 있던 판정 취약점 차단. `repair.ps1`의 동기화될 수 있는 Documents 로그 fallback 제거, `report_io.ps1` 로컬/드라이브/junction 검사와 CreateNew/FileShare.None 스트림 이용; 첫 수리 명령보다 앞서 로그 준비 실패시 차단. 기존 2회 승인·저장장치 가드 유지.
+3. 테스트·범위: GitHub 원본 정적 규약 16/16 PASS, 별도 소규모 native Python 로직 재현 11/11 PASS. **full repo Python/Node/PS5.1, Windows 실기기·USB/QR/A4·WinRE/실 수리·ZIP/CI 미실행.** 이 수치는 제품 기능 합격률이 아님.
+4. 단계: Release A 실제 Windows 수용검사 대기. Release B 실제 WinRE 파일 복사 미구현·미검증. 출시 HOLD. 전체 완성률 약 50%라는 이전 추정치 유지(검증 수치 아님).
+5. 오류·근거·시도·대안: QA 단계명만으로 거짓 PASS 가능, 승인 수리 로그 Documents 동기화 우려 발견. 중간 단계 PASS 금지·비공개 스트림 기록으로 수정. 과거 Actions run 41034866482 failure/steps 0/log BlobNotFound; 반복 CI dispatch 금지. 대안: Windows native 합성 QA→격리 Windows read-only QA→WinRE 별도 승인.
+6. 경로·브랜치·SHA: `hibi89/AX_MART`/`feature/pc-care-usb`, 시작 `a687b7be242dd9b88023f488733363dce1e04c81`, 소스/테스트 마지막 커밋 `7054447240658a1cd510f0f9d7c40d91b94020b0`. 수정 파일 `products/pc-care/tools/{preflight.py,report_io.ps1,repair.ps1}` + 3개 테스트.
+7. Production·명령·환경: `main`/Cloudflare `https://ax-mart.pages.dev/` 미변경; PC CARE 기능 브랜치 운영 미배포. 테스트 `products/pc-care/RUN_RELEASE_QA.cmd`, Python 3.11+ / Node / Windows PowerShell 5.1 필요; 현 환경 WinPS5.1 없음.
+8. 백업·인증·원본: 시작 SHA로 소스 복구 가능, 사용자 실제 로그/REPORTS/고객 파일·시스템 수리/계정/클라우드/BitLocker/WinRE 변경 없음. 로컬 로그는 개인정보 가능하므로 자동 업로드·GitHub 저장·동기화 경로 금지.
+9. 다음 우선순위·기준: Windows native PS5.1 parser+합성 → Python/Node/ZIP → 읽기 전용 실제 보고서·H08·QR/A4/USB. 실 수리/WinRE는 별도 격리 및 명시 승인. 핵심 QA 실패/미실행 시 베타 다운로드/판매 차단.
+10. 확인 범위·갱신: 2026-10-31 KST. GitHub 파일 원본 정적 readback 및 격리된 Python 판정 재현만. 문서 커밋 후 실제 HEAD 재조회, Production 미적용.
