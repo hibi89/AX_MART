@@ -411,3 +411,12 @@ Node 18 compatibility follow-up: removed the Node 18.15+ TAP reporter option; bo
 - H08 tests now cover 25 JSON files at exactly 12 MB, +1 byte aggregate rejection before read, 2 MB individual-file acceptance, and +1 byte rejection before read. Report-pair E2E asserts saved HTML has no external network resource references.
 - All Node suites: 117 PASS. Full Release QA: exit 0; Python 81 total / 78 PASS / 3 SKIP; Node 117 PASS; internal ZIP verification PASS; Windows PowerShell 5.1 synthetic PASS.
 - Actual Edge/file:// interaction, QR camera decode, printed A4/PDF, physical USB and real-device diagnosis remain UNVERIFIED. Release A HOLD. main/production unchanged. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — Additional independent Release A work
+- QR UI now accepts only truthful omission counts 1–4, paired with two displayed distinct allowlisted signals. Share payload fixture verifies six unique categories, duplicate storage aliases, and four omitted signals.
+- H08 file selection tests cover 2,000,000 bytes/file and 12,000,000 bytes total at boundary, 25-file batch, and +1-byte rejection before reading.
+- Saved consultation HTML is checked for external network resource references.
+- Full runner exit 0: Python 81 (78 PASS/3 SKIP), Node 117 PASS, ZIP PASS, Windows PowerShell 5.1 synthetic PASS. Standalone share fixture passed after the final wording-only test update.
+- Commits: QR/H08 fix 7607a15ae22411bf6efe8698a091abc0fd1f1787; alias dedupe fixture 17114e572342d84596f023e5e00ece5a53674ffd. main/production unchanged.
+- Browser/camera/A4-PDF/USB hardware/live diagnosis/WinRE remain UNVERIFIED. Release A HOLD. Updated 2026-10-31 KST.

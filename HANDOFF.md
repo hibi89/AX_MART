@@ -532,3 +532,11 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. Safety: no live system diagnosis, repair, user data, USB, BitLocker, WinRE, account/security, merge or deployment. Original local project untouched. No downloads or package installs.
 9. Next priorities: (a) authorized Edge/file:// user-flow and print/PDF acceptance, (b) QR camera decode and removable USB insertion/removal, (c) dedicated Windows 11 read-only acceptance; keep Release A HOLD pending those results.
 10. Readiness: remains roughly **70%** (engineering estimate, not measured). Synthetic correctness improved; hardware/browser/print gates remain. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — QR/H08 boundary work completion
+- Continued independently from FINAL_SPEC_V2 on an isolated GitHub-source snapshot. QR omission validation now matches its producer: only 1–4 omitted signals, and exactly two distinct allowed signals must be visible when omissions are reported. The PowerShell share fixture covers all six signal categories plus the duplicate storage aliases and confirms deduplication.
+- H08 regression coverage now includes exact 2 MB individual JSON and 12 MB aggregate limits, 25-file acceptance, and reject-before-read checks one byte above either size limit. Report JSON/HTML fixture asserts no external network resource reference.
+- Full offline QA on this source change: cmd.exe /d /c products\pc-care\RUN_RELEASE_QA.cmd exit 0; Python 81 total / 78 PASS / 3 SKIP; Node 117 PASS; internal ZIP integrity/manifest/SHA256 PASS; Windows PowerShell 5.1 synthetic PASS. After the final assertion-description-only test edit, tests/share_payload.tests.ps1 also passed directly.
+- Code/test commits: 7607a15ae22411bf6efe8698a091abc0fd1f1787 (QR/H08 boundaries), 17114e572342d84596f023e5e00ece5a53674ffd (share alias dedupe fixture). Latest branch HEAD will be the following handoff commit; main remains fbb32362455378b85bcdd0b5037d1f338055fb71.
+- Edge/file:// automation, physical QR decoding, A4/PDF print, removable USB, real Windows diagnosis and WinRE remain unverified. Release A remains HOLD. Original local project, user data and production unchanged. Updated 2026-10-31 KST.

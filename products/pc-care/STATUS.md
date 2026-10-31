@@ -571,3 +571,10 @@
 - Report JSON/HTML E2E asserts no external network-resource references.
 - Full runner: Python 81 (78 PASS/3 SKIP), Node 117 PASS, internal ZIP PASS, Windows PowerShell 5.1 synthetic PASS. All nine Node suites 117/117 PASS.
 - Browser interaction, QR camera, A4/PDF, USB hardware, and live diagnosis still unverified. Release A HOLD. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — QR/H08 additional work
+- QR omission marker is constrained to 1–4 and requires exactly two visible signals; tests cover maximum, out-of-range values, and producer alias deduplication.
+- H08 per-file and aggregate boundaries are tested exactly and at +1 byte; 25-report batch accepted.
+- Latest full runner: Python 81 (78 PASS/3 SKIP), Node 117 PASS, internal ZIP PASS, Windows PowerShell 5.1 synthetic PASS. Standalone share fixture passed after final description-only edit.
+- Actual browser, QR decode, printed A4/PDF, physical USB, live diagnosis and WinRE remain UNVERIFIED; Release A HOLD. Updated 2026-10-31 KST.
