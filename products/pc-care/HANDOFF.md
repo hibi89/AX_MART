@@ -801,3 +801,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. **백업·권한·금지**: 원본 고객 데이터/기존 ZIP 보존, 새 공개·유료/권한/BitLocker/수리/WinRE/클라우드 동기화 변경 없음. 민감 로그/REPORTS/QA_RESULTS GitHub 커밋 금지. 복구 비교 기준은 작업 전 SHA.
 9. **다음 우선순위**: 실제 Windows full QA(4개 독립 단계)→원본 ZIP 재생성/체크섬→읽기 전용 JSON/HTML→H08/QR/A4/USB → 별도 승인 WinRE. 공식 테스트 실패 해결 전 릴리스 금지.
 10. **갱신 시점·검증 범위**: 2026-10-31 18:16 KST; GitHub 원본 readback 12개 정적 확인과 축소 helper 기반 Python native 동작 테스트만. 문서 커밋 후 HEAD 재검증. Production 미적용.
+
+## 2026-10-31 KST — CUBE 디스크 공간 경계값 수정 인수인계
+1. **목표·확정 요구·기술**: AXMART PC CARE의 PowerShell5.1 안전한 로컬 진단·근거분석·JSON/HTML, 기존 `FINAL_SPEC_V2.md` 중 H02 정확한 용량 경고. Windows/USB, Python 회귀·JS 보고서, 승인형 복구는 독립 경계.
+2. **완료 기능·결정**: `tools/telemetry_analysis.ps1`의 정규화 내부 raw bytes 추가 및 `Get-PcCareVolumeRisk` 순수 함수로 5GiB/5%/15% 문턱 계산. `tools/diagnose.ps1`가 출력용 1자리 반올림 수치 대신 원시 바이트로 중대·주의 위험 판정. 기존 출력/보고서 형식 유지, 자동 파일 삭제 없음.
+3. **테스트·성공/실패·미검증**: Python 독립 경계값 수식 재현 8/8 PASS; GitHub blob 원본 정적 12/12 PASS. PowerShell 9개 fixture assertion·Python 소스 회귀 1개 추가했으나 **실제 PS5.1/정식 Python 테스트 미실행**. Node/내부 ZIP/실기기/H08/QR/A4/WinRE/수리/CI 미검증. 독립 Python 재현은 PowerShell native PASS가 아님.
+4. **단계·중단 지점**: 코드/회귀 커밋 완료, 실제 Windows 수용검증 대기. 전체 약 50%는 이전 총량 추정, Release A/B 출시 HOLD; Release B 백업 별도 구현/시험 필요.
+5. **오류·근거·시도·대안**: 용량 반올림 후 경계 비교로 false negative 가능 확인(100GiB/4.96GiB는 화면 5.0/5.0). 내부 원시 용량 기반 판정으로 수정. 현 컨테이너 git remote DNS 실패, WinPS5.1 부재; Windows checkout 및 RUN_RELEASE_QA.cmd를 우선으로 전환. 기존 Actions 41034866482 failure/steps 0/log unavailable 원인 미확정.
+6. **저장소·브랜치·SHA·주요 경로**: `hibi89/AX_MART`/`feature/pc-care-usb`, 시작 `1582b208a366559bb51278e8e580bb419086e4d5`; 변경 코드 `a5dec27ba89d9b74bc1ba4211284704f86810283` → `26d98ab73c6ca11f16e32ccaa7f6429b98e64467`, 테스트 `0b010a93d110129f4ea2f4f375e706084d48f1a2` → `bb716c9e9fb092619d65e2ed96be13979bc30025`.
+7. **Production·명령·환경**: `main=fbb32362455378b85bcdd0b5037d1f338055fb71`, `https://ax-mart.pages.dev/` 변경 없음. 브랜치 제품 미배포. 검증 명령 `products/pc-care/RUN_RELEASE_QA.cmd` (Windows PS5.1/Python/Node/ZIP).
+8. **원본·백업·인증·수정 금지**: 사용자 파일/드라이브/OS/권한/BitLocker/WinRE/실수리·공개배포 불변. 원본 백업·비교 Git 기준 SHA `1582b208...`. 개인정보 보고서·QA_RESULTS/REPORTS/비밀키 GitHub 커밋 금지.
+9. **다음 작업/완료 기준/승인**: Windows PS5.1 구문+합성 9개 신설 edge 포함 native suite → Python/Node/ZIP 전체 QA → 읽기 전용 실기기 JSON/HTML 및 H08/QR/A4/USB 증거 확보 → WinRE/수리 안전성은 별도 격리·승인. 미검증 상태에서 판매·무료 출시 불가.
+10. **갱신/근거**: 2026-10-31 KST, 현 작업은 GitHub 직접 소스 확인·Python 독립 테스트만, Windows/Production 미검증. 문서 커밋 후 HEAD 읽어 동일성 확인.
