@@ -120,6 +120,8 @@ def run_qa(root: Path, *, windows_synthetic: bool | None = None) -> dict:
             if not match or int(match.group(1)) < 1:
                 return dict(name='python-tests',status='fail',output='No Python tests verified')
             result['tests']=int(match.group(1))
+            skipped=re.search(r'\bskipped=([0-9]+)\b',result['output'])
+            result['skipped']=int(skipped.group(1)) if skipped else 0
         return result
     def node_suite():
         if not node:
