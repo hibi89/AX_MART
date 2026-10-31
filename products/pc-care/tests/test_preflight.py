@@ -56,6 +56,39 @@ class PreflightTests(unittest.TestCase):
                 node_call=next(argv for name,argv in calls if name=='node-tests')
                 self.assertEqual(node_stage['tests'],1)
                 self.assertNotIn('--test-reporter=tap',node_call)
+    def test_qa_receipt_records_skipped_fixtures_without_private_output(self):
+        # Both Node 18 TAP and newer Node SPEC summaries occur on supported hosts.
+        for node_output in ('# tests 3\n# skipped 1\n', chr(0x2139)+' tests 3\n'+chr(0x2139)+' skipped 1\n'):
+            with self.subTest(node_output=node_output), TemporaryDirectory() as tmp:
+                def fake_cmd(name, argv, **kwargs):
+                    output = ('Ran 4 tests in 0.01s\nOK (skipped=3)\n' if name=='python-tests'
+                              else node_output if name=='node-tests' else '')
+                    return dict(name=name,status='pass',exit_code=0,output=output)
+                with patch.object(preflight,'command',side_effect=fake_cmd),\
+                     patch.object(preflight.shutil,'which',return_value='node'),\
+                     patch.object(preflight,'JS_SCRIPTS',()),\
+                     patch.object(preflight,'NODE_TESTS',('tests/sample.cjs',)),\
+                     patch.object(preflight.Path,'is_file',return_value=True):
+                    result=preflight.run_qa(Path(tmp),windows_synthetic=False)
+                by_name={stage['name']:stage for stage in result['stages']}
+                self.assertEqual(by_name['python-tests']['skipped'],3)
+                self.assertEqual(by_name['node-tests']['skipped'],1)
+                receipt=preflight.safe_qa_receipt(result)
+                sanitized={stage['name']:stage for stage in receipt['stages']}
+                self.assertEqual(sanitized['python-tests']['skipped'],3)
+                self.assertEqual(sanitized['node-tests']['skipped'],1)
+                self.assertNotIn('output',str(receipt))
+                self.assertNotEqual(receipt['status'],'pass')  # Windows suite not run.
+
+        full=[{'name':'python-tests','status':'pass','tests':5,'skipped':True},
+              {'name':'node-tests','status':'pass','tests':10,'skipped':11},
+              {'name':'internal-zip','status':'pass'},
+              {'name':'windows-powershell-51-synthetic','status':'pass'}]
+        receipt=preflight.safe_qa_receipt({'status':'pass','stages':full})
+        self.assertNotIn('skipped',receipt['stages'][0])  # bool is not an integer.
+        self.assertNotIn('skipped',receipt['stages'][1])  # impossible count.
+        self.assertEqual(receipt['status'],'pass')
+
     def test_status_requires_native_windows_stage(self):
         classify = preflight.classify_qa_status
         self.assertEqual(classify([]), 'fail')
