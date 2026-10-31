@@ -879,3 +879,11 @@ Final code commit 54f92ced99796f3791d9ed28d0d4d8f3916c1b9f ensures QA receipt pa
 - No more attempts with the incomplete snapshot. Resolve by running `cmd.exe /d /c products\\pc-care\\RUN_RELEASE_QA.cmd` in a complete Windows checkout. A clean aggregate run after this final patch is still pending.
 - No live diagnosis, repairs, device/user data, permissions, BitLocker, WinRE copy, deployment or paid service. Browser/camera/A4-PDF/physical USB/WinRE acceptance remains UNVERIFIED. Release A remains HOLD.
 - Updated 2026-10-31 KST.
+
+
+## 2026-10-31 21:07 KST — invalid event RecordId no longer collapses evidence
+- Code commit `ff4042b27ec5b43839518b85fe977479d635da2b` on `feature/pc-care-usb`. System and Windows Update normalizers now use RecordId for deduplication only when it is a valid invariant positive integer. Malformed booleans/fractions no longer coerce to a shared integer key and silently discard a second event; without a safe RecordId, separate observations are retained.
+- Added synthetic regressions for malformed IDs in System and Update streams. Direct Windows PowerShell 5.1 fixtures `tests/event_analysis.tests.ps1` and `tests/telemetry_analysis.tests.ps1` both PASS after this commit.
+- No full launcher rerun after this patch. Latest launcher evaluation before it was on an incomplete reconstructed source snapshot: Python reported one FileNotFound error for root `.gitignore` and 3 skips after 78 passes; Node, internal ZIP and PS 5.1 synthetic stages passed. One earlier snapshot try also lacked the root workflow fixture (4 Python errors). A successful aggregate PASS exists immediately before these final focused follow-ups (Python 82 total/79 pass/3 skip; Node 117 pass; ZIP and PS 5.1 pass), but it is not a run of current HEAD.
+- Required next verification: `cmd.exe /d /c products\\pc-care\\RUN_RELEASE_QA.cmd` from a complete checkout containing repository root files. Do not treat partial reconstructed-snapshot results as aggregate PASS.
+- No device diagnosis, repair, dangerous command, customer data, main/Production or permission change. Browser/camera/A4-PDF/physical USB/WinRE remain UNVERIFIED; Release A HOLD. Original local project untouched. Updated 2026-10-31 KST.

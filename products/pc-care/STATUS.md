@@ -618,3 +618,10 @@
 - Full aggregate after final patch needs rerun from complete Windows checkout. No repeated retry was made after snapshot omissions.
 - Real Edge/file://, QR camera, A4/PDF, USB hardware, live diagnosis, WinRE/repair are UNVERIFIED. Release A remains HOLD (~70% rough estimate).
 - Original local project/device/user data and main/Cloudflare Production unchanged. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 21:07 KST — event dedupe guard latest
+- Code SHA `ff4042b27ec5b43839518b85fe977479d635da2b` on `feature/pc-care-usb`: invalid boolean/fractional RecordId does not collapse separate System/Update event rows. Relevant two PowerShell 5.1 fixtures PASS.
+- No full launcher after this final patch. Latest launcher attempt before it used a reconstructed snapshot missing root `.gitignore`: Python 78 PASS/1 error/3 SKIP; Node 117 PASS, ZIP PASS, PowerShell synthetic PASS. Earlier complete-snapshot aggregate before latest focused follow-ups was 82 Python total/79 PASS/3 SKIP, Node 117 PASS, ZIP/PowerShell PASS. Current aggregate remains pending a complete checkout; do not claim PASS for current HEAD.
+- main remains `fbb32362455378b85bcdd0b5037d1f338055fb71`. No local original project/device/user data or Production touched.
+- Browser, QR camera, A4/PDF, USB hardware, real diagnosis and WinRE remain UNVERIFIED. Release A HOLD. Updated 2026-10-31 KST.
