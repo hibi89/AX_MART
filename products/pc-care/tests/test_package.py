@@ -380,6 +380,24 @@ class PackageTests(unittest.TestCase):
         self.assertLess(text.index("Get-PhysicalDisk"), text.index("Read-Host 'Type BACKUP"))
         self.assertLess(text.index("Read-Host 'Type REPAIR"), text.index("/RestoreHealth"))
 
+    def test_volume_warning_thresholds_use_unrounded_evidence(self):
+        telemetry = (ROOT/'tools/telemetry_analysis.ps1').read_text(encoding='utf-8-sig')
+        diagnostic = (ROOT/'tools/diagnose.ps1').read_text(encoding='utf-8-sig')
+        fixture = (ROOT/'tests/telemetry_analysis.tests.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn('remainingBytes = $remaining', telemetry)
+        self.assertIn('function Get-PcCareVolumeRisk', telemetry)
+        self.assertIn('($free / $size) -lt 0.05', telemetry)
+        self.assertIn('($free / $size) -lt 0.15', telemetry)
+        self.assertIn('$free -lt 5GB', telemetry)
+        self.assertIn('$spaceRisk = Get-PcCareVolumeRisk -Sample $sample', diagnostic)
+        self.assertNotIn('$pct -lt 5 -or $gb -lt 5', diagnostic)
+        self.assertNotIn('$pct -lt 15', diagnostic)
+        self.assertIn('판정은 표시값 반올림 전 원시 용량 기준', diagnostic)
+        self.assertIn('Get-PcCareVolumeRisk -Sample $roundedCritical', fixture)
+        self.assertIn('Get-PcCareVolumeRisk -Sample $roundedMedium', fixture)
+        self.assertIn('Get-PcCareVolumeRisk -Sample $preciselyFive', fixture)
+        self.assertIn('Get-PcCareVolumeRisk -Sample $healthyFree', fixture)
+
     def test_approved_repair_log_is_private_and_fail_closed(self):
         repair = (ROOT/'tools/repair.ps1').read_text(encoding='utf-8-sig')
         io = (ROOT/'tools/report_io.ps1').read_text(encoding='utf-8-sig')
