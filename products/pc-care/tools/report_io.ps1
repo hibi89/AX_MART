@@ -112,3 +112,28 @@ function Save-PcCareReportPair {
     }
     throw '보고서 JSON/HTML 저장에 실패했습니다. 원본 시스템에는 변경을 가하지 않았습니다. 저장 공간 및 쓰기 권한을 확인하세요.'
 }
+
+# Repair is a separate, explicitly approved action. Prepare a private log before
+# starting DISM/SFC; never fall back to a cloud-synced Documents path.
+function New-PcCarePrivateRepairLogStream {
+    [CmdletBinding()]
+    param([string[]]$Candidates)
+    foreach ($folder in $Candidates) {
+        if (-not (Test-PcCarePrivateReportFolder -Folder $folder)) { continue }
+        try {
+            New-Item -ItemType Directory -Path $folder -Force -ErrorAction Stop | Out-Null
+            # Revalidate after directory creation to catch pre-existing junctions.
+            if (-not (Test-PcCarePrivateReportFolder -Folder $folder)) { continue }
+            $name = 'approved-repair-' + [datetime]::UtcNow.ToString('yyyyMMddTHHmmssZ') +
+                    '-' + [guid]::NewGuid().ToString('N') + '.log'
+            $path = Join-Path $folder $name
+            # Exclusive CreateNew: no clobber, no shared writer during repair.
+            $stream = [System.IO.File]::Open($path, [System.IO.FileMode]::CreateNew,
+                [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
+            return [pscustomobject]@{ path=$path; stream=$stream }
+        } catch {
+            Write-Warning ('복구 로그의 비공개 로컬 저장 위치 사용 불가 ({0})' -f $_.Exception.GetType().Name)
+        }
+    }
+    throw '안전한 로컬 수리 로그를 만들 수 없어 시스템 수리를 시작하지 않습니다.'
+}
