@@ -813,3 +813,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. **원본·백업·인증·수정 금지**: 사용자 파일/드라이브/OS/권한/BitLocker/WinRE/실수리·공개배포 불변. 원본 백업·비교 Git 기준 SHA `1582b208...`. 개인정보 보고서·QA_RESULTS/REPORTS/비밀키 GitHub 커밋 금지.
 9. **다음 작업/완료 기준/승인**: Windows PS5.1 구문+합성 9개 신설 edge 포함 native suite → Python/Node/ZIP 전체 QA → 읽기 전용 실기기 JSON/HTML 및 H08/QR/A4/USB 증거 확보 → WinRE/수리 안전성은 별도 격리·승인. 미검증 상태에서 판매·무료 출시 불가.
 10. **갱신/근거**: 2026-10-31 KST, 현 작업은 GitHub 직접 소스 확인·Python 독립 테스트만, Windows/Production 미검증. 문서 커밋 후 HEAD 읽어 동일성 확인.
+
+## 2026-10-31 KST — CUBE Codex post-review handoff (10 required items)
+1. Goal/tech: AXMART PC CARE Release A Windows PowerShell 5.1 read-only diagnostic/report, offline H08/QR, Python/Node/ZIP synthetic QA; Release B WinRE is separate and not approved.
+2. Implemented: Codex branch baseline 5c7e9ea1 fixed invalid PS // comment, tests and native synthetic fixture; this review added Python/Node skipped count preservation in preflight receipts and strict all-skipped rejection. No product-facing UI changes.
+3. Tests: Codex reports Python 75 PASS/3 SKIP, Node 113 PASS, ZIP PASS, PS5.1 synthetic PASS for commit 71779d45. Codex's final 5c7e9ea1 and this review's source have NOT been fully rerun. New skip accounting regression tests are committed but execution remains unverified in this chat; source static readback only.
+4. Status: QA transparency fix committed on feature branch. Release A still HOLD pending real Windows/browser/USB/QR/A4 acceptance; Release B WinRE file backup not ready.
+5. Problem/root/countermeasure: QA receipt previously omitted Python 3 skipped symlink security checks. New counters report skips, all-skipped suite fails. Initial source edit accidentally duplicated tail due replacement interpolation; verified Codex source was restored and patch reapplied safely. No repetition of unsafe replace method.
+6. Repo/branch/SHA: hibi89/AX_MART feature/pc-care-usb. Codex baseline 5c7e9ea1d636cafbc255959e38560037427490ca. New paths products/pc-care/tools/preflight.py, products/pc-care/tests/test_preflight.py. Final doc SHA confirmed after write.
+7. Production/environment/command: main fbb32362455378b85bcdd0b5037d1f338055fb71; Cloudflare https://ax-mart.pages.dev/ untouched. Windows source checkout command cmd.exe /d /c products\\pc-care\\RUN_RELEASE_QA.cmd, Python>=3.11, Node18+, PS5.1.
+8. Original/protection: no user data/OS/BitLocker/repair/WinRE/system permissions changed. Revert comparison SHA 5c7e9ea1; private REPORTS, QA_RESULTS, secrets never commit. No forced Git history edits.
+9. Next: rerun complete Windows QA against final HEAD, confirm sanitized receipt skip counts, then read-only actual JSON/HTML, browser file://, Unicode USB, QR scanning, A4 PDF, and isolated WinRE risk gate. No publication or real repair until separately approved.
+10. Timestamp/evidence: 2026-10-31 KST; GitHub source/diff readback is independently verified here; Windows full native, live service, production all unverified/not applied.
