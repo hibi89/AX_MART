@@ -448,7 +448,7 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 
 1. **목표/기준**: products/pc-care/ Release A 진단·분석·상담 보고·H08·QR·내부 ZIP 검증. FINAL_SPEC_V2.md 및 기존 설계 유지.
 2. **변경**: tools/telemetry_analysis.ps1의 실행문으로 해석되던 // 주석을 PowerShell # 주석으로 수정. 현행 수집 출처/배포 ZIP의 배타 생성/로컬 저장 안전 가드를 검사하도록 오래된 소스 계약 fixture 수정. H08/인쇄 synthetic fixture에 유효 event/update provider·기록 UTC·볼륨 수집 증거를 보강하고, 증거 없는 저장장치 경고를 인쇄하지 않는지 assertion 추가.
-3. **통과 결과**: Python 3.11.9: python -m unittest discover -s tests -p 'test_*.py' -v = **77 PASS, 3 SKIP**. Node 24.21: node --test 제품 테스트 9개 파일 **113/113 PASS**. Windows PowerShell 5.1: tests/windows_smoke.ps1 기본 합성 모드 **19개 ParseFile PASS + 7개 synthetic fixture PASS**. 내부 ZIP 생성/manifest/SHA256 검증 PASS, 동일 출력 경로 재실행 byte-identical 재사용 PASS (3b161e9df5ee148a7ed8c2fcf3e90d767ffa15f5460e14ac2fe6e6b6377a64da).
+3. **통과 결과**: Python 3.11.9: python -m unittest discover -s tests -p 'test_*.py' -v = **74 PASS, 3 SKIP (77 total)**. Node 24.21: node --test 제품 테스트 9개 파일 **113/113 PASS**. Windows PowerShell 5.1: tests/windows_smoke.ps1 기본 합성 모드 **19개 ParseFile PASS + 7개 synthetic fixture PASS**. 내부 ZIP 생성/manifest/SHA256 검증 PASS, 동일 출력 경로 재실행 byte-identical 재사용 PASS (3b161e9df5ee148a7ed8c2fcf3e90d767ffa15f5460e14ac2fe6e6b6377a64da).
 4. **전체 runner 판정**: RUN_RELEASE_QA.cmd 2회 실행, 두 번 모두 nonzero exit. 최종 pre-fix 전체 실행은 Python 77회 5 failures+1 error+2 skips, Node 1 failure, ZIP PASS, PS5.1 FAIL. Python/Node/PS 원인을 수정하고 각 단계 및 ZIP을 따로 재실행해 검증. 지시된 최대 1회 재시도 이후 full runner를 다시 돌리지 않아 **수정본 전체 통합 runner = NOT RUN**.
 5. **오류/제약**: PS5.1 fixture 실패의 제품 원인은 telemetry_analysis.ps1의 // 미정의 command. Python/Node 실패 대부분은 현행 provenance/파일보호 변경과 어긋난 test assertion 또는 증거 없는 synthetic JSON. 별도 mirror에 저장소 .github/workflows가 빠져 첫 실행에서 생긴 오류도 있었음. Windows symlink 기능을 요구하는 Python 3개 test는 sandbox에서 symlink를 만들 수 없어 명시 SKIP.
 6. **저장소/SHA**: hibi89/AX_MART / feature/pc-care-usb. 시작 HEAD f2304b7f95ec939d973094a1f1a958caed08294f. 기능+테스트 커밋 f7b60d22f1efccbec0215065650fa478612314d9 (profile identity hibi89), 그 후 이 HANDOFF/STATUS 갱신 커밋 예정. 강제 ref 갱신 없이 예상 HEAD 비교로 업데이트.
@@ -459,5 +459,5 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 
 ## 2026-10-31 KST — 상담 보고서 실제 파일 JSON/HTML 합성 E2E 후속
 - `tests/consultation_report.tests.ps1`에서 `Save-PcCareReportPair`로 별도 GUID 임시 폴더에 합성 JSON/HTML을 저장하고 UTF-8 재읽기 후 진단·저장장치 신호 일치, event ID/기록 시각, 상담 요약 개인정보 필터, HTML 삽입 escape를 확인. 테스트가 만든 폴더만 finally 정리.
-- Windows PowerShell 5.1 `tests/windows_smoke.ps1` 재실행: **19 ParseFile PASS + 7 synthetic fixtures PASS**, REPORT PAIR E2E PASS. Python 재실행 **77 PASS / 3 SKIP**. 전체 runner는 재시도 상한 때문에 재실행하지 않음; 기존 전체 runner 수정본 결과 NOT RUN 유지.
+- Windows PowerShell 5.1 `tests/windows_smoke.ps1` 재실행: **19 ParseFile PASS + 7 synthetic fixtures PASS**, REPORT PAIR E2E PASS. Python 재실행 **74 PASS / 3 SKIP (77 total)**. 전체 runner는 재시도 상한 때문에 재실행하지 않음; 기존 전체 runner 수정본 결과 NOT RUN 유지.
 - 실제 진단 결과·브라우저/file://·USB·QR 카메라·A4/PDF·WinRE는 미검증. Release A HOLD. 원본 checkout 및 사용자 데이터 불변.
