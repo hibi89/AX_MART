@@ -435,3 +435,9 @@ Node 18 compatibility follow-up: removed the Node 18.15+ TAP reporter option; bo
 - Latest complete-source full QA before final focused follow-ups: Python 82/79 PASS/3 SKIP; Node 117 PASS; internal ZIP verification PASS; PowerShell 5.1 synthetic PASS. After final code, targeted event + telemetry PS fixtures PASS. Later aggregate attempts used incomplete recreated source trees and failed Python only for omitted workflow/`.gitignore`; do not count as current full QA PASS. Full QA must run from complete Windows checkout.
 - No original local project, device, user data, permissions, production or customer data altered. Task-owned temp copies removed; pre-existing work items preserved.
 - Real browser, QR camera, PDF/A4, removable USB, live diagnosis and WinRE/repair remain UNVERIFIED. Release A stays HOLD. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — final handoff state
+- Latest functional code: `ff4042b27ec5b43839518b85fe977479d635da2b` on `feature/pc-care-usb`; latest branch SHA is the final documentation commit following `d4b48a56a7a229a11781f2bc7f58ebec6ed32b70`. main is unchanged at `fbb32362455378b85bcdd0b5037d1f338055fb71`.
+- Current aggregate QA is not certified: the last clean complete-snapshot aggregate predates final focused changes; the attempted subsequent aggregate used reconstructed copies missing root files. Focused current tests pass; run full QA from a complete checkout before release.
+- Source-only offline changes, no device/user data or production actions. Pre-existing audit/probe work items preserved, task-owned temporary copies removed. Updated 2026-10-31 KST.

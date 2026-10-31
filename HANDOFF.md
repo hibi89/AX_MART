@@ -558,3 +558,9 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - Latest focused tests after final functional change: `tests/event_analysis.tests.ps1` and `tests/telemetry_analysis.tests.ps1` both PASS under Windows PowerShell 5.1. Other touched components passed targeted tests and the prior complete aggregate.
 - Windows host: PowerShell 5.1, Python 3.11 and Node 24. Real Edge/file://, QR camera, A4/PDF, physical USB, live diagnosis, WinRE/repair and distribution remain UNVERIFIED. Release A HOLD; readiness estimate ~70% remains rough, not release approval.
 - No DISM/SFC, BitLocker, WinRE copy, user file deletion, auth/permission changes, paid service, customer data upload or deployment. Current final remote SHA and remaining QA gate are in the following update. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — final remote handoff confirmation
+- Repository `hibi89/AX_MART`, working branch `feature/pc-care-usb`; latest functional source commit `ff4042b27ec5b43839518b85fe977479d635da2b`. Root handoff update builds on docs commit `d4b48a56a7a229a11781f2bc7f58ebec6ed32b70`. This work never updated main or production.
+- Current QA gate: focused final event/telemetry PowerShell fixtures pass. Full aggregate on current source remains pending a complete Windows checkout. Prior aggregate was clean on a complete temp snapshot before the last focused sensor/RecordId changes. The later reconstructed snapshot’s Python errors were missing root workflow/.gitignore context, not a demonstrated code regression; these runs are disclosed as FAIL, not PASS.
+- Task temp copies were removed only after remote readback verification. Pre-existing `work/AX_MART-audit` and `work/_probe.txt` were preserved; original project was not edited. Updated 2026-10-31 KST.
