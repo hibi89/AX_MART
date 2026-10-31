@@ -110,6 +110,29 @@ class PreflightTests(unittest.TestCase):
         self.assertEqual(validate(error),'fail')
         error=[full[0],full[1],{'name':'internal-zip-verify','status':'fail'},full[3]]
         self.assertEqual(validate(error),'fail')
+        # Intermediate stage success is NOT proof that node --test ran or
+        # that the ZIP's manifest and SHA256 verification completed.
+        node_syntax_only=[full[0],
+            {'name':'node-syntax:ui/history_compare.js','status':'pass'},
+            full[2],full[3]]
+        self.assertEqual(validate(node_syntax_only),'fail')
+        self.assertEqual(preflight.safe_qa_receipt(
+            {'status':'pass','stages':node_syntax_only})['status'],'fail')
+        zip_build_only=[full[0],full[1],
+            {'name':'internal-zip-build','status':'pass'},full[3]]
+        self.assertEqual(validate(zip_build_only),'fail')
+        self.assertEqual(preflight.safe_qa_receipt(
+            {'status':'pass','stages':zip_build_only})['status'],'fail')
+        zip_verify_without_manifest=[full[0],full[1],
+            {'name':'internal-zip-verify','status':'pass'},full[3]]
+        self.assertEqual(validate(zip_verify_without_manifest),'fail')
+        blocked_syntax=[full[0],
+            {'name':'node-syntax:ui/history_compare.js','status':'blocked'},
+            full[2],full[3]]
+        self.assertEqual(validate(blocked_syntax),'blocked')
+        blocked_build=[full[0],full[1],
+            {'name':'internal-zip-build','status':'blocked'},full[3]]
+        self.assertEqual(validate(blocked_build),'blocked')
 
     def test_receipt_fails_closed_on_status_mismatch_and_unsupported_states(self):
         result={'status':'pass','stages':[
