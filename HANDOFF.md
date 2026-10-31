@@ -418,3 +418,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본/보안·백업: 사용자 원본 Windows/리포트/LOG/BitLocker/파일/권한/DB 건드리지 않음. 복구 기준 직전 SHA `a5b7b490`(force-push 금지). 민감 데이터 GitHub·ZIP·클라우드 동기화 경로 업로드 금지. 검사 후 쓰기 직전 path race의 보안 완전성은 실 Windows 추가 검증 필요.
 9. 다음: Windows PS5.1 native synthetic suite→Python/Node/ZIP native→실 read-only JSON/HTML/H08/QR/PDF/USB→WinRE 별도 VM+사용자 승인. 공개 조건은 전체 수용검사 합격·보안·원본 보호 확인.
 10. 확인 일시·범위: 2026-10-31 KST. GitHub 원본 파일/커밋 확인과 V8 호환 실행만. 문서 커밋 후 실제 HEAD 재확인, 테스트/배포 결과와 문서 별도 구분.
+
+## 2026-10-31 18:16 KST — CUBE 내부 ZIP 기존 파일 보호 작업 인수인계
+1. **목표·기술**: AXMART PC CARE Release A 오프라인 PS5.1 진단·근거 분석·보고서 + 내부 QA ZIP/해시; Release B WinRE 파일 백업 별도. 원본 최종 사양 `products/pc-care/docs/FINAL_SPEC_V2.md`.
+2. **변경·결정 근거**: `tools/release.py`의 os.replace가 기존 내부 ZIP/SHA256까지 무단 덮어쓰는 결함 교정. 차선안 hardlink는 FAT 호환성 불확실, `xb/x` 배타 생성 및 기존 검증 동일 ZIP 재사용 선택. 내부 산출물 이름/ALLOWLIST/SHA256/임시파일 보호 유지.
+3. **테스트**: GitHub 원본 소스 계약 12/12 PASS. Python 3.13 격리 publish control-flow 재현+축소 verifier 8/8 PASS. 정식 GitHub `test_release.py`, Python 전부, Node native, Windows PS5.1, 실제 ZIP, USB/QR/A4/WinRE/고객 PC/CI는 **NOT_RUN**. 재현의 축소 검증기를 실제 ZIP 전체 검증으로 간주하지 않음.
+4. **상태**: 내부 ZIP 생성의 원본보존 코어 보강, Release A 실Windows 기능 수용검사 대기, Release B 별도 승인. 전체 약 50%는 이전 작업량 추정, 출시 HOLD.
+5. **오류·근거·시도·전환**: preexisting ZIP/sidecar를 os.replace가 덮어쓰는 코드 발견. 최소 수정·3개 공식 회귀 추가. 컨테이너 git ls-remote는 DNS 실패, private repo checkout 없음; 원본 테스트 실행 불가. Windows runner 과거 run=41034866482, steps 0/log 없음; 재실행 반복 금지. 다음 Windows 정상 checkout으로 전환.
+6. **저장소·브랜치·SHA·경로**: `hibi89/AX_MART` / `feature/pc-care-usb`, 시작 `415809121a039891a5e4a446060741fe902cfc72`; 코드 `6d35ddb3594526c4ecde26466898bc1fd14c830f`, 테스트 `5799e74143b442529416b86806bc2a8c19e46584`. 소스: `products/pc-care/tools/release.py`; 테스트 `products/pc-care/tests/test_release.py`.
+7. **Production·명령·환경**: `main`은 `fbb32362455378b85bcdd0b5037d1f338055fb71` 불변, `https://ax-mart.pages.dev/` 변경 없음·제품 미배포. 실제 Windows checkout에서 `cd products\\pc-care && RUN_RELEASE_QA.cmd`; Python>=3.11, Node, PS5.1.
+8. **백업·권한·금지**: 원본 고객 데이터/기존 ZIP 보존, 새 공개·유료/권한/BitLocker/수리/WinRE/클라우드 동기화 변경 없음. 민감 로그/REPORTS/QA_RESULTS GitHub 커밋 금지. 복구 비교 기준은 작업 전 SHA.
+9. **다음 우선순위**: 실제 Windows full QA(4개 독립 단계)→원본 ZIP 재생성/체크섬→읽기 전용 JSON/HTML→H08/QR/A4/USB → 별도 승인 WinRE. 공식 테스트 실패 해결 전 릴리스 금지.
+10. **갱신 시점·검증 범위**: 2026-10-31 18:16 KST; GitHub 원본 readback 12개 정적 확인과 축소 helper 기반 Python native 동작 테스트만. 문서 커밋 후 HEAD 재검증. Production 미적용.
