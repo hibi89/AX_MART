@@ -478,3 +478,13 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 ## 2026-10-31 19:13 KST — 선택형 QR 브라우저 round-trip 의존성 확인
 - `tests/qr_browser_smoke.py`는 Playwright + OpenCV(cv2) + Chromium이 필요한 오프라인 file:// QR 실제 디코드 QA임을 확인. 현 Windows Python에서 Playwright는 설치되어 있으나 **cv2 없음**, Chromium 명령도 PATH에서 확인되지 않아 이 스크립트는 미실행. 설치/다운로드로 의존성을 추가하지 않음.
 - Computer Use 브라우저 조작도 URL 안전 판별 불가로 중단됨. 실제 file:// H08/QR 브라우저·카메라 검증은 미검증 상태로 유지. 이미 실행한 synthetic H08/QR 113/113 Node PASS 및 ZIP 검증을 실기기 검증으로 확대 해석하지 않음.
+
+
+## 2026-10-31 19:29 KST — 수정본 전체 네이티브 QA 통과
+- **목표/수정:** `tools/preflight.py` Node 테스트 호출에 `--test-reporter=tap`을 명시하고 `tests/test_preflight.py` 회귀를 추가. 원인: 현재 Node 24 기본 SPEC 요약 `ℹ tests N`은 테스트 성공이어도 TAP 전용 `# tests N` 파서에서 검출되지 않아 단계가 “No Node tests verified”로 잘못 실패함. TAP 지정으로 검증 카운트와 reporter 계약을 일치시킴.
+- **최종 명령/결과:** `cmd.exe /d /c products\pc-care\RUN_RELEASE_QA.cmd` — exit 0. QA receipt: Python **78 total / 3 SKIP (75 PASS)**, Node **113 PASS**, internal ZIP **PASS**, Windows PowerShell 5.1 synthetic **PASS**. 별도 `python -m unittest discover -s tests -p 'test_*.py' -v`: 78 tests, 3 skips. `python -m unittest -v tests.test_preflight`: 10 PASS / 1 SKIP.
+- 앞선 runner의 최초 실패 원인 수정 후 최종 통합 실행이므로, 종전 HANDOFF의 “수정본 전체 runner NOT RUN” 항목은 이 결과로 갱신됨. 첫 post-fix runner에서 드러난 Node reporter/count parser 계약도 실제로 고치고 전체 runner 1회 재검증해 통과. 반복 runner 실행 없음.
+- 최신 별도 ZIP 검증: 허용목록 37/37 파일 원격 Git blob SHA 일치, archive 38 entries + manifest, REPORTS/QA_RESULTS/log/secret 없음, same-source rebuild checksum `5829af28d9e26309aafc7f0fd614b330186df39d93024be026675ffac6a4f4d9`. 전체 runner 자체는 자체 임시 ZIP을 생성·검증 후 삭제.
+- **남은 게이트:** 실제 진단/사용자 데이터 실행 금지 준수. Computer Use URL 판별 문제 및 OpenCV 부재 때문에 실제 file:// 브라우저/QR 카메라 시험 미실행; A4/PDF/USB 실물/WinRE/실기기 수용시험 미검증. Release A는 코드/합성 QA 기준 개선됐으나 공개/출시 승인 **HOLD**.
+- 저장소 `hibi89/AX_MART@feature/pc-care-usb`; 이 수정 전 원격 HEAD `995f8ac9dd37c4b80d3f6deceef5c49441b113e5`. `main`/Cloudflare Production 및 기존 프로젝트/고객 데이터 불변. 실행: Windows 11 host, Windows PowerShell 5.1, PowerShell 7.6.5, Python 3.11.9, Node 24.21.0; 임시 복원 파일 105/105 Git blob 검증.
+- **다음:** 재현 명령은 `cmd.exe /d /c products\pc-care\RUN_RELEASE_QA.cmd`. 선택형 `tests/qr_browser_smoke.py`는 Playwright는 있으나 현재 환경에 cv2/Chromium이 없어 실행 불가. 브라우저·카메라·A4·USB 실물/실기기 확인과 출시 게이트가 남음.

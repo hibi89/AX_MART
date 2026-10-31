@@ -378,3 +378,10 @@
 
 ## 2026-10-31 19:13 KST — 오프라인 QR 브라우저 테스트 환경 확인
 - `tests/qr_browser_smoke.py` 선택 실행 전 의존성 확인: Playwright 있음, OpenCV(cv2) 없음, Chromium 명령 PATH에 없음. 테스트 미실행, 설치/다운로드하지 않음. Computer Use URL 판별 차단도 있어 실제 file:///카메라 검증은 **UNVERIFIED**.
+
+
+## 2026-10-31 19:29 KST — PC CARE 수정본 전체 QA 최종 재확인
+- 원인/수정: Node 24의 기본 spec reporter는 `ℹ tests N`을 출력하지만 preflight가 `# tests N`만 찾아 전체 runner의 Node 단계를 실패 처리. `tools/preflight.py`에서 TAP reporter를 명시하고 `tests/test_preflight.py` 회귀 추가.
+- `cmd.exe /d /c products\pc-care\RUN_RELEASE_QA.cmd`: **exit 0**; Python **75 PASS / 3 SKIP (78 total)**, Node **113 PASS**, internal ZIP PASS, Windows PowerShell 5.1 synthetic PASS. 최신 receipt status=pass.
+- 앞선 전체 runner 실패는 수정본 통합 재검증으로 해소. QA는 synthetic/source only이며, 실PC 진단/수리·브라우저 file:///USB·QR 카메라·A4/PDF·WinRE/배포는 미검증. Release A 공개 **HOLD**.
+- 작업은 `feature/pc-care-usb`에서만. `main`/Cloudflare Production, 원본 로컬 프로젝트 및 고객 데이터 변경 없음.

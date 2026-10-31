@@ -132,7 +132,9 @@ def run_qa(root: Path, *, windows_synthetic: bool | None = None) -> dict:
             if result['status'] != 'pass':
                 result['name']='node-syntax:'+js
                 return result
-        result=command('node-tests', [node, '--test', *NODE_TESTS], cwd=root)
+        # Pin TAP output: Node 24's default spec reporter uses a non-machine
+        # summary (`ℹ tests N`) which cannot satisfy the verified-count gate.
+        result=command('node-tests', [node, '--test', '--test-reporter=tap', *NODE_TESTS], cwd=root)
         if result['status']=='pass':
             match=re.search(r'(?m)^# tests ([0-9]+)\s*$',result['output'])
             if not match or int(match.group(1)) < 1:

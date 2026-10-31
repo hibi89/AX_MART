@@ -38,6 +38,21 @@ class PreflightTests(unittest.TestCase):
                 result=preflight.run_qa(root,windows_synthetic=False)
             self.assertEqual(result['status'],'fail')
             self.assertEqual(result['stages'][-1]['status'],'not-run')
+    def test_node_suite_pins_tap_reporter_for_verified_test_count(self):
+        with TemporaryDirectory() as tmp:
+            calls=[]
+            def fake_cmd(name, argv, **kwargs):
+                calls.append((name, argv))
+                output='Ran 1 test\n' if name=='python-tests' else '# tests 1\n'
+                return dict(name=name,status='pass',exit_code=0,output=output)
+            with patch.object(preflight,'command',side_effect=fake_cmd),\
+                 patch.object(preflight.shutil,'which',return_value='node'),\
+                 patch.object(preflight,'JS_SCRIPTS',()),\
+                 patch.object(preflight,'NODE_TESTS',('tests/one.cjs',)),\
+                 patch.object(preflight.Path,'is_file',return_value=True):
+                preflight.run_qa(Path(tmp),windows_synthetic=False)
+            node_call=next(argv for name,argv in calls if name=='node-tests')
+            self.assertIn('--test-reporter=tap',node_call)
     def test_status_requires_native_windows_stage(self):
         classify = preflight.classify_qa_status
         self.assertEqual(classify([]), 'fail')
