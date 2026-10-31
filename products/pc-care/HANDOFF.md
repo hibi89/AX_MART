@@ -777,3 +777,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 백업·인증·원본: 시작 SHA로 소스 복구 가능, 사용자 실제 로그/REPORTS/고객 파일·시스템 수리/계정/클라우드/BitLocker/WinRE 변경 없음. 로컬 로그는 개인정보 가능하므로 자동 업로드·GitHub 저장·동기화 경로 금지.
 9. 다음 우선순위·기준: Windows native PS5.1 parser+합성 → Python/Node/ZIP → 읽기 전용 실제 보고서·H08·QR/A4/USB. 실 수리/WinRE는 별도 격리 및 명시 승인. 핵심 QA 실패/미실행 시 베타 다운로드/판매 차단.
 10. 확인 범위·갱신: 2026-10-31 KST. GitHub 파일 원본 정적 readback 및 격리된 Python 판정 재현만. 문서 커밋 후 실제 HEAD 재조회, Production 미적용.
+
+## 2026-10-31 KST — CUBE H08 V8·안전 저장 경로 후속 인수인계
+1. 목표·용도·기술: Release A Windows PC CARE 오프라인 진단·분석·JSON/HTML/QR/A4·안전 수리, Release B는 별도 WinRE 복사 승인. Windows PS5.1/CMD/JS/Python 검증. 최종 설계 `products/pc-care/docs/FINAL_SPEC_V2.md`.
+2. 변경·근거: 보고서 저장 전 candidate 폴더 최초 검사와 생성 사이 reparse 변경 가능성 완화: `Save-PcCareReportPair`에서 폴더 생성 후 다시 사생활 경계 검사하고 실패 시 쓰기 거부. 원래 CreateNew·덮어쓰기 방지·자기 소유 cleanup 보존. `tests/test_package.py` 회귀 소스 계약.
+3. 검증: 실제 GitHub JS + 공식 Node 테스트 4개 V8 호환 shim으로 **61/61 PASS**, 증빙 `products/pc-care/tests/evidence/h08_original_source_v8_followup_20261031.json`; GitHub report_io/test_package 원본 **정적 9/9 PASS**. 네이티브 Node/Python 전체/Windows PS5.1/USB/QR/A4/WinRE/수리/ZIP/CI 모두 **미검증**. V8은 native Node assert의 대용이 아님.
+4. 상태: 소스 개선 일부, Windows 실기기 수용검사 및 Release B 구현 대기. 전체 완성률 이전 약 50% 추정 유지. 무료·유료 출시 HOLD.
+5. 오류·시도·제약·대안: Linux 환경에 WinPS5.1 없음, GitHub private repo 전체 checkout 불가. 공식 JS 일부는 V8에 호환 shim으로 실행하여 한정 검증, 첫 실행 적합성은 Windows 전체 source에서 확인 필요. 과거 Actions run `41034866482` failure/steps=0·log 404; 재시도 반복 금지. 별도 Windows native QA 우선.
+6. 저장소·브랜치·SHA: `hibi89/AX_MART`, `feature/pc-care-usb`; 기준 `a5b7b4900388d8fc6925b2486d2dc0aceb0faf90`; 기능·테스트 마지막 `d0204ffa66e1c732bc3b98a6229c8d82f87febd7`; V8 evidence `54cf09503d0d3c5fea03b71bddb16ffdc13c09ce`.
+7. Production/실행: Cloudflare `https://ax-mart.pages.dev/` 운영은 `main`에서만, 제품 기능 브랜치 미적용. 제품 소스 경로 `products/pc-care/`, 내부 QA `RUN_RELEASE_QA.cmd`.
+8. 원본/보안·백업: 사용자 원본 Windows/리포트/LOG/BitLocker/파일/권한/DB 건드리지 않음. 복구 기준 직전 SHA `a5b7b490`(force-push 금지). 민감 데이터 GitHub·ZIP·클라우드 동기화 경로 업로드 금지. 검사 후 쓰기 직전 path race의 보안 완전성은 실 Windows 추가 검증 필요.
+9. 다음: Windows PS5.1 native synthetic suite→Python/Node/ZIP native→실 read-only JSON/HTML/H08/QR/PDF/USB→WinRE 별도 VM+사용자 승인. 공개 조건은 전체 수용검사 합격·보안·원본 보호 확인.
+10. 확인 일시·범위: 2026-10-31 KST. GitHub 원본 파일/커밋 확인과 V8 호환 실행만. 문서 커밋 후 실제 HEAD 재확인, 테스트/배포 결과와 문서 별도 구분.
