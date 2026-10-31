@@ -93,7 +93,7 @@ class PreflightTests(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             def fake_cmd(name, argv, **kwargs):
                 if name=='python-tests':
-                    output='Ran 2 tests in 0.01s\\nOK (skipped=2)\\n'.replace('\\n','\n')
+                    output='Ran 2 tests in 0.01s\nOK (skipped=2)\n'
                 elif name=='node-tests':
                     output='# tests 3\n# skipped 3\n'
                 else:
