@@ -579,3 +579,12 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - Latest `tests/windows_smoke.ps1` default run: **20 PowerShell parse checks + 8 fixture scripts PASS**; both normal and failed-collector mocked end-to-end report flows pass. Generated report pairs were removed by the fixture from its temporary package REPORTS folder; folder checked to contain README only.
 - Latest Python suite on this source: **82 total / 79 PASS / 3 SKIP**. Node **117 PASS** and internal ZIP integrity/manifest/SHA256 PASS from the current-source stage pass before the latest fixture-only extension. A single post-change `RUN_RELEASE_QA.cmd` aggregate has not run; current stages were individually verified and remain clearly distinguished.
 - Functional commits: `e885eaf` mocked normal diagnosis E2E; `e89a64d` unavailable-collector E2E. Branch `feature/pc-care-usb`; main/Production unchanged. Actual browser, camera QR, A4/PDF, removable USB, real diagnosis and WinRE remain unverified. Release A HOLD. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — complete current-HEAD Release QA
+- Rebuilt a complete isolated Windows source snapshot from remote `feature/pc-care-usb` SHA `3f1c0e538fbad863b32bc32c8424183925629878`, including root test dependencies, then ran the real `cmd.exe /d /c RUN_RELEASE_QA.cmd`. **Exit 0; all four stages PASS.**
+- Python unittest **82 total / 79 PASS / 3 SKIP**; Node.js **117 PASS / 0 FAIL**; internal ZIP build + manifest + SHA256 verification **PASS**; Windows PowerShell 5.1 synthetic stage **PASS**.
+- The Windows stage included 20 parser checks and 8 fixture scripts; mocked full diagnosis normal and collector-failure flows both pass. The mock generated/deleted only its unique report pair in the isolated temp package. REPORTS retained only README.
+- QA receipt `QA_RESULTS/pc-care-qa-20261031T132641Z-065f47e6.json` was local to the temporary checkout and not committed. Temp source copy removed after remote/doc verification.
+- Remaining UNVERIFIED from runner: real Windows 11 system diagnosis/permissions, Edge/Chrome file:// and Unicode USB, QR camera, A4/PDF, WinRE/physical backup/real repair, public distribution. No live diagnosis or repair was performed. Release A remains HOLD; readiness estimate about 70% is indicative only.
+- main/Cloudflare Production unchanged; original local project and pre-existing work items preserved. Updated 2026-10-31 KST.

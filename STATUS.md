@@ -454,3 +454,9 @@ Node 18 compatibility follow-up: removed the Node 18.15+ TAP reporter option; bo
 - Latest functional SHA `e89a64db8edd479c6334e3388e6d142f481836e5`; mock diagnosis E2E now covers both synthetic warnings and denied APIs without stale evidence reuse.
 - Windows PS5.1 default smoke: 20 parsers + 8 fixtures PASS. Python 82 (79 PASS/3 SKIP). Node 117 PASS and ZIP integrity pass from same source-stage validation before the test-only extension. The full aggregate runner after final code was not run; do not call it an aggregate PASS.
 - No live diagnosis/repair or user data changes. Real browser/USB/QR/A4/WinRE remain UNVERIFIED; Release A HOLD. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — current HEAD full internal QA PASS
+- At source HEAD `3f1c0e538fbad863b32bc32c8424183925629878`, the actual `cmd.exe /d /c RUN_RELEASE_QA.cmd` completed with exit 0 on a complete isolated source tree. Python 82 (79 PASS/3 SKIP), Node 117 PASS, internal ZIP verification PASS, Windows PowerShell 5.1 synthetic PASS.
+- Mocked diagnosis covers exact space boundary, warning/error provenance, invalid sensor/event data, privacy/JSON-HTML agreement and API failure/stale data behavior. No live Windows diagnosis or repair.
+- Remaining browser/file://, QR camera, A4/PDF, removable USB, WinRE/repair, and distribution gates remain UNVERIFIED. Release A HOLD. main unchanged. Updated 2026-10-31 KST.
