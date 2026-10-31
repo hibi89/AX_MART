@@ -382,3 +382,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - 소스 마감 SHA `9eddda6477b3a5e4eba9aadf1b471a122f35c949` (`feature/pc-care-usb`); `main` `fbb32362455378b85bcdd0b5037d1f338055fb71` 불변. 새로운 문서 기준 `products/pc-care/docs/CLOSEOUT_20261031_KST.md`의 10개 항목을 다음 채팅 첫 읽기로 지정. Docs 커밋은 기능 변경 아님.
 - 최신 QA: 디스크 이름 비식별화 14/14 SOURCE STATIC PASS; PS5.1/USB·QR·A4·WinRE 최신 실제 실행 NOT_RUN, Release HOLD. 최근 CI 이전 SHA failure, 재시도 없음. Python/JS 과거 합성 테스트는 독립 증빙으로만 기록.
 - **다음 우선순위:** Windows `RUN_RELEASE_QA.cmd` native→격리된 로컬 읽기 전용 E2E→USB·QR·A4→WinRE/복구 안전 검증. 사용자 수면 중 자동 작업, 변경, 배포 없음.
+
+## 2026-10-31 KST — CUBE QA 재개 인수인계 (확정)
+1. 목표/요구/기술: PC CARE Release A 안전한 Windows 읽기 진단/분석/보고서/합성 QA 우선, PowerShell 5.1/CMD/Python 소스 QA. 최종 사양 `products/pc-care/docs/FINAL_SPEC_V2.md` 유지.
+2. 완료/수정: 경로 `$normal` 미할당 상태의 QA assertion 순서 결함 제거, Python `test_package.py` 정적 회귀 가드 추가. 제품 진단/수리 로직 변경 없음.
+3. 검증: 이전 잘못된 순서 재현·수정된 GitHub 파일 readback 6/6 정적 PASS. WinPS5.1/네이티브 Python 전체/Windows/USB/QR/A4/WinRE/ZIP CI NOT_RUN. 테스트 성공률·릴리스 완료율 변경 없음.
+4. 단계: Release A 코어 소스 상당 부분 작성, Windows 실제 수용 QA 대기. Release B WinRE 백업 미완/별도 승인. 제품 출시 HOLD.
+5. 오류/시도/대안: `report_io.tests.ps1`가 `$normal` 할당보다 먼저 검사해 실패 가능한 순서 버그. 최소 재배치·회귀 가드. 과거 CI run 41034866482 job 123993114299=failed, steps 0, 로그 404 BlobNotFound: 실행 실패 원인 미확정; 중복 CI dispatch 금지. 우선 Windows native QA, 다음 격리 VM.
+6. GitHub: `hibi89/AX_MART` `feature/pc-care-usb`, 작업 전 `2f933fc5d1dd6673df9f55fdba72f720d204d732`; 코드 `41d2b807e610ac9f107b4014bc017fcccaf09fbd`→`48bad4cc6fd477e7e217fda45ff06279652b6b2d`. 제품 경로 `products/pc-care/tests/`.
+7. 운영: Cloudflare `https://ax-mart.pages.dev/` 는 main `fbb32362455378b85bcdd0b5037d1f338055fb71`; 작업 브랜치 제품 미배포, Production 검증 대상 변경 없음. 내부 QA: `RUN_RELEASE_QA.cmd`.
+8. 원본/보안: 사용자 리포트·로그·원본 손대지 않음. 수리·BitLocker·실파일 백업·자동 전송·권한 변경 없음. 기존 소스 SHA로 비교·복구 가능.
+9. 다음: Windows 환경에서 `RUN_RELEASE_QA.cmd` → `QA_RESULTS`에서 SHA 일치 결과 → 읽기 전용 실진단 → QR/A4/USB → 별도 승인 WinRE. 필수 QA 불합격·미실행 시 공개 금지.
+10. 기준: 2026-10-31 KST, GitHub 파일 원본/CI 메타데이터 확인. 문서 갱신 커밋은 실제 GitHub HEAD로 확인하며 WinPS5.1/실기기 검증은 미완료.
