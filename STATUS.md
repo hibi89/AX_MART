@@ -428,3 +428,10 @@ Node 18 compatibility follow-up: removed the Node 18.15+ TAP reporter option; bo
 - After receipt-output fix: Python suite 82 total / 79 PASS / 3 SKIP. Full runner exit 0: Node 117 PASS, internal ZIP PASS, Windows PowerShell 5.1 synthetic PASS.
 - Code commit: 54f92ced99796f3791d9ed28d0d4d8f3916c1b9f on feature/pc-care-usb. main unchanged.
 - Real browser/file://, QR camera, A4/PDF, removable USB, live diagnosis, WinRE and distribution remain UNVERIFIED. Release A HOLD.
+
+
+## 2026-10-31 KST — latest PC CARE independent work
+- Feature branch functional head `ff4042b27ec5b43839518b85fe977479d635da2b` before final documentation update. Changes reject malformed event IDs, invalid RecordIds and boolean/fractional telemetry coercions. main remains `fbb32362455378b85bcdd0b5037d1f338055fb71`.
+- Latest complete-source full QA before final focused follow-ups: Python 82/79 PASS/3 SKIP; Node 117 PASS; internal ZIP verification PASS; PowerShell 5.1 synthetic PASS. After final code, targeted event + telemetry PS fixtures PASS. Later aggregate attempts used incomplete recreated source trees and failed Python only for omitted workflow/`.gitignore`; do not count as current full QA PASS. Full QA must run from complete Windows checkout.
+- No original local project, device, user data, permissions, production or customer data altered. Task-owned temp copies removed; pre-existing work items preserved.
+- Real browser, QR camera, PDF/A4, removable USB, live diagnosis and WinRE/repair remain UNVERIFIED. Release A stays HOLD. Updated 2026-10-31 KST.
