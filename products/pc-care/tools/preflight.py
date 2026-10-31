@@ -279,7 +279,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.receipt_dir is not None:
         try:
             receipt_path = write_qa_receipt(result, args.receipt_dir)
-            print(f'Local QA receipt: {receipt_path}')
+            safe_print(f'Local QA receipt: {receipt_path}')
         except (OSError, ValueError) as exc:
             print(f'QA RECEIPT FAILED: {type(exc).__name__}', file=sys.stderr)
             return 1

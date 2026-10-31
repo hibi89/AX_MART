@@ -1,5 +1,6 @@
 """Tests for the developer-only QA orchestrator, not Windows runtime proof."""
 import importlib.util
+import io
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import sys
@@ -242,6 +243,26 @@ class PreflightTests(unittest.TestCase):
         text='bad '+chr(0xfffd)
         encoded=preflight.safe_console_text(text,'cp949')
         self.assertIn(r'\ufffd',encoded)
+    def test_receipt_path_is_printable_on_legacy_console_with_unicode_directory(self):
+        stages=[
+            {'name':'python-tests','status':'pass','tests':1,'skipped':0},
+            {'name':'node-tests','status':'pass','tests':1,'skipped':0},
+            {'name':'internal-zip','status':'pass'},
+            {'name':'windows-powershell-51-synthetic','status':'pass'},
+        ]
+        result={'status':'pass','stages':stages,'not_verified':preflight.NOT_VERIFIED,
+                'warning':'synthetic only'}
+        with TemporaryDirectory() as tmp:
+            receipt_dir=Path(tmp)/('reports '+chr(0x1f9ea))
+            buffer=io.BytesIO()
+            writer=io.TextIOWrapper(buffer,encoding='cp949',errors='strict',write_through=True)
+            with patch.object(preflight,'run_qa',return_value=result),\
+                 patch.object(preflight.sys,'stdout',writer):
+                self.assertEqual(preflight.main(['--root',str(MODULE_PATH.parent),
+                                                 '--receipt-dir',str(receipt_dir)]),0)
+            output=buffer.getvalue().decode('cp949')
+            self.assertIn(r'\U0001f9ea',output)
+            self.assertEqual(len(list(receipt_dir.glob('pc-care-qa-*.json'))),1)
     def test_no_release_or_repair_commands_are_in_runner(self):
         source=MODULE_PATH.read_text(encoding='utf-8')
         for forbidden in ('--run-readonly','RUN_SAFE_REPAIR.cmd','--publish',
