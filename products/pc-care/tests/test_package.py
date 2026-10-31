@@ -373,6 +373,28 @@ class PackageTests(unittest.TestCase):
         self.assertLess(text.index("Get-PhysicalDisk"), text.index("Read-Host 'Type BACKUP"))
         self.assertLess(text.index("Read-Host 'Type REPAIR"), text.index("/RestoreHealth"))
 
+    def test_approved_repair_log_is_private_and_fail_closed(self):
+        repair = (ROOT/'tools/repair.ps1').read_text(encoding='utf-8-sig')
+        io = (ROOT/'tools/report_io.ps1').read_text(encoding='utf-8-sig')
+        fixture = (ROOT/'tests/report_io.tests.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("New-PcCarePrivateRepairLogStream -Candidates $reportCandidates", repair)
+        self.assertIn("Join-Path $PSScriptRoot 'report_io.ps1'", repair)
+        self.assertIn("LocalApplicationData", repair)
+        self.assertNotIn("GetFolderPath('MyDocuments')", repair)
+        self.assertNotIn('Out-File -LiteralPath $logPath', repair)
+        self.assertIn('function New-PcCarePrivateRepairLogStream', io)
+        self.assertIn('Test-PcCarePrivateReportFolder -Folder $folder', io)
+        self.assertIn('[System.IO.FileMode]::CreateNew', io)
+        self.assertIn('[System.IO.FileShare]::None', io)
+        self.assertIn('Repair blocked: no safe private local log destination', repair)
+        self.assertLess(repair.index('New-PcCarePrivateRepairLogStream -Candidates'),
+                        repair.index('& "$env:SystemRoot\\System32\\dism.exe"'))
+        self.assertLess(repair.index("Read-Host 'Type REPAIR"),
+                        repair.index('New-PcCarePrivateRepairLogStream -Candidates'))
+        self.assertIn('Repair log stream must block concurrent writers', fixture)
+        self.assertIn('Cloud-only destinations must block repair', fixture)
+        self.assertNotIn('DISM /RestoreHealth', fixture)
+
     def test_winre_log_failure_and_privacy_notice(self):
         text = (ROOT/'recovery/WINRE_READ_ONLY.cmd').read_text()
         self.assertIn('if errorlevel 1 goto VIEWONLY', text)
