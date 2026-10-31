@@ -72,10 +72,13 @@ foreach ($v in $volumes) {
     $pct = $sample.freePercent
     $gb = $sample.remainingGB
     [void]$volData.Add(@{ drive=$sample.drive; remainingGB=$gb; freePercent=$pct; sizeGB=$sample.sizeGB })
-    if ($sample.capacityBytes -ge 20GB -and ($pct -lt 5 -or $gb -lt 5)) {
-        Add-Issue 'high' 'DISK_SPACE_CRITICAL' ("{0} 드라이브 공간 부족" -f $sample.drive) ("남은 공간 {0}GB ({1}%)" -f $gb,$pct) '중요 파일 백업 후 불필요한 파일을 직접 정리하세요. 자동 삭제는 하지 않습니다.'
-    } elseif ($sample.capacityBytes -ge 20GB -and $pct -lt 15) {
-        Add-Issue 'medium' 'DISK_SPACE_LOW' ("{0} 드라이브 여유 공간 부족" -f $sample.drive) ("남은 공간 {0}GB ({1}%)" -f $gb,$pct) '용량 변화를 확인하고 개인 파일을 백업하세요.'
+    # Classification uses exact raw bytes; the displayed one-decimal numbers
+    # can round a low value up to the threshold (for example 4.96 GB -> 5.0).
+    $spaceRisk = Get-PcCareVolumeRisk -Sample $sample
+    if ($spaceRisk -eq 'high') {
+        Add-Issue 'high' 'DISK_SPACE_CRITICAL' ("{0} 드라이브 공간 부족" -f $sample.drive) ("남은 공간 약 {0}GB ({1}%), 판정은 표시값 반올림 전 원시 용량 기준" -f $gb,$pct) '중요 파일 백업 후 불필요한 파일을 직접 정리하세요. 자동 삭제는 하지 않습니다.'
+    } elseif ($spaceRisk -eq 'medium') {
+        Add-Issue 'medium' 'DISK_SPACE_LOW' ("{0} 드라이브 여유 공간 부족" -f $sample.drive) ("남은 공간 약 {0}GB ({1}%), 판정은 표시값 반올림 전 원시 용량 기준" -f $gb,$pct) '용량 변화를 확인하고 개인 파일을 백업하세요.'
     }
 }
 if ($volumeRejectedCount -gt 0) {
