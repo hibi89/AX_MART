@@ -441,3 +441,10 @@ Node 18 compatibility follow-up: removed the Node 18.15+ TAP reporter option; bo
 - Latest functional code: `ff4042b27ec5b43839518b85fe977479d635da2b` on `feature/pc-care-usb`; latest branch SHA is the final documentation commit following `d4b48a56a7a229a11781f2bc7f58ebec6ed32b70`. main is unchanged at `fbb32362455378b85bcdd0b5037d1f338055fb71`.
 - Current aggregate QA is not certified: the last clean complete-snapshot aggregate predates final focused changes; the attempted subsequent aggregate used reconstructed copies missing root files. Focused current tests pass; run full QA from a complete checkout before release.
 - Source-only offline changes, no device/user data or production actions. Pre-existing audit/probe work items preserved, task-owned temporary copies removed. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — current PC CARE stage checks
+- Mocked end-to-end `diagnose.ps1` fixture now runs by default from Windows smoke, with no live API calls. Current PowerShell 5.1 smoke: 20 parsers + 8 synthetic fixture scripts PASS.
+- Current complete-source individual stages: Python 82 (79 PASS/3 SKIP), Node 117 PASS, internal ZIP integrity/manifest/SHA256 PASS. Aggregate `RUN_RELEASE_QA.cmd` was not rerun after its earlier incomplete-snapshot failures; record that accurately.
+- Functional test commit `e885eaf219cc0771371dd05156c44d057d2177e0`; branch feature/pc-care-usb. main unchanged. Product remains Release A HOLD pending browser/camera/A4/USB/live diagnosis/WinRE checks.
+- Original project and pre-existing audit/probe items preserved; only task-owned temp folders removed. Updated 2026-10-31 KST.

@@ -625,3 +625,10 @@
 - No full launcher after this final patch. Latest launcher attempt before it used a reconstructed snapshot missing root `.gitignore`: Python 78 PASS/1 error/3 SKIP; Node 117 PASS, ZIP PASS, PowerShell synthetic PASS. Earlier complete-snapshot aggregate before latest focused follow-ups was 82 Python total/79 PASS/3 SKIP, Node 117 PASS, ZIP/PowerShell PASS. Current aggregate remains pending a complete checkout; do not claim PASS for current HEAD.
 - main remains `fbb32362455378b85bcdd0b5037d1f338055fb71`. No local original project/device/user data or Production touched.
 - Browser, QR camera, A4/PDF, USB hardware, real diagnosis and WinRE remain UNVERIFIED. Release A HOLD. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 21:15 KST — latest end-to-end synthetic QA
+- Current functional SHA `e885eaf219cc0771371dd05156c44d057d2177e0`; Windows smoke includes full mocked diagnosis/report flow. 20 PowerShell file parse checks and 8 fixture scripts PASS.
+- Other current-source stages, run individually: Python 82 (79 PASS/3 SKIP), Node 117 PASS, internal ZIP build/integrity PASS. Aggregate runner after latest source remains unverified because previous attempts ran from incomplete reconstructed trees; do not claim one current aggregate pass.
+- Browser, physical QR, A4/PDF, USB, live diagnosis and WinRE/repair remain UNVERIFIED. Release A HOLD (~70% rough engineering estimate). main/production unchanged.
+- Original local project and pre-existing work items preserved; task-owned temp copies removed. Updated 2026-10-31 KST.
