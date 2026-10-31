@@ -42,7 +42,12 @@ function Get-PcCareSharePayload {
     foreach ($ev in @($Summary.recordedEvents | Select-Object -First 4)) {
         if ($null -eq $ev) { continue }
         $id = -1
-        try { $id = [int]$ev.eventId } catch { continue }
+        try {
+            $idText = [Convert]::ToString($ev.eventId, [Globalization.CultureInfo]::InvariantCulture)
+            if ($idText -cnotmatch '^\d{1,5}$') { continue }
+            $id = [int]::Parse($idText, [Globalization.NumberStyles]::None, [Globalization.CultureInfo]::InvariantCulture)
+            if ($id -gt 65535) { continue }
+        } catch { continue }
         if ($id -notin @(19,20,41,6008,1001,7,51,55,129,153,157)) { continue }
         $value = [string]$ev.recordedUtc
         if ($value -notmatch '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$') { continue }

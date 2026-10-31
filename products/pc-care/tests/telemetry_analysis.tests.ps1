@@ -44,6 +44,12 @@ Assert-Telemetry (@($evidence | Where-Object { $_.kind -eq 'update_installation_
 Assert-Telemetry (@($evidence | Where-Object { $_.kind -eq 'update_installation_success_record' }).Count -eq 1) 'Event 19 is installation success record'
 Assert-Telemetry ($evidence[0].timeBasis -eq 'event_recorded_time') 'No inferred update date'
 Assert-Telemetry (($evidence | ConvertTo-Json -Depth 6) -notmatch 'PRIVATE UPDATE NAME') 'Raw update messages must never be serialized'
+$badUpdateIds = @(
+    [pscustomobject]@{ Id=20.5; ProviderName='Microsoft-Windows-WindowsUpdateClient'; TimeCreated=$time; RecordId=121 },
+    [pscustomobject]@{ Id=$true; ProviderName='Microsoft-Windows-WindowsUpdateClient'; TimeCreated=$time; RecordId=122 },
+    [pscustomobject]@{ Id='20.5'; ProviderName='Microsoft-Windows-WindowsUpdateClient'; TimeCreated=$time; RecordId=123 }
+)
+Assert-Telemetry (@(ConvertTo-PcCareUpdateEvidence -Events $badUpdateIds).Count -eq 0) 'Fractional and boolean event IDs cannot create update evidence'
 
 # Synthetic disk names must never appear in private reports.
 $fakeDisk = [pscustomobject]@{

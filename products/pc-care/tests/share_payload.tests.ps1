@@ -28,6 +28,13 @@ Assert-Share ($payload.payloadText -match '신호:저장장치,블루스크린�
 Assert-Share ($payload.payloadText -match '2026-10-30 03:10') 'Whitelisted UTC recording time'
 Assert-Share ($payload.payloadText -match '원인:미확정') 'Never claim a proven root cause'
 Assert-Share ($payload.payloadText -notmatch 'PRIVATE-') 'Never copy source names, paths or logs'
+$invalidIdSummary = [pscustomobject]@{
+    assessment='위험 신호'; reviewItems=@(); recordedEvents=@(
+        [pscustomobject]@{ eventId=41.5; recordedUtc='2026-10-30 03:00' },
+        [pscustomobject]@{ eventId=$true; recordedUtc='2026-10-30 03:00' })
+}
+$invalidIdPayload = Get-PcCareSharePayload -Summary $invalidIdSummary
+Assert-Share ($invalidIdPayload.payloadText -match '기록UTC:미확인') 'Fractional and boolean event IDs cannot enter share payload'
 Assert-Share (-not $payload.qrImageGenerated -and -not $payload.containsIdentifiers) 'No QR/image claim or identifier collection'
 $blocked = Get-PcCareSharePayload -Summary $summary -MaxUtf8Bytes 40
 Assert-Share ($blocked.status -eq 'too_large') 'Fail closed over byte limit'

@@ -16,6 +16,13 @@ $devices = @(
     [pscustomobject]@{ ConfigManagerErrorCode=22; PNPClass='Unknown PRIVATE-NAME'; SerialNumber='PRIVATE-SERIAL' },
     [pscustomobject]@{ ConfigManagerErrorCode=999; PNPClass='USB'; Name='PRIVATE-NAME' }
 )
+$malformedPnP = ConvertTo-PcCarePnPSummary -Devices @(
+    [pscustomobject]@{ ConfigManagerErrorCode=1.5; PNPClass='Net'; Name='PRIVATE-FRACTION' },
+    [pscustomobject]@{ ConfigManagerErrorCode=$true; PNPClass='USB'; Name='PRIVATE-BOOLEAN' },
+    [pscustomobject]@{ ConfigManagerErrorCode='28.5'; PNPClass='Display'; Name='PRIVATE-DECIMAL-TEXT' },
+    [pscustomobject]@{ ConfigManagerErrorCode='invalid'; PNPClass='DiskDrive'; Name='PRIVATE-TEXT' }
+) -QueryStatus 'collected'
+Assert-PcCareDriverTimeline ($malformedPnP.status -eq 'no matching devices' -and $malformedPnP.observedCount -eq 0 -and $malformedPnP.samples.Count -eq 0) 'Malformed fractional, boolean and textual PnP values cannot become errors'
 # Query result status must beat stale raw samples, even if the CIM array survives.
 $noMatchStale = ConvertTo-PcCarePnPSummary -Devices $devices -QueryStatus 'no matching devices'
 Assert-PcCareDriverTimeline ($noMatchStale.status -eq 'no matching devices' -and $noMatchStale.observedCount -eq 0) 'Stale PnP records cannot override no-match status'

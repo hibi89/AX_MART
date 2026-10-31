@@ -65,7 +65,12 @@ function Get-PcCareConsultationSummary {
         $label = ''
         $kind = [string]$item.kind
         $id = -1
-        try { $id = [int]$item.eventId } catch { continue }
+        try {
+            $idText = [Convert]::ToString($item.eventId, [Globalization.CultureInfo]::InvariantCulture)
+            if ($idText -cnotmatch '^\d{1,5}$') { continue }
+            $id = [int]::Parse($idText, [Globalization.NumberStyles]::None, [Globalization.CultureInfo]::InvariantCulture)
+            if ($id -gt 65535) { continue }
+        } catch { continue }
         if ($entry.scope -eq 'system') {
             $provider = [string]$item.provider
             if ($kind -eq 'bugcheck_record' -and $id -eq 1001 -and

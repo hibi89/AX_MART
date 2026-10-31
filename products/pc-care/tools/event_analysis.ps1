@@ -8,7 +8,10 @@ function ConvertTo-PcCareEvidence {
     foreach ($item in @($Events)) {
         if ($null -eq $item) { continue }
         try {
-            $id = [int]$item.Id
+            $idText = [Convert]::ToString($item.Id, [Globalization.CultureInfo]::InvariantCulture)
+            if ($idText -cnotmatch '^\d{1,5}$') { continue }
+            $id = [int]::Parse($idText, [Globalization.NumberStyles]::None, [Globalization.CultureInfo]::InvariantCulture)
+            if ($id -gt 65535) { continue }
             $when = [datetime]$item.TimeCreated
             if ($when -eq [datetime]::MinValue) { continue }
             $provider = [string]$item.ProviderName

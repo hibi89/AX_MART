@@ -9,7 +9,10 @@ function Test-PcCareIncidentEvidence {
     try {
         if ([string]$Evidence.timeBasis -cne 'event_recorded_time') { return $false }
         $kind = [string]$Evidence.kind
-        $id = [int]$Evidence.eventId
+        $idText = [Convert]::ToString($Evidence.eventId, [Globalization.CultureInfo]::InvariantCulture)
+        if ($idText -cnotmatch '^\d{1,5}$') { return $false }
+        $id = [int]::Parse($idText, [Globalization.NumberStyles]::None, [Globalization.CultureInfo]::InvariantCulture)
+        if ($id -gt 65535) { return $false }
         $provider = [string]$Evidence.provider
         $recorded = [string]$Evidence.recordedUtc
         if ($recorded -cnotmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})$') { return $false }

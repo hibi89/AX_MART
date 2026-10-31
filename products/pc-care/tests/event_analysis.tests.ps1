@@ -31,6 +31,12 @@ $storage = @($evidence | Where-Object { $_.kind -eq 'storage_signal' })
 Assert-PcCare ($storage.Count -eq 1) 'Storage event classification'
 Assert-PcCare (($evidence | ConvertTo-Json -Depth 5) -notmatch 'forged') 'Lookalike provider was misclassified'
 Assert-PcCare (($evidence | ConvertTo-Json -Depth 5) -notmatch 'disk message must not be stored') 'Raw event content leak'
+$malformedIds = @(
+    [pscustomobject]@{ Id=41.5; ProviderName='Microsoft-Windows-Kernel-Power'; TimeCreated=$t; RecordId=501 },
+    [pscustomobject]@{ Id=$true; ProviderName='Microsoft-Windows-Kernel-Power'; TimeCreated=$t; RecordId=502 },
+    [pscustomobject]@{ Id='41.5'; ProviderName='Microsoft-Windows-Kernel-Power'; TimeCreated=$t; RecordId=503 }
+)
+Assert-PcCare (@(ConvertTo-PcCareEvidence -Events $malformedIds).Count -eq 0) 'Fractional and boolean event IDs cannot create shutdown evidence'
 $groups = @(Group-PcCareShutdownSignals -Evidence $evidence)
 Assert-PcCare ($groups.Count -eq 2) '41/6008 likely duplicate and distant record must remain separate'
 Assert-PcCare ($groups[0].evidenceCount -eq 2) 'Grouped signal must preserve evidence count'

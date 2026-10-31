@@ -29,8 +29,12 @@ function ConvertTo-PcCarePnPSummary {
     foreach ($d in @($Devices)) {
         if ($null -eq $d) { continue }
         try {
-            if ($null -eq $d.ConfigManagerErrorCode) { continue }
-            $code = [int]$d.ConfigManagerErrorCode
+            $rawCode = $d.ConfigManagerErrorCode
+            if ($null -eq $rawCode) { continue }
+            $codeText = [Convert]::ToString($rawCode, [Globalization.CultureInfo]::InvariantCulture)
+            if ($codeText -notmatch '^\d{1,10}$') { continue }
+            $code = [int]::Parse($codeText, [Globalization.NumberStyles]::None,
+                [Globalization.CultureInfo]::InvariantCulture)
         } catch { continue }
         if ($code -lt 1 -or $code -gt 55) { continue }
         # PnPClass is an optional CATEGORY; whitelist it to avoid serial/device strings.
