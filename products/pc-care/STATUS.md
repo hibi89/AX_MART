@@ -563,3 +563,11 @@
 - Windows smoke confirms 19 parser checks and synthetic event/incident/telemetry/timeline/report-pair/consultation/share/report-I/O fixtures. Repeated successfully under a Korean+space path. Python tests.test_release: 16 PASS/2 SKIP; symlink and directory-rename capabilities blocked by sandbox.
 - Changes: safe console encoding in preflight; test-only report temp destinations moved into the isolated checkout; unsupported directory rename is reported as SKIP. No product feature removed or weakened.
 - Edge file:// launch timed out; actual browser, camera QR, printed A4/PDF, physical USB, live Windows diagnosis, WinRE and distribution acceptance remain unverified. Release A HOLD. main/production unchanged; no user files or system configuration touched. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — QR/H08 boundary verification
+- QR validation now caps omitted signals at four and requires two displayed entries whenever omissions are reported.
+- H08 batch and per-file exact byte boundaries added; over-limit selections reject before reading content.
+- Report JSON/HTML E2E asserts no external network-resource references.
+- Full runner: Python 81 (78 PASS/3 SKIP), Node 117 PASS, internal ZIP PASS, Windows PowerShell 5.1 synthetic PASS. All nine Node suites 117/117 PASS.
+- Browser interaction, QR camera, A4/PDF, USB hardware, and live diagnosis still unverified. Release A HOLD. Updated 2026-10-31 KST.

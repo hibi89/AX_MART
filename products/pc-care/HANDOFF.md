@@ -829,3 +829,7 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 
 ## 2026-10-31 KST — Latest Release A handoff
 Code/runner fixes are in 3e3278a98b94abd7f419bfe1b2c7402bdbd2d5a4 on feature/pc-care-usb (parent 689428717a2ee0c67244fd83b64700414fce7234). Full internal QA runner exit 0: Python 78/81 PASS with 3 SKIP; Node 113 PASS; ZIP integrity PASS; Windows PowerShell 5.1 synthetic PASS. The Windows smoke also passed from a Korean+space test path. Report JSON/HTML save/readback and privacy fixtures passed. Edge file:// launch via Playwright timed out and was stopped; real browser, QR camera, A4/PDF, physical USB and live-device/WinRE acceptance remain unverified. main unchanged. Original project and customer/system data untouched. See root HANDOFF.md for full P0–P7 handoff and next priorities. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — QR/H08 follow-up
+Code commit 7607a15ae22411bf6efe8698a091abc0fd1f1787 on feature/pc-care-usb tightens QR omission-count validation and adds exact QR/H08 limit tests. Final QA at this code commit: Python 78 PASS / 3 SKIP (81 total), Node 117 PASS, internal ZIP integrity PASS, Windows PowerShell 5.1 synthetic PASS. Report HTML network-resource assertion and share producer six-category test pass. Edge file://, camera decode, printed A4/PDF, physical USB and live-device testing remain unverified; Release A HOLD. main unchanged; original local project untouched. See root HANDOFF.md for all 10 handoff fields.

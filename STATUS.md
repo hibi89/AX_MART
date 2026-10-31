@@ -403,3 +403,11 @@ Node 18 compatibility follow-up: removed the Node 18.15+ TAP reporter option; bo
 - Report JSON/HTML save/readback and existing-file preservation are verified synthetically. Storage, event provenance/uncertainty, PnP/updates, stale evidence protections and ZIP allowlist integrity have synthetic regression coverage.
 - Edge + Playwright file:// attempt timed out without page output and was stopped; QR browser smoke not run (OpenCV unavailable). Actual camera, A4/PDF print, physical USB, live Windows diagnosis, WinRE and release/distribution acceptance remain UNVERIFIED. No deployment or live repair. Release A remains HOLD.
 - Estimated readiness ~70% (rough engineering estimate, not a release certification). Next: dedicated Windows 11 read-only acceptance; approved browser/QR/PDF validation; removable USB/unplug test. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — QR/H08 independent hardening
+- Current source baseline 04b3782285b9b56b8388613013b6c4174b915775; code commit 7607a15ae22411bf6efe8698a091abc0fd1f1787 on feature/pc-care-usb.
+- QR UI now rejects omission counts outside 1–4 and requires exactly two displayed signals when an omission marker is present. PowerShell producer test asserts the six-category maximum and exact “two shown + four omitted” output.
+- H08 tests now cover 25 JSON files at exactly 12 MB, +1 byte aggregate rejection before read, 2 MB individual-file acceptance, and +1 byte rejection before read. Report-pair E2E asserts saved HTML has no external network resource references.
+- All Node suites: 117 PASS. Full Release QA: exit 0; Python 81 total / 78 PASS / 3 SKIP; Node 117 PASS; internal ZIP verification PASS; Windows PowerShell 5.1 synthetic PASS.
+- Actual Edge/file:// interaction, QR camera decode, printed A4/PDF, physical USB and real-device diagnosis remain UNVERIFIED. Release A HOLD. main/production unchanged. Updated 2026-10-31 KST.
