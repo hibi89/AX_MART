@@ -24,10 +24,13 @@
     var signalText = lines[2].slice(3);
     if (signalText !== "미확인") {
       var items = signalText.split(" 외 ");
-      if (items.length > 2 || (items.length === 2 && !/^[1-9][0-9]*종$/.test(items[1]))) return false;
+      if (items.length > 2 || (items.length === 2 && !/^[1-4]종$/.test(items[1]))) return false;
       var signals = items[0].split(",");
       var allowed = ["저장장치", "공간부족", "블루스크린기록", "비정상종료", "업데이트실패", "장치상태"];
       if (signals.length < 1 || signals.length > 2) return false;
+      // The payload builder adds an omission marker only after showing two
+      // distinct values; six allowed categories therefore cap omissions at four.
+      if (items.length === 2 && signals.length !== 2) return false;
       for (var i = 0; i < signals.length; i++) {
         if (allowed.indexOf(signals[i]) === -1 ||
             (i > 0 && signals[i] === signals[i - 1])) return false;

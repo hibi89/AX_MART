@@ -160,6 +160,7 @@ try {
     Assert-Consultation ($savedHtml.Contains('>1001</td>') -and $savedHtml.Contains('2026-10-30 03:00')) 'Saved HTML labels recorded event evidence with its normalized time'
     Assert-Consultation (($savedJson.consultation | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE-' -and $savedHtml -notmatch 'PRIVATE-') 'Consultation JSON and saved HTML exclude source identifiers and raw logs'
     Assert-Consultation ($savedHtml -notmatch '<script>|<img ') 'Saved HTML contains no injected markup'
+    Assert-Consultation ($savedHtml -notmatch '(?i)(?:src|href)\s*=\s*["'']?https?://|url\(\s*["'']?https?://') 'Saved HTML has no external network resources'
 }
 finally {
     Remove-Item -LiteralPath $pairRoot -Recurse -Force -ErrorAction SilentlyContinue

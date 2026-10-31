@@ -5,9 +5,9 @@ const vm=require("node:vm");
 const fs=require("node:fs");
 const path=require("node:path");
 const read=name=>fs.readFileSync(path.join(__dirname,"../ui",name),"utf8");
-function fakeFile(obj,name="sensitive-user-path.json") {
+function fakeFile(obj,name="sensitive-user-path.json",declaredSize) {
   const raw=JSON.stringify(obj);
-  return {name,size:raw.length,text:async()=>raw};
+  return {name,size:declaredSize??raw.length,text:async()=>raw};
 }
 function report(time,code="DISK_SPACE_LOW") {
  const bugcheck=code==="BUGCHECK",update=code==="WINDOWS_UPDATE_FAILURE_RECORD";
@@ -68,6 +68,47 @@ test("file count and aggregate size are limited before reading contents",async()
  await a.select("history-batch",Array(21).fill(big));
  assert.equal(reads,0);
  assert.match(a.nodes["history-status"].textContent,/합계 12MB/);
+});
+test("25-report batch at exactly 12MB is accepted, one byte over is rejected",async()=>{
+ const a=setup();
+ const files=Array.from({length:25},(_,i)=>{
+  const day=String(i+1).padStart(2,"0");
+  return fakeFile(report(`2026-10-${day} 09:00:00 +09:00`),`private-${i}.json`,480000);
+ });
+ await a.select("history-batch",files);
+ assert.equal(a.nodes["history-previous"].options.length,25);
+ assert.equal(a.nodes["history-current"].options.length,25);
+ assert.match(a.nodes["history-status"].textContent,/25개 보고서/);
+ assert.equal(a.nodes["history-previous"].options[0].value,"0");
+ assert.equal(a.nodes["history-current"].value,"24");
+ const over=setup();let reads=0;
+ const oversized=Array.from({length:25},(_,i)=>{
+  const day=String(i+1).padStart(2,"0");
+  const raw=JSON.stringify(report(`2026-10-${day} 09:00:00 +09:00`));
+  return {name:`private-${i}.json`,size:i===24?480001:480000,text:async()=>{reads++;return raw;}};
+ });
+ await over.select("history-batch",oversized);
+ assert.equal(reads,0);
+ assert.equal(over.nodes["history-previous"].disabled,true);
+ assert.equal(over.nodes["history-previous"].options.length,0);
+ assert.match(over.nodes["history-status"].textContent,/합계 12MB/);
+});
+test("individual report accepts exactly 2MB and rejects the next byte before reading",async()=>{
+ const exact=setup();
+ await exact.select("history-batch",[
+  fakeFile(report("2026-10-27 09:00:00 +09:00"),"old.json",2000000),
+  fakeFile(report("2026-10-30 09:00:00 +09:00"),"new.json",1),
+ ]);
+ assert.equal(exact.nodes["history-previous"].options.length,2);
+ const over=setup();let reads=0;
+ await over.select("history-batch",[
+  {name:"oversized.json",size:2000001,text:async()=>{reads++;return JSON.stringify(report("2026-10-27 09:00:00 +09:00"));}},
+  fakeFile(report("2026-10-30 09:00:00 +09:00")),
+ ]);
+ assert.equal(reads,0);
+ assert.equal(over.nodes["history-previous"].disabled,true);
+ assert.equal(over.nodes["history-previous"].options.length,0);
+ assert.match(over.nodes["history-status"].textContent,/사용할 수 없습니다/);
 });
 test("same report selected as both previous and current is rejected",async()=>{
  const a=setup();await a.select("history-batch",[fakeFile(report(dates[0])),fakeFile(report(dates[1]))]);

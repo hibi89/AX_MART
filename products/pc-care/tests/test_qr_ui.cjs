@@ -39,7 +39,7 @@ function setup(text = valid, options = {}) {
       return options.missing === key ? null : nodes[key];
     }},
     QRCode: options.noQrLibrary ? undefined : QR,
-    TextEncoder: options.noTextEncoder ? undefined : TextEncoder
+    TextEncoder: options.noTextEncoder ? undefined : (options.TextEncoder || TextEncoder)
   };
   // No network, timers, clipboard, location, process, or real browser objects are exposed.
   vm.runInNewContext(source, env, {timeout: 1000, filename: "qr_ui.js"});
@@ -68,11 +68,23 @@ test("valid Korean text generates one QR only on deliberate click", () => {
   assert.match(ui.state.textContent, /만들었습니다/);
 });
 
-test("UTF-8 250-byte boundary rejects oversized Korean text, no clipping", () => {
+test("malformed oversized Korean text is rejected without clipping", () => {
   const ui = setup("AXMART PC CARE\n" + "한".repeat(100));
   ui.click();
   assert.equal(ui.calls.length, 0);
   assert.match(ui.state.textContent, /차단/);
+});
+
+test("QR byte budget accepts exactly 250 bytes and rejects 251", () => {
+  const encoderAtLimit = class { encode() { return new Uint8Array(250); } };
+  const exact = setup(valid, {TextEncoder: encoderAtLimit});
+  exact.click();
+  assert.equal(exact.calls.length, 1);
+  const encoderOverLimit = class { encode() { return new Uint8Array(251); } };
+  const over = setup(valid, {TextEncoder: encoderOverLimit});
+  over.click();
+  assert.equal(over.calls.length, 0);
+  assert.match(over.state.textContent, /차단/);
 });
 
 test("untrusted prefix cannot create QR", () => {
@@ -154,6 +166,23 @@ test("known multi-signal payload and omission marker are accepted", () => {
   const ui = setup(valid.replace("신호:저장장치", "신호:저장장치,업데이트실패 외 2종"));
   ui.click();
   assert.equal(ui.calls.length, 1);
+});
+
+test("omission marker matches the maximum allowed signal inventory", () => {
+  const maximum = setup(valid.replace("신호:저장장치", "신호:저장장치,업데이트실패 외 4종"));
+  maximum.click();
+  assert.equal(maximum.calls.length, 1);
+  for (const signalLine of [
+    "신호:저장장치 외 1종",
+    "신호:저장장치,업데이트실패 외 5종",
+    "신호:저장장치,업데이트실패 외 999999999999종",
+    "신호:저장장치,업데이트실패 외 0종",
+  ]) {
+    const invalid = setup(valid.replace("신호:저장장치", signalLine));
+    invalid.click();
+    assert.equal(invalid.calls.length, 0, signalLine);
+    assert.match(invalid.state.textContent, /차단/);
+  }
 });
 
 test("unknown or malformed event UTC time is rejected", () => {
