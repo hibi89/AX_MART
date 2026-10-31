@@ -93,6 +93,28 @@ try {
     Assert-Report $onlyCloudRejected 'Only cloud destinations must fail closed'
     Assert-Report (-not (Test-Path -LiteralPath (Join-Path $cloudReports 'fixture-cloud-only.json'))) 'Cloud-only failure must not write personal JSON'
     Assert-Report (-not (Test-PcCarePrivateReportFolder -Folder '\\example-server\public\reports')) 'UNC network shares are not private report folders'
+    # The approved repair path must not leak logs to a synced Documents folder.
+    # This fixture exercises stream allocation only; DISM/SFC are never invoked.
+    $repair = New-PcCarePrivateRepairLogStream -Candidates @($cloudReports,$normal)
+    try {
+        Assert-Report ($repair.path.StartsWith($normal, [System.StringComparison]::OrdinalIgnoreCase)) 'Repair log must use private local fallback'
+        Assert-Report ([System.IO.File]::Exists($repair.path)) 'Approved repair log must be created exclusively'
+        Assert-Report ($repair.stream.CanWrite) 'Repair log stream must be writable'
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes('PRIVATE-TEST-ONLY')
+        $repair.stream.Write($bytes, 0, $bytes.Length)
+        $repair.stream.Flush()
+        $secondWriterBlocked = $false
+        try {
+            $other = [System.IO.File]::Open($repair.path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
+            $other.Dispose()
+        } catch [System.IO.IOException] { $secondWriterBlocked = $true }
+        Assert-Report $secondWriterBlocked 'Repair log stream must block concurrent writers'
+    } finally { $repair.stream.Dispose() }
+    Assert-Report (([System.IO.File]::ReadAllText($repair.path)) -eq 'PRIVATE-TEST-ONLY') 'Repair log stream did not preserve bytes'
+    $repairCloudBlocked = $false
+    try { New-PcCarePrivateRepairLogStream -Candidates @($cloudReports) | Out-Null }
+    catch { $repairCloudBlocked = ([string]$_.Exception.Message -match '수리를 시작하지') }
+    Assert-Report $repairCloudBlocked 'Cloud-only destinations must block repair before any command'
     Write-Host 'REPORT IO FIXTURE PASS: paired output, existing-file preservation, fallback and failure.' -ForegroundColor Green
 } finally {
     # This path is created from a fresh GUID beneath the OS temp folder by this fixture.
