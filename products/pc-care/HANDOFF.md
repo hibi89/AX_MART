@@ -853,3 +853,12 @@ Final code commit 54f92ced99796f3791d9ed28d0d4d8f3916c1b9f ensures QA receipt pa
 - Skips are sandbox filesystem capability cases. Edge/file://, QR camera, A4/PDF, physical USB, live diagnosis, WinRE/repair and distribution acceptance remain UNVERIFIED. Release A remains HOLD; readiness remains a rough ~70% engineering estimate, not certification.
 - No DISM/SFC, BitLocker, WinRE copy, real device diagnosis, user-file deletion, auth/permissions change, paid service or deployment was performed. No customer data was collected or uploaded.
 - Next priority: Windows 11 standard-user acceptance of file:///USB Unicode path, QR camera/A4 output, and separate disposable VM/WinRE read-only/restore gates before release review. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 20:54 KST — sensor coercion follow-up
+- Follow-up functional commit `52c4076ee66c0a9792f7c3eb1a7d57c37aaa4f41` on `feature/pc-care-usb` (parent `eda324aff44ce3737d1c76752a49a43118c833be`).
+- Added strict invariant integer parsing for battery charge/status/capacity fields; fractional and boolean inputs now remain unknown rather than rounding/truncating into plausible readings. Logical volume normalization now rejects fractional byte counts while retaining exact raw-byte risk comparisons.
+- Added fractional/boolean battery regressions, fractional volume byte rejections, and incident evidence tests for fractional/boolean Event IDs. PowerShell 5.1 telemetry and incident fixtures PASS.
+- Full `cmd.exe /d /c RUN_RELEASE_QA.cmd` rerun: exit 0; Python 82 total (79 PASS/3 SKIP), Node 117 PASS, internal ZIP integrity/manifest/SHA256 PASS, Windows PowerShell 5.1 synthetic PASS. Latest receipt `QA_RESULTS/pc-care-qa-20261031T115343Z-caff61c1.json` from isolated source copy.
+- Browser/file://, physical QR camera, A4/PDF, USB hardware, live Windows device diagnosis and WinRE remain unverified. Release A remains HOLD. No live diagnosis or modifying repair commands; no customer files/data or credentials touched.
+- Original local project remains untouched. Updated 2026-10-31 KST.

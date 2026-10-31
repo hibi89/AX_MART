@@ -594,3 +594,11 @@
 - Original project, device and user data unchanged. No repair/system-changing commands, deployment or external customer data transfer.
 - Real Edge/file:// interaction, camera QR decode, A4/PDF print, physical USB, live diagnosis and WinRE/repair remain UNVERIFIED. Release A HOLD; readiness estimate ~70% remains indicative only.
 - Next: actual Windows 11 standard-user acceptance and isolated WinRE/restore validation; keep public release gated until those pass. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 20:54 KST — sensor input hardening
+- Functional SHA `52c4076ee66c0a9792f7c3eb1a7d57c37aaa4f41`, branch `feature/pc-care-usb`.
+- Battery telemetry no longer accepts decimal/bool values through implicit integer coercion; logical volume sizes/free bytes require integral bytes. Invalid values become unknown.
+- Direct telemetry and incident PowerShell fixtures PASS. Latest full offline QA exit 0: Python 82 (79 PASS, 3 SKIP), Node 117 PASS, internal ZIP integrity/manifest/SHA256 PASS, Windows PowerShell 5.1 synthetic PASS.
+- Real Windows device, Edge/file://, camera QR, printed A4/PDF, physical USB, WinRE/repair remain UNVERIFIED. Release A HOLD; estimate ~70% remains a rough engineering estimate. main/Cloudflare unchanged.
+- Original local project and user data untouched; updated 2026-10-31 KST.
