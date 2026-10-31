@@ -142,7 +142,10 @@ def run_qa(root: Path, *, windows_synthetic: bool | None = None) -> dict:
             if not match or int(match.group(1)) < 1:
                 return dict(name='node-tests',status='fail',output='No Node tests verified')
             result['tests']=int(match.group(1))
-            skipped=re.search(r'(?m)^\S+\s+skipped\s+([0-9]+)\s*
+            skipped=re.search(r'(?m)^\S+\s+skipped\s+([0-9]+)\s*$',result['output'])
+            result['skipped']=int(skipped.group(1)) if skipped else 0
+        return result
+    def zip_suite():
         with tempfile.TemporaryDirectory(prefix='axmart-pc-care-internal-qa-') as tmp:
             dest = Path(tmp)
             packer = root / 'tools/release.py'
@@ -258,134 +261,6 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{stage['status'].upper()}: {stage['name']}")
         if stage['status'] == 'pass' and stage.get('skipped', 0):
             print(f"  {stage['skipped']} tests skipped; those cases remain unverified.")
-        if stage['status'] not in ('pass','not-run') and stage.get('output'):
-            print(stage['output'][-1800:])
-    print(json.dumps({k:v for k,v in result.items() if k!='stages'},ensure_ascii=False))
-    if args.receipt_dir is not None:
-        try:
-            receipt_path = write_qa_receipt(result, args.receipt_dir)
-            print(f'Local QA receipt: {receipt_path}')
-        except (OSError, ValueError) as exc:
-            print(f'QA RECEIPT FAILED: {type(exc).__name__}', file=sys.stderr)
-            return 1
-    # Partial native coverage is not a PASS and must propagate a nonzero exit.
-    return 0 if result['status']=='pass' else (2 if result['status']=='partial' else 1)
-
-
-if __name__ == '__main__':
-    raise SystemExit(main())
-,result['output'])
-            result['skipped']=int(skipped.group(1)) if skipped else 0
-        return result
-    def zip_suite():
-        with tempfile.TemporaryDirectory(prefix='axmart-pc-care-internal-qa-') as tmp:
-            dest = Path(tmp)
-            packer = root / 'tools/release.py'
-            if not packer.is_file():
-                return dict(name='internal-zip',status='blocked',output='Missing release.py')
-            build = command('internal-zip-build', [sys.executable, str(packer),
-                            '--internal-testing', '--root', str(root), '--output', str(dest)], cwd=root)
-            if build['status'] != 'pass':
-                return build
-            archives = list(dest.glob('*_INTERNAL_TEST_ONLY.zip'))
-            if len(archives) != 1:
-                return dict(name='internal-zip',status='fail',output='Expected exactly one internal ZIP')
-            archive=archives[0]
-            verify=command('internal-zip-verify', [sys.executable, str(packer),
-                            '--verify', str(archive)], cwd=root)
-            if verify['status'] != 'pass':
-                return verify
-            size=archive.stat().st_size
-            actual=hashlib.sha256(archive.read_bytes()).hexdigest()
-            sidecar=Path(str(archive)+'.sha256')
-            if not sidecar.is_file() or sidecar.read_text(encoding='ascii') != f'{actual}  {archive.name}\n':
-                return dict(name='internal-zip',status='fail',output='SHA256 sidecar mismatch')
-            return dict(name='internal-zip',status='pass',zip_size_bytes=size,sha256=actual,
-                        note='Temporary internal QA ZIP verified then deleted; not published')
-    tasks=[python_suite,node_suite,zip_suite]
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        stages.extend(list(pool.map(lambda fn: fn(), tasks)))
-    if on_windows:
-        if not ps51 or not ps51.is_file():
-            stages.append(dict(name='windows-powershell-51-synthetic',status='blocked',output='Trusted Windows PS5.1 unavailable'))
-        else:
-            stages.append(command('windows-powershell-51-synthetic', [str(ps51),'-NoProfile',
-                    '-NonInteractive','-ExecutionPolicy','Bypass','-File',
-                    'tests/windows_smoke.ps1'],cwd=root))
-    else:
-        stages.append(dict(name='windows-powershell-51-synthetic',status='not-run',
-                           output='Non-Windows host: Windows test not executed'))
-    status = classify_full_qa_stages(stages)
-    return dict(status=status,stages=stages,not_verified=NOT_VERIFIED,
-                warning='PASS covers synthetic/source QA only, NOT actual Windows/WinRE operation')
-
-
-def safe_qa_receipt(result: dict) -> dict:
-    """Shareable synthetic-QA receipt: no logs, paths, commands, or user data."""
-    allowed = {'pass', 'fail', 'blocked', 'partial', 'not-run'}
-    status = result.get('status')
-    if status not in allowed or status != classify_full_qa_stages(result.get('stages', [])):
-        status = 'fail'
-    stages = []
-    expected_names = {'python-tests', 'node-tests', 'internal-zip', 'internal-zip-build',
-                      'internal-zip-verify', 'windows-powershell-51-synthetic'}
-    expected_names.update('node-syntax:' + name for name in JS_SCRIPTS)
-    for stage in result.get('stages', []):
-        name = stage.get('name', '')
-        name = name if isinstance(name, str) and name in expected_names else 'unknown'
-        state = stage.get('status')
-        if state not in allowed:
-            state = 'fail'
-        record = {'name': name, 'status': state}
-        count = stage.get('tests')
-        if isinstance(count, int) and not isinstance(count, bool) and 0 <= count <= 100000:
-            record['tests'] = count
-        stages.append(record)
-    return {
-        'schemaVersion': 1,
-        'product': 'AXMART PC CARE internal QA',
-        'scope': 'synthetic_only_no_live_diagnosis',
-        'status': status,
-        'stages': stages,
-        'unverified': list(NOT_VERIFIED),
-        'generatedUtc': datetime.now(timezone.utc).isoformat(timespec='seconds'),
-    }
-
-
-def write_qa_receipt(result: dict, directory: Path) -> Path:
-    """Create one private report without overwriting or serializing raw test output."""
-    directory = Path(directory)
-    if directory.is_symlink():
-        raise ValueError('QA receipt directory cannot be a symlink')
-    directory.mkdir(parents=True, exist_ok=True)
-    document = safe_qa_receipt(result)
-    data = (json.dumps(document, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
-    if len(data) > 16000:
-        raise ValueError('QA receipt size exceeded')
-    label = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
-    filename = directory / f'pc-care-qa-{label}-{secrets.token_hex(4)}.json'
-    created = False
-    try:
-        with os.fdopen(os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'wb') as target:
-            created = True
-            target.write(data)
-            target.flush()
-            os.fsync(target.fileno())
-    except Exception:
-        if created:
-            filename.unlink(missing_ok=True)
-        raise
-    return filename
-
-
-def main(argv: list[str] | None = None) -> int:
-    parser=argparse.ArgumentParser(description='AXMART internal offline QA, NOT a public release')
-    parser.add_argument('--root',type=Path,default=ROOT,help='working product tree')
-    parser.add_argument('--receipt-dir', type=Path, help='Save a private, sanitized synthetic-QA receipt')
-    args=parser.parse_args(argv)
-    result=run_qa(args.root)
-    for stage in result['stages']:
-        print(f"{stage['status'].upper()}: {stage['name']}")
         if stage['status'] not in ('pass','not-run') and stage.get('output'):
             print(stage['output'][-1800:])
     print(json.dumps({k:v for k,v in result.items() if k!='stages'},ensure_ascii=False))
