@@ -6,9 +6,11 @@ $repoRoot = Split-Path -Parent $productRoot
 $diagnose = Join-Path $productRoot 'tools/diagnose.ps1'
 $startedAt = [datetime]::Now.AddMinutes(-10)
 $privateMarker = 'PRIVATE-SYNTHETIC-DO-NOT-EXPORT-91C3'
+$mockCollectionFailure = $false
 
 function Get-CimInstance {
     param([string]$ClassName, [string]$Filter, [string[]]$Property, [string]$ErrorAction)
+    if ($mockCollectionFailure) { throw 'Synthetic access denied' }
     switch ($ClassName) {
         'Win32_OperatingSystem' {
             return [pscustomobject]@{ Caption='Microsoft Windows 11 Pro'; Version='10.0'; BuildNumber='26100'; LastBootUpTime='20261031190000.000000+540' }
@@ -27,14 +29,16 @@ function Get-CimInstance {
 }
 function Get-PhysicalDisk {
     param([string]$ErrorAction)
+    if ($mockCollectionFailure) { throw 'Synthetic storage API failure' }
     return [pscustomobject]@{ HealthStatus='Warning'; OperationalStatus=@('OK'); FriendlyName=$privateMarker; SerialNumber=$privateMarker; UniqueId=$privateMarker }
 }
 function Get-StorageReliabilityCounter {
     param([Parameter(ValueFromPipeline=$true)][object]$PhysicalDisk, [string]$ErrorAction)
-    process { return [pscustomobject]@{ Wear=$true; Temperature=$true; SerialNumber=$privateMarker } }
+    process { if ($mockCollectionFailure) { throw 'Synthetic reliability API failure' }; return [pscustomobject]@{ Wear=$true; Temperature=$true; SerialNumber=$privateMarker } }
 }
 function Get-WinEvent {
     param([hashtable]$FilterHashtable, [int]$MaxEvents, [string]$ErrorAction)
+    if ($mockCollectionFailure) { throw 'Synthetic event access denied' }
     if ($FilterHashtable.ContainsKey('ProviderName')) {
         return [pscustomobject]@{ Id=20; ProviderName='Microsoft-Windows-WindowsUpdateClient'; RecordId=701; TimeCreated=$startedAt.AddMinutes(4); Message=('<script>' + $privateMarker + '</script>') }
     }
@@ -48,11 +52,14 @@ function Get-WinEvent {
 }
 function Get-MpComputerStatus {
     param([string]$ErrorAction)
+    if ($mockCollectionFailure) { throw 'Synthetic optional API failure' }
     return [pscustomobject]@{ AntivirusEnabled=$true; RealTimeProtectionEnabled=$true }
 }
 
 $savedJson = $null
 $savedHtml = $null
+$failedJson = $null
+$failedHtml = $null
 try {
     # These command names shadow Windows APIs for the child diagnosis script.
     $result = @(& $diagnose -Days 30 -PassThru -NoOpenReport)
@@ -104,11 +111,36 @@ try {
         $htmlText -notmatch '실제 장애 발생 시각 확정 아님') {
         throw 'Report overclaimed event recorded time as incident time.'
     }
+    # A second invocation exercises collector failures and proves the first run's
+    # observations are not reused as if they belonged to a successful collection.
+    $mockCollectionFailure = $true
+    $failureResult = @(& $diagnose -Days 30 -PassThru -NoOpenReport)
+    if ($failureResult.Count -ne 1 -or $null -eq $failureResult[0]) { throw 'Failed collectors did not return a report receipt.' }
+    $failedJson = [System.IO.Path]::GetFullPath([string]$failureResult[0].json)
+    $failedHtml = [System.IO.Path]::GetFullPath([string]$failureResult[0].html)
+    if (-not $failedJson.StartsWith($reportsRoot, [StringComparison]::OrdinalIgnoreCase) -or
+        -not $failedHtml.StartsWith($reportsRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'Failure report escaped the temporary package REPORTS folder.'
+    }
+    $failedReport = [System.IO.File]::ReadAllText($failedJson, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
+    if ($failedReport.assessment -ne '확인 불완전' -or
+        $failedReport.observations.eventCollection -ne 'unavailable' -or
+        $failedReport.observations.windowsUpdate.status -ne 'unavailable' -or
+        $failedReport.observations.collectionStatus.physicalDisks -ne 'unavailable' -or
+        $failedReport.analysis.status -ne 'incomplete') {
+        throw 'API failures were collapsed into empty or normal observations.'
+    }
+    if (@($failedReport.observations.eventEvidence).Count -ne 0 -or
+        @($failedReport.issues | Where-Object { $_.code -in @('BUGCHECK','UNEXPECTED_REBOOT','STORAGE_EVENTS','WINDOWS_UPDATE_FAILURE_RECORD') }).Count -ne 0 -or
+        @($failedReport.limitations).Count -lt 3) {
+        throw 'Stale evidence survived failed collectors or failure limits were hidden.'
+    }
+    Write-Host 'DIAGNOSE FAILURE E2E PASS: access/API failures remain unavailable, incomplete, and do not reuse prior run evidence.' -ForegroundColor Green
     Write-Host 'DIAGNOSE MOCK E2E PASS: API shims, exact disk boundary, warning provenance, invalid sensor and RecordIds, JSON/HTML agreement, privacy.' -ForegroundColor Green
 } finally {
     # Delete only the unique files returned by this invocation and only within the temp REPORTS folder.
     $reportsRoot = [System.IO.Path]::GetFullPath((Join-Path $productRoot 'REPORTS')).TrimEnd('\') + '\'
-    foreach ($path in @($savedJson,$savedHtml)) {
+    foreach ($path in @($savedJson,$savedHtml,$failedJson,$failedHtml)) {
         if ([string]::IsNullOrWhiteSpace($path)) { continue }
         $full = [System.IO.Path]::GetFullPath($path)
         if ($full.StartsWith($reportsRoot, [StringComparison]::OrdinalIgnoreCase) -and
