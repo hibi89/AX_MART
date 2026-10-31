@@ -610,3 +610,11 @@
 - Overall changes include strict PnP/System/Update Event IDs and integral battery/volume values. No original local project, user data, device, permissions or production changes.
 - Actual Edge/file://, QR camera, A4/PDF, physical USB, Windows live diagnosis and WinRE remain UNVERIFIED. Release A remains HOLD; ~70% is a non-certifying estimate.
 - Next priority remains dedicated Windows 11 acceptance and isolated recovery tests. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 21:02 KST — latest sensor guard / QA qualification
+- Current code SHA `eeef18164fae7bddbc8b0a1bf7f3cee99dd2ac87` on `feature/pc-care-usb`. Boolean SMART values no longer become 1%/1°C, and boolean disk sizes/free-space inputs are rejected. Telemetry PowerShell 5.1 fixture PASS.
+- QA after final patch: direct telemetry fixture PASS. The full runner on a reconstructed source snapshot had Python 1 error/3 skips (82 total; 78 passed) due missing root `.gitignore`, after one earlier snapshot attempt failed due missing workflow fixture. Node, internal ZIP and PowerShell synthetic stages PASS. Do not describe this run as aggregate PASS. Prior full QA on complete snapshot before this bool-only patch: Python 82/79 PASS/3 SKIP; Node 117 PASS; ZIP PASS; PowerShell 5.1 PASS.
+- Full aggregate after final patch needs rerun from complete Windows checkout. No repeated retry was made after snapshot omissions.
+- Real Edge/file://, QR camera, A4/PDF, USB hardware, live diagnosis, WinRE/repair are UNVERIFIED. Release A remains HOLD (~70% rough estimate).
+- Original local project/device/user data and main/Cloudflare Production unchanged. Updated 2026-10-31 KST.

@@ -870,3 +870,12 @@ Final code commit 54f92ced99796f3791d9ed28d0d4d8f3916c1b9f ensures QA receipt pa
 - Combined work commits: `3e2d684` malformed PnP/event-ID guards; `52c4076` strict integral telemetry; `c532270` timeline validation. Documentation reflects tests, environment, original-data preservation and remaining verification gates.
 - Browser, camera, A4/PDF, physical USB, live device and WinRE/repair are still UNVERIFIED. Release A remains HOLD; estimated readiness about 70% is an engineering estimate only. No dangerous commands or live/system changes were made.
 - Updated 2026-10-31 KST.
+
+
+## 2026-10-31 21:02 KST — boolean sensor rejection and incomplete snapshot QA
+- Code commit `eeef18164fae7bddbc8b0a1bf7f3cee99dd2ac87` on `feature/pc-care-usb`: strict integral parser now also handles SMART wear/temperature; boolean sensor values cannot convert to 1. Logical volume normalization rejects boolean size/free-space inputs.
+- Added synthetic boolean SMART and volume cases. Direct `powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tests/telemetry_analysis.tests.ps1` PASS.
+- Full QA status after this final code patch: launcher ran against a temporary source snapshot reconstructed from the remote tree. First attempt failed Python because the root workflow fixture was absent (4 FileNotFound errors); after restoring that file and one retry, Python still had 1 FileNotFound error because the snapshot lacked root `.gitignore` (82 tests: 78 pass / 1 error / 3 skipped). Node, internal ZIP, and PS 5.1 synthetic stages passed. This is **not a full aggregate PASS**; the incomplete snapshot explains the Python error, but the current final patch did not get a clean complete-tree aggregate run. The immediately preceding complete temporary source copy did pass all four stages before the boolean-only follow-up.
+- No more attempts with the incomplete snapshot. Resolve by running `cmd.exe /d /c products\\pc-care\\RUN_RELEASE_QA.cmd` in a complete Windows checkout. A clean aggregate run after this final patch is still pending.
+- No live diagnosis, repairs, device/user data, permissions, BitLocker, WinRE copy, deployment or paid service. Browser/camera/A4-PDF/physical USB/WinRE acceptance remains UNVERIFIED. Release A remains HOLD.
+- Updated 2026-10-31 KST.
