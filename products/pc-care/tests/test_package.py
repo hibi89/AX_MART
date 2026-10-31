@@ -313,6 +313,13 @@ class PackageTests(unittest.TestCase):
         self.assertIn("if ($movedHtml) { Remove-Item -LiteralPath $finalHtml", report_io)
         self.assertIn("Report filename collision:", report_io)
         self.assertIn("Invalid report file base:", report_io)
+        # The destination may become a junction between initial check and mkdir.
+        report_writer = report_io[report_io.index("function Save-PcCareReportPair"):]
+        self.assertLess(report_writer.index("New-Item -ItemType Directory -Path $folder"),
+                        report_writer.index("Report destination changed or is no longer private."))
+        self.assertLess(report_writer.index("Report destination changed or is no longer private."),
+                        report_writer.index("$jsonStream = [System.IO.File]::Open"))
+        self.assertIn("if (-not (Test-PcCarePrivateReportFolder -Folder $folder)) {", report_writer)
         self.assertIn("'^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$'", report_io)
         self.assertLess(report_io.index("Invalid report file base:"),
                         report_io.index("$tempJson = Join-Path"))
