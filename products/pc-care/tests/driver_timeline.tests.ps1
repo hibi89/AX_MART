@@ -69,6 +69,11 @@ $bounded = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence 
 Assert-PcCareDriverTimeline ($bounded.status -eq 'truncated' -and $bounded.returnedCount -eq 2) 'Enforced timeline limit'
 $invalidTime = Get-PcCareRecordedTimeline -SystemEvidence @([pscustomobject]@{ kind='shutdown_signal'; provider='Microsoft-Windows-Kernel-Power'; timeBasis='event_recorded_time'; eventId=41; recordedUtc='not-a-date' }) -SystemCollectionStatus 'collected'
 Assert-PcCareDriverTimeline ($invalidTime.acceptedCount -eq 0) 'Reject invalid timestamp'
+$malformedTimelineIds = Get-PcCareRecordedTimeline -SystemEvidence @(
+    [pscustomobject]@{ kind='shutdown_signal'; provider='Microsoft-Windows-Kernel-Power'; timeBasis='event_recorded_time'; eventId=41.5; recordedUtc='2026-10-30T01:00:00Z' },
+    [pscustomobject]@{ kind='shutdown_signal'; provider='Microsoft-Windows-Kernel-Power'; timeBasis='event_recorded_time'; eventId=$true; recordedUtc='2026-10-30T01:01:00Z' }
+) -SystemCollectionStatus 'collected'
+Assert-PcCareDriverTimeline ($malformedTimelineIds.acceptedCount -eq 0 -and $malformedTimelineIds.rejectedCount -eq 2) 'Fractional and boolean IDs cannot create timeline records'
 # The same arrays may survive a failed/no-match event query: status wins.
 $staleTimeline = Get-PcCareRecordedTimeline -SystemEvidence $evidence -UpdateEvidence $updates -SystemCollectionStatus 'unavailable' -UpdateCollectionStatus 'no matching events'
 Assert-PcCareDriverTimeline ($staleTimeline.acceptedCount -eq 0 -and $staleTimeline.windows.Count -eq 0) 'Failed/no-match collectors cannot generate timeline windows'

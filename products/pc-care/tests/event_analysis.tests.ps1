@@ -41,6 +41,11 @@ $groups = @(Group-PcCareShutdownSignals -Evidence $evidence)
 Assert-PcCare ($groups.Count -eq 2) '41/6008 likely duplicate and distant record must remain separate'
 Assert-PcCare ($groups[0].evidenceCount -eq 2) 'Grouped signal must preserve evidence count'
 Assert-PcCare ($groups[0].interpretation -eq 'possibly_related_shutdown_signals') 'No confirmed outage claims'
+ $badGroups = @(Group-PcCareShutdownSignals -Evidence @(
+    [pscustomobject]@{ kind='shutdown_signal'; eventId=41.5; recordedAt='bad'; recordedUtc='2026-10-30T12:00:00Z' },
+    [pscustomobject]@{ kind='shutdown_signal'; eventId=$true; recordedAt='bad'; recordedUtc='2026-10-30T12:01:00Z' }
+))
+Assert-PcCare ($badGroups.Count -eq 0) 'Malformed event IDs cannot inflate grouped shutdown evidence'
 Assert-PcCare (@(ConvertTo-PcCareEvidence -Events @()).Count -eq 0) 'Empty event set'
 Assert-PcCare (@(Group-PcCareShutdownSignals -Evidence @()).Count -eq 0) 'Empty grouping'
 $queryEmpty = Invoke-PcCareEventQuery -Query { @() } -MaxEvents 3

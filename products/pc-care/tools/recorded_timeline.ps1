@@ -36,7 +36,10 @@ function Get-PcCareRecordedTimeline {
             # Unmarked / manually fabricated dates are not timeline evidence.
             if ([string]$item.timeBasis -cne 'event_recorded_time') { throw 'Unverified time basis' }
             $kind = [string]$item.kind
-            $id = [int]$item.eventId
+            $idText = [Convert]::ToString($item.eventId, [Globalization.CultureInfo]::InvariantCulture)
+            if ($idText -cnotmatch '^\d{1,5}$') { throw 'Invalid event identity' }
+            $id = [int]::Parse($idText, [Globalization.NumberStyles]::None, [Globalization.CultureInfo]::InvariantCulture)
+            if ($id -gt 65535) { throw 'Invalid event identity' }
             $systemMatch = ($entry.scope -eq 'system') -and (
                 ($kind -eq 'bugcheck_record' -and $id -eq 1001) -or
                 ($kind -eq 'shutdown_signal' -and $id -in @(41,6008)) -or

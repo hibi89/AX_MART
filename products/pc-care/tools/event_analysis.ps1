@@ -64,6 +64,13 @@ function Group-PcCareShutdownSignals {
     $groups = New-Object 'System.Collections.Generic.List[object]'
     $current = $null
     foreach ($signal in $orderedSignals) {
+        $signalId = 0
+        try {
+            $signalIdText = [Convert]::ToString($signal.eventId, [Globalization.CultureInfo]::InvariantCulture)
+            if ($signalIdText -cnotmatch '^\d{1,5}$') { continue }
+            $signalId = [int]::Parse($signalIdText, [Globalization.NumberStyles]::None, [Globalization.CultureInfo]::InvariantCulture)
+            if ($signalId -notin @(41,6008)) { continue }
+        } catch { continue }
         try { $whenUtc = [datetimeoffset]::Parse([string]$signal.recordedUtc).ToUniversalTime() }
         catch { continue }
         if ($null -eq $current -or ($whenUtc - $current.lastUtc).TotalMinutes -gt 10) {
@@ -80,8 +87,8 @@ function Group-PcCareShutdownSignals {
         $current.lastRecordedAt = [string]$signal.recordedAt
         $current.lastUtc = $whenUtc
         $current.evidenceCount++
-        if (-not $current.eventIds.Contains([int]$signal.eventId)) {
-            [void]$current.eventIds.Add([int]$signal.eventId)
+        if (-not $current.eventIds.Contains($signalId)) {
+            [void]$current.eventIds.Add($signalId)
         }
     }
     foreach ($group in $groups) {
