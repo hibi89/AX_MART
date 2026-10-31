@@ -27,6 +27,11 @@ $bugchecks = @($evidence | Where-Object { $_.kind -eq 'bugcheck_record' })
 Assert-PcCare ($bugchecks.Count -eq 1) '1001 requires matching provider'
 Assert-PcCare ($bugchecks[0].stopCode -eq '0X0000007E') 'STOP code extraction'
 Assert-PcCare ($bugchecks[0].timeBasis -eq 'event_recorded_time') '1001 time cannot be called crash time'
+$badRecordIdEvidence = @(ConvertTo-PcCareEvidence -Events @(
+    [pscustomobject]@{ Id=41; ProviderName='Microsoft-Windows-Kernel-Power'; RecordId=500.5; TimeCreated=$t; Message='' },
+    [pscustomobject]@{ Id=41; ProviderName='Microsoft-Windows-Kernel-Power'; RecordId=$true; TimeCreated=$t; Message='' }
+))
+Assert-PcCare ($badRecordIdEvidence.Count -eq 2) 'Malformed RecordId cannot collapse distinct observed events'
 $storage = @($evidence | Where-Object { $_.kind -eq 'storage_signal' })
 Assert-PcCare ($storage.Count -eq 1) 'Storage event classification'
 Assert-PcCare (($evidence | ConvertTo-Json -Depth 5) -notmatch 'forged') 'Lookalike provider was misclassified'

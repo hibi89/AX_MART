@@ -77,7 +77,17 @@ function ConvertTo-PcCareUpdateEvidence {
             if ($when -eq [datetime]::MinValue) { continue }
         } catch { continue }
         $recordId = 0L
-        try { if ($null -ne $item.RecordId) { $recordId = [long]$item.RecordId } } catch {}
+        try {
+            if ($null -ne $item.RecordId) {
+                $recordText = [Convert]::ToString($item.RecordId, [Globalization.CultureInfo]::InvariantCulture)
+                $parsedRecordId = 0L
+                if ($recordText -cmatch '^\d{1,18}$' -and
+                    [long]::TryParse($recordText, [Globalization.NumberStyles]::None,
+                        [Globalization.CultureInfo]::InvariantCulture, [ref]$parsedRecordId)) {
+                    $recordId = $parsedRecordId
+                }
+            }
+        } catch { $recordId = 0L }
         if ($recordId -gt 0) {
             $key = "$provider/$recordId"
             if ($seen.ContainsKey($key)) { continue }

@@ -29,7 +29,17 @@ function ConvertTo-PcCareEvidence {
         } else { continue }
         # RecordId, when available, distinguishes separate entries with identical timestamps.
         $recordId = 0L
-        try { if ($null -ne $item.RecordId) { $recordId = [long]$item.RecordId } } catch {}
+        try {
+            if ($null -ne $item.RecordId) {
+                $recordText = [Convert]::ToString($item.RecordId, [Globalization.CultureInfo]::InvariantCulture)
+                $parsedRecordId = 0L
+                if ($recordText -cmatch '^\d{1,18}$' -and
+                    [long]::TryParse($recordText, [Globalization.NumberStyles]::None,
+                        [Globalization.CultureInfo]::InvariantCulture, [ref]$parsedRecordId)) {
+                    $recordId = $parsedRecordId
+                }
+            }
+        } catch { $recordId = 0L }
         $recordedAt = $when.ToString('yyyy-MM-ddTHH:mm:ss.fffK', [Globalization.CultureInfo]::InvariantCulture)
         # Without RecordId, two distinct entries can share a provider, ID and timestamp.
         if ($recordId -gt 0) {
