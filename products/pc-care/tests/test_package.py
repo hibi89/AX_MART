@@ -295,6 +295,10 @@ class PackageTests(unittest.TestCase):
         self.assertIn('Test-PcCareLocalDriveType -DriveType $drive.DriveType', report_io)
         self.assertIn("Mapped network shares must not count as private drives", report_fixture)
         self.assertIn("USB removable drive remains an allowed type", report_fixture)
+        # Regressions in fixture initialization must fail on Linux source QA,
+        # not first appear as a Windows PowerShell runtime failure.
+        self.assertLess(report_fixture.index("$normal = Join-Path $sandbox 'normal'"),
+                        report_fixture.index('Test-PcCarePrivateReportFolder -Folder $normal'))
         self.assertIn('Directory]::Exists($part)', report_io)
         self.assertIn('ReparsePoint', report_io)
         self.assertIn("Known OneDrive-style sync folder is blocked", report_fixture)
