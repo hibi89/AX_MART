@@ -542,3 +542,11 @@
 - 검증: GitHub 원본 소스·테스트 readback **정적 12/12 PASS**. 실제 Linux Python 3.13에서 `build_internal` 게시 제어 흐름을 원본 GitHub에서 옮겨오고 간소화한 ZIP/검증 helper를 사용하는 **격리 테스트 8/8 PASS**; 이 시험은 GitHub 전체 원본을 clone하거나 official `test_release.py`를 실행한 결과가 아님. 검증 수준을 제품 전체 PASS로 확대하지 말 것.
 - 장애·대안: 현재 컨테이너에서 private GitHub 원격 DNS/자격증명 접근 불가(`Could not resolve host: github.com`). GitHub connector로 원본 파일 열람/수정만 가능. Windows PowerShell 5.1 부재. 차기: GitHub checkout 가능한 실제 Windows 환경에서 `RUN_RELEASE_QA.cmd` 원본 Python+Node+PS5.1+ZIP 네 게이트 실측, 이후 읽기 전용 현장 진단·H08/QR/A4/USB/WinRE 별도 검증. 기존 CI 실패 run 41034866482 재시도하지 않음.
 - 출시 상태: Release A/B **HOLD**, 전체 완성률 종전 약 50%(가늠값) 유지, WinRE 파일 복사/실수리는 미검증. 작업 전 원본 SHA `41580912...`로 비교 가능하며 forced update 없음.
+
+## 2026-10-31 KST — CUBE 진단 코어 디스크 공간 경계값 수정
+- 기준: `hibi89/AX_MART@feature/pc-care-usb`, 시작 SHA `1582b208a366559bb51278e8e580bb419086e4d5`, 코어·회귀 소스 최종 SHA `bb716c9e9fb092619d65e2ed96be13979bc30025`; `main`/Cloudflare Production 미변경.
+- 발견 결함: `tools/diagnose.ps1`가 `ConvertTo-PcCareVolumeSample`에서 1자리로 반올림한 `remainingGB/freePercent`로 5GiB/5%/15% 위험도를 판정. 100GiB 용량에 4.96GiB 남은 경우 화면값 5.0GB·5.0%로 반올림되어 중대 경고를 놓칠 수 있었음.
+- 수정: `telemetry_analysis.ps1` 정규화 결과에 내부 원시 `remainingBytes` 추가, 순수 `Get-PcCareVolumeRisk`가 원시 `capacityBytes/remainingBytes`와 유효성/20GiB 대상 기준으로 `high/medium/none/unavailable` 결정. `diagnose.ps1` 경고 코드는 해당 판정을 사용하고, 사용자에게 표시 숫자 반올림과 판정의 구별을 알림. 기존 JSON 공개 볼륨 스키마·파일/장치 동작 유지.
+- 검증: Linux Python3.13에서 **독립 동일수식 경계값 재현 8/8 PASS**, GitHub 정적 원본 확인 **12/12 PASS**. `tests/telemetry_analysis.tests.ps1`에 9개 PowerShell 합성 assertion과 `tests/test_package.py`에 소스 계약 회귀 추가. **WinPS5.1 합성 테스트/전체 native Python/Node/내부 ZIP/실Windows/USB/QR/A4/WinRE/CI 미실행·미검증**.
+- 블로커: 컨테이너의 private GitHub clone 불가(DNS `github.com` 해석 실패), PowerShell5.1 실행기 없음. 기존 Windows CI run 41034866482는 실패/step=0 로그 없음으로 원인 미확정. 무의미한 재시도 금지; 다음은 Windows 체크아웃에서 QA 명령 실행.
+- 상태: Release A 실 Windows 검증 대기, Release B WinRE 파일 복사 별도 미완·승인 요구. 전체 완성률 기존 추정 약 50% 유지(실측 아님). 판매/무료 출시 HOLD. 소스 복구 기준 `1582b208...`, 고객 데이터·실 시스템·원본 파일 변경 없음.
