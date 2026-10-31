@@ -527,3 +527,10 @@
 - CI: 이전 Windows runner run `41034866482` failure, steps 0, logs 404 BlobNotFound. 최신 기능 코드의 새 CI 없음. 원인 미확정; 무의미한 재실행/false PASS 금지.
 - 정책: Release A/B 출시 HOLD, 사용자 원본·REPORTS·장치·관리자권한·복구키·고객 데이터 변경 없음. 코드는 안전성 향상 목표이나 실제 Windows 검증 전 수리 기능 실행/공개 금지. 작업 전 커밋 `a687b7be`는 비교/복구 기준.
 - 다음: Windows 소스 체크아웃 `RUN_RELEASE_QA.cmd`의 PS5.1·Python·Node·ZIP 네 게이트 결과 확보 → 읽기 전용 진단/H08·QR/A4·USB QA → WinRE/수리 격리 테스트 후 출시 승인 검토.
+
+## 2026-10-31 KST — CUBE 후속 H08 실행 검증 / REPORTS 폴더 사후 확인
+- 기준 HEAD `a5b7b4900388d8fc6925b2486d2dc0aceb0faf90`에서 시작; 제품 대상 `products/pc-care/`만 변경. GitHub `main=fbb32362455378b85bcdd0b5037d1f338055fb71`, Cloudflare Production 배포 변경 없음.
+- **실제 V8 실행(원본 JS/공식 테스트 4개): 61/61 PASS**, `tests/evidence/h08_original_source_v8_followup_20261031.json`에 원본 blob SHA·커버리지·한계·재현 명령 기록. Node:test/assert/structuredClone 호환 shim 사용; **네이티브 Node/실브라우저/Windows PASS 아님**.
+- 개인정보 보호 변경: `tools/report_io.ps1`의 `Save-PcCareReportPair`는 `New-Item` 직후 폴더를 다시 검사하여 reparse/비공개 경로가 되면 첫 JSON/HTML 기록 전에 거부. `tests/test_package.py`에서 순서를 계약으로 고정. 기존 CreateNew/무덮어쓰기/자기 생성 파일만 정리/복구 로직 유지. 코드 커밋 `51d647ae303d7cbe6faa421d53a6bf383cbc40d8` 및 `d0204ffa66e1c732bc3b98a6229c8d82f87febd7`; GitHub readback **정적 9/9 PASS**.
+- 실행 환경: Linux Python 3.13/Node 22 존재, WinPS5.1 미설치. 연결된 사설 GitHub 원본 전체 checkout/네이티브 Python 통합·ZIP·Windows/USB/QR/A4/WinRE/실수리 CI는 **NOT_RUN/UNVERIFIED**. 원본 report/고객 데이터·시스템 수정·수리·유료 제품 게시 없음. TOCTOU 완전 제거를 보증하지 않음.
+- 다음 우선순위: Windows 전체 checkout `RUN_RELEASE_QA.cmd` 네 게이트 → 읽기 전용 `RUN_HEALTH_CHECK.cmd` 생성 결과 → H08/QR/A4/USB → WinRE/수리 격리 검증. Release A/B 공개·판매 **HOLD**, 전체 추정 완성률 약 50% 유지.
