@@ -360,3 +360,7 @@
 - RUN_RELEASE_QA.cmd 전체는 총 2회 실행했고 둘 다 exit 1. 마지막 전체 실행 당시 Python/Node/PS 실패와 ZIP PASS 확인. 수정 후 관련 구성요소는 직접 재실행했으나 전체 runner는 재실행하지 않음(최대 1회 재시도 제한). 따라서 **full aggregate = NOT RUN after fixes**.
 - Python symlink 관련 3개는 OS sandbox capability 미지원으로 SKIP. 브라우저/QR 카메라/A4/USB 실물/WinRE/실사용 진단은 미검증. Release A HOLD.
 - main, Cloudflare Production, 원본 checkout, 사용자 PC 및 고객 파일/설정/권한/BitLocker/WinRE 불변. 개인 데이터, 실진단 결과는 수집·업로드하지 않음.
+
+## 2026-10-31 KST — PC CARE 보고서 파일쌍 E2E 추가
+- synthetic `Save-PcCareReportPair` 실제 JSON/HTML 저장·UTF-8 재읽기 회귀 추가. WinPS 5.1 smoke **19 parsers + 7 fixtures PASS**, JSON/HTML 주요 결과 동일·기록시각·상담 요약 개인정보·escaping 확인. Python 재실행 **77 PASS / 3 SKIP**.
+- 전체 RUN_RELEASE_QA 수정 후 재실행은 미실시(허용 재시도 소진). 실제 진단, 브라우저/USB/QR/A4/WinRE 미검증, Release A HOLD.

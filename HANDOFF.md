@@ -456,3 +456,8 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. **상태/미검증**: Release A HOLD, 전체 진도 약 50% 이전 추정 유지(실측 아님). 실제 진단, 저장된 실제 보고서 JSON↔HTML 동등성, 브라우저/file:///USB Unicode 경로, 카메라 QR, A4/PDF 출력, WinRE/복구는 미검증. ZIP integrity PASS는 Windows/WinRE/배포 승인 아님.
 9. **다음 우선순위**: 수정 commit checkout에서 RUN_RELEASE_QA.cmd 전체 결과 1회 확인 → synthetic JSON/HTML 실제 파일 E2E → 격리 Windows 실기기 읽기 전용 → USB/브라우저/QR 카메라/A4 → 승인된 격리 환경에서 WinRE 검토. 전체 runner gate와 실제 사용 수용검사 전 Release A 공개 금지.
 10. **갱신 시각**: 2026-10-31 18:55 KST. task-created work/AX_MART-temp에만 mirror/log/ZIP/receipt 생성. 원본 폴더 보존. 원격 문서 반영 후 이 임시 폴더만 정리.
+
+## 2026-10-31 KST — 상담 보고서 실제 파일 JSON/HTML 합성 E2E 후속
+- `tests/consultation_report.tests.ps1`에서 `Save-PcCareReportPair`로 별도 GUID 임시 폴더에 합성 JSON/HTML을 저장하고 UTF-8 재읽기 후 진단·저장장치 신호 일치, event ID/기록 시각, 상담 요약 개인정보 필터, HTML 삽입 escape를 확인. 테스트가 만든 폴더만 finally 정리.
+- Windows PowerShell 5.1 `tests/windows_smoke.ps1` 재실행: **19 ParseFile PASS + 7 synthetic fixtures PASS**, REPORT PAIR E2E PASS. Python 재실행 **77 PASS / 3 SKIP**. 전체 runner는 재시도 상한 때문에 재실행하지 않음; 기존 전체 runner 수정본 결과 NOT RUN 유지.
+- 실제 진단 결과·브라우저/file://·USB·QR 카메라·A4/PDF·WinRE는 미검증. Release A HOLD. 원본 checkout 및 사용자 데이터 불변.

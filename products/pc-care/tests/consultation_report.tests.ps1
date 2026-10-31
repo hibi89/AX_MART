@@ -2,6 +2,7 @@
 $ErrorActionPreference = 'Stop'
 . (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/consultation_report.ps1')
 . (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/consultation_render.ps1')
+. (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/report_io.ps1')
 function Assert-Consultation([bool]$condition, [string]$message) {
     if (-not $condition) { throw ('CONSULTATION FIXTURE FAIL: ' + $message) }
 }
@@ -142,4 +143,26 @@ Assert-Consultation ($trusted.recordedEvents.Count -eq 2) 'Untrusted provider, t
 Assert-Consultation ($trusted.recordedEvents[0].eventId -eq 20 -and $trusted.recordedEvents[0].recordedUtc -eq '2026-10-30 03:05') 'Valid offset-normalized update retained'
 Assert-Consultation ($trusted.recordedEvents[1].eventId -eq 1001) 'Valid System provider record retained'
 Assert-Consultation (($trusted | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE-') 'Forged inputs and private fields never reach shared report'
+# Save and read back a synthetic JSON/HTML pair to verify both render the same safe diagnosis.
+$pairSummary = Get-PcCareConsultationSummary -Report $report
+$report['consultation'] = $pairSummary
+$pairJson = $report | ConvertTo-Json -Depth 12
+$pairHtml = ConvertTo-PcCareConsultationHtml -Summary $pairSummary
+$pairRoot = Join-Path ([IO.Path]::GetTempPath()) ('pc-care-report-pair-' + [guid]::NewGuid().ToString('N'))
+[void](New-Item -ItemType Directory -Path $pairRoot)
+try {
+    $pair = Save-PcCareReportPair -JsonText $pairJson -HtmlText $pairHtml -Candidates @($pairRoot) -FileBase 'synthetic-report'
+    $savedJson = Get-Content -LiteralPath $pair.json -Raw -Encoding UTF8 | ConvertFrom-Json
+    $savedHtml = Get-Content -LiteralPath $pair.html -Raw -Encoding UTF8
+    Assert-Consultation ($savedJson.assessment -eq $pairSummary.assessment) 'Saved JSON preserves report assessment'
+    Assert-Consultation ($savedJson.consultation.storageSignal -eq $pairSummary.storageSignal) 'Saved JSON preserves storage signal'
+    Assert-Consultation ($savedHtml.Contains([string]$pairSummary.assessment) -and $savedHtml.Contains([string]$pairSummary.storageSignal)) 'Saved HTML displays same assessment and storage signal'
+    Assert-Consultation ($savedHtml.Contains('>1001</td>') -and $savedHtml.Contains('2026-10-30 03:00')) 'Saved HTML labels recorded event evidence with its normalized time'
+    Assert-Consultation (($savedJson.consultation | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE-' -and $savedHtml -notmatch 'PRIVATE-') 'Consultation JSON and saved HTML exclude source identifiers and raw logs'
+    Assert-Consultation ($savedHtml -notmatch '<script>|<img ') 'Saved HTML contains no injected markup'
+}
+finally {
+    Remove-Item -LiteralPath $pairRoot -Recurse -Force -ErrorAction SilentlyContinue
+}
+Write-Host 'REPORT PAIR E2E PASS: synthetic JSON/HTML agree, escape content, and exclude private source data.' -ForegroundColor Green
 Write-Host 'CONSULTATION FIXTURE PASS: bounded evidence, A4 checklist, unknown data, privacy.' -ForegroundColor Green
