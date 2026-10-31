@@ -518,3 +518,12 @@
 - CI: 과거 run `41034866482`의 job `123993114299`는 `failure`, step=0; 로그 다운로드 404 BlobNotFound. 최신 커밋의 성공한 CI 기록 없음. 실패 원인을 코드 실패/runner 문제 중 하나로 확정할 수 없음. 무의미한 재실행 금지.
 - 출시·복구: Release A/B 완성률 이전 추정치 그대로, 정식/무료 공개 HOLD. `main`/Cloudflare Production/수리/복구/OS 권한·사용자 데이터 변경 없음. 코드 수정 전 SHA `2f933fc5`로 안전한 비교/복구 가능.
 - 다음: Windows 전체 체크아웃 `RUN_RELEASE_QA.cmd` 실행 결과 확보 → 읽기전용 실 Windows 진단 → H08/QR/A4/USB → WinRE 별도 격리/승인 게이트. 현재 환경에서 WinPS5.1 네이티브 실행 불가. 문서 갱신은 기능 추가나 검증 합격으로 간주하지 않음.
+
+## 2026-10-31 KST — CUBE QA 완전성·수리 로그 개인정보 경계 보강
+- 범위: `hibi89/AX_MART@feature/pc-care-usb`, 기준 `a687b7be242dd9b88023f488733363dce1e04c81`; 작업 본문 최종 코드 SHA `7054447240658a1cd510f0f9d7c40d91b94020b0`. `main`/Cloudflare Production/실기기·판매 불변.
+- QA 판정: `tools/preflight.py`의 `classify_full_qa_stages`에서 `node-syntax:*:pass` 또는 `internal-zip-build/verify:pass`만으로 단계 PASS 인정 가능했던 계약 오류 수정. 완전한 `node-tests`, `internal-zip` 성공만 완성 단계로 인정. 중간 단계 fail/blocked는 그대로 fail/blocked. `tests/test_preflight.py`에 우회·부분·차단 회귀 추가.
+- 수리 로그: `tools/repair.ps1`의 Documents 폴더 fallback은 OneDrive 동기화 위험. `tools/report_io.ps1`의 private local path/drive/reparse 검증으로 수리용 로그 생성, `CreateNew + FileShare.None` 스트림 선확보 및 기록 실패시 수리 중단. 두 번의 사용자 승인·저장장치 건강 가드·DISM 성공 시에만 SFC 실행 유지. `report_io.tests.ps1` 합성 스트림/클라우드 거부, `test_package.py` 소스 계약 추가.
+- 검증: **현재 GitHub 원본 정적 16/16 PASS**; 동일 판정 함수의 소규모 독립 Python 재현 테스트 **11/11 PASS**. 로컬 Python은 GitHub 전체 소스/원본 테스트 러너가 아닌 재현용이므로 **전체 native QA PASS 아님**. WinPS5.1/실 Windows 진단·DISM/SFC/USB/QR/A4/WinRE/ZIP/실브라우저/CI **미실행**.
+- CI: 이전 Windows runner run `41034866482` failure, steps 0, logs 404 BlobNotFound. 최신 기능 코드의 새 CI 없음. 원인 미확정; 무의미한 재실행/false PASS 금지.
+- 정책: Release A/B 출시 HOLD, 사용자 원본·REPORTS·장치·관리자권한·복구키·고객 데이터 변경 없음. 코드는 안전성 향상 목표이나 실제 Windows 검증 전 수리 기능 실행/공개 금지. 작업 전 커밋 `a687b7be`는 비교/복구 기준.
+- 다음: Windows 소스 체크아웃 `RUN_RELEASE_QA.cmd`의 PS5.1·Python·Node·ZIP 네 게이트 결과 확보 → 읽기 전용 진단/H08·QR/A4·USB QA → WinRE/수리 격리 테스트 후 출시 승인 검토.
