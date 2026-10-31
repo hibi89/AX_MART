@@ -7,7 +7,7 @@ function Assert-Share([bool]$Condition, [string]$Description) {
 }
 $summary = [pscustomobject]@{
     assessment='위험 신호'
-    reviewItems=@('저장장치 상태 경고','BugCheck 관련 기록','Windows 업데이트 설치 실패 기록','장치 구성 코드 점검','비정상 종료 신호','저장 공간 부족','PRIVATE-LOG')
+    reviewItems=@('저장장치 상태 경고','저장장치 관련 이벤트','BugCheck 관련 기록','Windows 업데이트 설치 실패 기록','장치 구성 코드 점검','비정상 종료 신호','저장 공간 부족','PRIVATE-LOG')
     recordedEvents=@([pscustomobject]@{
         eventId=1001
         recordedUtc='2026-10-30 03:10'
@@ -23,7 +23,7 @@ $payload = Get-PcCareSharePayload -Summary $summary
 Assert-Share ($payload.status -eq 'ready') 'Whitelisted input is ready for manual sharing'
 Assert-Share ($payload.byteCount -le 250) 'Default UTF-8 byte budget'
 Assert-Share ($payload.byteCount -eq [Text.Encoding]::UTF8.GetByteCount($payload.payloadText)) 'Actual UTF-8 byte count'
-Assert-Share ($payload.signalCount -eq 6 -and $payload.omittedSignals -eq 4) 'Six allowed signal categories cap omissions at four'
+Assert-Share ($payload.signalCount -eq 6 -and $payload.omittedSignals -eq 4) 'Alias labels deduplicate and six unique categories cap omissions at four'
 Assert-Share ($payload.payloadText -match '신호:저장장치,블루스크린기록 외 4종') 'Two selected signals and an accurate omission count'
 Assert-Share ($payload.payloadText -match '2026-10-30 03:10') 'Whitelisted UTC recording time'
 Assert-Share ($payload.payloadText -match '원인:미확정') 'Never claim a proven root cause'
