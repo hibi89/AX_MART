@@ -448,3 +448,9 @@ Node 18 compatibility follow-up: removed the Node 18.15+ TAP reporter option; bo
 - Current complete-source individual stages: Python 82 (79 PASS/3 SKIP), Node 117 PASS, internal ZIP integrity/manifest/SHA256 PASS. Aggregate `RUN_RELEASE_QA.cmd` was not rerun after its earlier incomplete-snapshot failures; record that accurately.
 - Functional test commit `e885eaf219cc0771371dd05156c44d057d2177e0`; branch feature/pc-care-usb. main unchanged. Product remains Release A HOLD pending browser/camera/A4/USB/live diagnosis/WinRE checks.
 - Original project and pre-existing audit/probe items preserved; only task-owned temp folders removed. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 KST — latest PC CARE synthetic E2E
+- Latest functional SHA `e89a64db8edd479c6334e3388e6d142f481836e5`; mock diagnosis E2E now covers both synthetic warnings and denied APIs without stale evidence reuse.
+- Windows PS5.1 default smoke: 20 parsers + 8 fixtures PASS. Python 82 (79 PASS/3 SKIP). Node 117 PASS and ZIP integrity pass from same source-stage validation before the test-only extension. The full aggregate runner after final code was not run; do not call it an aggregate PASS.
+- No live diagnosis/repair or user data changes. Real browser/USB/QR/A4/WinRE remain UNVERIFIED; Release A HOLD. Updated 2026-10-31 KST.

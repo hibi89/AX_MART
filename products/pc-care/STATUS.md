@@ -632,3 +632,9 @@
 - Other current-source stages, run individually: Python 82 (79 PASS/3 SKIP), Node 117 PASS, internal ZIP build/integrity PASS. Aggregate runner after latest source remains unverified because previous attempts ran from incomplete reconstructed trees; do not claim one current aggregate pass.
 - Browser, physical QR, A4/PDF, USB, live diagnosis and WinRE/repair remain UNVERIFIED. Release A HOLD (~70% rough engineering estimate). main/production unchanged.
 - Original local project and pre-existing work items preserved; task-owned temp copies removed. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 21:20 KST — latest E2E state
+- Functional SHA `e89a64db8edd479c6334e3388e6d142f481836e5`. Default Windows smoke passes 20 parse checks and 8 fixture scripts, including mocked diagnosis with normal observations and access/API failures.
+- Python 82 tests (79 PASS/3 SKIP) after test extension. Node117/ZIP integrity are PASS from current-source individual stage runs before the final fixture-only extension. Full aggregate runner on exact latest HEAD remains NOT RUN.
+- Original local project and pre-existing audit/probe files preserved; task temp copies cleaned. No real diagnosis/repair/deployment. Real browser, camera, PDF, USB and WinRE remain unverified. Updated 2026-10-31 KST.
