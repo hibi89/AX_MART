@@ -71,23 +71,31 @@ def classify_qa_status(stages: list[dict]) -> str:
 
 
 def classify_full_qa_stages(stages: list[dict]) -> str:
-    """All four independent QA gates must be reported exactly once."""
+    """Require actual Node tests and verified ZIP before claiming a QA PASS.
+
+    A failing/blocked syntax check or ZIP build may stand in for its stage to
+    report the failure, but an intermediate success is never a completed gate.
+    """
     if len(stages) != 4:
         return 'fail'
     slots = set()
     for stage in stages:
         name = stage.get('name')
+        state = stage.get('status')
         if name == 'python-tests':
             slot = 'python'
-        elif name == 'node-tests' or (
-            isinstance(name, str) and
-            name in {'node-syntax:' + script for script in JS_SCRIPTS}
-        ):
+        elif name == 'node-tests':
             slot = 'node'
-        elif name in ('internal-zip', 'internal-zip-build', 'internal-zip-verify'):
+        elif name == 'internal-zip':
             slot = 'zip'
         elif name == 'windows-powershell-51-synthetic':
             slot = 'windows'
+        elif (isinstance(name, str) and
+              name in {'node-syntax:' + script for script in JS_SCRIPTS} and
+              state in ('fail', 'blocked')):
+            slot = 'node'
+        elif name in ('internal-zip-build', 'internal-zip-verify') and state in ('fail', 'blocked'):
+            slot = 'zip'
         else:
             return 'fail'
         if slot in slots:
