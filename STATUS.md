@@ -374,3 +374,7 @@
 ## 2026-10-31 19:11 KST — 최신 상담 fixture를 포함한 내부 ZIP 확인
 - 원격 허용목록 **37/37 Git blob SHA 일치**. 내부 ZIP 생성 + `--verify` PASS; checksum `5829af28d9e26309aafc7f0fd614b330186df39d93024be026675ffac6a4f4d9`. 동일 입력 재실행 동일 SHA, 38 members, MANIFEST 포함, REPORTS/QA_RESULTS/log/secret 항목 없음.
 - Release A HOLD 유지: 실제 Windows/browser/USB/QR camera/A4/WinRE acceptance 미완료.
+
+
+## 2026-10-31 19:13 KST — 오프라인 QR 브라우저 테스트 환경 확인
+- `tests/qr_browser_smoke.py` 선택 실행 전 의존성 확인: Playwright 있음, OpenCV(cv2) 없음, Chromium 명령 PATH에 없음. 테스트 미실행, 설치/다운로드하지 않음. Computer Use URL 판별 차단도 있어 실제 file:///카메라 검증은 **UNVERIFIED**.

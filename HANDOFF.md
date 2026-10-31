@@ -473,3 +473,8 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 ## 2026-10-31 19:11 KST — 보고서 E2E 반영 내부 ZIP 재생성
 - 브랜치 소스의 허용목록 37개 파일을 각각 Git blob SHA 대조 **37/37 일치** 후 격리 입력 폴더 구성. `tools/release.py --internal-testing`로 새 ZIP 생성, `--verify` integrity/sidecar 통과. 실제 archive 38 member(허용 파일 37 + MANIFEST-SHA256.txt), REPORT PAIR E2E fixture 포함, REPORTS/QA_RESULTS/원본 로그/secret 패턴 없음.
 - SHA256 `5829af28d9e26309aafc7f0fd614b330186df39d93024be026675ffac6a4f4d9`. 동일 소스·출력 경로 재실행 시 checksum 동일. 기존 산출물 덮어쓰지 않음(동일한 검증 ZIP 재사용). 공개 배포 승인 아님.
+
+
+## 2026-10-31 19:13 KST — 선택형 QR 브라우저 round-trip 의존성 확인
+- `tests/qr_browser_smoke.py`는 Playwright + OpenCV(cv2) + Chromium이 필요한 오프라인 file:// QR 실제 디코드 QA임을 확인. 현 Windows Python에서 Playwright는 설치되어 있으나 **cv2 없음**, Chromium 명령도 PATH에서 확인되지 않아 이 스크립트는 미실행. 설치/다운로드로 의존성을 추가하지 않음.
+- Computer Use 브라우저 조작도 URL 안전 판별 불가로 중단됨. 실제 file:// H08/QR 브라우저·카메라 검증은 미검증 상태로 유지. 이미 실행한 synthetic H08/QR 113/113 Node PASS 및 ZIP 검증을 실기기 검증으로 확대 해석하지 않음.
