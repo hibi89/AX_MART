@@ -41,6 +41,11 @@ NOT_VERIFIED = (
 )
 
 
+def safe_console_text(value: object, encoding: str | None) -> str:
+    text = str(value)
+    return text.encode(encoding, errors='backslashreplace').decode(encoding) if encoding else text
+
+
 def command(name: str, argv: list[str], *, cwd: Path = ROOT) -> dict:
     """Execute exactly the named local test command, capturing bounded output."""
     started = time.monotonic()
@@ -256,18 +261,21 @@ def write_qa_receipt(result: dict, directory: Path) -> Path:
 
 
 def main(argv: list[str] | None = None) -> int:
+    def safe_print(value: object = '') -> None:
+        print(safe_console_text(value, getattr(sys.stdout, 'encoding', None)))
+
     parser=argparse.ArgumentParser(description='AXMART internal offline QA, NOT a public release')
     parser.add_argument('--root',type=Path,default=ROOT,help='working product tree')
     parser.add_argument('--receipt-dir', type=Path, help='Save a private, sanitized synthetic-QA receipt')
     args=parser.parse_args(argv)
     result=run_qa(args.root)
     for stage in result['stages']:
-        print(f"{stage['status'].upper()}: {stage['name']}")
+        safe_print(f"{stage['status'].upper()}: {stage['name']}")
         if stage['status'] == 'pass' and stage.get('skipped', 0):
-            print(f"  {stage['skipped']} tests skipped; those cases remain unverified.")
+            safe_print(f"  {stage['skipped']} tests skipped; those cases remain unverified.")
         if stage['status'] not in ('pass','not-run') and stage.get('output'):
-            print(stage['output'][-1800:])
-    print(json.dumps({k:v for k,v in result.items() if k!='stages'},ensure_ascii=False))
+            safe_print(stage['output'][-1800:])
+    safe_print(json.dumps({k:v for k,v in result.items() if k!='stages'},ensure_ascii=False))
     if args.receipt_dir is not None:
         try:
             receipt_path = write_qa_receipt(result, args.receipt_dir)

@@ -148,7 +148,7 @@ $pairSummary = Get-PcCareConsultationSummary -Report $report
 $report['consultation'] = $pairSummary
 $pairJson = $report | ConvertTo-Json -Depth 12
 $pairHtml = ConvertTo-PcCareConsultationHtml -Summary $pairSummary
-$pairRoot = Join-Path ([IO.Path]::GetTempPath()) ('pc-care-report-pair-' + [guid]::NewGuid().ToString('N'))
+$pairRoot = Join-Path $PSScriptRoot ('pc-care-report-pair-' + [guid]::NewGuid().ToString('N'))
 [void](New-Item -ItemType Directory -Path $pairRoot)
 try {
     $pair = Save-PcCareReportPair -JsonText $pairJson -HtmlText $pairHtml -Candidates @($pairRoot) -FileBase 'synthetic-report'

@@ -1,11 +1,11 @@
 ﻿# AXMART PC CARE: isolated Windows PowerShell 5.1 report-writer fixture.
-# Writes and deletes only a dedicated throwaway directory under the OS temp folder.
+# Writes and deletes only a dedicated throwaway directory under this isolated checkout.
 $ErrorActionPreference = 'Stop'
 . (Join-Path (Split-Path -Parent $PSScriptRoot) 'tools/report_io.ps1')
 function Assert-Report([bool]$Condition, [string]$Reason) {
     if (-not $Condition) { throw ('REPORT IO FIXTURE FAIL: ' + $Reason) }
 }
-$sandbox = Join-Path ([System.IO.Path]::GetTempPath()) ('axmart-pc-care-fixture-' + [guid]::NewGuid().ToString('N'))
+$sandbox = Join-Path $PSScriptRoot ('report-io-fixture-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $sandbox -ErrorAction Stop | Out-Null
 try {
 
@@ -117,7 +117,7 @@ try {
     Assert-Report $repairCloudBlocked 'Cloud-only destinations must block repair before any command'
     Write-Host 'REPORT IO FIXTURE PASS: paired output, existing-file preservation, fallback and failure.' -ForegroundColor Green
 } finally {
-    # This path is created from a fresh GUID beneath the OS temp folder by this fixture.
+    # This path is created from a fresh GUID beneath the isolated test tree by this fixture.
     if (Test-Path -LiteralPath $sandbox) {
         Remove-Item -LiteralPath $sandbox -Recurse -Force -ErrorAction Stop
     }

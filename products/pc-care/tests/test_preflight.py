@@ -238,6 +238,10 @@ class PreflightTests(unittest.TestCase):
             self.assertEqual(cmd['status'],'fail')
             self.assertEqual(cmd['exit_code'],7)
             self.assertLessEqual(len(cmd['output']),5000)
+    def test_console_output_escapes_characters_unavailable_in_host_encoding(self):
+        text='bad '+chr(0xfffd)
+        encoded=preflight.safe_console_text(text,'cp949')
+        self.assertIn(r'\ufffd',encoded)
     def test_no_release_or_repair_commands_are_in_runner(self):
         source=MODULE_PATH.read_text(encoding='utf-8')
         for forbidden in ('--run-readonly','RUN_SAFE_REPAIR.cmd','--publish',
