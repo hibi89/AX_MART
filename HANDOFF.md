@@ -461,3 +461,10 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - `tests/consultation_report.tests.ps1`에서 `Save-PcCareReportPair`로 별도 GUID 임시 폴더에 합성 JSON/HTML을 저장하고 UTF-8 재읽기 후 진단·저장장치 신호 일치, event ID/기록 시각, 상담 요약 개인정보 필터, HTML 삽입 escape를 확인. 테스트가 만든 폴더만 finally 정리.
 - Windows PowerShell 5.1 `tests/windows_smoke.ps1` 재실행: **19 ParseFile PASS + 7 synthetic fixtures PASS**, REPORT PAIR E2E PASS. Python 재실행 **74 PASS / 3 SKIP (77 total)**. 전체 runner는 재시도 상한 때문에 재실행하지 않음; 기존 전체 runner 수정본 결과 NOT RUN 유지.
 - 실제 진단 결과·브라우저/file://·USB·QR 카메라·A4/PDF·WinRE는 미검증. Release A HOLD. 원본 checkout 및 사용자 데이터 불변.
+
+
+## 2026-10-31 19:02 KST — H08/QR 및 내부 ZIP 개별 재검증
+- 최신 코드 기준 `node --test tests/test_history_batch.cjs tests/test_history_compare.cjs tests/test_history_dom.cjs tests/test_history_evidence_integration.cjs tests/test_history_issue_allowlist.cjs tests/test_history_print.cjs tests/test_history_signals.cjs tests/test_qr_ui.cjs tests/test_qr_vendor.cjs`: **113 PASS / 0 FAIL**. 파일들은 GitHub 최신 `feature/pc-care-usb` HEAD에서 복원. Fake DOM + 실제 vendored QR encoder 테스트; 실제 카메라/브라우저 스캔 아님.
+- `python -m unittest -v tests.test_release`: **16 PASS / 2 SKIP (18 total)**. symlink 생성 미지원으로 두 검사는 건너뜀. 별도 전체 Python 결과는 74 PASS / 3 SKIP (77 total), Windows smoke 19 parser + 7 fixture PASS.
+- H08 실브라우저 확인 시도는 Edge 창 선택 후 Computer Use가 현재 URL을 안전하게 판단하지 못해 정지; 이후 UI 입력 없음. file:// 실제 브라우저 흐름은 **BLOCKED/UNVERIFIED**, 우회하지 않음. 카메라 QR/A4/USB 실물/실진단/WinRE 역시 미검증.
+- 코드 작업 HEAD `9cd7ecf7aa6aea7729abd2313e1f441991b0a63a`, 이어진 unittest 표기 교정 문서 HEAD `5692259d357f26665451404f02ff6bb864b8afcd`. 원격 브랜치 `feature/pc-care-usb`; `main`은 변경 없음. Release A HOLD.

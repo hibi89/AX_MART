@@ -364,3 +364,8 @@
 ## 2026-10-31 KST — PC CARE 보고서 파일쌍 E2E 추가
 - synthetic `Save-PcCareReportPair` 실제 JSON/HTML 저장·UTF-8 재읽기 회귀 추가. WinPS 5.1 smoke **19 parsers + 7 fixtures PASS**, JSON/HTML 주요 결과 동일·기록시각·상담 요약 개인정보·escaping 확인. Python 재실행 **74 PASS / 3 SKIP (77 total)**.
 - 전체 RUN_RELEASE_QA 수정 후 재실행은 미실시(허용 재시도 소진). 실제 진단, 브라우저/USB/QR/A4/WinRE 미검증, Release A HOLD.
+
+
+## 2026-10-31 19:02 KST — H08/QR/ZIP 테스트 추가 실행
+- 최신 feature 소스의 9개 Node H08/인쇄/QR 파일 **113/113 PASS**. QR UTF-8 제한·실제 vendored encoder 합성 조합 검증 포함. `tests.test_release` **16 PASS / 2 SKIP** (symlink capability unavailable).
+- Edge/file:// 실제 흐름은 Computer Use가 URL 판별 실패로 시작 전 중단되어 BLOCKED/UNVERIFIED. UI 안전 장벽 우회 안 함. QR 카메라/A4/USB/실기기/WinRE도 미검증. Release A HOLD.
