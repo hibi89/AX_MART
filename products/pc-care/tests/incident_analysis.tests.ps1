@@ -87,9 +87,11 @@ Assert-PcCareIncident ($crossSource.findings.Count -eq 0 -and $crossSource.obser
 $noZone = [pscustomobject]@{ kind='shutdown_signal'; eventId=41; provider='Microsoft-Windows-Kernel-Power'; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T01:00:00' }
 $invalidDate = [pscustomobject]@{ kind='shutdown_signal'; eventId=41; provider='Microsoft-Windows-Kernel-Power'; timeBasis='event_recorded_time'; recordedUtc='2026-02-30T01:00:00Z' }
 $wrongId = [pscustomobject]@{ kind='bugcheck_record'; eventId=41; provider='BugCheck'; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T01:00:00Z' }
+$fractionalId = [pscustomobject]@{ kind='bugcheck_record'; eventId=1001.5; provider='BugCheck'; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T01:00:00Z' }
+$booleanId = [pscustomobject]@{ kind='bugcheck_record'; eventId=$true; provider='BugCheck'; timeBasis='event_recorded_time'; recordedUtc='2026-10-30T01:00:00Z' }
 $wrongTimeBasis = [pscustomobject]@{ kind='bugcheck_record'; eventId=1001; provider='BugCheck'; timeBasis='estimated_crash_time'; recordedUtc='2026-10-30T01:00:00Z' }
-$partValid = Get-PcCareIncidentAssessment -EventEvidence @($crash[0],$noZone,$invalidDate,$wrongId,$wrongTimeBasis) -DiskObservations $healthy -DiskCollectionStatus 'collected' -EventCollectionStatus 'collected'
-Assert-PcCareIncident ($partValid.observedCounts.bugcheckRecords -eq 1 -and $partValid.observedCounts.rejectedSystemEvidence -eq 4) 'Only observed normalized record survives mixed untrusted evidence'
+$partValid = Get-PcCareIncidentAssessment -EventEvidence @($crash[0],$noZone,$invalidDate,$wrongId,$fractionalId,$booleanId,$wrongTimeBasis) -DiskObservations $healthy -DiskCollectionStatus 'collected' -EventCollectionStatus 'collected'
+Assert-PcCareIncident ($partValid.observedCounts.bugcheckRecords -eq 1 -and $partValid.observedCounts.rejectedSystemEvidence -eq 6) 'Only observed normalized record survives mixed untrusted evidence'
 Assert-PcCareIncident ($partValid.status -eq 'incomplete') 'Mixed valid and invalid evidence is not complete'
 Assert-PcCareIncident (@($partValid.findings | Where-Object { $_.causeConfirmed }).Count -eq 0) 'Verified record is not a confirmed root cause'
 Assert-PcCareIncident (($partValid | ConvertTo-Json -Depth 8) -notmatch 'PRIVATE') 'Rejected source identity is never copied to report'

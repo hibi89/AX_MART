@@ -21,6 +21,13 @@ Assert-Telemetry ($bad.batteryCount -eq 1 -and $bad.status -eq 'collected') 'Cou
 Assert-Telemetry ($null -eq $bad.samples[0].chargeRemainingPercent) '255 must not represent charge'
 Assert-Telemetry ($null -eq $bad.samples[0].designCapacityMWh -and $null -eq $bad.samples[0].fullChargeCapacityMWh) 'Unsupported capacity stays unknown'
 Assert-Telemetry (($bad | ConvertTo-Json -Depth 6) -notmatch 'MUST-NOT-LEAK') 'Personal device identifiers must not be copied'
+$fractionalBattery = ConvertTo-PcCareBatterySnapshot -Batteries @([pscustomobject]@{
+    EstimatedChargeRemaining=42.5; BatteryStatus=2.5; DesignCapacity=60000.5; FullChargeCapacity=$true
+}) -QueryStatus 'collected'
+Assert-Telemetry ($null -eq $fractionalBattery.samples[0].chargeRemainingPercent -and
+    $null -eq $fractionalBattery.samples[0].batteryStatusCode -and
+    $null -eq $fractionalBattery.samples[0].designCapacityMWh -and
+    $null -eq $fractionalBattery.samples[0].fullChargeCapacityMWh) 'Fractional and boolean battery values stay unknown'
 $valid = ConvertTo-PcCareBatterySnapshot -Batteries @([pscustomobject]@{
     EstimatedChargeRemaining = 42; BatteryStatus = 2; DesignCapacity = 60000; FullChargeCapacity = 52000
 }) -QueryStatus 'collected'
@@ -106,6 +113,8 @@ $invalidVolumes = @(
     [pscustomobject]@{ DeviceID='C:'; Size=0; FreeSpace=0 },
     [pscustomobject]@{ DeviceID='C:'; Size='NaN'; FreeSpace=1 },
     [pscustomobject]@{ DeviceID='C:'; Size='Infinity'; FreeSpace=1 },
+    [pscustomobject]@{ DeviceID='C:'; Size=(100 * 1GB) + 0.5; FreeSpace=(5 * 1GB) },
+    [pscustomobject]@{ DeviceID='C:'; Size=(100 * 1GB); FreeSpace=(5 * 1GB) + 0.5 },
     [pscustomobject]@{ DeviceID='C:'; Size='PRIVATE-VALUE'; FreeSpace=1 },
     [pscustomobject]@{ DeviceID='C:'; Size=(10 * 1GB); FreeSpace=-1 },
     [pscustomobject]@{ DeviceID='C:'; Size=(10 * 1GB); FreeSpace=(11 * 1GB) },
@@ -119,12 +128,12 @@ foreach ($invalidVolume in $invalidVolumes) {
 Assert-Telemetry ($null -eq (ConvertTo-PcCareVolumeSample -Volume $null)) 'Missing volume remains unknown'
 # Regression: rounded display (5.0 GB / 5.0%) cannot conceal raw-byte critical space.
 $roundedCritical = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{
-    DeviceID='F:'; Size=(100 * 1GB); FreeSpace=(4.96 * 1GB)
+    DeviceID='F:'; Size=(100 * 1GB); FreeSpace=([math]::Round(4.96 * 1GB))
 })
 Assert-Telemetry ($roundedCritical.remainingGB -eq 5.0 -and $roundedCritical.freePercent -eq 5.0) 'Critical raw reading has threshold-rounded display'
 Assert-Telemetry ((Get-PcCareVolumeRisk -Sample $roundedCritical) -eq 'high') 'Critical warning must use raw bytes, not rounded display'
 $roundedMedium = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{
-    DeviceID='G:'; Size=(50 * 1GB); FreeSpace=(7.49 * 1GB)
+    DeviceID='G:'; Size=(50 * 1GB); FreeSpace=([math]::Round(7.49 * 1GB))
 })
 Assert-Telemetry ($roundedMedium.freePercent -eq 15.0) 'Medium raw reading has threshold-rounded percent'
 Assert-Telemetry ((Get-PcCareVolumeRisk -Sample $roundedMedium) -eq 'medium') 'Medium warning must use raw percentage'
@@ -137,7 +146,7 @@ $healthyFree = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{
 })
 Assert-Telemetry ((Get-PcCareVolumeRisk -Sample $healthyFree) -eq 'none') 'Exact 15 percent boundary must not be a warning'
 $smallDrive = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{
-    DeviceID='J:'; Size=(19.9 * 1GB); FreeSpace=(0.1 * 1GB)
+    DeviceID='J:'; Size=([math]::Round(19.9 * 1GB)); FreeSpace=([math]::Round(0.1 * 1GB))
 })
 Assert-Telemetry ((Get-PcCareVolumeRisk -Sample $smallDrive) -eq 'none') 'Small drives stay outside the established >=20GiB policy'
 Assert-Telemetry ((Get-PcCareVolumeRisk -Sample $null) -eq 'unavailable') 'Missing volume must never be judged healthy'

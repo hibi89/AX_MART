@@ -1,6 +1,21 @@
 ﻿# AXMART PC CARE - pure, privacy-bounded battery and Windows Update normalization.
 # Windows PowerShell 5.1; no OS reads or writes in these functions.
 
+function ConvertTo-PcCareIntegralValue {
+    [CmdletBinding()]
+    param([object]$Value, [long]$Minimum = [long]::MinValue, [long]$Maximum = [long]::MaxValue)
+    if ($null -eq $Value) { return $null }
+    try {
+        $text = [Convert]::ToString($Value, [Globalization.CultureInfo]::InvariantCulture)
+        if ($text -cnotmatch '^-?\d{1,18}$') { return $null }
+        $number = 0L
+        if (-not [long]::TryParse($text, [Globalization.NumberStyles]::AllowLeadingSign,
+                [Globalization.CultureInfo]::InvariantCulture, [ref]$number)) { return $null }
+        if ($number -lt $Minimum -or $number -gt $Maximum) { return $null }
+        return $number
+    } catch { return $null }
+}
+
 function ConvertTo-PcCareBatterySnapshot {
     [CmdletBinding()]
     param(
@@ -22,30 +37,14 @@ function ConvertTo-PcCareBatterySnapshot {
         $design = $null
         $full = $null
         # Null, zero and out-of-range values never become a fabricated health percentage.
-        try {
-            if ($null -ne $b.EstimatedChargeRemaining) {
-                $c = [int]$b.EstimatedChargeRemaining
-                if ($c -ge 0 -and $c -le 100) { $charge = $c }
-            }
-        } catch {}
-        try {
-            if ($null -ne $b.BatteryStatus) {
-                $st = [int]$b.BatteryStatus
-                if ($st -ge 1 -and $st -le 11) { $batteryState = $st }
-            }
-        } catch {}
-        try {
-            if ($null -ne $b.DesignCapacity) {
-                $n = [long]$b.DesignCapacity
-                if ($n -gt 0 -and $n -lt 10000000) { $design = $n }
-            }
-        } catch {}
-        try {
-            if ($null -ne $b.FullChargeCapacity) {
-                $n = [long]$b.FullChargeCapacity
-                if ($n -gt 0 -and $n -lt 10000000) { $full = $n }
-            }
-        } catch {}
+        $c = ConvertTo-PcCareIntegralValue -Value $b.EstimatedChargeRemaining -Minimum 0 -Maximum 100
+        if ($null -ne $c) { $charge = [int]$c }
+        $st = ConvertTo-PcCareIntegralValue -Value $b.BatteryStatus -Minimum 1 -Maximum 11
+        if ($null -ne $st) { $batteryState = [int]$st }
+        $n = ConvertTo-PcCareIntegralValue -Value $b.DesignCapacity -Minimum 1 -Maximum 9999999
+        if ($null -ne $n) { $design = $n }
+        $n = ConvertTo-PcCareIntegralValue -Value $b.FullChargeCapacity -Minimum 1 -Maximum 9999999
+        if ($null -ne $n) { $full = $n }
         [void]$samples.Add([pscustomobject]@{
             chargeRemainingPercent = $charge
             batteryStatusCode = $batteryState
@@ -170,6 +169,7 @@ function ConvertTo-PcCareVolumeSample {
         $remaining = [double]$Volume.FreeSpace
         if ([double]::IsNaN($capacity) -or [double]::IsInfinity($capacity) -or
             [double]::IsNaN($remaining) -or [double]::IsInfinity($remaining) -or
+            $capacity -ne [math]::Truncate($capacity) -or $remaining -ne [math]::Truncate($remaining) -or
             $capacity -le 0 -or $remaining -lt 0 -or $remaining -gt $capacity) {
             return $null
         }
