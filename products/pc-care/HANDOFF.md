@@ -825,3 +825,7 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. Original/protection: no user data/OS/BitLocker/repair/WinRE/system permissions changed. Revert comparison SHA 5c7e9ea1; private REPORTS, QA_RESULTS, secrets never commit. No forced Git history edits.
 9. Next: rerun complete Windows QA against final HEAD, confirm sanitized receipt skip counts, then read-only actual JSON/HTML, browser file://, Unicode USB, QR scanning, A4 PDF, and isolated WinRE risk gate. No publication or real repair until separately approved.
 10. Timestamp/evidence: 2026-10-31 KST; GitHub source/diff readback is independently verified here; Windows full native, live service, production all unverified/not applied.
+
+
+## 2026-10-31 KST — Latest Release A handoff
+Code/runner fixes are in 3e3278a98b94abd7f419bfe1b2c7402bdbd2d5a4 on feature/pc-care-usb (parent 689428717a2ee0c67244fd83b64700414fce7234). Full internal QA runner exit 0: Python 78/81 PASS with 3 SKIP; Node 113 PASS; ZIP integrity PASS; Windows PowerShell 5.1 synthetic PASS. The Windows smoke also passed from a Korean+space test path. Report JSON/HTML save/readback and privacy fixtures passed. Edge file:// launch via Playwright timed out and was stopped; real browser, QR camera, A4/PDF, physical USB and live-device/WinRE acceptance remain unverified. main unchanged. Original project and customer/system data untouched. See root HANDOFF.md for full P0–P7 handoff and next priorities. Updated 2026-10-31 KST.

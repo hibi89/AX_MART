@@ -556,3 +556,10 @@
 - Review found sanitized QA receipts lacked skipped test counts despite Python 3 symlink-capability skips. Updated tools/preflight.py to parse Python unittest skipped=N and Node TAP/SPEC skipped N, emit bounded sanitized skipped fields and console note. All-tests-skipped suites now fail closed instead of claiming coverage. Added two synthetic unittest regression methods to tests/test_preflight.py including malformed skip values and Node 18/24 formats.
 - During implementation detected unintended Python source text duplication from programmatic replacement; immediately restored from verified Codex baseline and reapplied changes using literal-safe replacement. Latest source readback: one module main and one import section; fix verified by static review only.
 - Native Windows QA is NOT RUN after this review. No user device read/repair, no main/Cloudflare change. Release A/B HOLD; full product readiness still requires browser/file://, USB Unicode, camera QR, A4/PDF, actual read-only diagnosis, WinRE testing. Re-run cmd.exe /d /c products\\pc-care\\RUN_RELEASE_QA.cmd from complete Windows checkout.
+
+
+## 2026-10-31 KST — Latest P0–P7 verification
+- Full RUN_RELEASE_QA.cmd passed on the isolated current branch snapshot: Python 81 total (78 PASS/3 SKIP), Node 113 PASS, internal ZIP/manifest/SHA256 PASS, Windows PowerShell 5.1 synthetic PASS.
+- Windows smoke confirms 19 parser checks and synthetic event/incident/telemetry/timeline/report-pair/consultation/share/report-I/O fixtures. Repeated successfully under a Korean+space path. Python tests.test_release: 16 PASS/2 SKIP; symlink and directory-rename capabilities blocked by sandbox.
+- Changes: safe console encoding in preflight; test-only report temp destinations moved into the isolated checkout; unsupported directory rename is reported as SKIP. No product feature removed or weakened.
+- Edge file:// launch timed out; actual browser, camera QR, printed A4/PDF, physical USB, live Windows diagnosis, WinRE and distribution acceptance remain unverified. Release A HOLD. main/production unchanged; no user files or system configuration touched. Updated 2026-10-31 KST.
