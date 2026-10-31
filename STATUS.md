@@ -388,3 +388,9 @@
 
 
 Node 18 compatibility follow-up: removed the Node 18.15+ TAP reporter option; both TAP and SPEC summaries are tested. Targeted preflight tests: 10 PASS, 1 SKIP. Full aggregate QA not rerun after this follow-up. Real device/browser/camera/WinRE validation remains unverified.
+
+## 2026-10-31 KST — CUBE Codex post-review QA skip accounting
+- Codex delivered baseline 5c7e9ea1d636cafbc255959e38560037427490ca, nine commits vs previous branch base. Reviewed concrete changes: PowerShell // comment fix, consultation JSON/HTML saved pair fixture, history fixtures, preflight Node 18/24 output parsing. These source changes are confirmed in GitHub; Codex-reported full QA pass applies to earlier 71779d45, NOT latest 5c7e9ea1 or this review's changes.
+- Review found sanitized QA receipts lacked skipped test counts despite Python 3 symlink-capability skips. Updated tools/preflight.py to parse Python unittest skipped=N and Node TAP/SPEC skipped N, emit bounded sanitized skipped fields and console note. All-tests-skipped suites now fail closed instead of claiming coverage. Added two synthetic unittest regression methods to tests/test_preflight.py including malformed skip values and Node 18/24 formats.
+- During implementation detected unintended Python source text duplication from programmatic replacement; immediately restored from verified Codex baseline and reapplied changes using literal-safe replacement. Latest source readback: one module main and one import section; fix verified by static review only.
+- Native Windows QA is NOT RUN after this review. No user device read/repair, no main/Cloudflare change. Release A/B HOLD; full product readiness still requires browser/file://, USB Unicode, camera QR, A4/PDF, actual read-only diagnosis, WinRE testing. Re-run cmd.exe /d /c products\\pc-care\\RUN_RELEASE_QA.cmd from complete Windows checkout.
