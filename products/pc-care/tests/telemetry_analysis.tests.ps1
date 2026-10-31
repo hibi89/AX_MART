@@ -111,6 +111,36 @@ foreach ($invalidVolume in $invalidVolumes) {
     Assert-Telemetry ($null -eq $badVolume) 'Invalid logical disk data must return unknown, not throw or leak raw fields'
 }
 Assert-Telemetry ($null -eq (ConvertTo-PcCareVolumeSample -Volume $null)) 'Missing volume remains unknown'
+# Regression: rounded display (5.0 GB / 5.0%) cannot conceal raw-byte critical space.
+$roundedCritical = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{
+    DeviceID='F:'; Size=(100 * 1GB); FreeSpace=(4.96 * 1GB)
+})
+Assert-Telemetry ($roundedCritical.remainingGB -eq 5.0 -and $roundedCritical.freePercent -eq 5.0) 'Critical raw reading has threshold-rounded display'
+Assert-Telemetry ((Get-PcCareVolumeRisk -Sample $roundedCritical) -eq 'high') 'Critical warning must use raw bytes, not rounded display'
+$roundedMedium = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{
+    DeviceID='G:'; Size=(50 * 1GB); FreeSpace=(7.49 * 1GB)
+})
+Assert-Telemetry ($roundedMedium.freePercent -eq 15.0) 'Medium raw reading has threshold-rounded percent'
+Assert-Telemetry ((Get-PcCareVolumeRisk -Sample $roundedMedium) -eq 'medium') 'Medium warning must use raw percentage'
+$preciselyFive = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{
+    DeviceID='H:'; Size=(100 * 1GB); FreeSpace=(5 * 1GB)
+})
+Assert-Telemetry ((Get-PcCareVolumeRisk -Sample $preciselyFive) -eq 'medium') 'Exact 5 percent boundary is medium, not critical'
+$healthyFree = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{
+    DeviceID='I:'; Size=(100 * 1GB); FreeSpace=(15 * 1GB)
+})
+Assert-Telemetry ((Get-PcCareVolumeRisk -Sample $healthyFree) -eq 'none') 'Exact 15 percent boundary must not be a warning'
+$smallDrive = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{
+    DeviceID='J:'; Size=(19.9 * 1GB); FreeSpace=(0.1 * 1GB)
+})
+Assert-Telemetry ((Get-PcCareVolumeRisk -Sample $smallDrive) -eq 'none') 'Small drives stay outside the established >=20GiB policy'
+Assert-Telemetry ((Get-PcCareVolumeRisk -Sample $null) -eq 'unavailable') 'Missing volume must never be judged healthy'
+Assert-Telemetry ((Get-PcCareVolumeRisk -Sample ([pscustomobject]@{
+    capacityBytes=[double]::NaN; remainingBytes=1
+})) -eq 'unavailable') 'Invalid raw bytes do not produce a health verdict'
+Assert-Telemetry ($roundedCritical.remainingBytes -gt 0 -and $roundedCritical.capacityBytes -gt 0) 'Raw byte fields survive normalization'
+Assert-Telemetry (($roundedCritical | ConvertTo-Json -Compress) -notmatch 'PRIVATE') 'Raw byte evaluation does not emit device names'
+
 $followupVolume = ConvertTo-PcCareVolumeSample -Volume ([pscustomobject]@{ DeviceID='E:'; Size=(40 * 1GB); FreeSpace=(24 * 1GB) })
 Assert-Telemetry ($followupVolume.freePercent -eq 60) 'Good disk after malformed disk still evaluates'
 
