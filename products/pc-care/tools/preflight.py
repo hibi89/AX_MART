@@ -205,6 +205,11 @@ def safe_qa_receipt(result: dict) -> dict:
         count = stage.get('tests')
         if isinstance(count, int) and not isinstance(count, bool) and 0 <= count <= 100000:
             record['tests'] = count
+        skipped = stage.get('skipped')
+        if (name in ('python-tests','node-tests') and 'tests' in record and
+            isinstance(skipped, int) and not isinstance(skipped, bool) and
+            0 <= skipped <= record['tests']):
+            record['skipped'] = skipped
         stages.append(record)
     return {
         'schemaVersion': 1,
