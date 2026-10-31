@@ -89,6 +89,29 @@ class PreflightTests(unittest.TestCase):
         self.assertNotIn('skipped',receipt['stages'][1])  # impossible count.
         self.assertEqual(receipt['status'],'pass')
 
+    def test_empty_effective_coverage_cannot_pass_if_every_test_was_skipped(self):
+        with TemporaryDirectory() as tmp:
+            def fake_cmd(name, argv, **kwargs):
+                if name=='python-tests':
+                    output='Ran 2 tests in 0.01s\\nOK (skipped=2)\\n'.replace('\\n','\n')
+                elif name=='node-tests':
+                    output='# tests 3\n# skipped 3\n'
+                else:
+                    output=''
+                return dict(name=name,status='pass',exit_code=0,output=output)
+            with patch.object(preflight,'command',side_effect=fake_cmd),\
+                 patch.object(preflight.shutil,'which',return_value='node'),\
+                 patch.object(preflight,'JS_SCRIPTS',()),\
+                 patch.object(preflight,'NODE_TESTS',('tests/sample.cjs',)),\
+                 patch.object(preflight.Path,'is_file',return_value=True):
+                result=preflight.run_qa(Path(tmp),windows_synthetic=False)
+            stages={stage['name']:stage for stage in result['stages']}
+            self.assertEqual(stages['python-tests']['status'],'fail')
+            self.assertEqual(stages['node-tests']['status'],'fail')
+            self.assertEqual(stages['python-tests']['skipped'],2)
+            self.assertEqual(stages['node-tests']['skipped'],3)
+            self.assertEqual(result['status'],'fail')
+
     def test_status_requires_native_windows_stage(self):
         classify = preflight.classify_qa_status
         self.assertEqual(classify([]), 'fail')
