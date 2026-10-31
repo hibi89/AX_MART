@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "scope": "AXMART PC CARE history H08 JS source and official test source executed in V8 compatibility harness",
+  "repo": "hibi89/AX_MART",
+  "branch": "feature/pc-care-usb",
+  "sourceCommit": "a5b7b4900388d8fc6925b2486d2dc0aceb0faf90",
+  "sourceFiles": {
+    "ui/history_signals.js": "e02d7b578992419ede7e0b2ec22c189211e0903d",
+    "ui/history_compare.js": "bfe36304e664dbc5b252f7c8fcb852c5612fce1f",
+    "ui/history_print.js": "da10814d5cec61b856957c2480a563cae0deecf5"
+  },
+  "testFiles": {
+    "tests/test_history_compare.cjs": "01b0de0867f2c8521a989872d90cf7464acd5ca0",
+    "tests/test_history_signals.cjs": "71468563432ef4f93e35a19b76e981fddbbb983c",
+    "tests/test_history_issue_allowlist.cjs": "8c2be4c776c2890699162dd001a210f09c6e2db7",
+    "tests/test_history_evidence_integration.cjs": "ddb57272ce22d6d61fbf8e88354f289e03f9f936"
+  },
+  "result": {
+    "tests": 61,
+    "passed": 61,
+    "failed": 0
+  },
+  "execution": "Github original JS evaluated with V8 new Function; Node:test and assert supplied via lightweight compatibility shim; structuredClone JSON-only shim",
+  "limitations": [
+    "Not native Node test runner",
+    "assert.deepEqual compatibility shim compared sorted JSON instead of Node assert deepStrictEqual semantics",
+    "Not a Windows/browser/file:// or PowerShell test",
+    "No real computer diagnosis, recovery, repair or ZIP packaging performed"
+  ],
+  "reproduceNativeCommand": "node --test tests/test_history_compare.cjs tests/test_history_signals.cjs tests/test_history_issue_allowlist.cjs tests/test_history_evidence_integration.cjs",
+  "separateStaticChecks": {
+    "result": "9/9 PASS",
+    "sourceCommit": "d0204ffa66e1c732bc3b98a6229c8d82f87febd7",
+    "description": "Report destination private path rechecked after mkdir and before first byte write; BOM, CreateNew, cleanup, test contract preserved"
+  },
+  "releaseDecision": "HOLD"
+}
