@@ -15,9 +15,11 @@ try {
     Assert-Report (-not (Test-PcCareLocalDriveType -DriveType ([System.IO.DriveType]::CDRom))) 'Read-only optical drives are not report destinations'
     Assert-Report (Test-PcCareLocalDriveType -DriveType ([System.IO.DriveType]::Fixed)) 'Fixed local drive remains an allowed type'
     Assert-Report (Test-PcCareLocalDriveType -DriveType ([System.IO.DriveType]::Removable)) 'USB removable drive remains an allowed type'
+    # Define the target before exercising its privacy gate; an unbound $normal
+    # makes the synthetic QA fail before it reaches any report I/O assertion.
+    $normal = Join-Path $sandbox 'normal'
     Assert-Report (Test-PcCarePrivateReportFolder -Folder $normal) 'Local synthetic sandbox is accepted'
     # No arbitrary path from FileBase may escape the nominated report directory.
-    $normal = Join-Path $sandbox 'normal'
     foreach ($badBase in @('../escaped', '..\escaped', '/absolute', 'C:\outside', '.hidden', 'nested/name', '', ('x' * 81))) {
         $blocked = $false
         try {
