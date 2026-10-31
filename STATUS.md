@@ -369,3 +369,8 @@
 ## 2026-10-31 19:02 KST — H08/QR/ZIP 테스트 추가 실행
 - 최신 feature 소스의 9개 Node H08/인쇄/QR 파일 **113/113 PASS**. QR UTF-8 제한·실제 vendored encoder 합성 조합 검증 포함. `tests.test_release` **16 PASS / 2 SKIP** (symlink capability unavailable).
 - Edge/file:// 실제 흐름은 Computer Use가 URL 판별 실패로 시작 전 중단되어 BLOCKED/UNVERIFIED. UI 안전 장벽 우회 안 함. QR 카메라/A4/USB/실기기/WinRE도 미검증. Release A HOLD.
+
+
+## 2026-10-31 19:11 KST — 최신 상담 fixture를 포함한 내부 ZIP 확인
+- 원격 허용목록 **37/37 Git blob SHA 일치**. 내부 ZIP 생성 + `--verify` PASS; checksum `5829af28d9e26309aafc7f0fd614b330186df39d93024be026675ffac6a4f4d9`. 동일 입력 재실행 동일 SHA, 38 members, MANIFEST 포함, REPORTS/QA_RESULTS/log/secret 항목 없음.
+- Release A HOLD 유지: 실제 Windows/browser/USB/QR camera/A4/WinRE acceptance 미완료.

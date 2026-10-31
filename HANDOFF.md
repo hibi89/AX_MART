@@ -468,3 +468,8 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - `python -m unittest -v tests.test_release`: **16 PASS / 2 SKIP (18 total)**. symlink 생성 미지원으로 두 검사는 건너뜀. 별도 전체 Python 결과는 74 PASS / 3 SKIP (77 total), Windows smoke 19 parser + 7 fixture PASS.
 - H08 실브라우저 확인 시도는 Edge 창 선택 후 Computer Use가 현재 URL을 안전하게 판단하지 못해 정지; 이후 UI 입력 없음. file:// 실제 브라우저 흐름은 **BLOCKED/UNVERIFIED**, 우회하지 않음. 카메라 QR/A4/USB 실물/실진단/WinRE 역시 미검증.
 - 코드 작업 HEAD `9cd7ecf7aa6aea7729abd2313e1f441991b0a63a`, 이어진 unittest 표기 교정 문서 HEAD `5692259d357f26665451404f02ff6bb864b8afcd`. 원격 브랜치 `feature/pc-care-usb`; `main`은 변경 없음. Release A HOLD.
+
+
+## 2026-10-31 19:11 KST — 보고서 E2E 반영 내부 ZIP 재생성
+- 브랜치 소스의 허용목록 37개 파일을 각각 Git blob SHA 대조 **37/37 일치** 후 격리 입력 폴더 구성. `tools/release.py --internal-testing`로 새 ZIP 생성, `--verify` integrity/sidecar 통과. 실제 archive 38 member(허용 파일 37 + MANIFEST-SHA256.txt), REPORT PAIR E2E fixture 포함, REPORTS/QA_RESULTS/원본 로그/secret 패턴 없음.
+- SHA256 `5829af28d9e26309aafc7f0fd614b330186df39d93024be026675ffac6a4f4d9`. 동일 소스·출력 경로 재실행 시 checksum 동일. 기존 산출물 덮어쓰지 않음(동일한 검증 ZIP 재사용). 공개 배포 승인 아님.
