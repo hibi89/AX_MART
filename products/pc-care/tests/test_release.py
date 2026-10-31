@@ -198,6 +198,45 @@ class ReleaseTests(unittest.TestCase):
         self.assertFalse(Path(str(archive) + '.tmp').exists())
         self.assertEqual(release.verify_archive(archive, require_sidecar=True), second_sha)
 
+    def test_foreign_completed_output_is_not_overwritten(self):
+        output = self.root / 'dist-internal'
+        output.mkdir(exist_ok=True)
+        zip_path = output / f'{release.FOLDER}_INTERNAL_TEST_ONLY.zip'
+        sidecar = Path(str(zip_path) + '.sha256')
+        zip_path.write_bytes(b'CUSTOMER-SENTINEL-ZIP')
+        sidecar.write_bytes(b'CUSTOMER-SENTINEL-SHA256')
+        with self.assertRaisesRegex(ValueError, 'Existing internal output differs'):
+            release.build_internal(self.root, output)
+        self.assertEqual(zip_path.read_bytes(), b'CUSTOMER-SENTINEL-ZIP')
+        self.assertEqual(sidecar.read_bytes(), b'CUSTOMER-SENTINEL-SHA256')
+        self.assertFalse(Path(str(zip_path) + '.tmp').exists())
+
+    def test_existing_single_output_is_preserved(self):
+        output = self.root / 'dist-internal'
+        output.mkdir(exist_ok=True)
+        zip_path = output / f'{release.FOLDER}_INTERNAL_TEST_ONLY.zip'
+        sidecar = Path(str(zip_path) + '.sha256')
+        for only in (zip_path, sidecar):
+            only.write_bytes(b'SINGLE-USER-OUTPUT')
+            with self.assertRaisesRegex(ValueError, 'Existing internal output differs'):
+                release.build_internal(self.root, output)
+            self.assertEqual(only.read_bytes(), b'SINGLE-USER-OUTPUT')
+            self.assertFalse(zip_path.exists() and sidecar.exists())
+            only.unlink()
+
+    def test_changed_sources_cannot_replace_verified_existing_zip(self):
+        output = self.root / 'dist-internal'
+        zip_path, old_hash = release.build_internal(self.root, output)
+        old_zip = zip_path.read_bytes()
+        sidecar = Path(str(zip_path) + '.sha256')
+        old_sidecar = sidecar.read_bytes()
+        (self.root / 'README.md').write_text('changed source after internal QA')
+        with self.assertRaisesRegex(ValueError, 'Existing internal output differs'):
+            release.build_internal(self.root, output)
+        self.assertEqual(zip_path.read_bytes(), old_zip)
+        self.assertEqual(sidecar.read_bytes(), old_sidecar)
+        self.assertEqual(release.verify_archive(zip_path, require_sidecar=True), old_hash)
+
     def test_no_default_public_release(self):
         with self.assertRaises(SystemExit) as raised:
             release.main([])
