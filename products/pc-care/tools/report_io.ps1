@@ -78,6 +78,11 @@ function Save-PcCareReportPair {
         $ownedHtml = $false
         try {
             New-Item -ItemType Directory -Path $folder -Force -ErrorAction Stop | Out-Null
+            # A path that was safe before creation may now resolve through a
+            # reparse point. Recheck immediately before writing private data.
+            if (-not (Test-PcCarePrivateReportFolder -Folder $folder)) {
+                throw 'Report destination changed or is no longer private.'
+            }
             # CreateNew is atomic: concurrent writers and existing .partial files
             # cannot be overwritten between Test-Path and the actual file open.
             $jsonStream = [System.IO.File]::Open($tempJson, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
