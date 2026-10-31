@@ -488,3 +488,9 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 - **남은 게이트:** 실제 진단/사용자 데이터 실행 금지 준수. Computer Use URL 판별 문제 및 OpenCV 부재 때문에 실제 file:// 브라우저/QR 카메라 시험 미실행; A4/PDF/USB 실물/WinRE/실기기 수용시험 미검증. Release A는 코드/합성 QA 기준 개선됐으나 공개/출시 승인 **HOLD**.
 - 저장소 `hibi89/AX_MART@feature/pc-care-usb`; 이 수정 전 원격 HEAD `995f8ac9dd37c4b80d3f6deceef5c49441b113e5`. `main`/Cloudflare Production 및 기존 프로젝트/고객 데이터 불변. 실행: Windows 11 host, Windows PowerShell 5.1, PowerShell 7.6.5, Python 3.11.9, Node 24.21.0; 임시 복원 파일 105/105 Git blob 검증.
 - **다음:** 재현 명령은 `cmd.exe /d /c products\pc-care\RUN_RELEASE_QA.cmd`. 선택형 `tests/qr_browser_smoke.py`는 Playwright는 있으나 현재 환경에 cv2/Chromium이 없어 실행 불가. 브라우저·카메라·A4·USB 실물/실기기 확인과 출시 게이트가 남음.
+
+
+## 2026-10-31 Node compatibility follow-up
+- Removed the Node `--test-reporter=tap` pin from `products/pc-care/tools/preflight.py`: the repository declares Node `>=18`, while this reporter flag is only available starting at 18.15. Node's default TAP/SPEC test summary formats are both accepted when extracting the verified test count.
+- Targeted verification on the updated files: `python -m unittest tests.test_preflight -v` — 11 tests, 10 passed, 1 skipped (symlink creation unavailable). Full `RUN_RELEASE_QA.cmd` was not rerun after this follow-up; the previously recorded full pass applies to the preceding code revision.
+- Release A remains unapproved; real-device, real browser/camera, and repair/WinRE checks remain unverified.

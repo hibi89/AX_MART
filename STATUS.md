@@ -385,3 +385,6 @@
 - `cmd.exe /d /c products\pc-care\RUN_RELEASE_QA.cmd`: **exit 0**; Python **75 PASS / 3 SKIP (78 total)**, Node **113 PASS**, internal ZIP PASS, Windows PowerShell 5.1 synthetic PASS. 최신 receipt status=pass.
 - 앞선 전체 runner 실패는 수정본 통합 재검증으로 해소. QA는 synthetic/source only이며, 실PC 진단/수리·브라우저 file:///USB·QR 카메라·A4/PDF·WinRE/배포는 미검증. Release A 공개 **HOLD**.
 - 작업은 `feature/pc-care-usb`에서만. `main`/Cloudflare Production, 원본 로컬 프로젝트 및 고객 데이터 변경 없음.
+
+
+Node 18 compatibility follow-up: removed the Node 18.15+ TAP reporter option; both TAP and SPEC summaries are tested. Targeted preflight tests: 10 PASS, 1 SKIP. Full aggregate QA not rerun after this follow-up. Real device/browser/camera/WinRE validation remains unverified.
