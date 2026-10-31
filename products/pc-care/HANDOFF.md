@@ -862,3 +862,11 @@ Final code commit 54f92ced99796f3791d9ed28d0d4d8f3916c1b9f ensures QA receipt pa
 - Full `cmd.exe /d /c RUN_RELEASE_QA.cmd` rerun: exit 0; Python 82 total (79 PASS/3 SKIP), Node 117 PASS, internal ZIP integrity/manifest/SHA256 PASS, Windows PowerShell 5.1 synthetic PASS. Latest receipt `QA_RESULTS/pc-care-qa-20261031T115343Z-caff61c1.json` from isolated source copy.
 - Browser/file://, physical QR camera, A4/PDF, USB hardware, live Windows device diagnosis and WinRE remain unverified. Release A remains HOLD. No live diagnosis or modifying repair commands; no customer files/data or credentials touched.
 - Original local project remains untouched. Updated 2026-10-31 KST.
+
+
+## 2026-10-31 20:58 KST — timeline evidence ID validation
+- Commit `c532270147d04643aa140d457487c56734e32834` on `feature/pc-care-usb` validates event IDs in recorded timeline rows and shutdown grouping before accepting/grouping them. Fractional, boolean and out-of-range IDs cannot add evidence/counts. Regression cases added to event and driver timeline fixtures.
+- Direct `tests/event_analysis.tests.ps1` and `tests/driver_timeline.tests.ps1` PASS. Full `RUN_RELEASE_QA.cmd` exit 0: Python 82 total (79 PASS/3 SKIP), Node 117 PASS, internal ZIP integrity/manifest/SHA256 PASS, Windows PowerShell 5.1 synthetic PASS. Latest receipt in isolated tree: `QA_RESULTS/pc-care-qa-20261031T115542Z-3632e9b5.json`.
+- Combined work commits: `3e2d684` malformed PnP/event-ID guards; `52c4076` strict integral telemetry; `c532270` timeline validation. Documentation reflects tests, environment, original-data preservation and remaining verification gates.
+- Browser, camera, A4/PDF, physical USB, live device and WinRE/repair are still UNVERIFIED. Release A remains HOLD; estimated readiness about 70% is an engineering estimate only. No dangerous commands or live/system changes were made.
+- Updated 2026-10-31 KST.

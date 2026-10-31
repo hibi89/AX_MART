@@ -602,3 +602,11 @@
 - Direct telemetry and incident PowerShell fixtures PASS. Latest full offline QA exit 0: Python 82 (79 PASS, 3 SKIP), Node 117 PASS, internal ZIP integrity/manifest/SHA256 PASS, Windows PowerShell 5.1 synthetic PASS.
 - Real Windows device, Edge/file://, camera QR, printed A4/PDF, physical USB, WinRE/repair remain UNVERIFIED. Release A HOLD; estimate ~70% remains a rough engineering estimate. main/Cloudflare unchanged.
 - Original local project and user data untouched; updated 2026-10-31 KST.
+
+
+## 2026-10-31 20:58 KST — timeline validation follow-up
+- Feature branch code SHA `c532270147d04643aa140d457487c56734e32834`; malformed decimal/bool Event IDs are now rejected by timeline normalization/grouping. Related direct PowerShell fixtures PASS.
+- Latest full internal QA exit 0: Python 82 total (79 PASS, 3 SKIP), Node 117 PASS, internal ZIP verification PASS, PowerShell 5.1 synthetic PASS.
+- Overall changes include strict PnP/System/Update Event IDs and integral battery/volume values. No original local project, user data, device, permissions or production changes.
+- Actual Edge/file://, QR camera, A4/PDF, physical USB, Windows live diagnosis and WinRE remain UNVERIFIED. Release A remains HOLD; ~70% is a non-certifying estimate.
+- Next priority remains dedicated Windows 11 acceptance and isolated recovery tests. Updated 2026-10-31 KST.
