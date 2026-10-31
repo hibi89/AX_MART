@@ -585,3 +585,12 @@
 - CMD full runner works from a Korean+space directory; all four gates pass.
 - Python 82 total (79 PASS/3 SKIP), Node 117 PASS, internal ZIP PASS, Windows PowerShell 5.1 synthetic PASS after receipt fix.
 - Browser/file://, QR camera, A4/PDF, physical USB, live device and WinRE remain unverified. Release A HOLD.
+
+
+## 2026-10-31 20:51 KST — malformed evidence guard and full local QA
+- Feature branch `feature/pc-care-usb`; code SHA `3e2d68476b9b2d77c61b02561aa105ca08af25d4` (parent `61b7c6efdbdcf209e172a10b2051ea2cec4908a5`). main/Cloudflare Production unchanged.
+- Integer evidence validation now rejects fractional, boolean and malformed event IDs at PnP, System, Update, incident, consultation and share boundaries. Five fixture files plus the prior PnP fixture cover those cases.
+- Latest `cmd.exe /d /c RUN_RELEASE_QA.cmd`: exit 0; Python 82 total (79 PASS, 3 SKIP), Node 117 PASS, internal ZIP build/manifest/SHA256 PASS, Windows PowerShell 5.1 synthetic PASS. Direct relevant PS fixtures all PASS.
+- Original project, device and user data unchanged. No repair/system-changing commands, deployment or external customer data transfer.
+- Real Edge/file:// interaction, camera QR decode, A4/PDF print, physical USB, live diagnosis and WinRE/repair remain UNVERIFIED. Release A HOLD; readiness estimate ~70% remains indicative only.
+- Next: actual Windows 11 standard-user acceptance and isolated WinRE/restore validation; keep public release gated until those pass. Updated 2026-10-31 KST.

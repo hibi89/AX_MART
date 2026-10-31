@@ -841,3 +841,15 @@ QR omission count and displayed-signal rules are now consistent with the six-cat
 
 ## 2026-10-31 KST — Unicode receipt-path verification
 Final code commit 54f92ced99796f3791d9ed28d0d4d8f3916c1b9f ensures QA receipt paths print safely on legacy code pages and adds a CP949 strict regression with Unicode directory names. Python suite: 82 total / 79 PASS / 3 SKIP; full runner exit 0 with Node 117 PASS, ZIP PASS and Windows PowerShell 5.1 synthetic PASS. The CMD runner also passed from a Korean+space copy. Browser, QR camera, A4/PDF, physical USB/live-device and WinRE checks remain unverified; Release A HOLD. See root HANDOFF.md for full details.
+
+
+## 2026-10-31 20:51 KST — malformed event ID guard / isolated full QA
+- Goal: independent Release A backend/integration hardening, guided by FINAL_SPEC_V2; source was worked only in a temporary isolated copy under the Codex work directory. Original local project and user files were untouched.
+- Code commit: `3e2d68476b9b2d77c61b02561aa105ca08af25d4` on `feature/pc-care-usb`; parent `61b7c6efdbdcf209e172a10b2051ea2cec4908a5`. `main`/Cloudflare Production were not changed.
+- Fixed PnP ConfigManagerErrorCode parsing and System/Windows Update Event ID normalization to reject booleans, fractions and non-decimal strings instead of allowing PowerShell integer casts to fabricate findings. Incident validation, consultation summary and QR/share payload now apply the same bounded integer rule.
+- Added synthetic regressions in driver timeline, event, telemetry, consultation and share fixtures. Invalid evidence cannot become a normal finding or enter the share summary.
+- Direct PowerShell fixture commands: `tests/event_analysis.tests.ps1`, `tests/telemetry_analysis.tests.ps1`, `tests/incident_analysis.tests.ps1`, `tests/consultation_report.tests.ps1`, `tests/share_payload.tests.ps1`, and `tests/driver_timeline.tests.ps1` all PASS under Windows PowerShell 5.1.
+- Full native launcher: `cmd.exe /d /c RUN_RELEASE_QA.cmd`, exit 0. Python 82 total: 79 PASS / 3 SKIP; Node 117 PASS; internal ZIP build/manifest/SHA256 verification PASS; Windows PowerShell 5.1 synthetic stage PASS. Receipt: `QA_RESULTS/pc-care-qa-20261031T114916Z-69127aa5.json` in the temporary work copy; it was not included in the repo.
+- Skips are sandbox filesystem capability cases. Edge/file://, QR camera, A4/PDF, physical USB, live diagnosis, WinRE/repair and distribution acceptance remain UNVERIFIED. Release A remains HOLD; readiness remains a rough ~70% engineering estimate, not certification.
+- No DISM/SFC, BitLocker, WinRE copy, real device diagnosis, user-file deletion, auth/permissions change, paid service or deployment was performed. No customer data was collected or uploaded.
+- Next priority: Windows 11 standard-user acceptance of file:///USB Unicode path, QR camera/A4 output, and separate disposable VM/WinRE read-only/restore gates before release review. Updated 2026-10-31 KST.
