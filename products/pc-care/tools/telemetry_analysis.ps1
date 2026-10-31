@@ -179,8 +179,30 @@ function ConvertTo-PcCareVolumeSample {
             freePercent = $pct
             sizeGB = $sizeGB
             capacityBytes = $capacity
+            remainingBytes = $remaining
         }
     } catch {
         return $null
     }
+}
+
+// Compute warning thresholds from unrounded byte counts, never display-rounded
+// remainingGB/freePercent. Rounding can hide a 4.96 GB/4.96% critical disk.
+function Get-PcCareVolumeRisk {
+    [CmdletBinding()]
+    param([object]$Sample)
+    if ($null -eq $Sample) { return 'unavailable' }
+    try {
+        $size = [double]$Sample.capacityBytes
+        $free = [double]$Sample.remainingBytes
+        if ([double]::IsNaN($size) -or [double]::IsInfinity($size) -or
+            [double]::IsNaN($free) -or [double]::IsInfinity($free) -or
+            $size -le 0 -or $free -lt 0 -or $free -gt $size) {
+            return 'unavailable'
+        }
+        if ($size -lt 20GB) { return 'none' }
+        if ($free -lt 5GB -or ($free / $size) -lt 0.05) { return 'high' }
+        if (($free / $size) -lt 0.15) { return 'medium' }
+        return 'none'
+    } catch { return 'unavailable' }
 }
