@@ -336,3 +336,11 @@
 - 개인정보 보호 변경: `tools/report_io.ps1`의 `Save-PcCareReportPair`는 `New-Item` 직후 폴더를 다시 검사하여 reparse/비공개 경로가 되면 첫 JSON/HTML 기록 전에 거부. `tests/test_package.py`에서 순서를 계약으로 고정. 기존 CreateNew/무덮어쓰기/자기 생성 파일만 정리/복구 로직 유지. 코드 커밋 `51d647ae303d7cbe6faa421d53a6bf383cbc40d8` 및 `d0204ffa66e1c732bc3b98a6229c8d82f87febd7`; GitHub readback **정적 9/9 PASS**.
 - 실행 환경: Linux Python 3.13/Node 22 존재, WinPS5.1 미설치. 연결된 사설 GitHub 원본 전체 checkout/네이티브 Python 통합·ZIP·Windows/USB/QR/A4/WinRE/실수리 CI는 **NOT_RUN/UNVERIFIED**. 원본 report/고객 데이터·시스템 수정·수리·유료 제품 게시 없음. TOCTOU 완전 제거를 보증하지 않음.
 - 다음 우선순위: Windows 전체 checkout `RUN_RELEASE_QA.cmd` 네 게이트 → 읽기 전용 `RUN_HEALTH_CHECK.cmd` 생성 결과 → H08/QR/A4/USB → WinRE/수리 격리 검증. Release A/B 공개·판매 **HOLD**, 전체 추정 완성률 약 50% 유지.
+
+## 2026-10-31 18:16 KST — CUBE 내부 QA ZIP 원본보존 보강
+- 범위: `hibi89/AX_MART@feature/pc-care-usb`; 작업 전 기준 `415809121a039891a5e4a446060741fe902cfc72`, 실제 기능·테스트 HEAD `5799e74143b442529416b86806bc2a8c19e46584`. `main`/Cloudflare/고객 장치·데이터 무변경.
+- 결함: `tools/release.py:build_internal`의 `os.replace(pending, zip_path)`와 체크섬 `os.replace`가 **기존 파일을 자동 덮어쓸 수 있음**. 단일 ZIP·SHA256 파일·출처 변경된 구형 산출물 보존 정책 위반 우려.
+- 수정: 기존 ZIP+SHA256 두 파일이 정식 검증되고 새 아카이브와 SHA256 동일할 때에만 재사용. 다르거나 불완전하면 실패. 신규 파일은 `xb/x` 배타적 생성과 flush/fsync 후 아카이브/체크섬 검증, 해당 호출이 생성한 출력만 실패 시 정리. 임시 파일 충돌·symlink 거부·내부 테스트 전용 ZIP 정책 유지. `tests/test_release.py` 기존 파일·단독 파일·소스 변경 충돌 3개 회귀 테스트 추가.
+- 검증: GitHub 원본 소스·테스트 readback **정적 12/12 PASS**. 실제 Linux Python 3.13에서 `build_internal` 게시 제어 흐름을 원본 GitHub에서 옮겨오고 간소화한 ZIP/검증 helper를 사용하는 **격리 테스트 8/8 PASS**; 이 시험은 GitHub 전체 원본을 clone하거나 official `test_release.py`를 실행한 결과가 아님. 검증 수준을 제품 전체 PASS로 확대하지 말 것.
+- 장애·대안: 현재 컨테이너에서 private GitHub 원격 DNS/자격증명 접근 불가(`Could not resolve host: github.com`). GitHub connector로 원본 파일 열람/수정만 가능. Windows PowerShell 5.1 부재. 차기: GitHub checkout 가능한 실제 Windows 환경에서 `RUN_RELEASE_QA.cmd` 원본 Python+Node+PS5.1+ZIP 네 게이트 실측, 이후 읽기 전용 현장 진단·H08/QR/A4/USB/WinRE 별도 검증. 기존 CI 실패 run 41034866482 재시도하지 않음.
+- 출시 상태: Release A/B **HOLD**, 전체 완성률 종전 약 50%(가늠값) 유지, WinRE 파일 복사/실수리는 미검증. 작업 전 원본 SHA `41580912...`로 비교 가능하며 forced update 없음.
