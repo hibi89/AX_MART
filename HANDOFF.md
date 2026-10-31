@@ -430,3 +430,15 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. **백업·권한·금지**: 원본 고객 데이터/기존 ZIP 보존, 새 공개·유료/권한/BitLocker/수리/WinRE/클라우드 동기화 변경 없음. 민감 로그/REPORTS/QA_RESULTS GitHub 커밋 금지. 복구 비교 기준은 작업 전 SHA.
 9. **다음 우선순위**: 실제 Windows full QA(4개 독립 단계)→원본 ZIP 재생성/체크섬→읽기 전용 JSON/HTML→H08/QR/A4/USB → 별도 승인 WinRE. 공식 테스트 실패 해결 전 릴리스 금지.
 10. **갱신 시점·검증 범위**: 2026-10-31 18:16 KST; GitHub 원본 readback 12개 정적 확인과 축소 helper 기반 Python native 동작 테스트만. 문서 커밋 후 HEAD 재검증. Production 미적용.
+
+## 2026-10-31 KST — CUBE 디스크 공간 경계값 수정 인수인계
+1. 제품: PC CARE Release A 진단/분석/보고서; Release B WinRE는 별도. FINAL_SPEC_V2.md 기준.
+2. 변경: telemetry_analysis.ps1의 raw remainingBytes와 Get-PcCareVolumeRisk, diagnose.ps1의 반올림 전 경고 판정.
+3. 검증: 독립 Python 수식 8/8, GitHub 원본 정적 12/12. PS5.1 신설 fixture 9개, Python 계약 회귀 1개는 실행 전. 전체 Windows/Node/ZIP/CI 미검증.
+4. 진도: Release A 실Windows 수용검사 대기, Release B 출시 대기. 이전 전체 약 50% 추정 유지, RELEASE HOLD.
+5. 원인: 4.96GiB를 표시용 5.0GiB로 반올림해 critical을 놓침. 원시 바이트 판정으로 수정. 현 환경 WinPS5.1 및 GitHub clone 불가.
+6. 저장소: hibi89/AX_MART feature/pc-care-usb, 시작 1582b208, 최종 코드/테스트 bb716c9e.
+7. 배포: Cloudflare https://ax-mart.pages.dev/ main=fbb32362 불변. Windows 테스트 명령 products/pc-care/RUN_RELEASE_QA.cmd.
+8. 원본: 고객/장치/파일/권한/수리/비밀 변경 없음. 소스 복구 기준 1582b208.
+9. 다음: Windows PS5.1/Node/Python/ZIP 전체 QA→읽기전용 E2E→USB/QR/A4→별도 승인 WinRE.
+10. 2026-10-31 KST 확인: GitHub 코드 정적·Python 독립 수식만 검증, Windows 및 Production 미적용.
