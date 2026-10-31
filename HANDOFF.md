@@ -442,3 +442,17 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. 원본: 고객/장치/파일/권한/수리/비밀 변경 없음. 소스 복구 기준 1582b208.
 9. 다음: Windows PS5.1/Node/Python/ZIP 전체 QA→읽기전용 E2E→USB/QR/A4→별도 승인 WinRE.
 10. 2026-10-31 KST 확인: GitHub 코드 정적·Python 독립 수식만 검증, Windows 및 Production 미적용.
+
+
+## 2026-10-31 18:55 KST — CUBE Release A 네이티브 QA 후속 인수인계
+
+1. **목표/기준**: products/pc-care/ Release A 진단·분석·상담 보고·H08·QR·내부 ZIP 검증. FINAL_SPEC_V2.md 및 기존 설계 유지.
+2. **변경**: tools/telemetry_analysis.ps1의 실행문으로 해석되던 // 주석을 PowerShell # 주석으로 수정. 현행 수집 출처/배포 ZIP의 배타 생성/로컬 저장 안전 가드를 검사하도록 오래된 소스 계약 fixture 수정. H08/인쇄 synthetic fixture에 유효 event/update provider·기록 UTC·볼륨 수집 증거를 보강하고, 증거 없는 저장장치 경고를 인쇄하지 않는지 assertion 추가.
+3. **통과 결과**: Python 3.11.9: python -m unittest discover -s tests -p 'test_*.py' -v = **77 PASS, 3 SKIP**. Node 24.21: node --test 제품 테스트 9개 파일 **113/113 PASS**. Windows PowerShell 5.1: tests/windows_smoke.ps1 기본 합성 모드 **19개 ParseFile PASS + 7개 synthetic fixture PASS**. 내부 ZIP 생성/manifest/SHA256 검증 PASS, 동일 출력 경로 재실행 byte-identical 재사용 PASS (3b161e9df5ee148a7ed8c2fcf3e90d767ffa15f5460e14ac2fe6e6b6377a64da).
+4. **전체 runner 판정**: RUN_RELEASE_QA.cmd 2회 실행, 두 번 모두 nonzero exit. 최종 pre-fix 전체 실행은 Python 77회 5 failures+1 error+2 skips, Node 1 failure, ZIP PASS, PS5.1 FAIL. Python/Node/PS 원인을 수정하고 각 단계 및 ZIP을 따로 재실행해 검증. 지시된 최대 1회 재시도 이후 full runner를 다시 돌리지 않아 **수정본 전체 통합 runner = NOT RUN**.
+5. **오류/제약**: PS5.1 fixture 실패의 제품 원인은 telemetry_analysis.ps1의 // 미정의 command. Python/Node 실패 대부분은 현행 provenance/파일보호 변경과 어긋난 test assertion 또는 증거 없는 synthetic JSON. 별도 mirror에 저장소 .github/workflows가 빠져 첫 실행에서 생긴 오류도 있었음. Windows symlink 기능을 요구하는 Python 3개 test는 sandbox에서 symlink를 만들 수 없어 명시 SKIP.
+6. **저장소/SHA**: hibi89/AX_MART / feature/pc-care-usb. 시작 HEAD f2304b7f95ec939d973094a1f1a958caed08294f. 기능+테스트 커밋 f7b60d22f1efccbec0215065650fa478612314d9 (profile identity hibi89), 그 후 이 HANDOFF/STATUS 갱신 커밋 예정. 강제 ref 갱신 없이 예상 HEAD 비교로 업데이트.
+7. **실행 환경/보호**: Windows host, System Windows PowerShell 5.1, 호출 shell PowerShell 7.6.5, Python 3.11.9, Node 24.21.0. Private clone은 DNS 차단; 원격 103개 제품 blob SHA를 검증한 임시 mirror 사용. 원본 프로젝트 폴더·실사용 PC·고객 파일·권한·BitLocker·WinRE·실수리·main·Cloudflare 운영 미변경. windows_smoke.ps1는 -RunReadOnly 없이 기본 합성 모드만 실행.
+8. **상태/미검증**: Release A HOLD, 전체 진도 약 50% 이전 추정 유지(실측 아님). 실제 진단, 저장된 실제 보고서 JSON↔HTML 동등성, 브라우저/file:///USB Unicode 경로, 카메라 QR, A4/PDF 출력, WinRE/복구는 미검증. ZIP integrity PASS는 Windows/WinRE/배포 승인 아님.
+9. **다음 우선순위**: 수정 commit checkout에서 RUN_RELEASE_QA.cmd 전체 결과 1회 확인 → synthetic JSON/HTML 실제 파일 E2E → 격리 Windows 실기기 읽기 전용 → USB/브라우저/QR 카메라/A4 → 승인된 격리 환경에서 WinRE 검토. 전체 runner gate와 실제 사용 수용검사 전 Release A 공개 금지.
+10. **갱신 시각**: 2026-10-31 18:55 KST. task-created work/AX_MART-temp에만 mirror/log/ZIP/receipt 생성. 원본 폴더 보존. 원격 문서 반영 후 이 임시 폴더만 정리.

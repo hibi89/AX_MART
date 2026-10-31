@@ -352,3 +352,11 @@
 - 검증: Linux Python3.13에서 **독립 동일수식 경계값 재현 8/8 PASS**, GitHub 정적 원본 확인 **12/12 PASS**. `tests/telemetry_analysis.tests.ps1`에 9개 PowerShell 합성 assertion과 `tests/test_package.py`에 소스 계약 회귀 추가. **WinPS5.1 합성 테스트/전체 native Python/Node/내부 ZIP/실Windows/USB/QR/A4/WinRE/CI 미실행·미검증**.
 - 블로커: 컨테이너의 private GitHub clone 불가(DNS `github.com` 해석 실패), PowerShell5.1 실행기 없음. 기존 Windows CI run 41034866482는 실패/step=0 로그 없음으로 원인 미확정. 무의미한 재시도 금지; 다음은 Windows 체크아웃에서 QA 명령 실행.
 - 상태: Release A 실 Windows 검증 대기, Release B WinRE 파일 복사 별도 미완·승인 요구. 전체 완성률 기존 추정 약 50% 유지(실측 아님). 판매/무료 출시 HOLD. 소스 복구 기준 `1582b208...`, 고객 데이터·실 시스템·원본 파일 변경 없음.
+
+
+## 2026-10-31 KST — PC CARE Release A 후속 QA
+- 수정 커밋 f7b60d22f1efccbec0215065650fa478612314d9 on feature/pc-care-usb (base f2304b7f95ec939d973094a1f1a958caed08294f): PowerShell 5.1에서 실행되던 // 주석 오류 수정, 현행 evidence provenance/secure ZIP/report path 구현에 맞게 contract test와 synthetic fixtures 정정/강화.
+- 수정 후 직접 실행: Python **77 PASS / 3 SKIP**, Node **113 PASS / 0 FAIL**, Windows PowerShell 5.1 기본 합성 smoke **19 parsers + 7 fixtures PASS**. Internal ZIP **build + manifest/SHA256 verify PASS**, 동일 경로 재실행 checksum 불변 PASS.
+- RUN_RELEASE_QA.cmd 전체는 총 2회 실행했고 둘 다 exit 1. 마지막 전체 실행 당시 Python/Node/PS 실패와 ZIP PASS 확인. 수정 후 관련 구성요소는 직접 재실행했으나 전체 runner는 재실행하지 않음(최대 1회 재시도 제한). 따라서 **full aggregate = NOT RUN after fixes**.
+- Python symlink 관련 3개는 OS sandbox capability 미지원으로 SKIP. 브라우저/QR 카메라/A4/USB 실물/WinRE/실사용 진단은 미검증. Release A HOLD.
+- main, Cloudflare Production, 원본 checkout, 사용자 PC 및 고객 파일/설정/권한/BitLocker/WinRE 불변. 개인 데이터, 실진단 결과는 수집·업로드하지 않음.
