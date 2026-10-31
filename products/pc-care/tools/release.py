@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import os
+import shutil
 import stat
 from pathlib import Path
 import sys
@@ -176,15 +177,43 @@ def build_internal(root: Path, output: Path) -> tuple[Path, str]:
         with checksum_pending.open('x', encoding='ascii', newline='\n') as target:
             owned_checksum_temp = True
             target.write(f'{checksum}  {zip_path.name}\n')
-        # Never follow a symlink when publishing these two owned output names.
+        # Existing internal artifacts may belong to another run. Reuse only a
+        # verified byte-identical pair; never replace a different ZIP or sidecar.
         if zip_path.is_symlink() or sidecar.is_symlink():
             raise ValueError('Refusing symlink output target')
-        os.replace(pending, zip_path)
-        owned_zip_temp = False
-        os.replace(checksum_pending, sidecar)
-        owned_checksum_temp = False
-        if verify_archive(zip_path, require_sidecar=True) != checksum:
-            raise ValueError('Post-write checksum verification failed')
+        if zip_path.exists() or sidecar.exists():
+            if zip_path.is_file() and sidecar.is_file():
+                try:
+                    if verify_archive(zip_path, require_sidecar=True) == checksum:
+                        return zip_path, checksum
+                except (OSError, ValueError, zipfile.BadZipFile):
+                    pass
+            raise ValueError('Existing internal output differs or is incomplete; manual review required')
+        # os.replace would silently overwrite a file created after the check.
+        # Exclusive creates protect existing files even during concurrent runs.
+        owned_final_zip = False
+        owned_final_sidecar = False
+        try:
+            with zip_path.open('xb') as target:
+                owned_final_zip = True
+                with pending.open('rb') as source:
+                    shutil.copyfileobj(source, target)
+                target.flush()
+                os.fsync(target.fileno())
+            with sidecar.open('x', encoding='ascii', newline='\n') as target:
+                owned_final_sidecar = True
+                target.write(f'{checksum}  {zip_path.name}\n')
+                target.flush()
+                os.fsync(target.fileno())
+            if verify_archive(zip_path, require_sidecar=True) != checksum:
+                raise ValueError('Post-write checksum verification failed')
+        except Exception:
+            # Roll back only the final paths created by this invocation.
+            if owned_final_sidecar:
+                sidecar.unlink(missing_ok=True)
+            if owned_final_zip:
+                zip_path.unlink(missing_ok=True)
+            raise
     finally:
         # Never delete someone else's colliding temporary artifact.
         if owned_zip_temp and pending.exists() and not pending.is_symlink():
