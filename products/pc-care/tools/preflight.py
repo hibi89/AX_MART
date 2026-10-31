@@ -122,6 +122,8 @@ def run_qa(root: Path, *, windows_synthetic: bool | None = None) -> dict:
             result['tests']=int(match.group(1))
             skipped=re.search(r'\bskipped=([0-9]+)\b',result['output'])
             result['skipped']=int(skipped.group(1)) if skipped else 0
+            if result['skipped'] >= result['tests']:
+                result.update(status='fail', output='All Python tests were skipped')
         return result
     def node_suite():
         if not node:
@@ -144,6 +146,8 @@ def run_qa(root: Path, *, windows_synthetic: bool | None = None) -> dict:
             result['tests']=int(match.group(1))
             skipped=re.search(r'(?m)^\S+\s+skipped\s+([0-9]+)\s*$',result['output'])
             result['skipped']=int(skipped.group(1)) if skipped else 0
+            if result['skipped'] >= result['tests']:
+                result.update(status='fail', output='All Node tests were skipped')
         return result
     def zip_suite():
         with tempfile.TemporaryDirectory(prefix='axmart-pc-care-internal-qa-') as tmp:
