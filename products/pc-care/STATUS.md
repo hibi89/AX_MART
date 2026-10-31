@@ -509,3 +509,12 @@
 - 소스 마감 SHA `9eddda6477b3a5e4eba9aadf1b471a122f35c949` (`feature/pc-care-usb`); `main` `fbb32362455378b85bcdd0b5037d1f338055fb71` 불변. 새로운 문서 기준 `products/pc-care/docs/CLOSEOUT_20261031_KST.md`의 10개 항목을 다음 채팅 첫 읽기로 지정. Docs 커밋은 기능 변경 아님.
 - 최신 QA: 디스크 이름 비식별화 14/14 SOURCE STATIC PASS; PS5.1/USB·QR·A4·WinRE 최신 실제 실행 NOT_RUN, Release HOLD. 최근 CI 이전 SHA failure, 재시도 없음. Python/JS 과거 합성 테스트는 독립 증빙으로만 기록.
 - **다음 우선순위:** Windows `RUN_RELEASE_QA.cmd` native→격리된 로컬 읽기 전용 E2E→USB·QR·A4→WinRE/복구 안전 검증. 사용자 수면 중 자동 작업, 변경, 배포 없음.
+
+## 2026-10-31 KST — CUBE QA fixture 초기화 순서 복구 (본 채팅)
+- 대상: `hibi89/AX_MART@feature/pc-care-usb`; 작업 시작 SHA `2f933fc5d1dd6673df9f55fdba72f720d204d732`. 기존 `main=fbb32362455378b85bcdd0b5037d1f338055fb71` 불변.
+- 원인/수정: `products/pc-care/tests/report_io.tests.ps1`는 `$normal` 경로를 할당하기 전 `Test-PcCarePrivateReportFolder -Folder $normal`을 호출해 정상 QA가 실패할 수 있었음. 경로 할당을 테스트 호출 앞으로 이동. `tests/test_package.py`에 순서 회귀 가드 추가.
+- 코드 커밋: `41d2b807e610ac9f107b4014bc017fcccaf09fbd` (PowerShell fixture 순서 수정), `48bad4cc6fd477e7e217fda45ff06279652b6b2d` (Python source-contract 회귀 가드). 원본 `report_io.ps1`의 보고서 생성/삭제 정책, 진단 및 사용자 데이터는 변경하지 않음.
+- 검증: 이전 코드의 잘못된 순서 재현 + 최신 파일의 수정된 순서·단일 할당·BOM·Python 가드·Git HEAD를 GitHub 원본으로 정적 확인 **6/6 PASS**. 실제 Python 전체 실행/Windows PowerShell 5.1/USB·QR·A4·WinRE·ZIP·CI는 **NOT_RUN/UNVERIFIED**. 6/6은 Windows 기능 테스트가 아님.
+- CI: 과거 run `41034866482`의 job `123993114299`는 `failure`, step=0; 로그 다운로드 404 BlobNotFound. 최신 커밋의 성공한 CI 기록 없음. 실패 원인을 코드 실패/runner 문제 중 하나로 확정할 수 없음. 무의미한 재실행 금지.
+- 출시·복구: Release A/B 완성률 이전 추정치 그대로, 정식/무료 공개 HOLD. `main`/Cloudflare Production/수리/복구/OS 권한·사용자 데이터 변경 없음. 코드 수정 전 SHA `2f933fc5`로 안전한 비교/복구 가능.
+- 다음: Windows 전체 체크아웃 `RUN_RELEASE_QA.cmd` 실행 결과 확보 → 읽기전용 실 Windows 진단 → H08/QR/A4/USB → WinRE 별도 격리/승인 게이트. 현재 환경에서 WinPS5.1 네이티브 실행 불가. 문서 갱신은 기능 추가나 검증 합격으로 간주하지 않음.
