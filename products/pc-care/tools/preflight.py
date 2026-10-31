@@ -256,6 +256,8 @@ def main(argv: list[str] | None = None) -> int:
     result=run_qa(args.root)
     for stage in result['stages']:
         print(f"{stage['status'].upper()}: {stage['name']}")
+        if stage['status'] == 'pass' and stage.get('skipped', 0):
+            print(f"  {stage['skipped']} tests skipped; those cases remain unverified.")
         if stage['status'] not in ('pass','not-run') and stage.get('output'):
             print(stage['output'][-1800:])
     print(json.dumps({k:v for k,v in result.items() if k!='stages'},ensure_ascii=False))
