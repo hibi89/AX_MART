@@ -1,3 +1,5 @@
+> **2026-11-10 KST — AXMART³ CUBE 상품 등록 보안 기반 P1/P2** (비공개 `feature/cube-commerce-core`; **Cloudflare 운영 `main` 변경 없음**): 실제 1호 제품 AXMART PC CARE의 `commerce/catalog.json`·출시 증거 체크/정적 공개 JSON 생성 검증·결제/다운로드 차단을 구현했고, 소유자 로컬에서 ZIP 후보 바이트/크기/SHA를 읽기 전용으로 확인하는 `audit:package`를 추가. 새 기능 Native Node22.16 합성 회귀 **36/36 PASS/0 FAIL**, 실제 사이트 전체 원본 `npm test`/Production/Windows/실 ZIP은 **NOT_RUN**. [P1 설계](docs/CUBE_COMMERCE_P1_20261110.md) · [P2 설계](docs/CUBE_COMMERCE_P2_20261110.md), 정확 기능 소스 SHA `656fb945ac0b2ea6ec20fe9d58eb65e8bd2efe0c`. 사업자·결제·보안·실제품 검증 전 판매/다운로드/계정 기능 **HOLD**. 최종상품 잠정 **48%**, 50%까지 2%p.
+
 # AXMART³ (AXMART CUBE)
 
 소프트웨어 플랫폼 공식 브랜드는 AXMART³, 읽기는 AXMART CUBE입니다. 제품 AXMART PC CARE는 PC·USB 포터블 Windows 진단 및 안전복구 지원 프로젝트입니다.

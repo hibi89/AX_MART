@@ -1,3 +1,18 @@
+# AXMART³ CUBE — P1/P2 개발 인수인계, 2026-11-10 KST
+
+1. **목표·용도·확정 요구·기술:** 비공개 `hibi89/AX_MART`를 독립 소프트웨어 상품 플랫폼으로 발전. 기존 `main`은 Cloudflare Pages `ax-mart` 자동 Production 연결이며, 다크 퍼플·민트 히어로 원본/하나의 실상품 PC CARE 설명을 보존. 개발은 새 `feature/cube-commerce-core` 브랜치, Node >=18 zero-dependency 모듈. 소비자 결제/로그인/다운로드는 아직 소유자 승인 전 HOLD.
+2. **완료 기능·근거:** A 즉시 Cloudflare 결제/계정/API 활성화 vs B 별도 브랜치의 fail-closed 상품 카탈로그/검증 프리플라이트 비교. 비용·계정·개인정보·미검증 제품 위험 때문에 B. P1 `commerce/catalog.mjs`, `commerce/catalog.json`, `scripts/audit-catalog.mjs`, 변경 `scripts/build.mjs` (원본 index byte-preserve, 유출 방지 `dist/catalog.json` 발행). 제품 1개 실 소스 참조 GitHub SHA 고정, 8개 출시 필수 증거 false, 가격/구매/다운로드 모두 거부. P2 `commerce/package-audit.mjs`, `scripts/audit-package.mjs`, 로컬 ZIP 크기/바이트 SHA/signature 사전검사. hash MATCH라도 윈도우/악성코드/라이선스 안전 인증은 아님, 승인/배포 금지.
+3. **테스트·검증·미검증:** `node --test tests/catalog.test.mjs tests/build-catalog.test.mjs tests/package-audit.test.mjs` **36/36 PASS, 0 FAIL, 0 SKIP** (실제 컨테이너 Node22.16, 실행한 정확 원본과 GitHub Blob SHA 매칭). P1 첫 23/23 PASS, P2 첫 실행 13건 중 2 FAIL 발생 후 ZIP 첫 4바이트 검사 경계 수정해 총 36/36 PASS. Build 4개 테스트는 임시 축약 HTML fixture. `npm test`는 기존 `tests/site.test.mjs`를 포함하도록 등록했으나 **원본 105KB index 통합 테스트 NOT_RUN**, GitHub Actions 기준 main 0 runs. 실제 운영/Windows/결제 미검증. Audit CLI는 로컬 일회성 SHA evidence/8 missing gate를 출력.
+4. **완료/진행/대기·차단:** P1/P2 기능+정적 빌드 시큐리티 정책+샘플 카탈로그 구현; 제품 잠정 45→48%(P1 +2,P2 +1). 기능이 쇼핑몰 결제나 실제 회원/고객지원 완성을 뜻하지 않는다. 50%까지 2%p, 전체상용 100%와 별도. RELEASE HOLD, 사용자 유료 결제·권한 조정·데이터 전송·실제품/원본 변경 없음.
+5. **오류 근거·중단·전환:** 기능 코드를 GitHub Blob으로 전달할 때 원시 압축 전송 1회 디코딩 오류(Invalid LZ77 distance); 그 방식 중단, 원본 UTF-8 코드/정확 `git hash-object` SHA 확인으로 전환 성공. P2 첫 로컬 ZIP 검사 테스트 2 FAIL 원인: 반복 중 바뀌는 `header.length`을 경계식에 직접 사용. 경계 고정 후 전체 36 PASS. 동일 실패 방식 반복 금지. Production public 웹 도구의 접근 실패는 서비스 장애 단정 금지.
+6. **저장소·브랜치·SHA·경로:** `hibi89/AX_MART@feature/cube-commerce-core` 기능/테스트 최종 SHA **`656fb945ac0b2ea6ec20fe9d58eb65e8bd2efe0c`**. 기존 `main` SHA `fbb32362455378b85bcdd0b5037d1f338055fb71` 보존. `feature/pc-care-usb` SHA `b8706e0a77ec245acc7bc0672f121364c851f910` 보존. `commerce/catalog.mjs`, `commerce/catalog.json`, `commerce/package-audit.mjs`, `scripts/{build,audit-catalog,audit-package}.mjs`, `tests/{catalog,build-catalog,package-audit}.test.mjs`, `docs/CUBE_COMMERCE_P{1,2}_20261110.md`.
+7. **Production URL·Vercel/Cloudflare·명령:** Cloudflare Pages `https://ax-mart.pages.dev/`, `main` Git source; 이번 브랜치는 **미배포**. Node >=18 `npm test` (기존+신규 전부), `npm run test:commerce`, `npm run audit:catalog`, `npm run audit:package -- --manifest <local.json>`, `npm run build`. Cloudflare/Vercel project/settings/secret/domain 수정 없음.
+8. **원본·백업·인증·수정금지:** `main` 부모 SHA `fbb323...`로 기능 브랜치를 버리거나 복원 가능; 원본 `index.html` 및 CSS/이미지/사용자 승인 디자인, 고객정보, `.env`/token/계정, Windows PC CARE USB ZIP/스크립트, 개발 제품 branch 전부 미수정. 공개 카탈로그에는 사설 branch SHA/검증 체크리스트를 포함하지 않는다.
+9. **다음 작업·완료 기준·승인:** 우선 실제 전체 소스 체크아웃에서 `npm test` + `npm run build` (기존 105KB index) 검증하고 필요시 fixture mismatch 최소 수정. 다음 실사용 가치: 허가된 문의/지원/고객 데이터 보존 정책, 무료 베타 전달 자격과 ZIP 구조/악성코드/서명 검사, 결제/권한/정산 설계; 계정 연결/유료 API/배포 main 수정은 사전 승인 후. 완료 기준은 code/CI/native/full browser/Production SHA·안전 모두 일치. PC CARE Windows10/11/WinRE 실기기와 license 확인 전 다운로드 금지.
+10. **갱신시점(KST)·확인 범위·문서 기준 커밋:** 2026-11-10 KST, 정확 기능 소스 SHA `656fb945ac0b2ea6ec20fe9d58eb65e8bd2efe0c`; 로컬 Node22 new-suite PASS 36/36과 GitHub blob 해시/브랜치 상태 검증. 문서-only 추가 커밋은 GitHub 반영 후 확인. Linux/native 실운영 전체, Production SHA·Console/Network, 상용출시는 미검증·HOLD.
+
+---
+
 # AXMART HANDOFF — 2026-10-30 KST
 
 1. 목표/요구/기술: 선택된 귀여운 다크 해커 AXMART 사이트를 Cloudflare Pages Git 연동 가능하게 준비. 정적 HTML/CSS/JS, Node 18+ 외부 의존성 없는 build, 실제 결제 제외.

@@ -1,3 +1,5 @@
+> **2026-11-10 KST — 개발 기능 범위 갱신:** 기존 확정 요구(실제품만 표시, 검증 전 다운로드/유료 결제 차단, Cloudflare `main`과 디자인 보존)는 변경 없음. 별도 `feature/cube-commerce-core`에서 P1 source-backed 상품 카탈로그, public-safe `catalog.json`, build fail-closed 판매/다운로드 가드; P2 read-only SHA/size/ZIP-header candidate inspection 기능 추가. 실제 판매/결제/회원가입/다운로드 권한 및 Windows/WinRE PC CARE 테스트는 **미완/HOLD**. Node22 신규 suite 36/36 PASS, 원본 site·production full E2E 미검증. [상세 P1](docs/CUBE_COMMERCE_P1_20261110.md) · [P2](docs/CUBE_COMMERCE_P2_20261110.md).
+
 # AXMART 확정 요구 — 2026-10-30
 - 실제 제작·검증 중인 프로젝트만 공개하고, 가짜 상품명·가격·리뷰·거래 기록 제거.
 - 채택된 다크 해커 마스코트·보라/민트 네온 디자인 유지.
