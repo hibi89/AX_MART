@@ -5,9 +5,10 @@
   "description": "AXMART³ (AXMART CUBE) real-project storefront for Cloudflare Pages",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node --test tests/site.test.mjs tests/catalog.test.mjs tests/build-catalog.test.mjs",
-    "test:commerce": "node --test tests/catalog.test.mjs tests/build-catalog.test.mjs",
-    "audit:catalog": "node scripts/audit-catalog.mjs"
+    "test": "node --test tests/site.test.mjs tests/catalog.test.mjs tests/build-catalog.test.mjs tests/package-audit.test.mjs",
+    "test:commerce": "node --test tests/catalog.test.mjs tests/build-catalog.test.mjs tests/package-audit.test.mjs",
+    "audit:catalog": "node scripts/audit-catalog.mjs",
+    "audit:package": "node scripts/audit-package.mjs"
   },
   "engines": {
     "node": ">=18"
