@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "products": [
+    {
+      "slug": "axmart-pc-care",
+      "title": "AXMART PC CARE",
+      "description": "Windows 로컬 진단 및 승인형 안전 복구 보조 도구. Windows 및 WinRE 실기기 검증 전입니다.",
+      "category": "windows-tools",
+      "source": {
+        "repository": "hibi89/AX_MART",
+        "branch": "feature/pc-care-usb",
+        "commit": "b8706e0a77ec245acc7bc0672f121364c851f910"
+      },
+      "stage": "development",
+      "checks": {
+        "windows10": false,
+        "windows11": false,
+        "winre": false,
+        "repair_safety": false,
+        "security": false,
+        "license": false,
+        "customer_support": false,
+        "owner_approval": false
+      },
+      "delivery": { "mode": "disabled", "path": null, "sha256": null },
+      "sale": { "mode": "disabled", "price_minor": null, "currency": null }
+    }
+  ]
+}
