@@ -12,3 +12,6 @@
 
 - 공식 플랫폼명은 AXMART³(AXMART CUBE), 첫 제품명은 AXMART PC CARE. 기술 저장소/배포 프로젝트명은 이전 식별자 그대로 유지.
 - 사용자 승인 다크 퍼플·민트 UI 포스터는 디자인 지침이며 실측 점수/완성 UI가 아니다.
+
+## Kmong final-product completion sync (2026-11-11)
+After actual code/test work, reconcile exact SHA, tests and provisional final-product percentage in AX_MART STATUS/HANDOFF and hibi89/hackathon-command-center-2026 kmong-productization (current 16 list, KMONG_PRODUCTIZATION, STATUS, HANDOFF). No automatic cross-chat sync. On failure record KMONG_HUB_SYNC_PENDING; no false success. Real payment, customer data, rights, production remain approval-gated.

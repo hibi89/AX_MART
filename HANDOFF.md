@@ -1,3 +1,17 @@
+## AXMART³ CUBE P4-P8 milestone — 2026-11-11 KST
+1. Source: hibi89/AX_MART feature/cube-commerce-core, baseline bb37b754c8e6b1fa9e208ae08209f3015b5e462d.
+2. Scope: P4 local support metadata queue; P5 offline interest/transaction HOLD receipts; P6 ZIP deep structural and CRC audit; P7 no-script support FAQ; P8 SHA-bound owner CLI and static build integration.
+3. Verified: Node 22.16 Linux targeted new code+tests 26/26 PASS, 0 FAIL, 0 SKIP. Ten code/test Git blob SHAs match source-exact local working files; catalog JSON blob 3414c25fe818367a526a2a4132a03c832e672ec6. Previous P1-P3 46 PASS belongs to prior code SHA.
+4. NOT_RUN: original full npm test, 105KB homepage npm run build, changed build fixtures, real Chromium/Edge and Windows, real customer ZIP, real cloud Production, authentication/payment/entitlement/delivery.
+5. Release: HOLD. Current PC CARE Windows/WinRE repair, license/security/owner approvals incomplete. No real customer support intake, checkout, member accounts, payments, or files delivered.
+6. Estimated completion: previous 50 + P4 4 + P5 4 + P6 5 + P7 3 + P8 4 = 70% provisional engineering scope only. P8 full native build remains unverified; remaining 30% substantial customer/production flows.
+7. Preservation: main fbb32362455378b85bcdd0b5037d1f338055fb71 and PC CARE feature b8706e0a77ec245acc7bc0672f121364c851f910 not modified; original index.html blob d8fca85669e73008f55a6eaf93c1c493f8ed707d intact; no secrets/PII/permissions/billing/deploy changes.
+8. Errors: support-page first fixture missing explicit 미검증 and one FAIL, corrected; synthetic ZIP Unix mode signed shift led 7 RangeError, corrected using >>>0; later 26 PASS. No claim all repository tests pass.
+9. Next: full exact branch Node native npm test/build, real browser/Win safety customer acceptance, owner-approved payments/account/entitlement/real inquiry system; central kmong score sync. No automatic cross-chat watcher.
+10. Timestamp: 2026-11-11 KST; local new code exact test evidence, final published branch HEAD to be checked after GitHub commit.
+
+---
+
 # AXMART³ CUBE — P1/P2/P3 인수인계 (2026-11-10 KST)
 
 1. **목표·확정 요구·기술:** 크몽 상품 관리 기준 AXMART³ CUBE 소프트웨어 플랫폼 최종상품 개발. `hibi89/AX_MART`, Node>=18 zero-deps static Cloudflare Pages. 기존 사용자 승인 다크 퍼플·민트 `index.html`/제품만 노출 정책 보존, 상품/출시·안전/계정/구매/다운로드를 구분. 운영 Production Git은 `main`이므로 무단 배포 없이 `feature/cube-commerce-core` 분리.

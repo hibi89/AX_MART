@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';import {join,dirname,resolve} from 'node:path';import {fileURLToPath} from 'node:url';import {tmpdir} from 'node:os';import {spawnSync} from 'node:child_process';import {createHash} from 'node:crypto';
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+const raw=readFileSync(join(root,'commerce/catalog.json'),'utf8');
+const sha=createHash('sha256').update(raw).digest('hex');
+function run(mode,obj){const dir=mkdtempSync(join(tmpdir(),'cube-cli-'));try{const p=join(dir,'req.json');writeFileSync(p,JSON.stringify(obj));return spawnSync(process.execPath,[join(root,'scripts/cube-offline.mjs'),mode,'--input',p],{cwd:root,encoding:'utf8',timeout:3000});}finally{rmSync(dir,{force:true,recursive:true})}}
+test('actual current GitHub catalog contract remains unapproved',()=>{const c=JSON.parse(raw);assert.equal(c.products[0].sale.mode,'disabled');assert.equal(c.products[0].delivery.mode,'disabled');});
+test('CLI local interest request on exact catalog emits HOLD receipt',()=>{const out=run('intent',{version:1,request_id:'inquiry-001',product_id:'axmart-pc-care',purpose:'beta_interest',source_sha256:sha});assert.equal(out.status,0,out.stderr);const x=JSON.parse(out.stdout);assert.equal(x.decision,'HOLD');assert.equal(x.entitlement_state,'NOT_ISSUED');});
+test('CLI local owner case creates metadata-only object',()=>{const out=run('support',{version:1,case_id:'case-abc',product_id:'axmart-pc-care',topic:'license',owner_consent:true,source_sha256:sha});assert.equal(out.status,0,out.stderr);assert.equal(JSON.parse(out.stdout).customer_personal_data_stored,false)});
+test('CLI rejects forged catalog hash without leaking path or content',()=>{const obj={version:1,request_id:'inquiry-001',product_id:'axmart-pc-care',purpose:'beta_interest',source_sha256:'0'.repeat(64)};const out=run('intent',obj);assert.equal(out.status,2);assert.equal(out.stdout,'');assert.match(out.stderr,/LOCAL_REVIEW_HOLD/);});
+test('CLI rejects PII or network-like customer field',()=>{const obj={version:1,case_id:'case-abc',product_id:'axmart-pc-care',topic:'safety',owner_consent:true,source_sha256:sha,customer:'secret'};const out=run('support',obj);assert.equal(out.status,2);assert.equal(out.stdout,'');});

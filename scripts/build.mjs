@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { publicCatalog, catalogReceipt } from '../commerce/catalog.mjs';
 import {renderCatalogPage} from '../commerce/catalog-page.mjs';
+import {renderSupportPage} from '../commerce/support-page.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const html = await readFile(join(root, 'index.html'), 'utf8');
 if (!html.toLowerCase().includes('<!doctype html>') || !html.includes('AXMART³')) throw new Error('AXMART index.html missing');
@@ -24,4 +25,9 @@ await copyFile(join(root, 'cloudflare', '_headers'), join(out, '_headers'));
 await writeFile(join(out, 'catalog.json'), JSON.stringify(catalog, null, 2) + '\n', 'utf8');
 await mkdir(join(out, 'products'), {recursive:true});
 await writeFile(join(out, 'products', 'index.html'), renderCatalogPage(JSON.parse(rawCatalog)), 'utf8');
+// Public no-form support information, separate from private offline review queues.
+await mkdir(join(out, 'support'), {recursive:true});
+const supportPage=renderSupportPage();
+if (/<script\b|<form\b|https?:\/\//i.test(supportPage) || !supportPage.includes("script-src 'none'")) throw new Error('Unsafe support publisher');
+await writeFile(join(out, 'support', 'index.html'), supportPage, 'utf8');
 console.log('Pages static output: dist/index.html (' + (await stat(join(out, 'index.html'))).size + ' bytes), catalog ' + catalog.products.length + ', audited ' + receipt.sha256.slice(0, 12));

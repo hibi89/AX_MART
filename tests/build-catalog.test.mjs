@@ -11,7 +11,7 @@ const index='<!doctype html><html><head><title>AXMART³</title></head><body>AXMA
 function fixture(fn) {
   const root=mkdtempSync(join(tmpdir(),'axmart-build-'));
   for(const dir of ['commerce','scripts','cloudflare']) mkdirSync(join(root,dir));
-  for(const file of ['commerce/catalog.mjs','commerce/catalog.json','commerce/catalog-page.mjs','scripts/build.mjs'])
+  for(const file of ['commerce/catalog.mjs','commerce/catalog.json','commerce/catalog-page.mjs','commerce/support-page.mjs','scripts/build.mjs'])
     cpSync(join(project,file),join(root,file));
   writeFileSync(join(root,'index.html'),index);
   writeFileSync(join(root,'cloudflare','_headers'),'/*\n  X-Frame-Options: DENY\n');
@@ -23,6 +23,11 @@ test('catalog publisher builds a static safe public file and preserves index byt
   const src=readFileSync(join(root,'index.html'));
   const proc=run();assert.equal(proc.status,0,proc.stderr);
   assert.deepEqual(readFileSync(join(root,'dist/index.html')),src);
+  const support=readFileSync(join(root,'dist/support/index.html'),'utf8');
+  assert.match(support,/script-src 'none'/);
+  assert.match(support,/form-action 'none'/);
+  assert.match(support,/미검증/);
+  assert.doesNotMatch(support,/<script\b|<form\b|https?:\/\//i);
   const listing=JSON.parse(readFileSync(join(root,'dist/catalog.json'),'utf8'));
   const catalogPage=readFileSync(join(root,'dist/products/index.html'),'utf8');
   assert.match(catalogPage,/AXMART PC CARE/);
