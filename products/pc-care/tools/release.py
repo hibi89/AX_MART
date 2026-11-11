@@ -36,6 +36,8 @@ ALLOWLIST = (
     'ui/history_compare.js',
     'ui/history_signals.js',
     'ui/history_print.js',
+    'ui/case_review.html',
+    'ui/case_review.js',
     'tools/report_io.ps1',
     'tools/repair.ps1',
     'tests/windows_smoke.ps1',

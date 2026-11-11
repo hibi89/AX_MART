@@ -23,7 +23,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 JS_SCRIPTS = (
     'ui/history_compare.js', 'ui/history_signals.js', 'ui/qr_ui.js',
-    'ui/qrcode.min.js', 'ui/history_print.js',
+    'ui/qrcode.min.js', 'ui/history_print.js', 'ui/case_review.js',
 )
 NODE_TESTS = (
     'tests/test_qr_ui.cjs', 'tests/test_qr_vendor.cjs',
@@ -31,6 +31,7 @@ NODE_TESTS = (
     'tests/test_history_signals.cjs', 'tests/test_history_batch.cjs',
     'tests/test_history_print.cjs', 'tests/test_history_issue_allowlist.cjs',
     'tests/test_history_evidence_integration.cjs',
+    'tests/test_case_review.cjs',
 )
 NOT_VERIFIED = (
     'real Windows 11 system diagnosis and permissions',

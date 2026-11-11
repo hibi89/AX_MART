@@ -1,0 +1,22 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' file:; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<title>AXMART PC CARE | 오프라인 상담 초안</title>
+<style>
+:root{color-scheme:dark;background:#0b0e19;color:#f3f6ff;font:16px/1.6 system-ui,'Malgun Gothic',sans-serif}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 5%,#312249 0%,transparent 42%),#0b0e19}
+main{max-width:850px;margin:auto;padding:34px 20px 60px}header small{color:#70f1ca;font-weight:700}h1{font-size:clamp(1.7rem,4vw,2.6rem);line-height:1.25;margin:12px 0}
+.panel{background:#161c2d;border:1px solid #48516d;border-radius:16px;padding:22px;margin:20px 0}p{color:#bbc7dd}
+label{display:block;font-weight:700;margin-bottom:9px}input{width:100%;color:#eee;border:1px dashed #8191ad;background:#101524;padding:14px;border-radius:8px}
+button{background:#70f1ca;color:#132620;border:0;border-radius:9px;padding:12px 17px;font:inherit;font-weight:700;cursor:pointer;margin:14px 12px 0 0}
+button.secondary{background:#353c5c;color:#f2f5ff}button:disabled{opacity:.44;cursor:not-allowed}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #8dffdf;outline-offset:3px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0d1422;padding:18px;border-left:3px solid #70f1ca;color:#f3f7ff;font:inherit;font-size:.94rem}
+footer{color:#b7c0d2;font-size:.9rem}a{color:#83f4d1}.print-only{display:none}
+@page{size:A4 portrait;margin:12mm}
+@media print{html,body{background:#fff!important;color:#111!important;color-scheme:light} main{padding:0}main>*:not(.print-only){display:none!important}.print-only{display:block!important}pre{background:#fff!important;color:#111!important;border:0;padding:0;margin:0;font-size:10pt;line-height:1.48} }
+</style><script src="./case_review.js" defer></script></head>
+<body><main><header><small>AXMART³ / PC CARE · 시험용 · 외부 전송 없음</small><h1>오프라인 수리 상담 초안</h1><p>개인정보가 포함될 수 있는 원본 진단 JSON은 사용자가 직접 선택하며, 식별 정보 대신 허용된 상태·이벤트 번호만 표시합니다. 진본성·고장 원인·수리 완료를 확인하지 않습니다.</p></header>
+<section class="panel"><label for="case-file">진단 JSON 한 개 선택 (최대 2MB)</label><input id="case-file" type="file" accept=".json,application/json"><button id="case-analyze" type="button">검토 초안 만들기</button><button id="case-print" class="secondary" type="button" disabled>내용 확인 후 인쇄 / PDF 저장</button><p>파일은 자동 검색·업로드·저장되지 않습니다. 원본 보고서와 본 초안 모두 수리 승인 자료가 아닙니다.</p></section>
+<section class="panel"><h2>검토 결과</h2><pre id="case-output" role="status" aria-live="polite">선택한 JSON을 검토하기 전에는 아무 내용도 출력하지 않습니다.</pre></section>
+<footer>오류 또는 수집 누락이 있으면 정상이라고 단정하지 마세요. 원본 데이터를 덮어쓰거나 삭제하지 않으며, 필요한 경우 전문가에게 별도로 문의하세요. <a href="./history_compare.html">반복 점검 비교로 돌아가기</a></footer>
+<section class="print-only" aria-label="인쇄용 상담 초안"><h1>AXMART PC CARE · 수리 상담 초안</h1><pre id="case-print-sheet"></pre><p>검토 보류·원인 미확정·수리 미승인</p></section></main></body></html>
