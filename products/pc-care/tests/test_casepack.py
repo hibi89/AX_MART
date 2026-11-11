@@ -9,8 +9,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-HERE = Path(__file__).resolve().parent
-spec = importlib.util.spec_from_file_location('casepack', HERE / 'casepack.py')
+HERE = Path(__file__).resolve().parents[1]
+spec = importlib.util.spec_from_file_location('casepack', HERE / 'tools' / 'casepack.py')
 cp = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cp)
 
@@ -129,7 +129,7 @@ class CasePack(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d); source=root/'source.json';source.write_bytes(encode())
             target=root/'new-case'
-            cmd=[sys.executable,str(HERE/'casepack.py')]
+            cmd=[sys.executable,str(HERE/'tools'/'casepack.py')]
             create=subprocess.run([*cmd,'create','--source',str(source),'--directory',str(target)],capture_output=True,text=True)
             self.assertEqual(create.returncode,0,create.stderr)
             result=json.loads(create.stdout);self.assertEqual(result['status'],'MATCHED_UNAPPROVED')
