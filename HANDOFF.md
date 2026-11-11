@@ -600,3 +600,16 @@ Handoff: Objective—avoid untrusted stale observations; status—source checked
 8. **원본·백업·인증:** Git 기능 이전 부모 SHA로 원복 가능, 별도 newdir 독점 생성, 원본 보고서 불변. 실제 개인 데이터/민감 로그/시리얼·키·모델 다운로드/토큰·유료 API·외부 전송 없음. 자동 수리/백업/릴리스 권한 없음. output 경로는 사용자가 반드시 비동기화 개인 폴더로 선택해야 함.
 9. **다음 작업·완료기준·승인:** (i) 실제 정본 PS5.1이 생성한 합성 JSON과 연결해 호환성 증명, (ii) native Windows/Edge/QR/A4·폴더/USB·cloud symlink 차단 검증, (iii) 최종 판매용 QA/서명/BitLocker/WinRE VM 승인 범위 확정. 사용자 승인 없이 실장비 수리/권한·데이터 변경·배포·유료/외부 서비스 금지.
 10. **갱신 시점/검증 범위:** 2026-11-11 KST. Linux 9 test + Chromium HTML only; `file://`·실 Windows/원본 진단/릴리스 미검증. 상세 P13 개발기록. 기능 exact blobs 위, 최종 docs HEAD은 업데이트 후 조회.
+
+
+## 2026-11-11 KST — P14 PC CARE 70% 잠정 인수인계 10항
+1. 목표/기술: FINAL_SPEC_V2의 오프라인 Windows11 PowerShell5.1/CMD/HTML 사용자 진단과 CONSULTATION·REPORT 동선을 안전하게 연결.
+2. 완료/변경: 오프라인 브라우저 JSON상담 검토 보류 화면/인쇄 게이트/민감값 allowlist/입력경합 방지, 기존 비교화면 링크, 내부시험 ZIP과 QA 목록 추가. code SHA 163fd38be68c8fac09289373a3f2a0f5d021f846. 기존 P13 도구와 정상 제품 스크립트 보존.
+3. 테스트: Node v22 신규 11/11 PASS(0 FAIL/SKIP), JS 구문 PASS, source-exact Git blobs 3개, Chromium 합성 JSON→상담 UI 출력·인쇄 enable·민감값 0·외부요청 0·오류 0·390px overflow0. 과거 PS5.1/ZIP/Node117/Python 79 PASS+3 SKIP는 2026-10-31 source SHA 3f1c0e53 전용. P14 전체 실행 미검증.
+4. 상태: 제품 주관적 최종범위 50→70% 잠정(16+16+18+4+7+9), 출시 RELEASE HOLD. 실 Windows/USB/WinRE·복구·QR·A4/PDF 실검증 전 판매·무료 공개 금지.
+5. 장애/대안: Chromium file:// 직접 열기 정책 차단은 미검증, set_content 합성 브라우저로 범위 제한. P13 Python cloud/UNC 자동 차단 미구현/고객 번들 제외. code 복구점 02bcc63594497c155b249f5d5a0d25cbd0632c91, 강제 푸시 금지.
+6. 저장소/브랜치/경로: private hibi89/AX_MART, feature/pc-care-offline-casepack-20261111; products/pc-care/ui/case_review.html/js, ui/history_compare.html, tools/release.py, tools/preflight.py, tests/test_case_review.cjs, docs/P14_70_COVERAGE_20261111.md. 기능 SHA 163fd38be68c8fac09289373a3f2a0f5d021f846, docs SHA GitHub 후속 확인.
+7. 운영: 개발 PC Python3.11+/Node18+ 테스트; 고객 Windows11 PowerShell5.1. node --test products/pc-care/tests/test_case_review.cjs PASS; Windows CMD RUN_RELEASE_QA.cmd 최신 미실행. Cloudflare main https://ax-mart.pages.dev 미변경. Vercel 미적용.
+8. 보존/보안: 원본 feature/pc-care-usb b8706e0, main·Prod 불변. 고객 보고서·토큰·계정·권한·과금·외부 전송·DISM/SFC/WinRE실행 없음.
+9. 다음: 전체 checkout Windows synthetic QA/ZIP 검증→Edge file://·USB·PDF/QR 실제 확인→현장 read-only 진단→사용자 승인 후 격리 WinRE/BitLocker/수리·복사 안전 검증. 별도 출시 승인.
+10. 2026-11-11 KST 기준; 원격 소스+로컬 Node/Chromium 스코프 검증만 인정. 전체 회귀·실사용·배포 미검증. RELEASE HOLD.

@@ -467,3 +467,11 @@ Node 18 compatibility follow-up: removed the Node 18.15+ TAP reporter option; bo
 - 로컬 **Python3.13.5 신규 9/9 PASS, 0 FAIL/0 SKIP**, 실제 CLI create/verify/tampered→MISMATCH, 파일 덮어쓰기/시스템 무수정/위조 거부 포함. 기존 정본/테스트 파일 Git blob 실제 SHA 일치: 코드 `5343b920f3d85e68ef79dfd266fef1271bfd489a`, 테스트 `27883f3eee1543a0ce7ecc41564654108b240455`. Chromium Playwright `page.set_content` HTML 렌더/식별자 미노출/overflow 0/JS 오류0/외부요청0 PASS. 이 환경의 직접 `file://`은 관리자 정책 `ERR_BLOCKED_BY_ADMINISTRATOR`로 미검증.
 - **문제·복구:** 클라우드 동기화 경로 차단 추가를 시도했으나 GitHub 업데이트에서 불완전·중복 코드가 생성되어 검증된 이전 blob으로 즉시 원복; 따라서 자동 Cloud/UNC 경로 거부는 미구현. 사용자는 명시적으로 개인용 비동기화 로컬 디렉터리를 사용해야 함. Windows PowerShell 5.1 전체 82 Python/117 Node/QA ZIP 기존 테스트, 실제 Windows A4/QR/카메라/WinRE/복구/USB **현재 SHA 재검증 안함**. Release A/B·무료/유료 배포 HOLD, `main`, 원본 제품 브랜치, Cloudflare Production/권한·고객 데이터 변경 없음.
 - 증거/명령: `products/pc-care/docs/P13_OFFLINE_CASEPACK_20261111.md`; `python -m unittest discover -s products/pc-care/tests -p test_casepack.py -v` (전체 checkout에서 실행). 별도 신규 데이터 생성 전 owner 수동 선택, 마이크로 패키지와 공개 판매 동일시 금지.
+
+
+## 2026-11-11 KST — PC CARE P14 오프라인 상담 동선 / 최종상품 50→70% 잠정
+- 제품 기능 커밋 163fd38be68c8fac09289373a3f2a0f5d021f846, branch feature/pc-care-offline-casepack-20261111. 기존 기능 보존, 상담 HTML/JS·이력 비교 링크·internal ZIP allowlist·QA 목록 등록, 원본 메시지/시리얼·로그 미출력, 원인 확정·수리/전송/백업 자동실행 없음.
+- Linux Node22 신규 11/11 PASS (0 FAIL/SKIP), JS syntax PASS, 정확 JS/HTML/테스트 Git Blob 3개 일치. Chromium 합성 HTML/JS 방식 UI: JSON 선택→검토 보류 출력·인쇄 버튼 정상, 민감식별자0, JS 오류0, 외부요청0, 390px overflow0. Chromium file://·Windows Edge·USB/QR 카메라·A4실인쇄 미검증.
+- 기존 원본 2026-10-31 synthetic 전체 QA Python79 PASS/3 SKIP, Node117 PASS/ZIP/Windows PS5.1 synthetic PASS는 당시 SHA 전용; **P14 최신 전체 QA/실제 ZIP/CI는 미실행**.
+- 최초 FINAL_SPEC_V2 제품 100 기준 주관적 범위 재감사 HEALTH16 + ANALYZE16 + REPORT18 + RESCUE4 + RECOVER7 + QA9 = **70/100 잠정**. 기존 50→70(+20%p)는 이번 단일 JS 11테스트 때문이 아니라 기존 검증 범위 및 이번 고객 진입점 합산. 상세 docs/P14_70_COVERAGE_20261111.md.
+- 실제 Windows11/WinRE/BitLocker/선택파일복사·실수리·고객 납품/라이선스·서명 미검증, RELEASE HOLD. feature/pc-care-usb, main, Production, 원본 데이터·권한·과금/복구 행위 모두 불변. 시점 2026-11-11 KST.
