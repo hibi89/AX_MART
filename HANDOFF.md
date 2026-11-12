@@ -1,3 +1,15 @@
+## 2026-11-12 KST — PC CARE 85% verified synthetic milestone / root 10-point handoff
+1. Objective: Windows offline PC CARE 85 target against unchanged FINAL_SPEC_V2. No scope reduction or real WinRE auto-copy.
+2. Features: P15 customer local menu consultation and static recovery-readiness (+3), P16 evidence failure status safeguards (+3), P17 developer cloud/UNC/junction/JSON guards (+2), P18 internal package+regression (+2), P19 exact feature Windows synthetic full QA (+5); baseline70 ->85 internal engineering.
+3. Tests: exact `0ba167682c848056c5717c717b3b0d1ca98a9f3c` [Windows GitHub run #43131173581](https://github.com/hibi89/AX_MART/actions/runs/43131173581) success: Python101 PASS/0 SKIP, Node130 PASS/0 SKIP, Windows PS5.1 parser20/fixtures PASS, internal ZIP generate+verify SHA `489483d4805dfa13e7156b1a9c066b1d5271ea6e543277c62150e20894b5d9d3` PASS, preflight four stages PASS. Physical PC/WinRE/QR/A4/real repairs UNVERIFIED.
+4. Status: PC CARE 85 provisional engineering, RELEASE HOLD; no commercial beta, install, user data transfer, real backup or system change.
+5. Failures/pivot: CI #43130988265 no jobs because unquoted colon YAML step name; reproduced parser syntax error and fixed, next run success. Avoid previous bad workflow, old Oct runner failure no source test evidence.
+6. Repo/branch/SHA: private `hibi89/AX_MART@feature/pc-care-p15-p18-85-20261112`, tested code `0ba167682c848056c5717c717b3b0d1ca98a9f3c`, docs HEAD separate; PR #1 Draft into unchanged `feature/pc-care-offline-casepack-20261111`; key `products/pc-care/{START_PC_CARE.cmd,ui/,tools/,tests/,docs/P19_85_WINDOWS_SYNTHETIC_QA_20261112.md}`, workflow `.github/workflows/pc-care-p19-qa.yml`.
+7. Runtime: GitHub-hosted Windows Python3.11 Node22 WindowsPS5.1 synthetic; ephemeral internal ZIP no publication. Cloudflare ax-mart.pages.dev (main) unchanged, Vercel N/A.
+8. Originals/backup/privacy: original feature/main/other owner CUBE code and user reports/USB/BitLocker secrets safe, no release/paid external services/force push. Rollback via close Draft PR.
+9. Next: hub Kmong 16-row roster to PC CARE85; real Windows11 owner hardware, Edge/USB/QR/A4, WinRE VM file copy, code signing/Defender/SmartScreen, privacy/support/pilot need later authorization for release.
+10. KST 2026-11-12, exact source CI #43131173581 success; docs SHA to verify on commit. Engineering85 not shipping.
+
 ## 2026-11-12 KST — AXMART PC CARE 80% / goal85 pending (10-point)
 1. Product spec: FINAL_SPEC_V2 unchanged, Windows11 local PS5.1/CMD/HTML health/analyze/report/WinRE readiness/approved repair, 100-point original design, no paid APIs.
 2. Changes: safe no-network consultation menu + recovery safety card (P15 +3), fail-closed Python/JS false-green report (P16 +3), mapped/cloud/reparse/duplicate JSON developer casepack (P17 +2), internal package/test assertions (P18 +2) vs unsafe WinRE copy option (rejected).
