@@ -7,6 +7,8 @@ import { createHash } from 'node:crypto';
 import { closeSync, fstatSync, lstatSync, openSync, readSync, mkdirSync, writeFileSync, readdirSync } from 'node:fs';
 import { constants } from 'node:fs';
 import { resolve, join, dirname, sep } from 'node:path';
+import { renderCatalogPage } from './catalog-page.mjs';
+import { renderSupportPage } from './support-page.mjs';
 
 const MAX = Object.freeze({ 'commerce/catalog.json': 262144, 'index.html': 2_000_000,
   'cloudflare/_headers': 65536, 'dist/index.html': 2_000_000, 'dist/_headers': 65536,
@@ -109,6 +111,11 @@ export function evaluatePreflight(root) {
      !home.includes('Windows 실기기 미검증') || products.some(p=>!home.includes(p.title)))fail('missing homepage safety disclosure');
   const productPage=staticPage(bytes['dist/products/index.html'],'products page');
   const supportPage=staticPage(bytes['dist/support/index.html'],'support page');
+  // Re-derive static pages from the pinned source catalogue/generators. Merely
+  // matching CSP keywords cannot detect a modified (but plausible-looking) page.
+  if (!bytes['dist/products/index.html'].equals(Buffer.from(renderCatalogPage(catalog),'utf8')) ||
+      !bytes['dist/support/index.html'].equals(Buffer.from(renderSupportPage(),'utf8')))
+    fail('generated product/support page byte parity drift');
   if(!productPage.includes('현재 판매 및 다운로드를 제공하지 않습니다') ||
      !supportPage.includes('문의 접수 서비스를 제공하지 않습니다'))fail('public no-sale disclosure missing');
   const missing=products.map(p=>({product_id:p.slug,missing_checks:CHECKS.filter(k=>!p.checks[k])}));
