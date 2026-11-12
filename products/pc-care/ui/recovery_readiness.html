@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'; connect-src 'none'; object-src 'none'">
+<title>AXMART PC CARE | 안전 복구 준비 카드 (읽기 전용)</title>
+<style>
+:root{color-scheme:dark;--bg:#11131d;--panel:#1c2030;--line:#3b4162;--ink:#f6f8ff;--dim:#bac4e1;--warn:#ffc97c;--mint:#a4ffdd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,"Malgun Gothic",sans-serif}
+main{width:min(850px,calc(100% - 28px));margin:28px auto 48px}header{border-bottom:2px solid var(--mint);padding-bottom:14px}
+h1{font-size:28px;margin:6px 0}h2{font-size:18px;margin:0 0 10px}p{margin:8px 0}small,.dim{color:var(--dim)}
+.flag{display:inline-block;padding:4px 11px;border:1px solid var(--warn);border-radius:20px;color:var(--warn);font-weight:800;letter-spacing:.02em}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:17px}
+strong{color:var(--mint)}ul,ol{padding-left:22px;margin:8px 0}li{margin:6px 0}
+.critical{border-color:var(--warn)}.critical strong{color:var(--warn)}
+fieldset{border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:12px 0}
+legend{padding:0 6px;font-weight:700;color:var(--mint)}
+label{display:block;padding:7px 0;cursor:pointer}
+input[type=checkbox]{width:19px;height:19px;vertical-align:middle;margin:0 9px 0 0;accent-color:#6ce9b6}
+.note{font-size:13px;color:var(--dim)}
+footer{color:var(--dim);margin-top:18px;font-size:13px}
+@page{size:A4;margin:13mm}
+@media print{
+:root{color-scheme:light;--bg:#fff;--panel:#fff;--line:#777;--ink:#111;--dim:#444;--warn:#6b3900;--mint:#074f39}
+body{font-size:11px;background:#fff;color:#111}main{margin:0;width:100%}header{padding-bottom:7px}
+h1{font-size:19px}h2{font-size:14px}
+section{border-radius:0;padding:8px 10px;margin-top:8px;break-inside:avoid}
+li{margin:3px 0}fieldset{margin:5px 0;padding:5px 10px}
+label{padding:3px 0}input[type=checkbox]{width:13px;height:13px}
+footer{font-size:10px}
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div class="flag">RELEASE HOLD · 복구 승인 아님</div>
+<h1>PC CARE 안전 복구 준비 카드</h1>
+<p>Windows가 불안정하거나 부팅되지 않을 때 <strong>무엇부터 확인할지</strong> 정리하는 오프라인 안내서입니다.</p>
+<p class="dim">기기 상태를 읽거나 검사하지 않으며, 체크 상태는 저장·전송되지 않습니다. 체크 표시만으로 복구를 승인하지 않습니다.</p>
+</header>
+<section class="critical">
+<h2>중요: 현재 기능은 확인 및 상담 준비까지만</h2>
+<p><strong>파일 복사·복원·시스템 수리·BitLocker 잠금 해제·파티션 수정은 이 화면에서 전혀 실행되지 않습니다.</strong></p>
+<p>WinRE 파일 복사 기능은 Release B 미승인. USB 프로그램 자체는 부팅용 Windows 복구 미디어가 아닙니다. 데이터 손실 위험이 있으면 계속 재시도하지 말고 전문 복구를 우선 검토하세요.</p>
+</section>
+<section>
+<h2>1. 현재 PC 상태에 따른 우선 행동</h2>
+<ul>
+<li><strong>Windows가 정상 부팅:</strong> 중요 파일을 다른 물리 장치에 별도 보관하고, 승인되지 않은 자동 수리 대신 읽기 전용 건강검진 결과를 확인합니다.</li>
+<li><strong>Windows가 간헐적으로 부팅:</strong> 저장장치 이상 신호가 있으면 추가 쓰기·강제 재부팅·장시간 검사를 피하고 데이터 보호를 먼저 검토합니다.</li>
+<li><strong>Windows가 전혀 부팅되지 않음:</strong> Microsoft 정식 Windows 복구 환경(WinRE) 진입을 수동으로 준비합니다. AXMART의 WinRE 기능은 현재 읽기 전용 상태 확인만 지원합니다.</li>
+<li><strong>BitLocker 잠금·장치 식별 불가:</strong> 프로그램이 키를 요청·저장·우회하지 않습니다. 소유자가 Microsoft 공식 복구 절차로 확인해야 하며, 자동 복사는 차단합니다.</li>
+</ul>
+</section>
+<section>
+<h2>2. 복사·수리 전에 수동으로 확인할 조건</h2>
+<fieldset>
+<legend>자가 확인표 · 체크해도 프로그램은 아무 작업을 하지 않음</legend>
+<label><input type="checkbox">중요 파일의 별도 백업 및 복원 가능성을 직접 확인함</label>
+<label><input type="checkbox">복구 대상과 외장 저장장치가 서로 <strong>다른 물리 디스크</strong>인지 신뢰할 수 있는 근거로 확인함</label>
+<label><input type="checkbox">BitLocker 잠금 상태, 파일시스템·저장 공간, FAT32 단일 파일 한계 확인함</label>
+<label><input type="checkbox">클라우드 전용 파일·EFS·연결 디렉터리·불량 저장장치 위험을 검토함</label>
+<label><input type="checkbox">대상 폴더가 기존 파일을 덮어쓰지 않는 새 빈 폴더인지 확인함</label>
+<label><input type="checkbox">중단/누락/복사 오류와 사후 해시 확인 계획을 준비함</label>
+</fieldset>
+<p class="note">위 조건은 현재 자동으로 확인되지 않았습니다. 하나라도 불명확하면 복사·수리는 보류합니다. 드라이브 문자가 다르다고 다른 물리 장치인 것은 아닙니다.</p>
+</section>
+<section>
+<h2>3. 수리점·전문가에게 전달할 질문</h2>
+<ol>
+<li>관찰한 증상과 Windows 이벤트/저장장치 상태의 <strong>근거 수준</strong>은 무엇인가요?</li>
+<li>데이터를 먼저 보호하려면 어떤 조치가 가장 안전하며, 확인하지 못한 항목은 무엇인가요?</li>
+<li>부품 교체 또는 운영체제 복구 전에 확인할 대안·비용·추가 테스트는 무엇인가요?</li>
+<li>백업 성공을 어떻게 검증하고, 실패하거나 일부만 복사된 경우 어떻게 처리하나요?</li>
+</ol>
+</section>
+<footer>
+<p>AXMART PC CARE 개발용 정적 문서 · RELEASE HOLD · 기기 상태 / 원인 / 백업 성공 / 복구 승인 인증서 아님</p>
+<p>인쇄: 브라우저 메뉴 → 인쇄 / PDF 저장(선택적, 오프라인). 실제 A4 프린터·Windows 브라우저·WinRE 실기기 검증은 별도로 필요합니다.</p>
+</footer>
+</main>
+</body>
+</html>
