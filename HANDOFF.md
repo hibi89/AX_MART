@@ -1,3 +1,18 @@
+## 2026-11-12 KST — CUBE P95 runner false-green fixed (10-point handoff)
+1. Goal/technology: offline CUBE native Node18+ full source-to-owner proof, target 95 from 85 provisional; preserve Cloudflare main and other chat changes.
+2. Change/decision: added separate `verify:local` runner earlier, now corrected inherited Node test worker environment and exact TAP result count. Selected explicit child env isolation + verifiable TAP over trusting exit 0; no paid CI/cloud.
+3. Tests and scope: local Node22.16 full runner **synthetic fixture 8 PASS/0 FAIL/0 SKIP**, `node --check` two PASS; exact fetched GitHub blob runner `43e8ce5f51662143dc5f1bf000e9e8e18160a03c`, QA `9c92ab691d3a120df8b02cf4724fa5027fde9a03` matched actual local Git blob (2/2). New regression first failed 1/8 (false-green), then passed 8/8 after fix. Real 13 original tests/build/browser/Windows remain NOT RUN.
+4. State: engineering 85% provisional unchanged, target P95 unmet, central CUBE **[작업중] retained**, RELEASE HOLD and SALE NO-GO.
+5. Root cause/attempt/pivot: `NODE_TEST_CONTEXT` inheritance caused nested `node --test` to skip all tests while exiting 0 in synthetic test harness, now removed and TAP count enforced. Local private GitHub clone DNS not resolved; no new private Actions workflow without billing approval. Do not reuse pre-fix green to claim real tests ran.
+6. Repository/branch/SHA: `hibi89/AX_MART@feature/cube-owner-preflight-p85-20261112` function+QA SHA `a0f5a8c20b937a29f64e5064266cabdeb7cd26e0`; `scripts/verify-cube-local.mjs` and `tests/verify-cube-local.test.mjs`. Product docs HEAD changes separately, hub `hibi89/hackathon-command-center-2026@kmong-productization`.
+7. Production/runtime: `npm run verify:local` with Node18+ (Linux Node22.16 orchestrator proof), Cloudflare `https://ax-mart.pages.dev/` on `main` untouched, branch not deployed, Vercel N/A.
+8. Backup/secrets: old feature commits are rollback; original homepage, customer data, account/tokens, PC CARE feature, production deploy not touched; HOLD and no-delete output preserved.
+9. Next acceptance: genuine full 13-file `npm test`/build/owner review via `npm run verify:local` in authorized private full checkout, then Chromium/Edge/Windows and actual licensed customer acceptance. No claim of 95/clear marker until independent verified target; real commerce/security config requires user approval.
+10. Updated 2026-11-12 KST; observed code/test blob parity, local 8 scoped runner PASS, production/full CUBE app unverified.
+
+---
+
+
 ## 2026-11-12 KST — CUBE P95 continuation with native offline acceptance gate (10-point handoff)
 1. Goal/technology: AXMART³ CUBE Node18+ static storefront, owner-only offline release evidence; target internal engineering 95 while baseline is provisional 85.
 2. Delivered/decision: Added explicit `npm run verify:local` safe runner instead of paid private CI or unverified manual scripts; runs registered 13 original tests, build, fresh owner audit and independent verify; refuses test removal, script injection, symlinks, invalid paths and overwrite; always returns release HOLD/no sale. Zero new API or deployment cost.
