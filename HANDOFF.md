@@ -1,3 +1,15 @@
+## 2026-11-12 KST — AXMART³ CUBE owner preflight no-delete race repair (10-point handoff)
+1. Goal/stack: user requested switch off blocked REA_APP; selected independent AXMART³ CUBE 85% Node18+ stdlib owner release preflight, no PC CARE overlap.
+2. Done/decision: compared inode-checked recursive rollback vs no automatic delete; selected preserve on failure. Old `buildPreflight` recursive rmSync could delete unrelated files after output path replacement; changed to fail-closed HOLD. Added 3 real filesystem regression cases + npm scripts.
+3. Tests: exact source+QA+CLI Git Blob 4/4 remote/local match, Node22.16 Linux **29 PASS / 0 FAIL / 0 SKIP**, original 26+new3. Original destructive behavior reproduced with **2 tests FAIL/1 PASS** in disposable local copy; fixed **3 PASS**. Full repo npm test/build, Chrome/Windows/Cloudflare NOT EXECUTED at current SHA.
+4. Status: **AXMART³ CUBE 85% provisional unchanged, P95 NOT ACHIEVED, RELEASE HOLD**; storefront/PC CARE/other kmong unchanged.
+5. Error/pivot: untrusted shared output pathname could change before rmSync; avoid unlink with check-then-delete race. Local synthetic proof and code fix done; full checkout unavailable in container; no CI job started/paid services.
+6. Repo/branch/SHA: private `hibi89/AX_MART@feature/cube-owner-preflight-p85-20261112`, functional+tests/npm SHA `34dac38ffac69df00eeb6610e380fbc5d0c37705`, prior HEAD `04d2be272d3b...` rollback, detail [report](docs/CUBE_OWNER_PREFLIGHT_OUTPUT_RACE_20261112.md).
+7. Production/runtime: Node22.16 scoped only, Cloudflare `https://ax-mart.pages.dev/` main-linked UNTOUCHED; feature NOT DEPLOYED. Vercel N/A.
+8. Originals/privacy/security: original `index.html`, `main` and `feature/pc-care-offline-casepack-20261111`, customer sources, access/secrets/permissions/payment preserved. Only synthetic temporary fixtures.
+9. Next: full repo `npm test`, `npm run build`, source-to-dist preflight, Chromium/Windows/browser/Production read-only validation, owner-approved real-commerce/rights and customer trial. No sale/checkout/launch approval until real proof.
+10. KST proof: 2026-11-12, exact code SHA/local 29 PASS and destructive regression fixed. Remaining gates UNVERIFIED; no unearned 95 increase.
+
 ## 2026-11-12 KST — AXMART³ CUBE P85 provisional owner preflight, ten-point handoff
 1. **Goal/confirmed stack:** AXMART³ CUBE 70→85 engineering scope using Node18+ built-ins, offline owner validation, no new cloud, payments or customer PII.
 2. **Delivered/design:** Alternative A immediate Cloudflare Worker/D1/real checkout/entitlement vs B independent local fail-closed release evidence; B chosen for no paid API, no risky release, no original site/backend edits. New commerce/release-preflight.mjs, scripts/release-preflight.mjs, tests/release-preflight.test.mjs and npm scripts. Existing source catalog and built public JSON exact parity; homepage/security-header byte match; CSP/no scripts/forms/outbound static product/help; explicit HOLD gates and SHA256 owner HTML/JSON/manifest build/verify.
