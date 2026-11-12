@@ -73,7 +73,7 @@ jobs:
           & python tools/release.py --verify $zip
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Write-Host 'INTERNAL ONLY. ZIP will be destroyed with the ephemeral runner. No publication.'
-      - name: Aggregate exact-source QA gate: all four stages required
+      - name: "Aggregate exact-source QA gate: all four stages required"
         shell: pwsh
         run: |
           & python tools/preflight.py --root .
