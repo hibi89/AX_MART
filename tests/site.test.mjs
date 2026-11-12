@@ -4,12 +4,20 @@ import {readFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {dirname,resolve,join} from 'node:path';
+import {evaluatePreflight} from '../commerce/release-preflight.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 test('Cloudflare build and real-catalog protections',async()=>{
 execFileSync(process.execPath,[join(root,'scripts/build.mjs')],{cwd:root});
 const src=await readFile(join(root,'index.html'),'utf8');
 const built=await readFile(join(root,'dist/index.html'),'utf8');
 assert.equal(src,built);
+// Integration: the real checked-in homepage, catalog, generated pages and CSP
+// must pass the same owner HOLD gate used for offline review (not only fixtures).
+const ownerGate=evaluatePreflight(root);
+assert.equal(ownerGate.decision,'HOLD');
+assert.equal(ownerGate.owner_release_authorized,false);
+assert.equal(ownerGate.production_published_by_this_tool,false);
+assert.equal(Object.keys(ownerGate.source_sha256).length,8);
 const support=await readFile(join(root,'dist/support/index.html'),'utf8');
 assert.match(support,/AXMART³/);
 assert.match(support,/script-src 'none'/);
