@@ -75,6 +75,9 @@ class CasePack(unittest.TestCase):
         self.assertFalse(output['repair_authorized'])
         r['observations']['collectionStatus'] = {'physicalDisks': 'unavailable'}
         self.assertEqual('확인 불완전', cp.safe_consultation(encode(r))['assessment'])
+        r['observations']['collectionStatus'] = {'physicalDisks': 'collected'}
+        r['consultation']['storageSignal'] = '미확인'
+        self.assertEqual('확인 불완전', cp.safe_consultation(encode(r))['assessment'])
 
     def test_clean_with_warning_is_never_reported_as_clean(self):
         r = report()
