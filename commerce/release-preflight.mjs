@@ -98,6 +98,20 @@ export function evaluatePreflight(root) {
   root=safePath(root);
   if(!lstatSync(root).isDirectory())fail('root is not directory');
   const bytes=Object.fromEntries(FILES.map(path=>[path,readBounded(root,path)]));
+  // Cloudflare Pages publishes every file under dist, not only the assets
+  // named in the review receipt. Refuse stale/unlisted assets and directories.
+  const expectedDist=[
+    ['dist',{_headers:'file','catalog.json':'file','index.html':'file',products:'directory',support:'directory'}],
+    ['dist/products',{'index.html':'file'}],
+    ['dist/support',{'index.html':'file'}],
+  ];
+  for (const [relative,allow] of expectedDist) {
+    const entries=readdirSync(safePath(join(root,relative)),{withFileTypes:true});
+    if (entries.length!==Object.keys(allow).length ||
+        entries.some(e=>!Object.hasOwn(allow,e.name) ||
+          (allow[e.name]==='file' ? !e.isFile() : !e.isDirectory())))
+      fail('unexpected or linked publish asset in '+relative);
+  }
   const catalog=strictJson(bytes['commerce/catalog.json'],'catalog');
   const products=sourceCatalog(catalog);
   const publicView=strictJson(bytes['dist/catalog.json'],'public catalog');
