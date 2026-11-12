@@ -1,3 +1,18 @@
+## 2026-11-12 KST — CUBE P95 continuation with native offline acceptance gate (10-point handoff)
+1. Goal/technology: AXMART³ CUBE Node18+ static storefront, owner-only offline release evidence; target internal engineering 95 while baseline is provisional 85.
+2. Delivered/decision: Added explicit `npm run verify:local` safe runner instead of paid private CI or unverified manual scripts; runs registered 13 original tests, build, fresh owner audit and independent verify; refuses test removal, script injection, symlinks, invalid paths and overwrite; always returns release HOLD/no sale. Zero new API or deployment cost.
+3. Exact test: New runner blob `bfcda0c45931f768e4e3252fddeb9525f0532574`; regression blob `6a82487ce920a61a62faa3a0cb089e000a865e83`; local Node22.16 `node --check` both PASS and `node --test tests/verify-cube-local.test.mjs` **5 PASS/0 FAIL/0 SKIP** on synthetic fake-build repository. Does NOT establish original site 13-file npm/build/real preflight PASS; actual original SHA untested.
+4. State: P85 unchanged, P95 NOT achieved, CUBE central **[작업중] must remain**, RELEASE HOLD and SALE NO-GO; customer source/Windows/rights unverified.
+5. Limit/failure/pivot: private GitHub clone DNS unavailable; no existing checked-in Actions workflow or approved paid CI. Portable isolated fixture verifies orchestration only, not the real 105KB storefront. Avoid repeated blind clone retries, need authorized full checkout or accepted CI billing.
+6. Source: `hibi89/AX_MART@feature/cube-owner-preflight-p85-20261112` functional SHA `62de5a77b5600a24e96135f1a208f8be6cdbad49`; old exact source/test CUBE P85 baseline `34dac38ffac69df00eeb6610e380fbc5d0c37705`. New `scripts/verify-cube-local.mjs`, `tests/verify-cube-local.test.mjs`, package script. Docs-only SHA follows.
+7. Environment/deploy: Node22.16 Linux synthetic tested; runtime Node>=18, `npm run verify:local` on authorized full checkout. Cloudflare `https://ax-mart.pages.dev/` main-linked; feature NOT DEPLOYED; Vercel N/A.
+8. Preservation/backup: previous Git feature commit recovery; `main`, PC CARE feature branch, original homepage, customer originals, tokens, account/permissions, public deploy untouched by this work. Preflight never removes unrelated files on error.
+9. Next: execute new command on exact current feature checkout; fix any failing full suite and re-run; verify actual Chromium/Edge & Windows and sources/rights; separately get user approval for merchant/payment/customer/production changes. P95 marker stays until verified target.
+10. Updated 2026-11-12 KST; exact newly-created script/test blob parity and synthetic 5/5, full original suite/production not executed. No false P95 claim.
+
+---
+
+
 ## 2026-11-12 KST — CUBE P95 attempt (10-point handoff)
 1. Goal/stack: CUBE offline owner static release preflight, Node18+ zero dependencies, preserve seller HOLD and original homepage; 85→95 target.
 2. Implemented/decision: Choose source-derived exact static page bytes and explicit dist-tree allowlist over regex-only checks; six adversarial tests and real build integration added. No customer backend/payment or main changes.
