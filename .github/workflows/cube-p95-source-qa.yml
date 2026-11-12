@@ -1,0 +1,63 @@
+name: CUBE P95 exact-source Node QA (non-release)
+# Branch-isolated owner evidence only: no Pages deployment, checkout or payment.
+on:
+  push:
+    branches:
+      - feature/cube-owner-preflight-p85-20261112
+    paths:
+      - '.github/workflows/cube-p95-source-qa.yml'
+      - 'commerce/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'index.html'
+      - 'cloudflare/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: cube-p95-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-native-qa:
+    if: github.ref == 'refs/heads/feature/cube-owner-preflight-p85-20261112'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      CI: 'true'
+    steps:
+      - name: Checkout private exact feature SHA without persisting credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Use Node.js 22 (no install scripts or dependencies)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source identity and clean checkout
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "$(git status --porcelain)"
+          node --version
+          node --check scripts/verify-cube-local.mjs
+          node --check tests/verify-cube-local.test.mjs
+      - name: Run genuine checked-in complete Node test suite
+        shell: bash
+        run: npm test
+      - name: Build genuine static Cloudflare site without deployment
+        shell: bash
+        run: npm run build
+      - name: Repeat full native suite with source-bound owner HOLD audit
+        shell: bash
+        run: npm run verify:local
+      - name: Assert no public sales or release step is configured
+        shell: bash
+        run: |
+          test -f dist/index.html
+          test -f dist/catalog.json
+          test -f dist/products/index.html
+          test -f dist/support/index.html
+          echo 'CUBE engineering proof only. Real buyer Windows/browser/license and deployment remain HOLD.'
