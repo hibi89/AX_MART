@@ -40,17 +40,68 @@ def object_only(value):
     return isinstance(value, dict)
 
 
+def reject_untrusted_local_path(path: Path) -> None:
+    """Fail closed on known sync/cloud or redirected destinations.
+
+    This gates the optional developer-only Python consultation utility. It
+    cannot certify a folder is private against arbitrary third-party sync
+    agents, virtual file systems, or malicious concurrent path replacement.
+    """
+    if not isinstance(path, Path) or not path.is_absolute():
+        block()
+    candidate = str(path)
+    if os.name == 'nt':
+        # Block UNC, device namespaces, network-mapped drives and unknown
+        # drive types. A letter alone never proves a local disk.
+        if candidate.startswith(('\\\\', '//')) or not re.fullmatch(r'[A-Za-z]:\\\\', path.anchor):
+            block()
+        try:
+            import ctypes
+            kind = ctypes.windll.kernel32.GetDriveTypeW(path.anchor)
+        except (OSError, AttributeError, ValueError):
+            block()
+        if kind not in (2, 3):  # DRIVE_REMOVABLE or DRIVE_FIXED
+            block()
+    for part in path.parts:
+        name = part.casefold()
+        if (name in ('dropbox', 'icloud drive', 'iclouddrive',
+                     'google drive', 'googledrive', 'box sync', 'boxdrive') or
+                name == 'onedrive' or name.startswith('onedrive - ')):
+            block()
+    if os.name == 'nt':
+        for variable in ('OneDrive', 'OneDriveCommercial', 'OneDriveConsumer',
+                         'Dropbox', 'GoogleDrive', 'iCloudDrive'):
+            base = os.environ.get(variable)
+            if not base:
+                continue
+            try:
+                root = os.path.normcase(os.path.abspath(base)).rstrip('\\\\/')
+                candidate_normalized = os.path.normcase(os.path.abspath(candidate))
+                if candidate_normalized == root or candidate_normalized.startswith(root + os.sep):
+                    block()
+            except (OSError, ValueError, TypeError):
+                block()
+    for component in (path, *path.parents):
+        try:
+            info = component.lstat()
+        except FileNotFoundError:
+            if component == path:
+                continue
+            block()
+        except OSError:
+            block()
+        if (stat.S_ISLNK(info.st_mode) or
+                bool(getattr(info, 'st_file_attributes', 0) &
+                     getattr(stat, 'FILE_ATTRIBUTE_REPARSE_POINT', 0))):
+            block()
+
+
 def read_local(path: Path, extension: str, maximum: int) -> bytes:
     if not isinstance(path, Path) or not path.is_absolute() or path.suffix.lower() != extension:
         block()
-    # Every existing ancestor must be a real directory, not a link or junction.
-    for parent in (path, *path.parents):
-        try:
-            info = parent.lstat()
-        except (FileNotFoundError, PermissionError, OSError):
-            block()
-        if stat.S_ISLNK(info.st_mode):
-            block()
+    # Every existing ancestor must be local and non-reparse, including
+    # Windows junctions and mapped drives (not only symlinks on POSIX).
+    reject_untrusted_local_path(path)
     try:
         before = path.lstat()
         if not stat.S_ISREG(before.st_mode) or not (0 < before.st_size <= maximum):
@@ -180,7 +231,8 @@ def files_for_source(data: bytes) -> dict[str, bytes]:
 
 
 def verify(source: bytes, directory: Path) -> dict:
-    if not directory.is_absolute() or not directory.is_dir() or directory.is_symlink():
+    reject_untrusted_local_path(directory)
+    if not directory.is_dir() or directory.is_symlink():
         block()
     if {p.name for p in directory.iterdir()} != set(FILE_NAMES):
         block()
@@ -196,12 +248,12 @@ def verify(source: bytes, directory: Path) -> dict:
 
 
 def create(source: bytes, directory: Path) -> dict:
-    if not directory.is_absolute() or directory.exists() or directory.is_symlink():
+    reject_untrusted_local_path(directory)
+    if directory.exists() or directory.is_symlink():
         block()
-    # Refuse output through symlink parents, cloud/network paths are never copied by this program.
-    for parent in directory.parents:
-        if parent.is_symlink() or not parent.is_dir():
-            block()
+    # No implicit parent creation, no cloud-sync/junction/network fallback.
+    if any(not parent.is_dir() for parent in directory.parents):
+        block()
     content = files_for_source(source)
     created = False
     try:
