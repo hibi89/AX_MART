@@ -40,17 +40,71 @@ def object_only(value):
     return isinstance(value, dict)
 
 
+def reject_untrusted_local_path(path: Path) -> None:
+    """Fail closed on known sync/cloud or redirected destinations.
+
+    This gates the optional developer-only Python consultation utility. It
+    cannot certify a folder is private against arbitrary third-party sync
+    agents, virtual file systems, or malicious concurrent path replacement.
+    """
+    if not isinstance(path, Path) or not path.is_absolute():
+        block()
+    candidate = str(path)
+    if os.name == 'nt':
+        # Block UNC, device namespaces, network-mapped drives and unknown
+        # drive types. A letter alone never proves a local disk.
+        if candidate.startswith(('\\\\', '//')) or not re.fullmatch(r'[A-Za-z]:\\', path.anchor):
+            block()
+        try:
+            import ctypes
+            get_drive_type = ctypes.windll.kernel32.GetDriveTypeW
+            get_drive_type.argtypes = [ctypes.c_wchar_p]
+            get_drive_type.restype = ctypes.c_uint
+            kind = get_drive_type(path.anchor)
+        except (OSError, AttributeError, ValueError):
+            block()
+        if kind not in (2, 3):  # DRIVE_REMOVABLE or DRIVE_FIXED
+            block()
+    for part in path.parts:
+        name = part.casefold()
+        if (name in ('dropbox', 'icloud drive', 'iclouddrive',
+                     'google drive', 'googledrive', 'box sync', 'boxdrive') or
+                name == 'onedrive' or name.startswith('onedrive - ')):
+            block()
+    if os.name == 'nt':
+        for variable in ('OneDrive', 'OneDriveCommercial', 'OneDriveConsumer',
+                         'Dropbox', 'GoogleDrive', 'iCloudDrive'):
+            base = os.environ.get(variable)
+            if not base:
+                continue
+            try:
+                root = os.path.normcase(os.path.abspath(base)).rstrip('\\\\/')
+                candidate_normalized = os.path.normcase(os.path.abspath(candidate))
+                if candidate_normalized == root or candidate_normalized.startswith(root + os.sep):
+                    block()
+            except (OSError, ValueError, TypeError):
+                block()
+    for component in (path, *path.parents):
+        try:
+            info = component.lstat()
+        except FileNotFoundError:
+            if component == path:
+                continue
+            block()
+        except OSError:
+            block()
+        if (stat.S_ISLNK(info.st_mode) or
+                bool(getattr(info, 'st_file_attributes', 0) &
+                     getattr(stat, 'FILE_ATTRIBUTE_REPARSE_POINT', 0))):
+            block()
+
+
 def read_local(path: Path, extension: str, maximum: int) -> bytes:
     if not isinstance(path, Path) or not path.is_absolute() or path.suffix.lower() != extension:
         block()
-    # Every existing ancestor must be a real directory, not a link or junction.
-    for parent in (path, *path.parents):
-        try:
-            info = parent.lstat()
-        except (FileNotFoundError, PermissionError, OSError):
-            block()
-        if stat.S_ISLNK(info.st_mode):
-            block()
+    # Every existing ancestor must be local and non-reparse, including
+    # Windows junctions and mapped drives (not only symlinks on POSIX).
+    reject_untrusted_local_path(path)
     try:
         before = path.lstat()
         if not stat.S_ISREG(before.st_mode) or not (0 < before.st_size <= maximum):
@@ -76,24 +130,43 @@ def read_local(path: Path, extension: str, maximum: int) -> bytes:
 
 
 def json_decode(data: bytes):
+    # Python's JSON decoder otherwise silently accepts duplicate object keys
+    # and keeps only the last occurrence. Source/receipt ambiguities must fail.
+    def unique_object(pairs):
+        item = {}
+        for name, value in pairs:
+            if name in item:
+                block()
+            item[name] = value
+        return item
     try:
-        return json.loads(data.decode('utf-8', errors='strict'))
+        return json.loads(data.decode('utf-8', errors='strict'),
+                          object_pairs_hook=unique_object)
     except (UnicodeError, ValueError):
         block()
 
 
 def safe_consultation(data: bytes) -> dict:
     report = json_decode(data)
-    if not object_only(report) or report.get('schemaVersion') != 1 or report.get('product') != 'AXMART PC CARE' or report.get('mode') != 'read-only':
+    if (not object_only(report) or type(report.get('schemaVersion')) is not int
+            or report.get('schemaVersion') != 1 or report.get('product') != 'AXMART PC CARE'
+            or report.get('mode') != 'read-only'):
         block()
     original = report.get('consultation')
-    if not object_only(original) or original.get('schemaVersion') != 1 or original.get('containsIdentifiers') is not False:
+    if (not object_only(original) or type(original.get('schemaVersion')) is not int
+            or original.get('schemaVersion') != 1 or original.get('containsIdentifiers') is not False):
         block()
     label = original.get('assessment')
-    if label not in STATUSES or report.get('assessment') != label:
+    if type(label) is not str or label not in STATUSES or report.get('assessment') != label:
         block()
+    # This is an evidence-minimized customer handoff, NOT a second diagnosis.
+    # A "no issue observed" label cannot survive a missing disk collector or
+    # contradictory known warning. Preserve uncertainty, never fabricate OK.
+    observations = report.get('observations')
+    collection = observations.get('collectionStatus') if object_only(observations) else None
+    disk_collected = (object_only(collection) and collection.get('physicalDisks') == 'collected')
     storage = original.get('storageSignal')
-    if storage not in STORAGE:
+    if type(storage) is not str or storage not in STORAGE:
         block()
     build = str(original.get('windowsBuild', ''))
     if not re.fullmatch(r'[0-9]{1,6}', build):
@@ -101,6 +174,11 @@ def safe_consultation(data: bytes) -> dict:
     raw_codes = original.get('reviewItems')
     if not isinstance(raw_codes, list) or len(raw_codes) > 12 or any(not isinstance(s, str) or s not in CODES for s in raw_codes):
         block()
+    if label == '관찰 범위 내 특이사항 없음':
+        if not disk_collected or storage == '미확인':
+            label = '확인 불완전'
+        elif storage == '경고 신호 관측' or raw_codes:
+            label = '주의 필요'
     raw_events = original.get('recordedEvents')
     if not isinstance(raw_events, list) or len(raw_events) > 4:
         block()
@@ -169,7 +247,8 @@ def files_for_source(data: bytes) -> dict[str, bytes]:
 
 
 def verify(source: bytes, directory: Path) -> dict:
-    if not directory.is_absolute() or not directory.is_dir() or directory.is_symlink():
+    reject_untrusted_local_path(directory)
+    if not directory.is_dir() or directory.is_symlink():
         block()
     if {p.name for p in directory.iterdir()} != set(FILE_NAMES):
         block()
@@ -185,12 +264,12 @@ def verify(source: bytes, directory: Path) -> dict:
 
 
 def create(source: bytes, directory: Path) -> dict:
-    if not directory.is_absolute() or directory.exists() or directory.is_symlink():
+    reject_untrusted_local_path(directory)
+    if directory.exists() or directory.is_symlink():
         block()
-    # Refuse output through symlink parents, cloud/network paths are never copied by this program.
-    for parent in directory.parents:
-        if parent.is_symlink() or not parent.is_dir():
-            block()
+    # No implicit parent creation, no cloud-sync/junction/network fallback.
+    if any(not parent.is_dir() for parent in directory.parents):
+        block()
     content = files_for_source(source)
     created = False
     try:

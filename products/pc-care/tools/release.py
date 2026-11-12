@@ -38,6 +38,7 @@ ALLOWLIST = (
     'ui/history_print.js',
     'ui/case_review.html',
     'ui/case_review.js',
+    'ui/recovery_readiness.html',
     'tools/report_io.ps1',
     'tools/repair.ps1',
     'tests/windows_smoke.ps1',

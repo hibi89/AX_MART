@@ -1,3 +1,17 @@
+## 2026-11-12 P19 — PC CARE 85% provisional engineering, Windows synthetic QA PASS
+
+At exact feature source SHA [`0ba167682c84`](https://github.com/hibi89/AX_MART/commit/0ba167682c848056c5717c717b3b0d1ca98a9f3c), [Actions #43131173581](https://github.com/hibi89/AX_MART/actions/runs/43131173581) **SUCCESS** on real GitHub-hosted Windows runner: Python3.11 **101 PASS**, Node22 **130 PASS**, Windows PS5.1 parsed 20 files and ran mock incident/report/device/privacy cases, **ephemeral internal ZIP** generated and verified (SHA256 `489483d4805dfa13e7156b1a9c066b1d5271ea6e543277c62150e20894b5d9d3`), integrated offline preflight **4/4 PASS**. The first CI run failed at YAML parse and was fixed; no full-suite failures remain at tested SHA. Score `70→80(P15–18)→85(P19 +5)` **internal engineering**, without changing original FINAL_SPEC_V2 scope or source branches. **RELEASE HOLD**, true owner Windows hardware/Edge file, QR phone scan, A4 print, WinRE physical rescue/BitLocker/real repair, signed installer, customer/legal/pilot and Cloudflare Production NOT verified or published. See [P19 full QA acceptance report](docs/P19_85_WINDOWS_SYNTHETIC_QA_20261112.md). Draft [PR #1](https://github.com/hibi89/AX_MART/pull/1) remains open/unmerged.
+
+---
+
+## 2026-11-12 PC CARE P15–P18: local owner review + safety card (80% provisional, 85 QA pending)
+
+The non-admin `START_PC_CARE.cmd` now offers **6. Local Consultation Review** and **7. Recovery Readiness Card** (8th menu option is exit). Both are local HTML only, with no network, automatic scan/WinRE/backup/repair. Consultation selects an owner-chosen report JSON; false-clean states are downgraded when disk evidence is absent, status unknown, or warning codes contradict the claim. `tools/casepack.py` (developer-only, **not customer ZIP**) refuses known cloud/mapped network/junction paths and duplicate/ambiguous JSON. Internal test ZIP allowlist includes the new self-contained A4-style guide; never distributes user reports. [P15–P18 security, scope and exact QA evidence](docs/P15_P18_OWNER_SAFE_WORKSTREAM_20261112.md).
+
+**Current engineering 70→80%, not yet 85.** GitHub exact JS model/static code checks passed; current full Python/Node/Windows PS5.1 + actual packaged ZIP and real physical Windows/USB/Edge/WinRE/QR/A4 tests **NOT RUN**. Keep RELEASE HOLD, no public or paid distribution.
+
+---
+
 # AXMART PC CARE v0.1-alpha — Windows PC·USB 포터블 진단·복구 보조 도구
 
 **상태: 초기 시험용, 판매 불가. 실제 Windows PC에서 실행 검증 전.**

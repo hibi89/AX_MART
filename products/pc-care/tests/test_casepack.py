@@ -38,6 +38,86 @@ def encode(r=None):
 
 
 class CasePack(unittest.TestCase):
+    def test_ambiguous_duplicate_json_keys_and_boolean_schemas_fail_closed(self):
+        raw = encode()
+        # Repeated top-level keys must not be interpreted differently by
+        # Python validators, browser review, or downstream support tools.
+        repeated = raw[:-1] + b',"mode":"repair"}'
+        with self.assertRaisesRegex(ValueError, 'BLOCKED'):
+            cp.safe_consultation(repeated)
+        for key in ('schemaVersion',):
+            bad = report()
+            bad[key] = True
+            with self.assertRaisesRegex(ValueError, 'BLOCKED'):
+                cp.safe_consultation(encode(bad))
+            bad = report()
+            bad['consultation'][key] = True
+            with self.assertRaisesRegex(ValueError, 'BLOCKED'):
+                cp.safe_consultation(encode(bad))
+        for invalid in ([], {'wrong': 'schema'}):
+            bad = report()
+            bad['consultation']['assessment'] = invalid
+            with self.assertRaisesRegex(ValueError, 'BLOCKED'):
+                cp.safe_consultation(encode(bad))
+            bad = report()
+            bad['consultation']['storageSignal'] = invalid
+            with self.assertRaisesRegex(ValueError, 'BLOCKED'):
+                cp.safe_consultation(encode(bad))
+
+    def test_missing_disk_evidence_downgrades_clean_to_incomplete(self):
+        r = report()
+        r['assessment'] = r['consultation']['assessment'] = '관찰 범위 내 특이사항 없음'
+        r['consultation']['storageSignal'] = 'Windows 정상 신호 (보증 아님)'
+        r['consultation']['reviewItems'] = []
+        r['observations'].pop('collectionStatus', None)
+        output = cp.safe_consultation(encode(r))
+        self.assertEqual('확인 불완전', output['assessment'])
+        self.assertFalse(output['repair_authorized'])
+        r['observations']['collectionStatus'] = {'physicalDisks': 'unavailable'}
+        self.assertEqual('확인 불완전', cp.safe_consultation(encode(r))['assessment'])
+        r['observations']['collectionStatus'] = {'physicalDisks': 'collected'}
+        r['consultation']['storageSignal'] = '미확인'
+        self.assertEqual('확인 불완전', cp.safe_consultation(encode(r))['assessment'])
+
+    def test_clean_with_warning_is_never_reported_as_clean(self):
+        r = report()
+        r['assessment'] = r['consultation']['assessment'] = '관찰 범위 내 특이사항 없음'
+        r['observations']['collectionStatus'] = {'physicalDisks': 'collected'}
+        self.assertEqual('주의 필요', cp.safe_consultation(encode(r))['assessment'])
+        r['consultation']['storageSignal'] = 'Windows 정상 신호 (보증 아님)'
+        r['consultation']['reviewItems'] = []
+        self.assertEqual('관찰 범위 내 특이사항 없음',
+                         cp.safe_consultation(encode(r))['assessment'])
+
+    def test_owner_local_folder_guard_blocks_known_sync_names_and_preserves_input(self):
+        with tempfile.TemporaryDirectory(prefix='pc-care-p15-') as temp:
+            root = Path(temp)
+            source = root / 'report.json'
+            data = encode()
+            source.write_bytes(data)
+            for name in ('OneDrive', 'OneDrive - Example', 'Dropbox',
+                         'Google Drive', 'iCloudDrive', 'Box Sync'):
+                folder = root / name
+                folder.mkdir()
+                with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'BLOCKED'):
+                    cp.create(data, folder / 'new-review')
+                self.assertEqual([], list(folder.iterdir()))
+            self.assertEqual(data, source.read_bytes())
+
+    def test_existing_symlinked_parent_is_not_a_private_local_folder(self):
+        with tempfile.TemporaryDirectory(prefix='pc-care-p15-') as temp:
+            root = Path(temp)
+            real = root / 'real'
+            real.mkdir()
+            alias = root / 'alias'
+            try:
+                alias.symlink_to(real, target_is_directory=True)
+            except (OSError, NotImplementedError):
+                self.skipTest('Symlink privilege unavailable on this OS')
+            with self.assertRaisesRegex(ValueError, 'BLOCKED'):
+                cp.create(encode(), alias / 'new-result')
+            self.assertEqual([], list(real.iterdir()))
+
     def test_valid_pack_only_redacted_minimized_fields_and_no_privileged_actions(self):
         data = encode()
         with tempfile.TemporaryDirectory() as d:
