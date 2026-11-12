@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtempSync,mkdirSync,rmSync,writeFileSync,readFileSync,existsSync,symlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {join,dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {evaluatePreflight,buildPreflight,verifyPreflight} from '../commerce/release-preflight.mjs';
@@ -33,7 +34,7 @@ test('outputs byte deterministic across separate folders',()=>withFixture(f=>{bu
 test('refuse overwrite of existing owner output',()=>withFixture(f=>{mkdirSync(f.out);writeFileSync(join(f.out,'keep'),'valuable');assert.throws(()=>buildPreflight(f.root,f.out));assert.equal(readFileSync(join(f.out,'keep'),'utf8'),'valuable')}));
 test('detect tampered receipt even with recomputed output hash',()=>withFixture(f=>{buildPreflight(f.root,f.out);writeFileSync(join(f.out,'owner-review.json'),'{}');const man=JSON.parse(readFileSync(join(f.out,'manifest.json')));man.outputs_sha256['owner-review.json']=createHash('sha256').update('{}').digest('hex');writeFileSync(join(f.out,'manifest.json'),JSON.stringify(man));assert.throws(()=>verifyPreflight(f.root,f.out))}));
 test('detect source catalog changes after owner review',()=>withFixture(f=>{buildPreflight(f.root,f.out);f.cat.products[0].description+=' altered';f.save();assert.throws(()=>verifyPreflight(f.root,f.out))}));
-test('CLI build/verify returns HOLD but PASS status',()=>withFixture(f=>{const cmd=join(import.meta.dirname,'../scripts/release-preflight.mjs');const run=mode=>spawnSync(process.execPath,[cmd,mode,'--root',f.root,'--output',f.out],{encoding:'utf8'});const a=run('build');assert.equal(a.status,0,a.stderr);assert.equal(JSON.parse(a.stdout).payment_enabled,false);const b=run('verify');assert.equal(b.status,0,b.stderr);assert.equal(JSON.parse(b.stdout).verified,true);assert.equal(run('build').status,2)}));
+test('CLI build/verify returns HOLD but PASS status',()=>withFixture(f=>{const cmd=join(dirname(fileURLToPath(import.meta.url)),'../scripts/release-preflight.mjs');const run=mode=>spawnSync(process.execPath,[cmd,mode,'--root',f.root,'--output',f.out],{encoding:'utf8'});const a=run('build');assert.equal(a.status,0,a.stderr);assert.equal(JSON.parse(a.stdout).payment_enabled,false);const b=run('verify');assert.equal(b.status,0,b.stderr);assert.equal(JSON.parse(b.stdout).verified,true);assert.equal(run('build').status,2)}));
 failures('catalog unknown price/paid flag blocked',f=>{f.cat.products[0].sale.mode='enabled';f.save()});
 failures('catalog unknown delivery URL blocked',f=>{f.cat.products[0].delivery.path='/downloads/unsafe';f.save()});
 failures('catalog fake source SHA blocked',f=>{f.cat.products[0].source.commit='bad';f.save()});
