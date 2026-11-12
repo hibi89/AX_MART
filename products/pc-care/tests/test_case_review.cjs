@@ -21,6 +21,26 @@ test('unknown status and arbitrary issue labels are rejected', () => {let r=vali
 test('forged events, decimal ids, invalid dates and excess entries rejected', () => {for(const fake of [{eventId:41.5,recordedUtc:'2026-11-11 04:15'},{eventId:999,recordedUtc:'2026-11-11 04:15'},{eventId:41,recordedUtc:'2026-02-30 04:15'},{eventId:41,recordedUtc:'2026-11-11 24:15'}]){const r=valid();r.consultation.recordedEvents=[fake];assert.throws(()=>run(r));}});
 test('missing collection completeness never becomes clean', () => {const r=valid();r.assessment=r.consultation.assessment='관찰 범위 내 특이사항 없음';delete r.observations;assert.match(run(r),/확인 불완전/);});
 test('strict UTC calendar accepts leap years, not impossible dates', () => {assert.equal(validUtcMinute('2028-02-29 23:59'),true);assert.equal(validUtcMinute('2027-02-29 23:59'),false);assert.equal(validUtcMinute('2026-01-01T00:00:00Z'),false);});
+test('clean status without disk collection is downgraded without guessing', () => {
+  const r=valid();
+  r.assessment=r.consultation.assessment='관찰 범위 내 특이사항 없음';
+  r.consultation.storageSignal='Windows 정상 신호 (보증 아님)';
+  r.consultation.reviewItems=[];
+  delete r.observations;
+  assert.match(run(r),/확인 불완전/);
+  r.observations={collectionStatus:{physicalDisks:'collected'}};
+  assert.match(run(r),/관찰 범위 내 특이사항 없음/);
+});
+test('clean status contradicted by source warnings never displays clean label', () => {
+  const r=valid();
+  r.assessment=r.consultation.assessment='관찰 범위 내 특이사항 없음';
+  r.observations={collectionStatus:{physicalDisks:'collected'}};
+  assert.match(run(r),/주의 필요 \(상충하는 경고 근거/);
+  r.consultation.storageSignal='Windows 정상 신호 (보증 아님)';
+  assert.match(run(r),/주의 필요 \(상충하는 경고 근거/);
+  r.consultation.reviewItems=[];
+  assert.match(run(r),/관찰 범위 내 특이사항 없음/);
+});
 test('bounded source size and malformed JSON rejected', () => {assert.equal(MAX_BYTES,2000000);assert.throws(()=>model('garbage'));assert.throws(()=>model(' '.repeat(MAX_BYTES+1)));});
 test('no network, persistence, remote links or HTML injection operations', () => {const js=fs.readFileSync(path.join(__dirname,'../ui/case_review.js'),'utf8');const html=fs.readFileSync(path.join(__dirname,'../ui/case_review.html'),'utf8');for(const unsafe of ['fetch(', 'XMLHttpRequest', 'localStorage', 'sessionStorage','innerHTML','sendBeacon','WebSocket'])assert.ok(!js.includes(unsafe),unsafe);assert.match(html,/connect-src 'none'/);assert.match(html,/<script src="\.\/case_review\.js" defer>/);});
 test('file change while asynchronous read pending prevents stale content', async () => {
