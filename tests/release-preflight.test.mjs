@@ -45,6 +45,9 @@ failures('catalog duplicate slug blocked',f=>{f.cat.products.push(structuredClon
 failures('public catalog enabling payment blocked',f=>{const path='dist/catalog.json',v=JSON.parse(readFileSync(join(f.root,path)));v.checkout_enabled=true;f.write(path,JSON.stringify(v))});
 failures('public catalog leaking private source blocked',f=>{const path='dist/catalog.json',v=JSON.parse(readFileSync(join(f.root,path)));v.products[0].source=f.cat.products[0].source;f.write(path,JSON.stringify(v))});
 failures('homepage build drift blocked',f=>f.write('dist/index.html','<html>modified</html>'));
+failures('unexpected Cloudflare publish root file blocked despite approved named assets',f=>f.write('dist/private-token.txt','should never publish'));
+failures('unexpected Cloudflare publish nested file blocked',f=>f.write('dist/products/old-customer.html','sensitive stale preview'));
+failures('unexpected Cloudflare publish support sidecar blocked',f=>f.write('dist/support/.env','DO_NOT_UPLOAD'));
 failures('cloudflare header drift blocked',f=>f.write('dist/_headers','/*\n BAD'));
 failures('product page external request blocked',f=>f.write('dist/products/index.html',page+'<a href="https://example.com">link</a>'));
 failures('product page inline script blocked',f=>f.write('dist/products/index.html',page+'<script>alert(1)</script>'));
