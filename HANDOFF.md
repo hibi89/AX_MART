@@ -1,3 +1,17 @@
+## 2026-11-12 KST — CUBE P95 attempt (10-point handoff)
+1. Goal/stack: CUBE offline owner static release preflight, Node18+ zero dependencies, preserve seller HOLD and original homepage; 85→95 target.
+2. Implemented/decision: Choose source-derived exact static page bytes and explicit dist-tree allowlist over regex-only checks; six adversarial tests and real build integration added. No customer backend/payment or main changes.
+3. Tests: current functional code SHA `b47baf54a11c6cbd28ec3b50cc9dea4e15d70506`; eight GitHub source/test blobs verified and **10 static shape checks PASS**, not Node execution. Prior 29 Node PASS only at `34dac38ffac6`; new exact-SHA `npm test`/`npm run build`, browser, Windows NOT RUN. Private checkout DNS unavailable.
+4. State: **85% provisional unchanged, 95 NOT ACHIEVED, central CUBE [작업중] retained, RELEASE HOLD**.
+5. Issue/pivot: exact source tests cannot run without private full checkout; one GitHub DNS attempt failed. Do not claim old tests certify new code or blindly trigger private paid CI. Options: approved full checkout with local tests (preferred), authorized GitHub runner billing, or isolated source fixtures (weaker evidence).
+6. Repo/branch/SHA: `hibi89/AX_MART@feature/cube-owner-preflight-p85-20261112`, code `b47baf54a11c6cbd28ec3b50cc9dea4e15d70506`, previous code `34dac38ffac69df00eeb6610e380fbc5d0c37705`. Files `commerce/release-preflight.mjs`, `tests/release-preflight.test.mjs`, `tests/release-preflight-write-race.test.mjs`, `tests/site.test.mjs`.
+7. Runtime/deployment: Node>=18, commands `npm test`, `npm run build`, owner audit build/verify. Cloudflare `https://ax-mart.pages.dev/` main-linked only, feature NOT deployed, Vercel N/A; no production verification claim.
+8. Backup/security: Git previous commits allow rollback; homepage, main, PC CARE branch, original user/customer data, secrets and permissions untouched; fail-safe no-delete, unsigned synthetic owner receipts.
+9. Next priorities: exact feature SHA original full Node/build and CLI integration PASS; browser real CSP/network/file validation, native Windows/buyer experience, legal/LICENSE/NOTICE/customer approval. Only verified engineering P95 may release central marker; actual commercial launch remains separate approval.
+10. Updated 2026-11-12 KST, observed GitHub source blobs and static checks only; documents after this note are separate docs-only SHA. Hub record needs synchronization.
+
+---
+
 ## 2026-11-12 KST — AXMART³ CUBE owner preflight no-delete race repair (10-point handoff)
 1. Goal/stack: user requested switch off blocked REA_APP; selected independent AXMART³ CUBE 85% Node18+ stdlib owner release preflight, no PC CARE overlap.
 2. Done/decision: compared inode-checked recursive rollback vs no automatic delete; selected preserve on failure. Old `buildPreflight` recursive rmSync could delete unrelated files after output path replacement; changed to fail-closed HOLD. Added 3 real filesystem regression cases + npm scripts.
