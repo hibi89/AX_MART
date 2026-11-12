@@ -37,8 +37,10 @@ test('malformed shell-injection test command rejected, no command evaluation',()
  mk('package.json',JSON.stringify({scripts:{test:'node --test tests/site.test.mjs; echo bad'}}));
  const r=run();assert.equal(r.status,2);assert.match(r.stderr,/cannot be verified/);
 }));
-test('symlinked dist blocked before any original test execution',()=>fixture(({run,root})=>{
- mkdirSync(join(root,'sentinel'));symlinkSync(join(root,'sentinel'),join(root,'dist'),'dir');
+test('symlinked dist blocked before any original test execution',t=>fixture(({run,root})=>{
+ mkdirSync(join(root,'sentinel'));
+ try{symlinkSync(join(root,'sentinel'),join(root,'dist'),'dir');}
+ catch(error){if(error.code==='EPERM'||error.code==='EACCES'){t.skip('Windows symlink privilege unavailable');return;}throw error;}
  const r=run();assert.equal(r.status,2);assert.match(r.stderr,/unsafe dist path/);
 }));
 test('non-absolute output rejected',()=>fixture(({run})=>{
