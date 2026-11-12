@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test tests/site.test.mjs tests/catalog.test.mjs tests/build-catalog.test.mjs tests/package-audit.test.mjs tests/catalog-page.test.mjs tests/transaction-policy.test.mjs tests/support-queue.test.mjs tests/support-page.test.mjs tests/zip-structure-audit.test.mjs tests/cube-offline.test.mjs tests/release-preflight.test.mjs",
-    "test:commerce": "node --test tests/catalog.test.mjs tests/build-catalog.test.mjs tests/package-audit.test.mjs tests/catalog-page.test.mjs tests/transaction-policy.test.mjs tests/support-queue.test.mjs tests/support-page.test.mjs tests/zip-structure-audit.test.mjs tests/cube-offline.test.mjs",
+    "test:commerce": "node --test tests/catalog.test.mjs tests/build-catalog.test.mjs tests/package-audit.test.mjs tests/catalog-page.test.mjs tests/transaction-policy.test.mjs tests/support-queue.test.mjs tests/support-page.test.mjs tests/zip-structure-audit.test.mjs tests/cube-offline.test.mjs tests/release-preflight.test.mjs",
     "audit:catalog": "node scripts/audit-catalog.mjs",
     "audit:package": "node scripts/audit-package.mjs",
     "audit:cube": "node scripts/cube-offline.mjs",
