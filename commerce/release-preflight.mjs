@@ -4,7 +4,7 @@
  * Never turns a release HOLD into an authorization.
  */
 import { createHash } from 'node:crypto';
-import { closeSync, fstatSync, lstatSync, openSync, readSync, mkdirSync, writeFileSync, rmSync, readdirSync } from 'node:fs';
+import { closeSync, fstatSync, lstatSync, openSync, readSync, mkdirSync, writeFileSync, readdirSync } from 'node:fs';
 import { constants } from 'node:fs';
 import { resolve, join, dirname, sep } from 'node:path';
 
@@ -139,7 +139,12 @@ export function buildPreflight(root,out) {
   if(dirname(dest)===dest)fail('unsafe output');
   mkdirSync(dest,{recursive:false,mode:0o700});
   try {for(const [name,content] of Object.entries(data))writeFileSync(join(dest,name),content,{flag:'wx',mode:0o600});}
-  catch(err){rmSync(dest,{recursive:true,force:true});throw err;}
+  catch(err){
+    // The newly-created output path may have been replaced by another writer.
+    // Recursive cleanup can delete that writer's unrelated files. Leave all
+    // partial/replaced outputs untouched; owner must use a fresh output path.
+    fail('output write failed; partial/replaced directory preserved for manual review');
+  }
   return report;
 }
 export function verifyPreflight(root,out) {
