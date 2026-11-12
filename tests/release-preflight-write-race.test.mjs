@@ -6,6 +6,8 @@ import {syncBuiltinESMExports} from 'node:module';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {buildPreflight,verifyPreflight} from '../commerce/release-preflight.mjs';
+import {renderCatalogPage} from '../commerce/catalog-page.mjs';
+import {renderSupportPage} from '../commerce/support-page.mjs';
 
 function fixture() {
   const top=fs.mkdtempSync(join(tmpdir(),'axmart-cube-race-'));
@@ -24,7 +26,8 @@ function fixture() {
     sale:{mode:'disabled',price_minor:null,currency:null},
   };
   const w=(p,bytes)=>fs.writeFileSync(join(root,p),bytes);
-  w('commerce/catalog.json',JSON.stringify({schema_version:1,products:[product]}));
+  const sourceCatalog={schema_version:1,products:[product]};
+  w('commerce/catalog.json',JSON.stringify(sourceCatalog));
   w('dist/catalog.json',JSON.stringify({
     version:'axmart.catalog.v1',availability:'DEVELOPMENT_ONLY',
     checkout_enabled:false,download_enabled:false,
@@ -36,8 +39,8 @@ function fixture() {
   w('index.html',home);w('dist/index.html',home);
   w('cloudflare/_headers','/*\n  X-Frame-Options: DENY\n');
   w('dist/_headers','/*\n  X-Frame-Options: DENY\n');
-  w('dist/products/index.html',"<!doctype html><html><meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'none'; connect-src 'none'; form-action 'none'\"><body>현재 판매 및 다운로드를 제공하지 않습니다</body></html>");
-  w('dist/support/index.html',"<!doctype html><html><meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'none'; connect-src 'none'; form-action 'none'\"><body>문의 접수 서비스를 제공하지 않습니다</body></html>");
+  w('dist/products/index.html',renderCatalogPage(sourceCatalog));
+  w('dist/support/index.html',renderSupportPage());
   return {top,root,out,dispose:()=>fs.rmSync(top,{recursive:true,force:true})};
 }
 
