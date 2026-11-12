@@ -175,7 +175,7 @@ def safe_consultation(data: bytes) -> dict:
     if not isinstance(raw_codes, list) or len(raw_codes) > 12 or any(not isinstance(s, str) or s not in CODES for s in raw_codes):
         block()
     if label == '관찰 범위 내 특이사항 없음':
-        if not disk_collected:
+        if not disk_collected or storage == '미확인':
             label = '확인 불완전'
         elif storage == '경고 신호 관측' or raw_codes:
             label = '주의 필요'
