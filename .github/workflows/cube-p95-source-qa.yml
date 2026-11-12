@@ -50,6 +50,19 @@ jobs:
       - name: Build genuine static Cloudflare site without deployment
         shell: bash
         run: npm run build
+      - name: Headless offline Chrome homepage JS/rendering smoke (no external DNS)
+        shell: bash
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \\
+            --disable-background-networking --no-first-run --no-default-browser-check \\
+            --host-resolver-rules='MAP * 0.0.0.0, EXCLUDE localhost' \\
+            --dump-dom "file://$PWD/dist/index.html" > "$RUNNER_TEMP/cube-home-dom.html"
+          grep -F 'class="product-card" data-product="pc-care"' "$RUNNER_TEMP/cube-home-dom.html"
+          grep -F 'Windows 실기기 미검증' "$RUNNER_TEMP/cube-home-dom.html" > /dev/null
+          grep -F '판매·다운로드는 아직 지원하지 않습니다' "$RUNNER_TEMP/cube-home-dom.html" > /dev/null
+          echo 'Actual headless Chrome rendered real PC CARE development-only card. No buyer Windows test.'
       - name: Repeat full native suite with source-bound owner HOLD audit
         shell: bash
         run: npm run verify:local
@@ -61,3 +74,34 @@ jobs:
           test -f dist/products/index.html
           test -f dist/support/index.html
           echo 'CUBE engineering proof only. Real buyer Windows/browser/license and deployment remain HOLD.'
+
+  windows-native-qa:
+    needs: source-native-qa
+    if: github.ref == 'refs/heads/feature/cube-owner-preflight-p85-20261112'
+    runs-on: windows-latest
+    timeout-minutes: 8
+    env:
+      CI: 'true'
+    steps:
+      - name: Checkout exact private feature SHA without credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node 22 for native Windows QA
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify SHA and test all original files on native Windows
+        shell: pwsh
+        run: |
+          if ((git rev-parse HEAD) -ne $env:GITHUB_SHA) { throw 'wrong SHA' }
+          & npm.cmd test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Native Windows build and independent HOLD owner review
+        shell: pwsh
+        run: |
+          & npm.cmd run build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & npm.cmd run verify:local
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Write-Host 'Windows hosted runner pass is not actual buyer PC/WinRE or legal rights approval.'
