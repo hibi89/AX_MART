@@ -43,7 +43,7 @@
     // This output is evidence review only, not a diagnostic reclassification
     // that can authorize recovery or device writes.
     const statusLabel = c.assessment === '관찰 범위 내 특이사항 없음'
-      ? (!diskCollected ? '확인 불완전 (저장장치 수집 완전성 미확인)'
+      ? ((!diskCollected || c.storageSignal === '미확인') ? '확인 불완전 (저장장치 수집/상태 미확인)'
         : (c.storageSignal === '경고 신호 관측' || c.reviewItems.length > 0)
           ? '주의 필요 (상충하는 경고 근거의 재검토 필요)'
           : c.assessment)
