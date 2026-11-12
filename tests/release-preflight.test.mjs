@@ -7,12 +7,14 @@ import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {evaluatePreflight,buildPreflight,verifyPreflight} from '../commerce/release-preflight.mjs';
+import {renderCatalogPage} from '../commerce/catalog-page.mjs';
+import {renderSupportPage} from '../commerce/support-page.mjs';
 const srcProduct={slug:'axmart-pc-care',title:'AXMART PC CARE',description:'Windows 진단 도구 미검증',category:'windows-tools',
   source:{repository:'hibi89/AX_MART',branch:'feature/pc-care-usb',commit:'a'.repeat(40)},stage:'development',
   checks:Object.fromEntries(['windows10','windows11','winre','repair_safety','security','license','customer_support','owner_approval'].map(k=>[k,false])),
   delivery:{mode:'disabled',path:null,sha256:null},sale:{mode:'disabled',price_minor:null,currency:null}};
-const page = '<!doctype html><html><meta http-equiv="Content-Security-Policy" content="script-src \'none\'; connect-src \'none\'; form-action \'none\'"><body>현재 판매 및 다운로드를 제공하지 않습니다</body></html>';
-const support = '<!doctype html><html><meta http-equiv="Content-Security-Policy" content="script-src \'none\'; connect-src \'none\'; form-action \'none\'"><body>문의 접수 서비스를 제공하지 않습니다</body></html>';
+const page = renderCatalogPage({schema_version:1,products:[structuredClone(srcProduct)]});
+const support = renderSupportPage();
 const start =()=>{const top=mkdtempSync(join(tmpdir(),'cube-p85-'));const root=join(top,'repo'),out=join(top,'owner');
   for(const dir of ['commerce','cloudflare','dist','dist/products','dist/support'])mkdirSync(join(root,dir),{recursive:true});
   const cat={schema_version:1,products:[structuredClone(srcProduct)]};
@@ -47,6 +49,9 @@ failures('cloudflare header drift blocked',f=>f.write('dist/_headers','/*\n BAD'
 failures('product page external request blocked',f=>f.write('dist/products/index.html',page+'<a href="https://example.com">link</a>'));
 failures('product page inline script blocked',f=>f.write('dist/products/index.html',page+'<script>alert(1)</script>'));
 failures('support page form blocked',f=>f.write('dist/support/index.html',support+'<form></form>'));
+failures('plausible-looking modified products page still blocked by generated-byte parity',f=>f.write('dist/products/index.html',page.replace('실제 개발 소스가 확인된 프로젝트만 소개합니다','공식 라이선스 승인 및 안전 인증이 끝났습니다')));
+failures('plausible-looking modified support text blocked despite original HOLD/CSP',f=>f.write('dist/support/index.html',support.replace('이 페이지는 스크립트, 문의 양식','이 페이지는 개인정보를 수집하는 스크립트, 문의 양식')));
+failures('hidden refresh redirect added to product page rejected',f=>f.write('dist/products/index.html',page.replace('</head>','<meta http-equiv="refresh" content="0;url=//example.invalid"></head>')));
 failures('missing explicit support/no-sale disclosure blocked',f=>f.write('dist/support/index.html',page));
 failures('original homepage missing protected disclosure blocked',f=>{const bad='<!doctype html>AXMART³ AXMART PC CARE';f.write('index.html',bad);f.write('dist/index.html',bad)});
 failures('truncated/invalid JSON public catalog blocked',f=>f.write('dist/catalog.json','{broken'));
