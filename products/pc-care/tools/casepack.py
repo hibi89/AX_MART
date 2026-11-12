@@ -92,6 +92,12 @@ def safe_consultation(data: bytes) -> dict:
     label = original.get('assessment')
     if label not in STATUSES or report.get('assessment') != label:
         block()
+    # This is an evidence-minimized customer handoff, NOT a second diagnosis.
+    # A "no issue observed" label cannot survive a missing disk collector or
+    # contradictory known warning. Preserve uncertainty, never fabricate OK.
+    observations = report.get('observations')
+    collection = observations.get('collectionStatus') if object_only(observations) else None
+    disk_collected = (object_only(collection) and collection.get('physicalDisks') == 'collected')
     storage = original.get('storageSignal')
     if storage not in STORAGE:
         block()
@@ -101,6 +107,11 @@ def safe_consultation(data: bytes) -> dict:
     raw_codes = original.get('reviewItems')
     if not isinstance(raw_codes, list) or len(raw_codes) > 12 or any(not isinstance(s, str) or s not in CODES for s in raw_codes):
         block()
+    if label == '관찰 범위 내 특이사항 없음':
+        if not disk_collected:
+            label = '확인 불완전'
+        elif storage == '경고 신호 관측' or raw_codes:
+            label = '주의 필요'
     raw_events = original.get('recordedEvents')
     if not isinstance(raw_events, list) or len(raw_events) > 4:
         block()
