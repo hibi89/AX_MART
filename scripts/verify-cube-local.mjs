@@ -14,7 +14,10 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const hash=data=>createHash('sha256').update(data).digest('hex');
 const fail=(reason)=>{throw new Error('CUBE_LOCAL_ACCEPTANCE_HOLD: '+reason);};
 function run(args){
-  const child=spawnSync(process.execPath,args,{cwd:root,encoding:'utf8',maxBuffer:12*1024*1024,timeout:180_000});
+  // Node's test worker marks child processes with NODE_TEST_CONTEXT; when inherited
+  // by nested `node --test`, Node silently SKIPS the requested test files and exits 0.
+  const childEnv={...process.env};delete childEnv.NODE_TEST_CONTEXT;
+  const child=spawnSync(process.execPath,args,{cwd:root,env:childEnv,encoding:'utf8',maxBuffer:12*1024*1024,timeout:180_000});
   if(child.stdout)process.stdout.write(child.stdout);
   if(child.stderr)process.stderr.write(child.stderr);
   if(child.error || child.status!==0 || child.signal)fail('native stage failed: '+args[0]+' '+args.slice(1,3).join(' '));
@@ -44,7 +47,12 @@ function main(args){
     const eq=process.platform==='win32'?actual.toLowerCase()===dist.toLowerCase():actual===dist;
     if(!st.isDirectory()||st.isSymbolicLink()||!eq)fail('unsafe dist path');}
   catch(err){if(err.code!=='ENOENT')throw err;}
-  run(['--test',...tests]);
+  const tap=run(['--test',...tests]);
+  const totals=/(?:^|\n)# tests (\d+)/.exec(tap);
+  const failures=/(?:^|\n)# fail (\d+)/.exec(tap);
+  const passes=/(?:^|\n)# pass (\d+)/.exec(tap);
+  if(!totals||!failures||!passes||Number(totals[1])<tests.length||
+     Number(failures[1])!==0||Number(passes[1])===0)fail('native test run skipped or invalid summary');
   run(['scripts/build.mjs']);
   const output=chosenOutput??join(mkdtempSync(join(tmpdir(),'axmart-cube-audit-')),'owner-review');
   const reviewBuild=JSON.parse(run(['scripts/release-preflight.mjs','build','--root',root,'--output',output]));
