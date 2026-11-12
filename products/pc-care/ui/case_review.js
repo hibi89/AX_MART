@@ -39,8 +39,15 @@
     const statuses = isObject(report.observations) && isObject(report.observations.collectionStatus)
       ? report.observations.collectionStatus : null;
     const diskCollected = !!statuses && statuses.physicalDisks === 'collected';
-    const statusLabel = c.assessment === '관찰 범위 내 특이사항 없음' && !diskCollected
-      ? '확인 불완전 (저장장치 수집 완전성 미확인)' : c.assessment;
+    // Never let a partial collector or contradictory warning appear clean.
+    // This output is evidence review only, not a diagnostic reclassification
+    // that can authorize recovery or device writes.
+    const statusLabel = c.assessment === '관찰 범위 내 특이사항 없음'
+      ? (!diskCollected ? '확인 불완전 (저장장치 수집 완전성 미확인)'
+        : (c.storageSignal === '경고 신호 관측' || c.reviewItems.length > 0)
+          ? '주의 필요 (상충하는 경고 근거의 재검토 필요)'
+          : c.assessment)
+      : c.assessment;
     const lines = [
       'AXMART PC CARE · 상담용 검토 초안', '검토 보류 / 수리·백업 승인 아님',
       '현재 판정: ' + statusLabel, '저장장치 관측: ' + c.storageSignal,
