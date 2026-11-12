@@ -53,11 +53,14 @@ def reject_untrusted_local_path(path: Path) -> None:
     if os.name == 'nt':
         # Block UNC, device namespaces, network-mapped drives and unknown
         # drive types. A letter alone never proves a local disk.
-        if candidate.startswith(('\\\\', '//')) or not re.fullmatch(r'[A-Za-z]:\\\\', path.anchor):
+        if candidate.startswith(('\\\\', '//')) or not re.fullmatch(r'[A-Za-z]:\\', path.anchor):
             block()
         try:
             import ctypes
-            kind = ctypes.windll.kernel32.GetDriveTypeW(path.anchor)
+            get_drive_type = ctypes.windll.kernel32.GetDriveTypeW
+            get_drive_type.argtypes = [ctypes.c_wchar_p]
+            get_drive_type.restype = ctypes.c_uint
+            kind = get_drive_type(path.anchor)
         except (OSError, AttributeError, ValueError):
             block()
         if kind not in (2, 3):  # DRIVE_REMOVABLE or DRIVE_FIXED
