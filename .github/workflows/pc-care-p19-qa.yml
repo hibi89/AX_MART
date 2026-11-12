@@ -1,0 +1,81 @@
+name: PC CARE P19 isolated synthetic Windows QA
+# Source feature branch only; never probes a real user's PC, executes repair or publishes.
+on:
+  push:
+    branches:
+      - feature/pc-care-p15-p18-85-20261112
+    paths:
+      - 'products/pc-care/**'
+      - '.github/workflows/pc-care-p19-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pc-care-p19-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows-pc-care-p19:
+    runs-on: windows-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: products/pc-care
+    steps:
+      - name: Checkout exact private feature SHA, no persisted credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Python 3.11 for synthetic tests only
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Node.js 22 for isolated DOM tests only
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Print exact checked-out source
+        shell: pwsh
+        run: |
+          git rev-parse HEAD
+          git status --short
+      - name: Execute full PC CARE Python source and internal ZIP regression
+        shell: pwsh
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          PYTHONNOUSERSITE: '1'
+        run: |
+          & python -B -m unittest discover -s tests -p 'test_*.py' -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Execute full offline Node UI regression with no browser network
+        shell: pwsh
+        run: |
+          $suite = @(
+            'tests/test_qr_ui.cjs','tests/test_qr_vendor.cjs',
+            'tests/test_history_compare.cjs','tests/test_history_dom.cjs',
+            'tests/test_history_signals.cjs','tests/test_history_batch.cjs',
+            'tests/test_history_print.cjs','tests/test_history_issue_allowlist.cjs',
+            'tests/test_history_evidence_integration.cjs','tests/test_case_review.cjs'
+          )
+          & node --test @suite
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Windows PowerShell 5.1 parse and synthetic fixtures only
+        shell: pwsh
+        run: |
+          & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tests/windows_smoke.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build and verify deterministic INTERNAL-ONLY ZIP without upload
+        shell: pwsh
+        run: |
+          $dist = Join-Path $env:RUNNER_TEMP 'pc-care-p19-zip'
+          & python tools/release.py --internal-testing --output $dist
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $zip = Join-Path $dist 'AXMART_PC_CARE_USB_v0.1-alpha_INTERNAL_TEST_ONLY.zip'
+          & python tools/release.py --verify $zip
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Write-Host 'INTERNAL ONLY. ZIP will be destroyed with the ephemeral runner. No publication.'
+      - name: Aggregate exact-source QA gate: all four stages required
+        shell: pwsh
+        run: |
+          & python tools/preflight.py --root .
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Write-Host 'Synthetic-only QA accepted. Owner Windows/USB/WinRE/Defender/QR/A4 remain UNVERIFIED.'
