@@ -18,9 +18,10 @@ echo 3. Where to find reports / privacy guidance
 echo 4. Recovery safety guidance (no repairs executed)
 echo 5. Compare saved JSON reports (local/offline)
 echo 6. Open private consultation review (local JSON; no upload)
+echo 7. Safe recovery readiness card (read-only, printable)
 echo 0. Exit
 echo.
-"%PC_CARE_CHOICE%" /C 1234560 /N /M "Select 1, 2, 3, 4, 5, 6 or 0: "
+"%PC_CARE_CHOICE%" /C 12345670 /N /M "Select 1, 2, 3, 4, 5, 6, 7 or 0: "
 set "PC_CARE_PICK=%ERRORLEVEL%"
 if "%PC_CARE_PICK%"=="1" goto HEALTH
 if "%PC_CARE_PICK%"=="2" goto SELFTEST
@@ -28,7 +29,8 @@ if "%PC_CARE_PICK%"=="3" goto REPORTS
 if "%PC_CARE_PICK%"=="4" goto GUIDANCE
 if "%PC_CARE_PICK%"=="5" goto HISTORY
 if "%PC_CARE_PICK%"=="6" goto CONSULTATION
-if "%PC_CARE_PICK%"=="7" exit /b 0
+if "%PC_CARE_PICK%"=="7" goto RECOVERY_CARD
+if "%PC_CARE_PICK%"=="8" exit /b 0
 echo Invalid or canceled selection. No action taken.
 goto MENU
 
@@ -74,7 +76,7 @@ goto MENU
 
 :CONSULTATION
 REM HTML only; local file selection requires deliberate user action.
-REM Never invokes RUN_SAFE_REPAIR.cmd, DISM, SFC, backup, or WinRE.
+REM Never executes privileged system repairs, backups, or recovery tools.
 if not exist "%PC_CARE_ROOT%ui\case_review.html" goto MISSING
 if not exist "%PC_CARE_ROOT%ui\case_review.js" goto MISSING
 echo Open the OFFLINE review page, select your own sanitized report JSON,
@@ -82,6 +84,15 @@ echo inspect all redacted labels, and confirm before printing any summary.
 echo This is NOT a diagnosis certificate, data backup, repair, or upload.
 start "" "%PC_CARE_ROOT%ui\case_review.html"
 if errorlevel 1 echo ERROR: Could not open offline consultation page.
+goto MENU
+
+:RECOVERY_CARD
+REM This only opens static HTML; no WinRE or repair commands are run.
+if not exist "%PC_CARE_ROOT%ui\recovery_readiness.html" goto MISSING
+echo The recovery readiness card is information only.
+echo All disk identity, BitLocker and backup checks remain BLOCKED.
+start "" "%PC_CARE_ROOT%ui\recovery_readiness.html"
+if errorlevel 1 echo ERROR: Could not open offline recovery readiness card.
 goto MENU
 
 :MISSING
