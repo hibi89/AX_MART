@@ -38,6 +38,32 @@ def encode(r=None):
 
 
 class CasePack(unittest.TestCase):
+    def test_ambiguous_duplicate_json_keys_and_boolean_schemas_fail_closed(self):
+        raw = encode()
+        # Repeated top-level keys must not be interpreted differently by
+        # Python validators, browser review, or downstream support tools.
+        repeated = raw[:-1] + b',"mode":"repair"}'
+        with self.assertRaisesRegex(ValueError, 'BLOCKED'):
+            cp.safe_consultation(repeated)
+        for key in ('schemaVersion',):
+            bad = report()
+            bad[key] = True
+            with self.assertRaisesRegex(ValueError, 'BLOCKED'):
+                cp.safe_consultation(encode(bad))
+            bad = report()
+            bad['consultation'][key] = True
+            with self.assertRaisesRegex(ValueError, 'BLOCKED'):
+                cp.safe_consultation(encode(bad))
+        for invalid in ([], {'wrong': 'schema'}):
+            bad = report()
+            bad['consultation']['assessment'] = invalid
+            with self.assertRaisesRegex(ValueError, 'BLOCKED'):
+                cp.safe_consultation(encode(bad))
+            bad = report()
+            bad['consultation']['storageSignal'] = invalid
+            with self.assertRaisesRegex(ValueError, 'BLOCKED'):
+                cp.safe_consultation(encode(bad))
+
     def test_missing_disk_evidence_downgrades_clean_to_incomplete(self):
         r = report()
         r['assessment'] = r['consultation']['assessment'] = '관찰 범위 내 특이사항 없음'
