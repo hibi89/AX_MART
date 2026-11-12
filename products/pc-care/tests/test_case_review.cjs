@@ -29,6 +29,9 @@ test('clean status without disk collection is downgraded without guessing', () =
   delete r.observations;
   assert.match(run(r),/확인 불완전/);
   r.observations={collectionStatus:{physicalDisks:'collected'}};
+  r.consultation.storageSignal='미확인';
+  assert.match(run(r),/확인 불완전/);
+  r.consultation.storageSignal='Windows 정상 신호 (보증 아님)';
   assert.match(run(r),/관찰 범위 내 특이사항 없음/);
 });
 test('clean status contradicted by source warnings never displays clean label', () => {
