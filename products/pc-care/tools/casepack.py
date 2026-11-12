@@ -130,21 +130,34 @@ def read_local(path: Path, extension: str, maximum: int) -> bytes:
 
 
 def json_decode(data: bytes):
+    # Python's JSON decoder otherwise silently accepts duplicate object keys
+    # and keeps only the last occurrence. Source/receipt ambiguities must fail.
+    def unique_object(pairs):
+        item = {}
+        for name, value in pairs:
+            if name in item:
+                block()
+            item[name] = value
+        return item
     try:
-        return json.loads(data.decode('utf-8', errors='strict'))
+        return json.loads(data.decode('utf-8', errors='strict'),
+                          object_pairs_hook=unique_object)
     except (UnicodeError, ValueError):
         block()
 
 
 def safe_consultation(data: bytes) -> dict:
     report = json_decode(data)
-    if not object_only(report) or report.get('schemaVersion') != 1 or report.get('product') != 'AXMART PC CARE' or report.get('mode') != 'read-only':
+    if (not object_only(report) or type(report.get('schemaVersion')) is not int
+            or report.get('schemaVersion') != 1 or report.get('product') != 'AXMART PC CARE'
+            or report.get('mode') != 'read-only'):
         block()
     original = report.get('consultation')
-    if not object_only(original) or original.get('schemaVersion') != 1 or original.get('containsIdentifiers') is not False:
+    if (not object_only(original) or type(original.get('schemaVersion')) is not int
+            or original.get('schemaVersion') != 1 or original.get('containsIdentifiers') is not False):
         block()
     label = original.get('assessment')
-    if label not in STATUSES or report.get('assessment') != label:
+    if type(label) is not str or label not in STATUSES or report.get('assessment') != label:
         block()
     # This is an evidence-minimized customer handoff, NOT a second diagnosis.
     # A "no issue observed" label cannot survive a missing disk collector or
@@ -153,7 +166,7 @@ def safe_consultation(data: bytes) -> dict:
     collection = observations.get('collectionStatus') if object_only(observations) else None
     disk_collected = (object_only(collection) and collection.get('physicalDisks') == 'collected')
     storage = original.get('storageSignal')
-    if storage not in STORAGE:
+    if type(storage) is not str or storage not in STORAGE:
         block()
     build = str(original.get('windowsBuild', ''))
     if not re.fullmatch(r'[0-9]{1,6}', build):
