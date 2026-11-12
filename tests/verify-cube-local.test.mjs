@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,mkdirSync,writeFileSync,copyFileSync,rmSync,symlinkSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,writeFileSync,copyFileSync,rmSync,symlinkSync,existsSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawnSync} from 'node:child_process';
@@ -45,4 +45,21 @@ test('symlinked dist blocked before any original test execution',t=>fixture(({ru
 }));
 test('non-absolute output rejected',()=>fixture(({run})=>{
  const r=run(['--output','../relative']);assert.equal(r.status,2);assert.match(r.stderr,/output must be absolute/);
+}));
+
+test('failed native test blocks later build and issues no success receipt',()=>fixture(({run,mk,root})=>{
+ mk('tests/site.test.mjs',"import test from 'node:test';test('unsafe fixture',()=>{throw new Error('injected fail')});\n");
+ const r=run();assert.equal(r.status,2);assert.match(r.stderr,/native stage failed/);
+ assert.equal(existsSync(join(root,'dist')),false);
+ assert.doesNotMatch(r.stdout,/technical_local_tests/);
+}));
+test('failed real build blocks owner review receipt',()=>fixture(({run,mk})=>{
+ mk('scripts/build.mjs','process.exit(9);\n');
+ const r=run();assert.equal(r.status,2);assert.match(r.stderr,/native stage failed/);
+ assert.doesNotMatch(r.stdout,/technical_local_tests/);
+}));
+test('forged payment or release GO is rejected despite fake child success',()=>fixture(({run,mk})=>{
+ mk('scripts/release-preflight.mjs',"console.log(JSON.stringify({decision:'GO',verified:true,payment_enabled:true,download_enabled:true,production_published:true}));\n");
+ const r=run();assert.equal(r.status,2);assert.match(r.stderr,/unexpected release or payment flag/);
+ assert.doesNotMatch(r.stdout,/technical_local_tests/);
 }));
