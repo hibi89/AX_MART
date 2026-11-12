@@ -1,3 +1,11 @@
+## 2026-11-12 PC CARE P15–P18: local owner review + safety card (80% provisional, 85 QA pending)
+
+The non-admin `START_PC_CARE.cmd` now offers **6. Local Consultation Review** and **7. Recovery Readiness Card** (8th menu option is exit). Both are local HTML only, with no network, automatic scan/WinRE/backup/repair. Consultation selects an owner-chosen report JSON; false-clean states are downgraded when disk evidence is absent, status unknown, or warning codes contradict the claim. `tools/casepack.py` (developer-only, **not customer ZIP**) refuses known cloud/mapped network/junction paths and duplicate/ambiguous JSON. Internal test ZIP allowlist includes the new self-contained A4-style guide; never distributes user reports. [P15–P18 security, scope and exact QA evidence](docs/P15_P18_OWNER_SAFE_WORKSTREAM_20261112.md).
+
+**Current engineering 70→80%, not yet 85.** GitHub exact JS model/static code checks passed; current full Python/Node/Windows PS5.1 + actual packaged ZIP and real physical Windows/USB/Edge/WinRE/QR/A4 tests **NOT RUN**. Keep RELEASE HOLD, no public or paid distribution.
+
+---
+
 # AXMART PC CARE v0.1-alpha — Windows PC·USB 포터블 진단·복구 보조 도구
 
 **상태: 초기 시험용, 판매 불가. 실제 Windows PC에서 실행 검증 전.**

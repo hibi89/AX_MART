@@ -1,3 +1,7 @@
+## 2026-11-12 KST — PC CARE P15–P18 provisional 80%; target 85 full Windows synthetic QA gate
+- Private `hibi89/AX_MART@feature/pc-care-p15-p18-85-20261112`, code `c944b9e75575f8ddced103421edc9083eedb1c60`, Draft PR#1 into untouched `feature/pc-care-offline-casepack-20261111`. Added offline customer consultation/recovery guide in existing Windows menu, fail-closed clean-report + JSON schema/duplicate-key guards, cloud/mapped-network/reparse local boundary and internal ZIP allowlist safety tests. **70→80% provisional engineering (+10 scope)**, NOT 85.
+- GitHub exact source static 62 PASS/0 FAIL; V8 source exact latest JS 6 relevant status PASS (previous JS 19 broader UI cases), mirrored Python local 18 PASS not whole source. No current full Python/Node/Windows PS5.1/real ZIP tests: existing GitHub workflow manual after earlier runner failure and unauthorized billing/CI not attempted. **RELEASE HOLD**; original main/Cloudflare and USB/WinRE/recovery scripts untouched. [Product details](products/pc-care/docs/P15_P18_OWNER_SAFE_WORKSTREAM_20261112.md). Remaining to 85: P19 exact current SHA all original suites + native Win synthetic/ZIP SHA checks (+5p).
+
 # AXMART 현황 — 2026-10-30 KST
 
 ## 완료

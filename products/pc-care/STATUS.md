@@ -1,3 +1,9 @@
+## 2026-11-12 KST — PC CARE P15–P18 신규 오프라인 고객·프라이버시 기능, 70→80% 잠정 / 85% 검증 대기
+- PRIVATE `hibi89/AX_MART@feature/pc-care-p15-p18-85-20261112` 정확 코드 SHA `c944b9e75575f8ddced103421edc9083eedb1c60`, [Draft PR #1](https://github.com/hibi89/AX_MART/pull/1) 미병합, 원본 `feature/pc-care-offline-casepack-20261111@9c25ec379899b7e982cba429acf4ef9d01b8ce6e`, `feature/pc-care-usb`, `main`, Cloudflare 실제 Production 무변경.
+- P15 +3 메뉴에서 오프라인 상담 검토·스크립트 없는 A4 복구 준비 카드 바로 열기. P16 +3 Python/JS의 수집 누락/모호한 storageSignal/상충 경고 '정상' 오인 차단·원본 보존. P17 +2 개발 casepack의 Windows UNC/매핑/클라우드/Junction/중복 JSON 계약 차단. P18 +2 정적 GUI/QA/ZIP allowlist 및 회귀 사례 추가. **총 70→80% 잠정 엔지니어링(100 설계 변경 없음), 85% 아직 미달**.
+- **실행 근거:** 정확 현재 GitHub 원격 9 blobs로 정적 JS safety contracts 62/62 PASS, 실제 GitHub JS V8 모의 File/DOM 19 PASS(이전 소스)·최종 source status transition 6/6 PASS, Python3.13 미러된 독립 추출 helper 18 PASS(정확 파일 전체 Python unittest 아님). 과거 원본 full Windows/Node/Python/ZIP PASS는 이전 SHA 이력만. **현재 SHA 전체 Windows PS5.1·Node --test·Python --unittest·실제 내부 ZIP build/verify 미검증**; 내부 기존 `workflow_dispatch` 러너 할당 문제·비용 확인 없이 강제 Actions 재실행하지 않음.
+- P19 목표 잔여 **5%p**: 실제 Windows 무료 기존 환경에서 `RUN_RELEASE_QA.cmd` exact source full suite + internal ZIP verify PASS 후 85 재평가. 실제 Windows/USB/WinRE/BitLocker/실수리·QR 스캔/A4 인쇄/클라우드/배포 검증은 계속 차단, **RELEASE HOLD**. 근거 [P15–P18 문서](docs/P15_P18_OWNER_SAFE_WORKSTREAM_20261112.md).
+
 # AXMART PC CARE USB — 상태 기록 (2026-10-30 KST)
 
 ## 대상

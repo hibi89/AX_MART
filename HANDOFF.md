@@ -1,3 +1,15 @@
+## 2026-11-12 KST — AXMART PC CARE 80% / goal85 pending (10-point)
+1. Product spec: FINAL_SPEC_V2 unchanged, Windows11 local PS5.1/CMD/HTML health/analyze/report/WinRE readiness/approved repair, 100-point original design, no paid APIs.
+2. Changes: safe no-network consultation menu + recovery safety card (P15 +3), fail-closed Python/JS false-green report (P16 +3), mapped/cloud/reparse/duplicate JSON developer casepack (P17 +2), internal package/test assertions (P18 +2) vs unsafe WinRE copy option (rejected).
+3. Tests: exact GitHub blob safety contracts62 PASS, V8 source current JS latest 6 PASS, earlier version 19 PASS, Python mirrored snippets18 PASS. Exact current SHA original full Python/Node/Windows/ZIP UNVERIFIED, old Windows success historical.
+4. Status: **80 provisional, 85 not achieved**, P19 5pp QA current-SHA pending; all RELEASE HOLD / commercial NO-GO.
+5. Problem/alternative: GitHub original Actions runner pre-allocation failure #41034866482, workflow manual only; isolated private Git checkout unavailable. No repeated unapproved billable Actions or secret/customer export; trusted owner local Windows QA or separately authorized cost-free runner needed.
+6. Repository: `hibi89/AX_MART` `feature/pc-care-p15-p18-85-20261112` code SHA `c944b9e75575f8ddced103421edc9083eedb1c60`, Draft PR#1 into base `feature/pc-care-offline-casepack-20261111@9c25ec379899b7e982cba429acf4ef9d01b8ce6e`. Product source in `products/pc-care/`, detailed docs path `docs/P15_P18_OWNER_SAFE_WORKSTREAM_20261112.md`.
+7. Runtime: no new deployment, no customer download; developer-only `products/pc-care/RUN_RELEASE_QA.cmd`; site Cloudflare `https://ax-mart.pages.dev` on main untouched, Vercel N/A.
+8. Original/rollback: old source/ZIP/owner data, passwords/BitLocker keys/USB/production unchanged. Git revert/close Draft PR only, no force push/release.
+9. Next: on clean existing Windows checkout run full QA/ZIP source-only, parse fail/skip, repair measured issue, update hub score to85 only if genuine PASS. Physical USB/WinRE/QR/A4/bitlocker and commercial licensing require separate owner validation/approval.
+10. Updated 2026-11-12 KST, unmerged private code SHA `c944b9e75575f8ddced103421edc9083eedb1c60`; docs-only current head verify separately. RELEASE HOLD.
+
 > **2026-10-31 총괄 인수인계 추가 — 개발 가속 지시 공시:** [해총 48h 핵심 코어·구성요소 기준선·CI 병렬 프로토콜](https://github.com/hibi89/hackathon-command-center-2026/blob/main/docs/strategy/20261031_OWNER_BACKEND_FIRST_48H_EXECUTION_PROTOCOL.md) 수신. 대상: AXMART³ CUBE 총괄, `hibi89/AX_MART@feature/pc-care-usb` / `products/pc-care`. 후속 `ㄱ`: `FINAL_SPEC_V2.md`와 실제 모듈/스택/인터페이스 대비 핵심 Windows 진단·결과·승인형 복구 경로의 누락을 묶어 구현하고 로컬 스모크 실행→CI 기록/비차단 독립 개발→필수 실Windows/WinRE·보안/원본 보호 검증. 48시간은 집중 목표, 3/5/7 최종 품질 관리 유지. `main`/Cloudflare Production 및 실기기·판매·정식 배포 **변경 없음**; 이 변경은 공시 문서만이며 기존 테스트 결과·완성률 갱신 아님.
 
 # AXMART HANDOFF — 2026-10-30 KST
