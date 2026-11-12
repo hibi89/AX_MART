@@ -55,11 +55,11 @@ jobs:
         run: |
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
-          "$CHROME" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \\
-            --disable-background-networking --no-first-run --no-default-browser-check \\
-            --host-resolver-rules='MAP * 0.0.0.0, EXCLUDE localhost' \\
-            --dump-dom "file://$PWD/dist/index.html" > "$RUNNER_TEMP/cube-home-dom.html"
-          grep -F 'class="product-card" data-product="pc-care"' "$RUNNER_TEMP/cube-home-dom.html"
+          timeout 25s "$CHROME" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \
+            --disable-background-networking --disable-extensions --virtual-time-budget=3000 --no-first-run --no-default-browser-check \
+            --host-resolver-rules='MAP * 0.0.0.0, EXCLUDE localhost' \
+            --dump-dom "file://$PWD/dist/index.html" > "$RUNNER_TEMP/cube-home-dom.html" 2>"$RUNNER_TEMP/chrome-stderr.log"
+          grep -Fq 'class="product-card" data-product="pc-care"' "$RUNNER_TEMP/cube-home-dom.html"
           grep -F 'Windows 실기기 미검증' "$RUNNER_TEMP/cube-home-dom.html" > /dev/null
           grep -F '판매·다운로드는 아직 지원하지 않습니다' "$RUNNER_TEMP/cube-home-dom.html" > /dev/null
           echo 'Actual headless Chrome rendered real PC CARE development-only card. No buyer Windows test.'
